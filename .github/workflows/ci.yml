@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  style:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Lean style (100-col / trailing-ws / tabs)
+        run: python3 scripts/style-check.py
+      - name: Corpus manifest is current
+        run: python3 scripts/manifest.py --check
+
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      # Cache elan so runs do not re-download from releases.lean-lang.org, which
+      # occasionally 429s, and cache the grip/batteries build.
+      - name: Cache elan toolchain
+        uses: actions/cache@v4
+        with:
+          path: ~/.elan
+          key: elan-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}
+      - name: Cache build
+        uses: actions/cache@v4
+        with:
+          path: .lake
+          key: lake-${{ runner.os }}-${{ hashFiles('lake-manifest.json', 'lean-toolchain') }}
+          restore-keys: lake-${{ runner.os }}-
+      - uses: leanprover/lean-action@v1
+        with:
+          build-args: "EventB gates"
+      - name: Corpus ratchet
+        run: |
+          # `if !` tests the exit status directly, so a regression fails the job
+          # regardless of the shell's set -e command-substitution semantics.
+          if ! out=$(lake exe gates); then
+            echo "$out"
+            lake exe gates --histogram || true
+            echo "gate failed: regression, or an unblessed improvement needing --bless" >&2
+            exit 1
+          fi
+          echo "$out"
+          {
+            echo "### Corpus gates"
+            echo '```'
+            echo "$out"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: STATUS.md is current
+        run: |
+          lake exe gates --status
+          git diff --exit-code STATUS.md || {
+            echo "STATUS.md is stale; it is generated, run 'lake exe gates --status'" >&2
+            exit 1
+          }
+
+  axioms:
+    # The trust ledger. Once POG lands this enumerates, per obligation, whether it is
+    # kernel-checked or leaning on an external prover. Rodin cannot produce this table.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Cache elan toolchain
+        uses: actions/cache@v4
+        with:
+          path: ~/.elan
+          key: elan-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}
+      - name: Cache build
+        uses: actions/cache@v4
+        with:
+          path: .lake
+          key: lake-${{ runner.os }}-${{ hashFiles('lake-manifest.json', 'lean-toolchain') }}
+          restore-keys: lake-${{ runner.os }}-
+      - uses: leanprover/lean-action@v1
+        with:
+          build-args: "EventB"
+      - name: Audit refinement soundness axioms
+        run: |
+          lake env lean EventB/Semantics.lean | tee /tmp/axioms.txt
+          grep -Fxq "'Proved.sound' does not depend on any axioms" /tmp/axioms.txt
+          grep -Fxq "'Refines.sound' does not depend on any axioms" /tmp/axioms.txt
