@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.contextFile org.eventb.core.configuration="org.eventb.core.fwd;de.prob.symbolic.ctxBase" org.eventb.core.generated="false" org.eventb.texttools.text_lastmodified="1670604227607" org.eventb.texttools.text_representation="context MAbs_Ctx extends M9_Mouse_Ctx&#10;&#10;sets abstract_blocks&#10;&#10;axioms&#10;  @abstract_blcoks_fin finite(abstract_blocks)&#10;end&#10;" version="3">
+    <org.eventb.core.extendsContext name="'" org.eventb.core.target="M9_Mouse_Ctx"/>
+    <org.eventb.core.carrierSet name="_CRe_cHV4Ee2lB9-jpgZg-g" org.eventb.core.generated="false" org.eventb.core.identifier="abstract_blocks"/>
+    <org.eventb.core.axiom name="_CRe_cXV4Ee2lB9-jpgZg-g" org.eventb.core.generated="false" org.eventb.core.label="abstract_blcoks_fin" org.eventb.core.predicate="finite(abstract_blocks)"/>
+</org.eventb.core.contextFile>

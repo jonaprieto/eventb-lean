@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.poFile org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="ABSHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poIdentifier name="TRAIN" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poPredicate name="TRAIO" org.eventb.core.predicate="finite(TRAIN)" org.eventb.core.source="/HL3/ENV_C-1.buc|org.eventb.core.contextFile#ENV_C-1|org.eventb.core.axiom#("/>
+<org.eventb.core.poIdentifier name="VSS" org.eventb.core.type="ℙ(VSS)"/>
+<org.eventb.core.poIdentifier name="Fst_VSS" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="Lst_VSS" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="Max_VSS_i" org.eventb.core.type="ℤ"/>
+<org.eventb.core.poIdentifier name="Next_VSS" org.eventb.core.type="ℙ(VSS×VSS)"/>
+<org.eventb.core.poIdentifier name="VSS_i" org.eventb.core.type="ℙ(VSS×ℤ)"/>
+<org.eventb.core.poPredicate name="Max_VSS_j" org.eventb.core.predicate="Next_VSS∈VSS ⤔ VSS" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_bdaa0PRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_k" org.eventb.core.predicate="Next_VSS≠Next_VSS∼" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_krALwPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_l" org.eventb.core.predicate="∀S⦂ℙ(VSS)·S⊆Next_VSS[S]⇒S=(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_oqqfQPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_m" org.eventb.core.predicate="Fst_VSS∈VSS" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_rkzVIPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_n" org.eventb.core.predicate="Lst_VSS∈VSS" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_3l5IcPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_o" org.eventb.core.predicate="Fst_VSS≠Lst_VSS" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_7BS4UPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_p" org.eventb.core.predicate="∀vss⦂VSS·vss∈VSS⇒(vss≠Fst_VSS⇔vss∈ran(Next_VSS))" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_bdZzwPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_q" org.eventb.core.predicate="∀vss⦂VSS·vss∈VSS⇒(vss≠Lst_VSS⇔vss∈dom(Next_VSS))" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_bdZzwfRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_r" org.eventb.core.predicate="finite(VSS)" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tR"/>
+<org.eventb.core.poPredicate name="Max_VSS_s" org.eventb.core.predicate="Max_VSS_i∈ℕ1" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tV"/>
+<org.eventb.core.poPredicate name="Max_VSS_t" org.eventb.core.predicate="VSS_i∈VSS ↣ 0 ‥ Max_VSS_i" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tW"/>
+<org.eventb.core.poPredicate name="Max_VSS_u" org.eventb.core.predicate="VSS_i(Fst_VSS)=0" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tX"/>
+<org.eventb.core.poPredicate name="Max_VSS_v" org.eventb.core.predicate="∀vss⦂VSS·vss∈VSS ∖ {Lst_VSS}⇒VSS_i(Next_VSS(vss))=VSS_i(vss)+1" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tY"/>
+<org.eventb.core.poPredicate name="Max_VSS_w" org.eventb.core.predicate="VSS_i(Lst_VSS)=Max_VSS_i" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tZ"/>
+<org.eventb.core.poPredicate name="Max_VSS_x" org.eventb.core.predicate="max(ran(VSS_i))=Max_VSS_i" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1t["/>
+<org.eventb.core.poIdentifier name="TTD" org.eventb.core.type="ℙ(TTD)"/>
+<org.eventb.core.poIdentifier name="Fst_TTD" org.eventb.core.type="TTD"/>
+<org.eventb.core.poIdentifier name="Lst_TTD" org.eventb.core.type="TTD"/>
+<org.eventb.core.poIdentifier name="Next_TTD" org.eventb.core.type="ℙ(TTD×TTD)"/>
+<org.eventb.core.poIdentifier name="Sections" org.eventb.core.type="ℙ(TTD×VSS)"/>
+<org.eventb.core.poPredicate name="Max_VSS_y" org.eventb.core.predicate="Next_TTD∈TTD ⤔ TTD" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_wDJaw_VKEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_z" org.eventb.core.predicate="Sections∼∈VSS ⇸ TTD" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_wDJaxPVKEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_{" org.eventb.core.predicate="Fst_TTD∈TTD" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_NL22UPVLEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_|" org.eventb.core.predicate="Lst_TTD∈TTD" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_NL22UfVLEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_}" org.eventb.core.predicate="Fst_TTD≠Lst_TTD" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_NL22UvVLEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_~" org.eventb.core.predicate="Next_TTD≠Next_TTD∼" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_NL22U_VLEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS`'" org.eventb.core.predicate="∀ttd⦂TTD·ttd∈TTD⇒(ttd≠Fst_TTD⇔ttd∈ran(Next_TTD))" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_wDJawPVKEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS`(" org.eventb.core.predicate="∀ttd⦂TTD·ttd∈TTD⇒(ttd≠Lst_TTD⇔ttd∈dom(Next_TTD))" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_wDJawfVKEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS`)" org.eventb.core.predicate="Sections∈TTD  VSS" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_wDJawvVKEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS`*" org.eventb.core.predicate="∀S⦂ℙ(TTD)·S⊆Next_TTD[S]⇒S=(∅ ⦂ ℙ(TTD))" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_yhSqUPbNEeeAUKuLPlopDA"/>
+<org.eventb.core.poPredicate name="Max_VSS`+" org.eventb.core.predicate="Fst_VSS∈Sections[{Fst_TTD}]" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_3iWwcPbNEeeAUKuLPlopDA"/>
+<org.eventb.core.poPredicate name="Max_VSS`," org.eventb.core.predicate="Lst_VSS∈Sections[{Lst_TTD}]" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_6H2zEPbNEeeAUKuLPlopDA"/>
+<org.eventb.core.poPredicate name="Max_VSS`-" org.eventb.core.predicate="∀vss⦂VSS,ttd⦂TTD·ttd≠Lst_TTD∧vss∈Sections[{ttd}]⇒Sections∼(Next_VSS(vss))=ttd∨Sections∼(Next_VSS(vss))=Next_TTD(ttd)" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_yhSqUfbNEeeAUKuLPlopDA"/>
+<org.eventb.core.poPredicate name="Max_VSS`." org.eventb.core.predicate="∀vss⦂VSS·vss∈Sections[{Lst_TTD}]∧vss≠Lst_VSS⇒Sections∼(Next_VSS(vss))=Lst_TTD" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_MBRAcPbVEeeAUKuLPlopDA"/>
+<org.eventb.core.poIdentifier name="TTD10" org.eventb.core.type="TTD"/>
+<org.eventb.core.poIdentifier name="TTD20" org.eventb.core.type="TTD"/>
+<org.eventb.core.poIdentifier name="TTD30" org.eventb.core.type="TTD"/>
+<org.eventb.core.poIdentifier name="VSS11" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="VSS12" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="VSS21" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="VSS22" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="VSS23" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="VSS31" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="VSS32" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="VSS33" org.eventb.core.type="VSS"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="ALLHYP" org.eventb.core.parentSet="/HL3/ProB_Ctxt.bpo|org.eventb.core.poFile#ProB_Ctxt|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="partition(TTD,{TTD10},{TTD20},{TTD30})" org.eventb.core.source="/HL3/ProB_Ctxt.buc|org.eventb.core.contextFile#ProB_Ctxt|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1t]"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="partition(VSS,{VSS11},{VSS12},{VSS21},{VSS22},{VSS23},{VSS31},{VSS32},{VSS33})" org.eventb.core.source="/HL3/ProB_Ctxt.buc|org.eventb.core.contextFile#ProB_Ctxt|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1t^"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="Fst_VSS=VSS11" org.eventb.core.source="/HL3/ProB_Ctxt.buc|org.eventb.core.contextFile#ProB_Ctxt|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1t_"/>
+<org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="Lst_VSS=VSS33" org.eventb.core.source="/HL3/ProB_Ctxt.buc|org.eventb.core.contextFile#ProB_Ctxt|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1t`"/>
+<org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="Fst_TTD=TTD10" org.eventb.core.source="/HL3/ProB_Ctxt.buc|org.eventb.core.contextFile#ProB_Ctxt|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1ta"/>
+<org.eventb.core.poPredicate name="PRD5" org.eventb.core.predicate="Lst_TTD=TTD30" org.eventb.core.source="/HL3/ProB_Ctxt.buc|org.eventb.core.contextFile#ProB_Ctxt|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tb"/>
+<org.eventb.core.poPredicate name="PRD6" org.eventb.core.predicate="Next_TTD={TTD10 ↦ TTD20,TTD20 ↦ TTD30}" org.eventb.core.source="/HL3/ProB_Ctxt.buc|org.eventb.core.contextFile#ProB_Ctxt|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tc"/>
+<org.eventb.core.poPredicate name="PRD7" org.eventb.core.predicate="Next_VSS={VSS11 ↦ VSS12,VSS12 ↦ VSS21,VSS21 ↦ VSS22,VSS22 ↦ VSS23,VSS23 ↦ VSS31,VSS31 ↦ VSS32,VSS32 ↦ VSS33}" org.eventb.core.source="/HL3/ProB_Ctxt.buc|org.eventb.core.contextFile#ProB_Ctxt|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1td"/>
+<org.eventb.core.poPredicate name="PRD8" org.eventb.core.predicate="Sections={TTD10 ↦ VSS11,TTD10 ↦ VSS12,TTD20 ↦ VSS21,TTD20 ↦ VSS22,TTD20 ↦ VSS23,TTD30 ↦ VSS31,TTD30 ↦ VSS32,TTD30 ↦ VSS33}" org.eventb.core.source="/HL3/ProB_Ctxt.buc|org.eventb.core.contextFile#ProB_Ctxt|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1te"/>
+<org.eventb.core.poPredicate name="PRD9" org.eventb.core.predicate="Max_VSS_i=7" org.eventb.core.source="/HL3/ProB_Ctxt.buc|org.eventb.core.contextFile#ProB_Ctxt|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tf"/>
+<org.eventb.core.poPredicate name="PRD10" org.eventb.core.predicate="VSS_i={VSS11 ↦ 0,VSS12 ↦ 1,VSS21 ↦ 2,VSS22 ↦ 3,VSS23 ↦ 4,VSS31 ↦ 5,VSS32 ↦ 6,VSS33 ↦ 7}" org.eventb.core.source="/HL3/ProB_Ctxt.buc|org.eventb.core.contextFile#ProB_Ctxt|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tg"/>
+</org.eventb.core.poPredicateSet>
+</org.eventb.core.poFile>

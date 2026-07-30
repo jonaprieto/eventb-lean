@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.poFile org.eventb.core.poStamp="0">
+    <org.eventb.core.poPredicateSet name="ABSHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="AIRPLANES" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poPredicate name="AIRPLANET" org.eventb.core.predicate="finite(AIRPLANES)" org.eventb.core.source="/Abstraction/M0_AMAN_Update_Ctx.buc|org.eventb.core.contextFile#M0_AMAN_Update_Ctx|org.eventb.core.axiom#_wFUvsUrzEe2jiPlvG5m5_Q"/>
+        <org.eventb.core.poIdentifier name="AIRCRAFT_SEPARATION_MIN" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="DIST" org.eventb.core.type="ℙ(ℤ×ℤ×ℤ)"/>
+        <org.eventb.core.poIdentifier name="PLANNING_HORIZON" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="PLANNING_INTERVAL" org.eventb.core.type="ℙ(ℤ)"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIO" org.eventb.core.predicate="DIST=(λx⦂ℤ ↦ y⦂ℤ·x∈ℤ∧y∈ℤ ∣ max({y − x,x − y}))" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_QW8AcUr1Ee2jiPlvG5m5_Q"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIP" org.eventb.core.predicate="∀x⦂ℤ,y⦂ℤ·x∈ℤ∧y∈ℤ⇒DIST(x ↦ y)=DIST(y ↦ x)" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_QW8Ackr1Ee2jiPlvG5m5_Q"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIQ" org.eventb.core.predicate="PLANNING_HORIZON∈15 ‥ 45" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_4vJoEEr6Ee2jiPlvG5m5_Q"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIR" org.eventb.core.predicate="PLANNING_HORIZON mod 5=0" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_ELIQQEsIEe2nbO8NfDiKnQ"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIS" org.eventb.core.predicate="PLANNING_INTERVAL=1 ‥ PLANNING_HORIZON" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_ELIQQUsIEe2nbO8NfDiKnQ"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIT" org.eventb.core.predicate="finite(PLANNING_INTERVAL)" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_8hQ1YH1bEe25Nuc5zcUFzQ"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIU" org.eventb.core.predicate="AIRCRAFT_SEPARATION_MIN=3" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_TpulwWnUEe21Fse6RF_HiQ"/>
+        <org.eventb.core.poIdentifier name="MAX_ZOOM" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="ZOOM_LEVELS" org.eventb.core.type="ℙ(ℤ)"/>
+        <org.eventb.core.poIdentifier name="MIN_ZOOM" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIV" org.eventb.core.predicate="MIN_ZOOM=15" org.eventb.core.source="/Abstraction/M4_Zoom_Ctx.buc|org.eventb.core.contextFile#M4_Zoom_Ctx|org.eventb.core.axiom#_jTG8QUsFEe2kV4Y3e_fvVw"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIW" org.eventb.core.predicate="MAX_ZOOM=PLANNING_HORIZON" org.eventb.core.source="/Abstraction/M4_Zoom_Ctx.buc|org.eventb.core.contextFile#M4_Zoom_Ctx|org.eventb.core.axiom#_jTHjUEsFEe2kV4Y3e_fvVw"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIX" org.eventb.core.predicate="ZOOM_LEVELS={x⦂ℤ·x∈MIN_ZOOM ‥ MAX_ZOOM∧x mod 5=0 ∣ x}" org.eventb.core.source="/Abstraction/M4_Zoom_Ctx.buc|org.eventb.core.contextFile#M4_Zoom_Ctx|org.eventb.core.axiom#_jmZegGssEe2OdPtmHwqkUw"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIY" org.eventb.core.predicate="ZOOM_LEVELS⊆PLANNING_INTERVAL" org.eventb.core.source="/Abstraction/M4_Zoom_Ctx.buc|org.eventb.core.contextFile#M4_Zoom_Ctx|org.eventb.core.axiom#_L3-r8GstEe2GEOS6_rrIrQ"/>
+        <org.eventb.core.poIdentifier name="mouse_positions" org.eventb.core.type="ℙ(mouse_positions)"/>
+        <org.eventb.core.poIdentifier name="hold_button_pos" org.eventb.core.type="mouse_positions"/>
+        <org.eventb.core.poIdentifier name="airplane_pos" org.eventb.core.type="mouse_positions"/>
+        <org.eventb.core.poIdentifier name="block_time_pos" org.eventb.core.type="mouse_positions"/>
+        <org.eventb.core.poIdentifier name="nothing_pos" org.eventb.core.type="mouse_positions"/>
+        <org.eventb.core.poIdentifier name="zoom_slider_pos" org.eventb.core.type="mouse_positions"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIZ" org.eventb.core.predicate="partition(mouse_positions,{hold_button_pos},{zoom_slider_pos},{airplane_pos},{block_time_pos},{nothing_pos})" org.eventb.core.source="/Abstraction/M9_Mouse_Ctx.buc|org.eventb.core.contextFile#M9_Mouse_Ctx|org.eventb.core.axiom#_p4M_MG8bEe2yf4TIGcxCyA"/>
+        <org.eventb.core.poIdentifier name="abstract_blocks" org.eventb.core.type="ℙ(abstract_blocks)"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MI[" org.eventb.core.predicate="finite(abstract_blocks)" org.eventb.core.source="/Abstraction/MAbs_Ctx.buc|org.eventb.core.contextFile#MAbs_Ctx|org.eventb.core.axiom#_CRe_cXV4Ee2lB9-jpgZg-g"/>
+        <org.eventb.core.poIdentifier name="abstract_block_mapping" org.eventb.core.type="ℙ(ℤ×abstract_blocks)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="ALLHYP" org.eventb.core.parentSet="/Abstraction/MAbs_helper_Ctx.bpo|org.eventb.core.poFile#MAbs_helper_Ctx|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="abstract_block_mapping∈PLANNING_INTERVAL ↠ abstract_blocks" org.eventb.core.source="/Abstraction/MAbs_helper_Ctx.buc|org.eventb.core.contextFile#MAbs_helper_Ctx|org.eventb.core.axiom#_qM4uAHsJEe2MNcaJFNmCfg"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="ran(abstract_block_mapping)=abstract_blocks" org.eventb.core.source="/Abstraction/MAbs_helper_Ctx.buc|org.eventb.core.contextFile#MAbs_helper_Ctx|org.eventb.core.axiom#_qM4uAnsJEe2MNcaJFNmCfg"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="finite(PLANNING_INTERVAL ↠ abstract_blocks)" org.eventb.core.source="/Abstraction/MAbs_helper_Ctx.buc|org.eventb.core.contextFile#MAbs_helper_Ctx|org.eventb.core.axiom#_SpMSoH1YEe2wpdum-WZ8EA"/>
+        <org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="ZOOM_LEVELS⊆dom(abstract_block_mapping)" org.eventb.core.source="/Abstraction/MAbs_helper_Ctx.buc|org.eventb.core.contextFile#MAbs_helper_Ctx|org.eventb.core.axiom#_u7N5kHuyEe2tvtCLr2UIUA"/>
+    </org.eventb.core.poPredicateSet>
+</org.eventb.core.poFile>

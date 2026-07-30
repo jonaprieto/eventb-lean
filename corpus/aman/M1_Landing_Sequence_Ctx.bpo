@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.poFile org.eventb.core.poStamp="0">
+    <org.eventb.core.poPredicateSet name="ABSHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="AIRPLANES" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poPredicate name="AIRPLANET" org.eventb.core.predicate="finite(AIRPLANES)" org.eventb.core.source="/Abstraction/M0_AMAN_Update_Ctx.buc|org.eventb.core.contextFile#M0_AMAN_Update_Ctx|org.eventb.core.axiom#_wFUvsUrzEe2jiPlvG5m5_Q"/>
+        <org.eventb.core.poIdentifier name="AIRCRAFT_SEPARATION_MIN" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="DIST" org.eventb.core.type="ℙ(ℤ×ℤ×ℤ)"/>
+        <org.eventb.core.poIdentifier name="PLANNING_HORIZON" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="PLANNING_INTERVAL" org.eventb.core.type="ℙ(ℤ)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poSequent name="axm3,1/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of Axiom" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/Abstraction/M1_Landing_Sequence_Ctx.bpo|org.eventb.core.poFile#M1_Landing_Sequence_Ctx|org.eventb.core.poPredicateSet#ABSHYP"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀x⦂ℤ,y⦂ℤ·x∈ℤ∧y∈ℤ⇒{y − x,x − y}≠(∅ ⦂ ℙ(ℤ))∧(∃b⦂ℤ·∀x0⦂ℤ·x0∈{y − x,x − y}⇒b≥x0)" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_QW8AcUr1Ee2jiPlvG5m5_Q"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_QW8AcUr1Ee2jiPlvG5m5_Q"/>
+        <org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/Abstraction/M1_Landing_Sequence_Ctx.bpo|org.eventb.core.poFile#M1_Landing_Sequence_Ctx|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poSelHintSnd="/Abstraction/M1_Landing_Sequence_Ctx.bpo|org.eventb.core.poFile#M1_Landing_Sequence_Ctx|org.eventb.core.poPredicateSet#ABSHYP"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="axm3,2/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of Theorem" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/Abstraction/M1_Landing_Sequence_Ctx.bpo|org.eventb.core.poFile#M1_Landing_Sequence_Ctx|org.eventb.core.poPredicateSet#HYPM0_AMAN_Update_Cty"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀x⦂ℤ,y⦂ℤ·x∈ℤ∧y∈ℤ⇒x ↦ y∈dom(DIST)∧DIST∈ℤ × ℤ ⇸ ℤ∧y ↦ x∈dom(DIST)" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_QW8Ackr1Ee2jiPlvG5m5_Q"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_QW8Ackr1Ee2jiPlvG5m5_Q"/>
+        <org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/Abstraction/M1_Landing_Sequence_Ctx.bpo|org.eventb.core.poFile#M1_Landing_Sequence_Ctx|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poSelHintSnd="/Abstraction/M1_Landing_Sequence_Ctx.bpo|org.eventb.core.poFile#M1_Landing_Sequence_Ctx|org.eventb.core.poPredicateSet#HYPM0_AMAN_Update_Cty"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="axm3,2/THM" org.eventb.core.accurate="true" org.eventb.core.poDesc="Theorem" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/Abstraction/M1_Landing_Sequence_Ctx.bpo|org.eventb.core.poFile#M1_Landing_Sequence_Ctx|org.eventb.core.poPredicateSet#HYPM0_AMAN_Update_Cty"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀x⦂ℤ,y⦂ℤ·x∈ℤ∧y∈ℤ⇒DIST(x ↦ y)=DIST(y ↦ x)" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_QW8Ackr1Ee2jiPlvG5m5_Q"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_QW8Ackr1Ee2jiPlvG5m5_Q"/>
+        <org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/Abstraction/M1_Landing_Sequence_Ctx.bpo|org.eventb.core.poFile#M1_Landing_Sequence_Ctx|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poSelHintSnd="/Abstraction/M1_Landing_Sequence_Ctx.bpo|org.eventb.core.poFile#M1_Landing_Sequence_Ctx|org.eventb.core.poPredicateSet#HYPM0_AMAN_Update_Cty"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poSequent name="axm3,4/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of Axiom" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/Abstraction/M1_Landing_Sequence_Ctx.bpo|org.eventb.core.poFile#M1_Landing_Sequence_Ctx|org.eventb.core.poPredicateSet#HYPM0_AMAN_Update_Ct{"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="0≤PLANNING_HORIZON∧0&lt;5" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_ELIQQEsIEe2nbO8NfDiKnQ"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_ELIQQEsIEe2nbO8NfDiKnQ"/>
+        <org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/Abstraction/M1_Landing_Sequence_Ctx.bpo|org.eventb.core.poFile#M1_Landing_Sequence_Ctx|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poSelHintSnd="/Abstraction/M1_Landing_Sequence_Ctx.bpo|org.eventb.core.poFile#M1_Landing_Sequence_Ctx|org.eventb.core.poPredicateSet#HYPM0_AMAN_Update_Ct{"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poPredicateSet name="HYPM0_AMAN_Update_Cty" org.eventb.core.parentSet="/Abstraction/M1_Landing_Sequence_Ctx.bpo|org.eventb.core.poFile#M1_Landing_Sequence_Ctx|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="DIST=(λx⦂ℤ ↦ y⦂ℤ·x∈ℤ∧y∈ℤ ∣ max({y − x,x − y}))" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_QW8AcUr1Ee2jiPlvG5m5_Q"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="HYPM0_AMAN_Update_Ct{" org.eventb.core.parentSet="/Abstraction/M1_Landing_Sequence_Ctx.bpo|org.eventb.core.poFile#M1_Landing_Sequence_Ctx|org.eventb.core.poPredicateSet#HYPM0_AMAN_Update_Cty" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="∀x⦂ℤ,y⦂ℤ·x∈ℤ∧y∈ℤ⇒DIST(x ↦ y)=DIST(y ↦ x)" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_QW8Ackr1Ee2jiPlvG5m5_Q"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="PLANNING_HORIZON∈15 ‥ 45" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_4vJoEEr6Ee2jiPlvG5m5_Q"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="ALLHYP" org.eventb.core.parentSet="/Abstraction/M1_Landing_Sequence_Ctx.bpo|org.eventb.core.poFile#M1_Landing_Sequence_Ctx|org.eventb.core.poPredicateSet#HYPM0_AMAN_Update_Ct{" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="PLANNING_HORIZON mod 5=0" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_ELIQQEsIEe2nbO8NfDiKnQ"/>
+        <org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="PLANNING_INTERVAL=1 ‥ PLANNING_HORIZON" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_ELIQQUsIEe2nbO8NfDiKnQ"/>
+        <org.eventb.core.poPredicate name="PRD5" org.eventb.core.predicate="finite(PLANNING_INTERVAL)" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_8hQ1YH1bEe25Nuc5zcUFzQ"/>
+        <org.eventb.core.poPredicate name="PRD6" org.eventb.core.predicate="AIRCRAFT_SEPARATION_MIN=3" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_TpulwWnUEe21Fse6RF_HiQ"/>
+    </org.eventb.core.poPredicateSet>
+</org.eventb.core.poFile>

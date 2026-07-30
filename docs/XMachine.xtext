@@ -1,0 +1,346 @@
+/*******************************************************************************
+ *  Copyright (c) 2016,2020 University of Southampton.
+ *
+ *  This program and the accompanying materials
+ *  are made available under the terms of the Eclipse Public License 2.0
+ *  which accompanies this distribution, and is available at
+ *  https://www.eclipse.org/legal/epl-2.0/
+ *
+ *  SPDX-License-Identifier: EPL-2.0
+ *
+ *  Contributors:
+ *    University of Southampton - initial API and implementation 
+ *******************************************************************************/
+grammar ac.soton.xeventb.xmachine.XMachine with org.eclipse.xtext.common.Terminals hidden (WS,ML_COMMENT,SL_COMMENT)
+
+//import "http://emf.eventb.org/models/core/2022" as eventbcore
+//import "http://emf.eventb.org/models/core/machine/2022" as emachine
+//import "http://emf.eventb.org/models/core/context/2022" as econtext
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+import "http://soton.ac.uk/models/eventb/inclusion/2017" as einclusion 
+import "http://soton.ac.uk/models/eventb/containment/2017" as econtainment
+import "http://soton.ac.uk/models/eventb/diagrams/2020" as ediagrams
+//import "platform:/resource/org.eventb.emf.core/model/eventbcore.ecore" as eventbcore
+import "http://soton.ac.uk/models/eventb/coreextension/2014" as eventbcoreex
+import "platform:/resource/org.eventb.emf.core/model/eventbcore.ecore#//machine"as emachine
+import "platform:/resource/org.eventb.emf.core/model/eventbcore.ecore#//context"as econtext
+import "http://soton.ac.uk/models/eventb/record/2022" as erecords
+//import "platform:/resource/ac.soton.eventb.records/model/records.ecore" as erecords
+
+/*
+ * For CamilleX 1.0.0 comments are allowed everywhere
+ * ML_COMMENT and SL_COMMENT are defined as hidden
+ */
+
+Machine returns emachine::Machine:
+	{emachine::Machine}
+   	(comment = STRING)?
+	'machine' name=ID
+	(
+		(orderedChildren+= MIncludes*) &
+    	('refines' refines+=[emachine::Machine])? &
+		('sees' sees+=[econtext::Context]+)?
+	)
+	('contains' orderedChildren += MContains+)?
+	// The following can be interleaved
+	(
+		// Mutiple-variable clause
+    	(('variables' | 'vars') orderedChildren += XMultipleVariable+) |
+    	// Individual-variable clause
+    	(orderedChildren += XIndividualVariable) |
+    	// Multiple-invariant clause
+    	(('invariants' | 'invs') orderedChildren += XMultipleInvariant+) |
+    	// Individual-invariant clause
+    	(orderedChildren += XIndividualInvariant) |
+    	// Individual-record clause
+    	(orderedChildren += XRecord) |
+    	// Individual-variant clause
+		(orderedChildren += XVariant) |
+		// Individual-event clause
+		(orderedChildren += XEvent)
+	)*
+	// Optional group events at the end
+	('events' (orderedChildren += XEvent+))?
+	// Since Rodin 3.0, we do not need to have the 'end' keyword
+	('end')?
+;
+
+MContains returns econtainment::Containment:
+	{econtainment::Containment}
+	extension=[ediagrams::DiagramOwner|QualifiedName]
+;
+
+MIncludes returns einclusion::MachineInclusion:
+	{einclusion::MachineInclusion}
+	('includes'abstractMachine = [emachine::Machine|QualifiedName])
+	('to' concreteMachine = [emachine::Machine])? 
+    ('as' prefixes += ID (prefixes += ID)*)? 
+;
+
+QualifiedName:
+	ID('.'ID)?
+;
+
+XMultipleVariable returns emachine::Variable:
+	{emachine::Variable}
+	(comment=STRING)?
+	name=ID // No type or value
+;
+
+XIndividualVariable returns eventbcoreex::TypedVariable:
+	{eventbcoreex::TypedVariable}
+	(comment=STRING)?
+	('variable' | 'var') name=ID (':' type = XType)? ('=' value=XFormula)?
+;
+
+XType returns ecore::EString:
+	XTypePrimitive (XTYPEOPERATOR XTypePrimitive)*
+;
+
+XTYPEOPERATOR returns ecore::EString:
+	'↔' | '<->' | // Symbols for building set of relations
+	'' | '<<->' |
+	'' | '<->>' |
+	'' | '<<->>' |
+	'⇸' | '+->' |
+	'→' | '-->' |
+	'⤔' | '>+>' |
+	'↣' | '>->' |
+	'⤀' | '+>>' |
+	'↠' | '->>' |
+	'⤖' | '>->>' |
+	'×' | '**'
+;
+
+XTypePrimitive returns ecore::EString:
+	ID |
+	'BOOL' |
+	'ℕ1' | 
+	'ℕ' | 
+	'ℤ' | 
+	'(' XType ')'| 
+	'ℙ' '(' XType ')' |
+	'ℙ1' '(' XType ')'
+;
+
+XMultipleInvariant returns emachine::Invariant:
+	{emachine::Invariant}
+	(comment=STRING)?
+	//	No theorem 
+	name=XLABEL predicate=XFormula	
+;
+
+XIndividualInvariant returns emachine::Invariant:
+	{emachine::Invariant}
+	(comment=STRING)?
+	(theorem?='theorem' | 'invariant')
+	name=XLABEL predicate=XFormula	
+;
+
+terminal XLABEL returns ecore::EString:
+	'@' !(':')+ ':'
+;
+
+XVariant returns emachine::Variant:
+	{emachine::Variant}
+	(comment=STRING)?
+	'variant' name=XLABEL expression= XFormula
+;
+
+XEvent returns emachine::Event:
+	{emachine::Event}
+	(comment=STRING)?
+	(convergence=XConvergence)?
+	'event' name=ID
+	(
+		('refines' refines+=[emachine::Event]+) |
+		(extended?='extends' refines+=[emachine::Event])
+	)?
+	('any' orderedChildren += XParameter+)?
+	(orderedChildren += EventSync*)
+	(('where' | 'when') orderedChildren += XGuard+)?
+	(('then' | 'begin') orderedChildren += XAction+)?
+	('with' orderedChildren += XWitness+)?
+	'end'
+;
+
+EventSync returns einclusion::EventSynchronisation:
+	{einclusion::EventSynchronisation}
+	('synchronises' (prefix=ID'.')?synchronisedEvent = [emachine::Event])
+;
+
+enum XConvergence returns emachine::Convergence:
+	ordinary = 'ordinary' | convergent = 'convergent' | anticipated = 'anticipated'
+;
+
+XParameter returns emachine::Parameter:
+	{emachine::Parameter}
+	(comment=STRING)?
+	name=ID
+;
+
+XGuard returns emachine::Guard:
+	{emachine::Guard}
+	(comment=STRING)?
+	(theorem?='theorem')? name=XLABEL predicate= XFormula
+;
+
+XWitness returns emachine::Witness:
+	{emachine::Witness}
+	(comment=STRING)?
+	name=XLABEL predicate= XFormula
+;
+
+XAction returns emachine::Action:
+	{emachine::Action}
+	(comment=STRING)?
+	name=XLABEL action= XFormula
+;
+
+XFormula returns ecore::EString:
+	(
+		EVENTB_IDENTIFIER_KEYWORD
+		| EVENTB_PREDICATE_SYMBOLS
+		| EVENTB_EXPRESSION_SYMBOLS
+		| INT
+		| ID
+	)+ 
+;
+
+EVENTB_IDENTIFIER_KEYWORD returns ecore::EString:
+	'BOOL' |
+	'FALSE' |
+	'TRUE' |
+	'bool' |
+	'card' |
+	'dom' |
+	'finite' |
+	'id' |
+	'inter' |
+	'max' |
+	'min' |
+	'mod' |
+	'pred' |
+	'prj1' |
+	'prj2' |
+	'ran' |
+	'succ' |
+	'union' |
+	'ℕ1' | 'NAT1' |
+	'ℕ' | 'NAT' |
+	'ℙ1' | 'POW1' |
+	'ℙ' | 'POW' |
+	'ℤ' | 'INT'
+;
+
+EVENTB_PREDICATE_SYMBOLS returns ecore::EString:
+	'(' | // Predicate calculus symbols
+	')' |
+	'⇔' | '<=>' |
+	'⇒' | '=>' |
+	'∧' | '&' |
+	'∨' | 'or' |
+	'¬' | 'not' |
+	'⊤' | 'true' |
+	'⊥' | 'false' |
+	'∀' | '!' |
+	'∃' | '#' |
+	',' |
+	'·' | '.' |
+	'=' | // Build predicates from expressions
+	'≠' | '/=' |
+	'≤' | '=<' |
+	'<' |
+	'≥' | '>=' |
+	'>' |
+	'∈' | ':' | // Include this for Rodin keyboard
+	'∉' | '/:' |
+	'⊂' | '<<:' |
+	'⊄' | '/<<:' |
+	'⊆' | '<:' |
+	'⊈' | '/<:' |
+	'partition' // This is missing from the Rodin D7 deliverable
+;
+
+EVENTB_EXPRESSION_SYMBOLS returns ecore::EString:
+	'↔' | '<->' | // Symbols for building set of relations
+	'' | '<<->' |
+	'' | '<->>' |
+	'' | '<<->>' |
+	'⇸' | '+->' |
+	'→' | '-->' |
+	'⤔' | '>+>' |
+	'↣' | '>->' |
+	'⤀' | '+>>' |
+	'↠' | '->>' |
+	'⤖' | '>->>' |
+	'{' | // Symbols for manipulating sets
+	'}' |
+	'↦' | ',,' | '|->' |
+	'∅' | '{}' |
+	'∩' | '/\\' |
+	'∪' | '\\/' |
+	'∖' | '\\' |
+	'×' | '**' |
+	'[' | // Symbols for manipulating functions and relations
+	']' |
+	'' | '<+' |
+	'∘' | 'circ' |
+	';' |
+	'⊗' | '><' |
+	'∥' | '||' |
+	'∼' | '~' |
+	'◁' | '<|' |
+	'⩤' | '<<|' |
+	'▷' | '|>' |
+	'⩥' | '|>>' |
+	'λ' | '%' // Symbols for quantified expressions
+	'⋂' | 'INTER' |
+	'⋃' | 'UNION' |
+	'∣' | '|' |
+	'‥' | '..' | // Symbols for arithmetic expressions
+	'+' |
+	'−' | '-' |
+	'∗' | '*' |
+	'÷' | '/' | 
+	'^'
+;
+
+@Override 
+terminal ID: '^'?('a'..'z'|'A'..'Z'|'_'| 'i'..'ￜ') ('a'..'z'|'A'..'Z'|'_'| 'i'..'ￜ'|'0'..'9' | "'")*;
+
+@Override 
+terminal STRING: '"' ( '\\' . /* 'b'|'t'|'n'|'f'|'r'|'u'|'"'|"'"|'\\' */ | !('\\'|'"') )* '"';
+
+/*
+ * support for records
+ */
+ 
+ XRecord returns erecords::Record:
+	{erecords::Record}
+	(comment = STRING)?
+	(extended ?= ('extended' | 'ext') | refined ?= ('refined' | 'ref'))?
+	('record' | 'rec') name = ID
+	(('inherits' | 'ihr') inheritsNames += ID)?
+	// Do not use derived fields, i.e., must use orderedChildren
+	// Otherwise, quickfix will cause "No context found"
+	(('field' | 'fld') orderedChildren += Field | 'constraint' orderedChildren += XConstraint)*
+	'end'
+;
+
+Field returns erecords::Field:
+	{erecords::Field}
+	(comment = STRING)?	
+	name = ID (':')
+	(multiplicity=Multiplicity)?
+	(type= XType)	
+;
+
+enum Multiplicity returns erecords::Multiplicity:
+				ONE = 'one' | MANY = 'many' | OPTIONAL = 'opt';
+
+XConstraint returns erecords::Constraint:
+	{erecords::Constraint}
+	(comment = STRING)?	
+	name=XLABEL predicate=XFormula
+;

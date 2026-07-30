@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.machineFile org.eventb.core.configuration="org.eventb.core.fwd" org.eventb.core.generated="false" org.eventb.texttools.text_lastmodified="1669899231509" org.eventb.texttools.text_representation="machine M7_Interaction_Pauses_Updates refines M6_Select_Airplane  sees M4_Zoom_Ctx&#10;&#10;variables landing_sequence held_airplanes blockedTime zoomLevel timeout selectedAirplane dragging_airplane&#10;&#10;invariants&#10;  @dragging_airplane_type dragging_airplane ∈ BOOL&#10;  @dragging_selected_airplane dragging_airplane = TRUE ⇒ selectedAirplane ≠ ∅&#10;&#10;events&#10;  event INITIALISATION extends INITIALISATION&#10;    then&#10;      @dragging_airplane dragging_airplane ≔ FALSE&#10;  end&#10;&#10;  event AMAN_Update extends AMAN_Update&#10;    where&#10;      @not_dragging_airplane dragging_airplane = FALSE&#10;  end&#10;&#10;  event AMAN_Timeout extends AMAN_Timeout&#10;    where&#10;      @not_dragging_airplane dragging_airplane = FALSE&#10;  end&#10;&#10;  event Move_Aircraft extends Move_Aircraft&#10;    where&#10;      @is_dragging_airplane dragging_airplane = TRUE&#10;    then&#10;      @dragging_airplane dragging_airplane ≔ FALSE&#10;  end&#10;&#10;  event Hold_Button extends Hold_Button&#10;    where&#10;      @not_dragging_airplane dragging_airplane = FALSE&#10;  end&#10;&#10;  event Block_Time extends Block_Time&#10;  end&#10;&#10;  event Deblock_Time extends Deblock_Time&#10;  end&#10;&#10;&#10;  event changeZoom extends changeZoom&#10;    where&#10;      @not_dragging_airplane dragging_airplane = FALSE&#10;  end&#10;&#10;  event selectAirplane extends selectAirplane&#10;    where&#10;      @not_dragging_airplane dragging_airplane = FALSE&#10;    then&#10;      @dragging_airplane dragging_airplane ≔ TRUE&#10;  end&#10;&#10;  event deselectAirplane extends deselectAirplane&#10;    where&#10;      @not_dragging_airplane dragging_airplane = FALSE&#10;  end&#10;&#10;  event resume_dragging_airplane&#10;    where&#10;      @airplane_selected selectedAirplane ≠ ∅&#10;      @not_dragging_airplane dragging_airplane = FALSE&#10;    then&#10;      @dragging_airplane dragging_airplane ≔ TRUE&#10;  end&#10;&#10;  event stop_dragging_airplane&#10;    where&#10;      @is_dragging_airplane dragging_airplane = TRUE&#10;    then&#10;      @dragging_airplane dragging_airplane ≔ FALSE&#10;  end&#10;end&#10;" version="5">
+    <org.eventb.core.refinesMachine name="'" org.eventb.core.target="M6_Select_Airplane"/>
+    <org.eventb.core.seesContext name="_r35n0EsFEe2kV4Y3e_fvVw" org.eventb.core.target="M4_Zoom_Ctx"/>
+    <org.eventb.core.variable name="_2d0Q4Er1Ee2jiPlvG5m5_Q" org.eventb.core.generated="false" org.eventb.core.identifier="landing_sequence"/>
+    <org.eventb.core.variable name="_Ldd2cEr9Ee2jiPlvG5m5_Q" org.eventb.core.generated="false" org.eventb.core.identifier="held_airplanes"/>
+    <org.eventb.core.variable name="_vzAdYEsDEe2jiPlvG5m5_Q" org.eventb.core.generated="false" org.eventb.core.identifier="blockedTime"/>
+    <org.eventb.core.variable name="_r3618EsFEe2kV4Y3e_fvVw" org.eventb.core.generated="false" org.eventb.core.identifier="zoomLevel"/>
+    <org.eventb.core.variable name="_uWdLQGnNEe21Fse6RF_HiQ" org.eventb.core.generated="false" org.eventb.core.identifier="timeout"/>
+    <org.eventb.core.variable name="_o1zz8F9KEe2m8_5luKWjkQ" org.eventb.core.generated="false" org.eventb.core.identifier="selectedAirplane"/>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_R" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="INITIALISATION">
+        <org.eventb.core.action name="_UCAXEGp9Ee2TX71I9CyCTw" org.eventb.core.assignment="dragging_airplane ≔ FALSE" org.eventb.core.generated="false" org.eventb.core.label="dragging_airplane"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_S" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="AMAN_Update">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="AMAN_Update"/>
+        <org.eventb.core.guard name="_UCAXEWp9Ee2TX71I9CyCTw" org.eventb.core.generated="false" org.eventb.core.label="not_dragging_airplane" org.eventb.core.predicate="dragging_airplane = FALSE"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_T" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="AMAN_Timeout">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="AMAN_Timeout"/>
+        <org.eventb.core.guard name="_UCAXEmp9Ee2TX71I9CyCTw" org.eventb.core.generated="false" org.eventb.core.label="not_dragging_airplane" org.eventb.core.predicate="dragging_airplane = FALSE"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_U" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="Move_Aircraft">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="Move_Aircraft"/>
+        <org.eventb.core.guard name="_UCA-IGp9Ee2TX71I9CyCTw" org.eventb.core.generated="false" org.eventb.core.label="is_dragging_airplane" org.eventb.core.predicate="dragging_airplane = TRUE"/>
+        <org.eventb.core.action name="_UCBlMGp9Ee2TX71I9CyCTw" org.eventb.core.assignment="dragging_airplane ≔ FALSE" org.eventb.core.generated="false" org.eventb.core.label="dragging_airplane"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_V" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="Hold_Button">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="Hold_Button"/>
+        <org.eventb.core.guard name="_UCA-IWp9Ee2TX71I9CyCTw" org.eventb.core.generated="false" org.eventb.core.label="not_dragging_airplane" org.eventb.core.predicate="dragging_airplane = FALSE"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_W" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="Block_Time">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="Block_Time"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_X" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="Deblock_Time">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="Deblock_Time"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_Y" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="changeZoom">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="changeZoom"/>
+        <org.eventb.core.guard name="_UCBlMWp9Ee2TX71I9CyCTw" org.eventb.core.generated="false" org.eventb.core.label="not_dragging_airplane" org.eventb.core.predicate="dragging_airplane = FALSE"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_Z" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="selectAirplane">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="selectAirplane"/>
+        <org.eventb.core.action name="_UCBlN2p9Ee2TX71I9CyCTw" org.eventb.core.assignment="dragging_airplane ≔ TRUE" org.eventb.core.generated="false" org.eventb.core.label="dragging_airplane"/>
+        <org.eventb.core.guard name="_UCBlNmp9Ee2TX71I9CyCTw" org.eventb.core.generated="false" org.eventb.core.label="not_dragging_airplane" org.eventb.core.predicate="dragging_airplane = FALSE"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_[" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="deselectAirplane">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="deselectAirplane"/>
+        <org.eventb.core.guard name="_yx1PgGp_Ee2TX71I9CyCTw" org.eventb.core.generated="false" org.eventb.core.label="not_dragging_airplane" org.eventb.core.predicate="dragging_airplane = FALSE"/>
+    </org.eventb.core.event>
+    <org.eventb.core.variable name="_UCBlMmp9Ee2TX71I9CyCTw" org.eventb.core.generated="false" org.eventb.core.identifier="dragging_airplane"/>
+    <org.eventb.core.invariant name="_UCBlM2p9Ee2TX71I9CyCTw" org.eventb.core.generated="false" org.eventb.core.label="dragging_airplane_type" org.eventb.core.predicate="dragging_airplane ∈ BOOL"/>
+    <org.eventb.core.event name="_UCBlNGp9Ee2TX71I9CyCTw" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.generated="false" org.eventb.core.label="resume_dragging_airplane">
+        <org.eventb.core.guard name="_UCBlNWp9Ee2TX71I9CyCTw" org.eventb.core.generated="false" org.eventb.core.label="airplane_selected" org.eventb.core.predicate="selectedAirplane ≠ ∅"/>
+        <org.eventb.core.action name="_UCBlOmp9Ee2TX71I9CyCTw" org.eventb.core.assignment="dragging_airplane ≔ TRUE" org.eventb.core.generated="false" org.eventb.core.label="dragging_airplane"/>
+        <org.eventb.core.guard name="_NZxrkGqNEe2k4ruNXAHSNA" org.eventb.core.generated="false" org.eventb.core.label="not_dragging_airplane" org.eventb.core.predicate="dragging_airplane = FALSE"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_UCBlOGp9Ee2TX71I9CyCTw" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.generated="false" org.eventb.core.label="stop_dragging_airplane">
+        <org.eventb.core.guard name="_UCBlOWp9Ee2TX71I9CyCTw" org.eventb.core.generated="false" org.eventb.core.label="is_dragging_airplane" org.eventb.core.predicate="dragging_airplane = TRUE"/>
+        <org.eventb.core.action name="_22BBMGqAEe2TX71I9CyCTw" org.eventb.core.assignment="dragging_airplane ≔ FALSE" org.eventb.core.generated="false" org.eventb.core.label="dragging_airplane"/>
+    </org.eventb.core.event>
+    <org.eventb.core.invariant name="_hctMMGp-Ee2TX71I9CyCTw" org.eventb.core.generated="false" org.eventb.core.label="dragging_selected_airplane" org.eventb.core.predicate="dragging_airplane = TRUE ⇒ selectedAirplane ≠ ∅"/>
+</org.eventb.core.machineFile>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.machineFile org.eventb.core.configuration="org.eventb.core.fwd" org.eventb.core.generated="false" org.eventb.texttools.text_lastmodified="1669138754953" org.eventb.texttools.text_representation="machine M6_Select_Airplane refines M5_AMAN_Timeout  sees M4_Zoom_Ctx&#10;&#10;variables landing_sequence held_airplanes blockedTime zoomLevel timeout selectedAirplane&#10;&#10;invariants&#10;  @inv7,1 selectedAirplane ⊆ dom(landing_sequence ▷ 1‥zoomLevel)&#10;  @selectedAirplane_finite finite(selectedAirplane)&#10;  @selectedAirplane_card card(selectedAirplane) ≤ 1&#10;&#10;events&#10;  event INITIALISATION extends INITIALISATION&#10;    then&#10;      @act7,1 selectedAirplane ≔ ∅&#10;  end&#10;&#10;  event AMAN_Update extends AMAN_Update&#10;    then&#10;      @act7,1 selectedAirplane ≔ ∅&#10;  end&#10;&#10;  event AMAN_Timeout extends AMAN_Timeout&#10;    then&#10;      @act7,1 selectedAirplane ≔ ∅&#10;  end&#10;&#10;  event Move_Aircraft extends Move_Aircraft&#10;    where&#10;      @grd7,1 aircraft ∈ selectedAirplane&#10;  end&#10;&#10;  event Hold_Button extends Hold_Button&#10;    where&#10;      @grd7,1 airplane ∈ selectedAirplane&#10;    then&#10;      @act6,1 selectedAirplane ≔ ∅&#10;  end&#10;&#10;  event Block_Time extends Block_Time&#10;  end&#10;&#10;  event Deblock_Time extends Deblock_Time&#10;  end&#10;&#10;  event changeZoom extends changeZoom&#10;    then&#10;      @selectedAirplane selectedAirplane ≔ selectedAirplane ∩ dom(landing_sequence ▷ 1‥targetZoom)&#10;  end&#10;&#10;  event selectAirplane&#10;    any airplane&#10;    where&#10;      @grd6,1 airplane ∈ dom(landing_sequence) ∖ selectedAirplane&#10;      @grd6,2 landing_sequence(airplane) ≤ zoomLevel&#10;    then&#10;      @act6,1 selectedAirplane ≔ {airplane}&#10;  end&#10;&#10;  event deselectAirplane&#10;    any airplane&#10;    where&#10;      @grd6,1 airplane ∈ selectedAirplane&#10;    then&#10;      @act6,1 selectedAirplane ≔ ∅&#10;  end&#10;end&#10;" version="5">
+    <org.eventb.core.refinesMachine name="_uWaH8GnNEe21Fse6RF_HiQ" org.eventb.core.target="M5_AMAN_Timeout"/>
+    <org.eventb.core.seesContext name="_r35n0EsFEe2kV4Y3e_fvVw" org.eventb.core.target="M4_Zoom_Ctx"/>
+    <org.eventb.core.variable name="_2d0Q4Er1Ee2jiPlvG5m5_Q" org.eventb.core.generated="false" org.eventb.core.identifier="landing_sequence"/>
+    <org.eventb.core.variable name="_Ldd2cEr9Ee2jiPlvG5m5_Q" org.eventb.core.generated="false" org.eventb.core.identifier="held_airplanes"/>
+    <org.eventb.core.variable name="_vzAdYEsDEe2jiPlvG5m5_Q" org.eventb.core.generated="false" org.eventb.core.identifier="blockedTime"/>
+    <org.eventb.core.variable name="_r3618EsFEe2kV4Y3e_fvVw" org.eventb.core.generated="false" org.eventb.core.identifier="zoomLevel"/>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_R" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="INITIALISATION">
+        <org.eventb.core.action name="_qRJwkF9KEe2m8_5luKWjkQ" org.eventb.core.assignment="selectedAirplane ≔ ∅" org.eventb.core.generated="false" org.eventb.core.label="act7,1"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_S" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="AMAN_Update">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="AMAN_Update"/>
+        <org.eventb.core.action name="_renFYF9OEe2m8_5luKWjkQ" org.eventb.core.assignment="selectedAirplane ≔ ∅" org.eventb.core.generated="false" org.eventb.core.label="act7,1"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_2w4Z4GnNEe21Fse6RF_HiQ" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="AMAN_Timeout">
+        <org.eventb.core.refinesEvent name="_2w4Z4WnNEe21Fse6RF_HiQ" org.eventb.core.target="AMAN_Timeout"/>
+        <org.eventb.core.action name="_2w4Z4mnNEe21Fse6RF_HiQ" org.eventb.core.assignment="selectedAirplane ≔ ∅" org.eventb.core.generated="false" org.eventb.core.label="act7,1"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_T" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="Move_Aircraft">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="Move_Aircraft"/>
+        <org.eventb.core.guard name="_syWlMF9OEe2m8_5luKWjkQ" org.eventb.core.generated="false" org.eventb.core.label="grd7,1" org.eventb.core.predicate="aircraft ∈ selectedAirplane"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_U" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="Hold_Button">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="Hold_Button"/>
+        <org.eventb.core.action name="_o1u7cF9KEe2m8_5luKWjkQ" org.eventb.core.assignment="selectedAirplane ≔ ∅" org.eventb.core.generated="false" org.eventb.core.label="act6,1"/>
+        <org.eventb.core.guard name="_4MolwGCDEe2lPbpCXMzguA" org.eventb.core.generated="false" org.eventb.core.label="grd7,1" org.eventb.core.predicate="airplane ∈ selectedAirplane"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_W" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="Block_Time">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="Block_Time"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_X" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="Deblock_Time">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="Deblock_Time"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_[" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="changeZoom">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="changeZoom"/>
+        <org.eventb.core.action name="_cP2TgGqDEe2TX71I9CyCTw" org.eventb.core.assignment="selectedAirplane ≔ selectedAirplane ∩ dom(landing_sequence ▷ 1‥targetZoom)" org.eventb.core.generated="false" org.eventb.core.label="selectedAirplane"/>
+    </org.eventb.core.event>
+    <org.eventb.core.variable name="_uWdLQGnNEe21Fse6RF_HiQ" org.eventb.core.generated="false" org.eventb.core.identifier="timeout"/>
+    <org.eventb.core.variable name="_o1zz8F9KEe2m8_5luKWjkQ" org.eventb.core.generated="false" org.eventb.core.identifier="selectedAirplane"/>
+    <org.eventb.core.event name="_o1zz8V9KEe2m8_5luKWjkQ" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.generated="false" org.eventb.core.label="selectAirplane">
+        <org.eventb.core.parameter name="_o1zz8l9KEe2m8_5luKWjkQ" org.eventb.core.generated="false" org.eventb.core.identifier="airplane"/>
+        <org.eventb.core.guard name="_o10bAF9KEe2m8_5luKWjkQ" org.eventb.core.generated="false" org.eventb.core.label="grd6,1" org.eventb.core.predicate="airplane ∈ dom(landing_sequence) ∖ selectedAirplane"/>
+        <org.eventb.core.action name="_o12QMF9KEe2m8_5luKWjkQ" org.eventb.core.assignment="selectedAirplane ≔ {airplane}" org.eventb.core.generated="false" org.eventb.core.label="act6,1"/>
+        <org.eventb.core.guard name="_lVIt8GqMEe2k4ruNXAHSNA" org.eventb.core.generated="false" org.eventb.core.label="grd6,2" org.eventb.core.predicate="landing_sequence(airplane) ≤ zoomLevel"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_rdj5UF9KEe2m8_5luKWjkQ" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.generated="false" org.eventb.core.label="deselectAirplane">
+        <org.eventb.core.parameter name="_o123QF9KEe2m8_5luKWjkQ" org.eventb.core.generated="false" org.eventb.core.identifier="airplane"/>
+        <org.eventb.core.guard name="_o123QV9KEe2m8_5luKWjkQ" org.eventb.core.generated="false" org.eventb.core.label="grd6,1" org.eventb.core.predicate="airplane ∈ selectedAirplane"/>
+        <org.eventb.core.action name="_Wn_jMF9LEe2m8_5luKWjkQ" org.eventb.core.assignment="selectedAirplane ≔ ∅" org.eventb.core.generated="false" org.eventb.core.label="act6,1"/>
+    </org.eventb.core.event>
+    <org.eventb.core.invariant name="_unPqQF9OEe2m8_5luKWjkQ" org.eventb.core.generated="false" org.eventb.core.label="inv7,1" org.eventb.core.predicate="selectedAirplane ⊆ dom(landing_sequence ▷ 1‥zoomLevel)"/>
+    <org.eventb.core.invariant name="_5aaB0GqGEe2k4ruNXAHSNA" org.eventb.core.generated="false" org.eventb.core.label="selectedAirplane_finite" org.eventb.core.predicate="finite(selectedAirplane)"/>
+    <org.eventb.core.invariant name="_5aao4GqGEe2k4ruNXAHSNA" org.eventb.core.generated="false" org.eventb.core.label="selectedAirplane_card" org.eventb.core.predicate="card(selectedAirplane) ≤ 1"/>
+</org.eventb.core.machineFile>

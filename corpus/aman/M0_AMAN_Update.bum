@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.machineFile org.eventb.core.configuration="org.eventb.core.fwd" org.eventb.core.generated="false" org.eventb.texttools.text_lastmodified="1669049246615" org.eventb.texttools.text_representation="machine M0_AMAN_Update sees M0_AMAN_Update_Ctx&#10;&#10;variables scheduledAirplanes&#10;&#10;invariants&#10;  @inv0,1 scheduledAirplanes ⊆ AIRPLANES&#10;&#10;events&#10;  event INITIALISATION&#10;    then&#10;      @act0,1 scheduledAirplanes ≔ ∅&#10;  end&#10;&#10;  event AMAN_Update&#10;    any newScheduledAirplanes&#10;    where&#10;      @grd0,1 newScheduledAirplanes ⊆ AIRPLANES&#10;    then&#10;      @act0,1 scheduledAirplanes ≔ newScheduledAirplanes&#10;  end&#10;end&#10;" version="5">
+    <org.eventb.core.seesContext name="_yCuQgErzEe2jiPlvG5m5_Q" org.eventb.core.target="M0_AMAN_Update_Ctx"/>
+    <org.eventb.core.event name="(" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.generated="false" org.eventb.core.label="INITIALISATION">
+        <org.eventb.core.action name="_hDvs8GmqEe2s8uUhoFrjqA" org.eventb.core.assignment="scheduledAirplanes ≔ ∅" org.eventb.core.generated="false" org.eventb.core.label="act0,1"/>
+    </org.eventb.core.event>
+    <org.eventb.core.variable name="_yCuQgUrzEe2jiPlvG5m5_Q" org.eventb.core.generated="false" org.eventb.core.identifier="scheduledAirplanes"/>
+    <org.eventb.core.event name="_AKLywGmmEe2s8uUhoFrjqA" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.generated="false" org.eventb.core.label="AMAN_Update">
+        <org.eventb.core.parameter name="_HsPWoEr0Ee2jiPlvG5m5_Q" org.eventb.core.generated="false" org.eventb.core.identifier="newScheduledAirplanes"/>
+        <org.eventb.core.guard name="_hDvs8WmqEe2s8uUhoFrjqA" org.eventb.core.generated="false" org.eventb.core.label="grd0,1" org.eventb.core.predicate="newScheduledAirplanes ⊆ AIRPLANES"/>
+        <org.eventb.core.action name="_hDvs8mmqEe2s8uUhoFrjqA" org.eventb.core.assignment="scheduledAirplanes ≔ newScheduledAirplanes" org.eventb.core.generated="false" org.eventb.core.label="act0,1"/>
+    </org.eventb.core.event>
+    <org.eventb.core.invariant name="_hDvs82mqEe2s8uUhoFrjqA" org.eventb.core.generated="false" org.eventb.core.label="inv0,1" org.eventb.core.predicate="scheduledAirplanes ⊆ AIRPLANES"/>
+</org.eventb.core.machineFile>

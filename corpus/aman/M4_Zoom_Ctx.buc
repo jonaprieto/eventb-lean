@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.contextFile org.eventb.core.configuration="org.eventb.core.fwd;de.prob.symbolic.ctxBase" org.eventb.core.generated="false" org.eventb.texttools.text_lastmodified="1669207751342" org.eventb.texttools.text_representation="context M4_Zoom_Ctx extends M1_Landing_Sequence_Ctx&#10;&#10;constants MIN_ZOOM MAX_ZOOM ZOOM_LEVELS&#10;&#10;axioms&#10;  @axm2,1 MIN_ZOOM = 15&#10;  @axm2,2 MAX_ZOOM = PLANNING_HORIZON&#10;  @ZOOM_LEVELS_value ZOOM_LEVELS = {x ∣ x ∈ MIN_ZOOM‥MAX_ZOOM ∧ x mod 5 = 0}&#10;  theorem @ZOOM_LEVELS_sub_PLANNING_INTERVAL ZOOM_LEVELS ⊆ PLANNING_INTERVAL&#10;end&#10;" version="3">
+    <org.eventb.core.extendsContext name="_xxsFsEsFEe2kV4Y3e_fvVw" org.eventb.core.target="M1_Landing_Sequence_Ctx"/>
+    <org.eventb.core.constant name="_jTFHEEsFEe2kV4Y3e_fvVw" org.eventb.core.generated="false" org.eventb.core.identifier="MIN_ZOOM"/>
+    <org.eventb.core.constant name="_jTG8QEsFEe2kV4Y3e_fvVw" org.eventb.core.generated="false" org.eventb.core.identifier="MAX_ZOOM"/>
+    <org.eventb.core.axiom name="_jTG8QUsFEe2kV4Y3e_fvVw" org.eventb.core.generated="false" org.eventb.core.label="axm2,1" org.eventb.core.predicate="MIN_ZOOM = 15"/>
+    <org.eventb.core.axiom name="_jTHjUEsFEe2kV4Y3e_fvVw" org.eventb.core.generated="false" org.eventb.core.label="axm2,2" org.eventb.core.predicate="MAX_ZOOM = PLANNING_HORIZON"/>
+    <org.eventb.core.constant name="_NxtfoGsrEe2OdPtmHwqkUw" org.eventb.core.generated="false" org.eventb.core.identifier="ZOOM_LEVELS"/>
+    <org.eventb.core.axiom name="_jmZegGssEe2OdPtmHwqkUw" org.eventb.core.generated="false" org.eventb.core.label="ZOOM_LEVELS_value" org.eventb.core.predicate="ZOOM_LEVELS = {x ∣ x ∈ MIN_ZOOM‥MAX_ZOOM ∧ x mod 5 = 0}"/>
+    <org.eventb.core.axiom name="_L3-r8GstEe2GEOS6_rrIrQ" org.eventb.core.generated="false" org.eventb.core.label="ZOOM_LEVELS_sub_PLANNING_INTERVAL" org.eventb.core.predicate="ZOOM_LEVELS ⊆ PLANNING_INTERVAL" org.eventb.core.theorem="true"/>
+</org.eventb.core.contextFile>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.poFile org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="ABSHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poIdentifier name="TRAIN" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poPredicate name="TRAIO" org.eventb.core.predicate="finite(TRAIN)" org.eventb.core.source="/HL3/ENV_C-1.buc|org.eventb.core.contextFile#ENV_C-1|org.eventb.core.axiom#("/>
+<org.eventb.core.poIdentifier name="VSS" org.eventb.core.type="ℙ(VSS)"/>
+<org.eventb.core.poIdentifier name="Fst_VSS" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="Lst_VSS" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="Max_VSS_i" org.eventb.core.type="ℤ"/>
+<org.eventb.core.poIdentifier name="Next_VSS" org.eventb.core.type="ℙ(VSS×VSS)"/>
+<org.eventb.core.poIdentifier name="VSS_i" org.eventb.core.type="ℙ(VSS×ℤ)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="axm9/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of Axiom" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/Env_C0.bpo|org.eventb.core.poFile#Env_C0|org.eventb.core.poPredicateSet#HYPENV_C-="/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="Fst_VSS∈dom(VSS_i)∧VSS_i∈VSS ⇸ ℤ" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tX"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tX"/>
+<org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/HL3/Env_C0.bpo|org.eventb.core.poFile#Env_C0|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poSelHintSnd="/HL3/Env_C0.bpo|org.eventb.core.poFile#Env_C0|org.eventb.core.poPredicateSet#HYPENV_C-="/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="axm10/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of Axiom" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/Env_C0.bpo|org.eventb.core.poFile#Env_C0|org.eventb.core.poPredicateSet#HYPENV_C-&gt;"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀vss⦂VSS·vss∈VSS ∖ {Lst_VSS}⇒vss∈dom(Next_VSS)∧Next_VSS∈VSS ⇸ VSS∧Next_VSS(vss)∈dom(VSS_i)∧VSS_i∈VSS ⇸ ℤ∧vss∈dom(VSS_i)" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tY"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tY"/>
+<org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/HL3/Env_C0.bpo|org.eventb.core.poFile#Env_C0|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poSelHintSnd="/HL3/Env_C0.bpo|org.eventb.core.poFile#Env_C0|org.eventb.core.poPredicateSet#HYPENV_C-&gt;"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="axm11/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of Axiom" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/Env_C0.bpo|org.eventb.core.poFile#Env_C0|org.eventb.core.poPredicateSet#HYPENV_C-?"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="Lst_VSS∈dom(VSS_i)∧VSS_i∈VSS ⇸ ℤ" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tZ"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tZ"/>
+<org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/HL3/Env_C0.bpo|org.eventb.core.poFile#Env_C0|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poSelHintSnd="/HL3/Env_C0.bpo|org.eventb.core.poFile#Env_C0|org.eventb.core.poPredicateSet#HYPENV_C-?"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="axm12/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of Theorem" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/Env_C0.bpo|org.eventb.core.poFile#Env_C0|org.eventb.core.poPredicateSet#HYPENV_C-@"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="ran(VSS_i)≠(∅ ⦂ ℙ(ℤ))∧(∃b⦂ℤ·∀x⦂ℤ·x∈ran(VSS_i)⇒b≥x)" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1t["/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1t["/>
+<org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/HL3/Env_C0.bpo|org.eventb.core.poFile#Env_C0|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poSelHintSnd="/HL3/Env_C0.bpo|org.eventb.core.poFile#Env_C0|org.eventb.core.poPredicateSet#HYPENV_C-@"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="axm12/THM" org.eventb.core.accurate="true" org.eventb.core.poDesc="Theorem" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/Env_C0.bpo|org.eventb.core.poFile#Env_C0|org.eventb.core.poPredicateSet#HYPENV_C-@"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="max(ran(VSS_i))=Max_VSS_i" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1t["/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1t["/>
+<org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/HL3/Env_C0.bpo|org.eventb.core.poFile#Env_C0|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poSelHintSnd="/HL3/Env_C0.bpo|org.eventb.core.poFile#Env_C0|org.eventb.core.poPredicateSet#HYPENV_C-@"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="HYPENV_C-=" org.eventb.core.parentSet="/HL3/Env_C0.bpo|org.eventb.core.poFile#Env_C0|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="Next_VSS∈VSS ⤔ VSS" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_bdaa0PRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="Next_VSS≠Next_VSS∼" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_krALwPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="∀S⦂ℙ(VSS)·S⊆Next_VSS[S]⇒S=(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_oqqfQPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="Fst_VSS∈VSS" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_rkzVIPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="Lst_VSS∈VSS" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_3l5IcPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="PRD5" org.eventb.core.predicate="Fst_VSS≠Lst_VSS" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_7BS4UPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="PRD6" org.eventb.core.predicate="∀vss⦂VSS·vss∈VSS⇒(vss≠Fst_VSS⇔vss∈ran(Next_VSS))" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_bdZzwPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="PRD7" org.eventb.core.predicate="∀vss⦂VSS·vss∈VSS⇒(vss≠Lst_VSS⇔vss∈dom(Next_VSS))" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_bdZzwfRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="PRD8" org.eventb.core.predicate="finite(VSS)" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tR"/>
+<org.eventb.core.poPredicate name="PRD9" org.eventb.core.predicate="Max_VSS_i∈ℕ1" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tV"/>
+<org.eventb.core.poPredicate name="PRD10" org.eventb.core.predicate="VSS_i∈VSS ↣ 0 ‥ Max_VSS_i" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tW"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="HYPENV_C-&gt;" org.eventb.core.parentSet="/HL3/Env_C0.bpo|org.eventb.core.poFile#Env_C0|org.eventb.core.poPredicateSet#HYPENV_C-=" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicate name="PRD11" org.eventb.core.predicate="VSS_i(Fst_VSS)=0" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tX"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="HYPENV_C-?" org.eventb.core.parentSet="/HL3/Env_C0.bpo|org.eventb.core.poFile#Env_C0|org.eventb.core.poPredicateSet#HYPENV_C-&gt;" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicate name="PRD12" org.eventb.core.predicate="∀vss⦂VSS·vss∈VSS ∖ {Lst_VSS}⇒VSS_i(Next_VSS(vss))=VSS_i(vss)+1" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tY"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="HYPENV_C-@" org.eventb.core.parentSet="/HL3/Env_C0.bpo|org.eventb.core.poFile#Env_C0|org.eventb.core.poPredicateSet#HYPENV_C-?" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicate name="PRD13" org.eventb.core.predicate="VSS_i(Lst_VSS)=Max_VSS_i" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tZ"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="ALLHYP" org.eventb.core.parentSet="/HL3/Env_C0.bpo|org.eventb.core.poFile#Env_C0|org.eventb.core.poPredicateSet#HYPENV_C-@" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicate name="PRD14" org.eventb.core.predicate="max(ran(VSS_i))=Max_VSS_i" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1t["/>
+</org.eventb.core.poPredicateSet>
+</org.eventb.core.poFile>

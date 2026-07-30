@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.contextFile org.eventb.core.configuration="org.eventb.core.fwd;de.prob.symbolic.ctxBase" org.eventb.core.generated="false" org.eventb.texttools.text_lastmodified="1671206937513" org.eventb.texttools.text_representation="context M1_Landing_Sequence_Ctx extends M0_AMAN_Update_Ctx&#10;&#10;constants DIST PLANNING_HORIZON PLANNING_INTERVAL AIRCRAFT_SEPARATION_MIN&#10;&#10;axioms&#10;  @axm3,1 DIST = (λ(x↦y) · x ∈ ℤ ∧ y ∈ ℤ ∣ max({y−x,x−y}))&#10;  theorem @axm3,2 ∀x,y · x ∈ ℤ ∧ y ∈ ℤ ⇒  DIST(x ↦ y) = DIST(y ↦ x)&#10;  @axm3,3 PLANNING_HORIZON ∈ 15‥45&#10;  @axm3,4 PLANNING_HORIZON mod 5 = 0&#10;  @axm3,5 PLANNING_INTERVAL = 1‥PLANNING_HORIZON&#10;  @finite_intervall finite(PLANNING_INTERVAL)&#10;  @AIRCRAFT_SEPARATION_MIN AIRCRAFT_SEPARATION_MIN = 3&#10;end&#10;" version="3">
+    <org.eventb.core.extendsContext name="_QW6LQEr1Ee2jiPlvG5m5_Q" org.eventb.core.target="M0_AMAN_Update_Ctx"/>
+    <org.eventb.core.constant name="_QW7ZYEr1Ee2jiPlvG5m5_Q" org.eventb.core.generated="false" org.eventb.core.identifier="DIST"/>
+    <org.eventb.core.axiom name="_QW8AcUr1Ee2jiPlvG5m5_Q" org.eventb.core.generated="false" org.eventb.core.label="axm3,1" org.eventb.core.predicate="DIST = (λ(x↦y) · x ∈ ℤ ∧ y ∈ ℤ ∣ max({y−x,x−y}))"/>
+    <org.eventb.core.axiom name="_QW8Ackr1Ee2jiPlvG5m5_Q" org.eventb.core.generated="false" org.eventb.core.label="axm3,2" org.eventb.core.predicate="∀x,y · x ∈ ℤ ∧ y ∈ ℤ ⇒  DIST(x ↦ y) = DIST(y ↦ x)" org.eventb.core.theorem="true"/>
+    <org.eventb.core.constant name="_1trNYEr1Ee2jiPlvG5m5_Q" org.eventb.core.generated="false" org.eventb.core.identifier="PLANNING_HORIZON"/>
+    <org.eventb.core.axiom name="_4vJoEEr6Ee2jiPlvG5m5_Q" org.eventb.core.generated="false" org.eventb.core.label="axm3,3" org.eventb.core.predicate="PLANNING_HORIZON ∈ 15‥45"/>
+    <org.eventb.core.constant name="_ELHpMEsIEe2nbO8NfDiKnQ" org.eventb.core.generated="false" org.eventb.core.identifier="PLANNING_INTERVAL"/>
+    <org.eventb.core.axiom name="_ELIQQEsIEe2nbO8NfDiKnQ" org.eventb.core.generated="false" org.eventb.core.label="axm3,4" org.eventb.core.predicate="PLANNING_HORIZON mod 5 = 0"/>
+    <org.eventb.core.axiom name="_ELIQQUsIEe2nbO8NfDiKnQ" org.eventb.core.generated="false" org.eventb.core.label="axm3,5" org.eventb.core.predicate="PLANNING_INTERVAL = 1‥PLANNING_HORIZON"/>
+    <org.eventb.core.constant name="_TpulwGnUEe21Fse6RF_HiQ" org.eventb.core.generated="false" org.eventb.core.identifier="AIRCRAFT_SEPARATION_MIN"/>
+    <org.eventb.core.axiom name="_8hQ1YH1bEe25Nuc5zcUFzQ" org.eventb.core.generated="false" org.eventb.core.label="finite_intervall" org.eventb.core.predicate="finite(PLANNING_INTERVAL)"/>
+    <org.eventb.core.axiom name="_TpulwWnUEe21Fse6RF_HiQ" org.eventb.core.generated="false" org.eventb.core.label="AIRCRAFT_SEPARATION_MIN" org.eventb.core.predicate="AIRCRAFT_SEPARATION_MIN = 3"/>
+</org.eventb.core.contextFile>

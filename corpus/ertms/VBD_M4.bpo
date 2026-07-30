@@ -1,0 +1,777 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.poFile org.eventb.core.poStamp="24">
+<org.eventb.core.poPredicateSet name="CTXHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poIdentifier name="TRAIN" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poPredicate name="TRAIO" org.eventb.core.predicate="finite(TRAIN)" org.eventb.core.source="/HL3/ENV_C-1.buc|org.eventb.core.contextFile#ENV_C-1|org.eventb.core.axiom#("/>
+<org.eventb.core.poIdentifier name="VSS" org.eventb.core.type="ℙ(VSS)"/>
+<org.eventb.core.poIdentifier name="Fst_VSS" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="Lst_VSS" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="Max_VSS_i" org.eventb.core.type="ℤ"/>
+<org.eventb.core.poIdentifier name="Next_VSS" org.eventb.core.type="ℙ(VSS×VSS)"/>
+<org.eventb.core.poIdentifier name="VSS_i" org.eventb.core.type="ℙ(VSS×ℤ)"/>
+<org.eventb.core.poPredicate name="Max_VSS_j" org.eventb.core.predicate="Next_VSS∈VSS ⤔ VSS" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_bdaa0PRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_k" org.eventb.core.predicate="Next_VSS≠Next_VSS∼" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_krALwPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_l" org.eventb.core.predicate="∀S⦂ℙ(VSS)·S⊆Next_VSS[S]⇒S=(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_oqqfQPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_m" org.eventb.core.predicate="Fst_VSS∈VSS" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_rkzVIPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_n" org.eventb.core.predicate="Lst_VSS∈VSS" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_3l5IcPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_o" org.eventb.core.predicate="Fst_VSS≠Lst_VSS" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_7BS4UPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_p" org.eventb.core.predicate="∀vss⦂VSS·vss∈VSS⇒(vss≠Fst_VSS⇔vss∈ran(Next_VSS))" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_bdZzwPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_q" org.eventb.core.predicate="∀vss⦂VSS·vss∈VSS⇒(vss≠Lst_VSS⇔vss∈dom(Next_VSS))" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_bdZzwfRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_r" org.eventb.core.predicate="finite(VSS)" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tR"/>
+<org.eventb.core.poPredicate name="Max_VSS_s" org.eventb.core.predicate="Max_VSS_i∈ℕ1" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tV"/>
+<org.eventb.core.poPredicate name="Max_VSS_t" org.eventb.core.predicate="VSS_i∈VSS ↣ 0 ‥ Max_VSS_i" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tW"/>
+<org.eventb.core.poPredicate name="Max_VSS_u" org.eventb.core.predicate="VSS_i(Fst_VSS)=0" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tX"/>
+<org.eventb.core.poPredicate name="Max_VSS_v" org.eventb.core.predicate="∀vss⦂VSS·vss∈VSS ∖ {Lst_VSS}⇒VSS_i(Next_VSS(vss))=VSS_i(vss)+1" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tY"/>
+<org.eventb.core.poPredicate name="Max_VSS_w" org.eventb.core.predicate="VSS_i(Lst_VSS)=Max_VSS_i" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tZ"/>
+<org.eventb.core.poPredicate name="Max_VSS_x" org.eventb.core.predicate="max(ran(VSS_i))=Max_VSS_i" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1t["/>
+<org.eventb.core.poIdentifier name="TTD" org.eventb.core.type="ℙ(TTD)"/>
+<org.eventb.core.poIdentifier name="Fst_TTD" org.eventb.core.type="TTD"/>
+<org.eventb.core.poIdentifier name="Lst_TTD" org.eventb.core.type="TTD"/>
+<org.eventb.core.poIdentifier name="Next_TTD" org.eventb.core.type="ℙ(TTD×TTD)"/>
+<org.eventb.core.poIdentifier name="Sections" org.eventb.core.type="ℙ(TTD×VSS)"/>
+<org.eventb.core.poPredicate name="Max_VSS_y" org.eventb.core.predicate="Next_TTD∈TTD ⤔ TTD" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_wDJaw_VKEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_z" org.eventb.core.predicate="Sections∼∈VSS ⇸ TTD" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_wDJaxPVKEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_{" org.eventb.core.predicate="Fst_TTD∈TTD" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_NL22UPVLEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_|" org.eventb.core.predicate="Lst_TTD∈TTD" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_NL22UfVLEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_}" org.eventb.core.predicate="Fst_TTD≠Lst_TTD" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_NL22UvVLEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_~" org.eventb.core.predicate="Next_TTD≠Next_TTD∼" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_NL22U_VLEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS`'" org.eventb.core.predicate="∀ttd⦂TTD·ttd∈TTD⇒(ttd≠Fst_TTD⇔ttd∈ran(Next_TTD))" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_wDJawPVKEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS`(" org.eventb.core.predicate="∀ttd⦂TTD·ttd∈TTD⇒(ttd≠Lst_TTD⇔ttd∈dom(Next_TTD))" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_wDJawfVKEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS`)" org.eventb.core.predicate="Sections∈TTD  VSS" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_wDJawvVKEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS`*" org.eventb.core.predicate="∀S⦂ℙ(TTD)·S⊆Next_TTD[S]⇒S=(∅ ⦂ ℙ(TTD))" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_yhSqUPbNEeeAUKuLPlopDA"/>
+<org.eventb.core.poPredicate name="Max_VSS`+" org.eventb.core.predicate="Fst_VSS∈Sections[{Fst_TTD}]" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_3iWwcPbNEeeAUKuLPlopDA"/>
+<org.eventb.core.poPredicate name="Max_VSS`," org.eventb.core.predicate="Lst_VSS∈Sections[{Lst_TTD}]" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_6H2zEPbNEeeAUKuLPlopDA"/>
+<org.eventb.core.poPredicate name="Max_VSS`-" org.eventb.core.predicate="∀vss⦂VSS,ttd⦂TTD·ttd≠Lst_TTD∧vss∈Sections[{ttd}]⇒Sections∼(Next_VSS(vss))=ttd∨Sections∼(Next_VSS(vss))=Next_TTD(ttd)" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_yhSqUfbNEeeAUKuLPlopDA"/>
+<org.eventb.core.poPredicate name="Max_VSS`." org.eventb.core.predicate="∀vss⦂VSS·vss∈Sections[{Lst_TTD}]∧vss≠Lst_VSS⇒Sections∼(Next_VSS(vss))=Lst_TTD" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_MBRAcPbVEeeAUKuLPlopDA"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="ABSHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poStamp="20">
+<org.eventb.core.poIdentifier name="connected" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="disconnectPropagationTimerExpired" org.eventb.core.type="ℙ(VSS×BOOL)"/>
+<org.eventb.core.poIdentifier name="ghost" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="inMission" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="ma" org.eventb.core.type="ℙ(TRAIN×VSS)"/>
+<org.eventb.core.poIdentifier name="muteTimerExpired" org.eventb.core.type="ℙ(TRAIN×BOOL)"/>
+<org.eventb.core.poIdentifier name="next_train" org.eventb.core.type="ℙ(TRAIN×TRAIN)"/>
+<org.eventb.core.poIdentifier name="noMission" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="occupiedBy" org.eventb.core.type="ℙ(VSS×TRAIN)"/>
+<org.eventb.core.poIdentifier name="occupiedTTD" org.eventb.core.type="ℙ(TTD)"/>
+<org.eventb.core.poIdentifier name="reportedPosition" org.eventb.core.type="ℙ(TRAIN×VSS)"/>
+<org.eventb.core.poIdentifier name="train" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="unsafe" org.eventb.core.type="ℙ(TRAIN×BOOL)"/>
+<org.eventb.core.poPredicate name="disconnectPropagationTimerExpiree" org.eventb.core.predicate="train∈ℙ(TRAIN)" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.invariant#_VgDf1AyyEeiI47opYxrTSg"/>
+<org.eventb.core.poPredicate name="disconnectPropagationTimerExpiref" org.eventb.core.predicate="next_train∈train ⤔ train" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.invariant#_VgEG4AyyEeiI47opYxrTSg"/>
+<org.eventb.core.poPredicate name="disconnectPropagationTimerExpireg" org.eventb.core.predicate="train∈ℙ(TRAIN)" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.invariant#_m634ISuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="disconnectPropagationTimerExpireh" org.eventb.core.predicate="occupiedBy∈VSS  train" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.invariant#_m634IiuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="disconnectPropagationTimerExpirei" org.eventb.core.predicate="∀tr⦂TRAIN·tr∈train⇒(∃f⦂VSS·f∈occupiedBy∼[{tr}]∧Next_VSS[occupiedBy∼[{tr}] ∖ {f}]⊆occupiedBy∼[{tr}])" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.invariant#_OUZpMfU_EeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="disconnectPropagationTimerExpirej" org.eventb.core.predicate="∀tr⦂TRAIN·tr ↦ tr∉next_train" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tU"/>
+<org.eventb.core.poPredicate name="disconnectPropagationTimerExpirek" org.eventb.core.predicate="∀tr_p⦂TRAIN,tr_n⦂TRAIN·tr_p ↦ tr_n∈next_train⇒max(VSS_i[occupiedBy∼[{tr_p}]])≤min(VSS_i[occupiedBy∼[{tr_n}]])" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tT"/>
+<org.eventb.core.poPredicate name="disconnectPropagationTimerExpirel" org.eventb.core.predicate="train⊆TRAIN" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.invariant#_XHT8wQHWEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="disconnectPropagationTimerExpirem" org.eventb.core.predicate="ghost⊆train" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.invariant#_XHT8wgHWEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="disconnectPropagationTimerExpiren" org.eventb.core.predicate="connected⊆train" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.invariant#_XHT8wwHWEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="disconnectPropagationTimerExpireo" org.eventb.core.predicate="partition(train,ghost,connected)" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.invariant#_XHT8xAHWEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="disconnectPropagationTimerExpirep" org.eventb.core.predicate="occupiedTTD∈ℙ(TTD)" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_cLKM8QHdEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="disconnectPropagationTimerExpireq" org.eventb.core.predicate="∀ttd⦂TTD·ttd∉occupiedTTD⇔Sections[{ttd}]∩dom(occupiedBy)=(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1t["/>
+<org.eventb.core.poPredicate name="disconnectPropagationTimerExpirer" org.eventb.core.predicate="∀ttd⦂TTD·ttd∈occupiedTTD⇒Sections[{ttd}]∩dom(occupiedBy)≠(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_cLKM8gHdEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="disconnectPropagationTimerExpires" org.eventb.core.predicate="noMission⊆train" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.invariant#_pUSw4AKiEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="disconnectPropagationTimerExpiret" org.eventb.core.predicate="inMission⊆train" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.invariant#_pUSw4QKiEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="disconnectPropagationTimerExpireu" org.eventb.core.predicate="partition(train,noMission,inMission)" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.invariant#_pUSw4gKiEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="disconnectPropagationTimerExpirev" org.eventb.core.predicate="ma∈inMission  VSS" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.invariant#_fpvboQOpEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="disconnectPropagationTimerExpirew" org.eventb.core.predicate="unsafe∈inMission → BOOL" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.invariant#_fpvbogOpEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="disconnectPropagationTimerExpirex" org.eventb.core.predicate="connected⊆inMission" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1t_"/>
+<org.eventb.core.poPredicate name="disconnectPropagationTimerExpirey" org.eventb.core.predicate="∀tr⦂TRAIN·tr∈dom(ma)⇒occupiedBy∼[{tr}]⊆ma[{tr}]∨unsafe(tr)=TRUE" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1t`"/>
+<org.eventb.core.poPredicate name="disconnectPropagationTimerExpirez" org.eventb.core.predicate="∀vss⦂VSS,tr⦂TRAIN·tr∈train∧VSS_i(vss)&lt;min(VSS_i[occupiedBy∼[{tr}]])⇒vss∉occupiedBy∼[{tr}]" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1ta"/>
+<org.eventb.core.poPredicate name="disconnectPropagationTimerExpire{" org.eventb.core.predicate="∀vss⦂VSS,tr⦂TRAIN·tr∈train∧VSS_i(vss)&gt;max(VSS_i[occupiedBy∼[{tr}]])⇒vss∉occupiedBy∼[{tr}]" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tb"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="inv1/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of Invariant" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-L"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr⦂TRAIN·tr∈inMission⇒VSS_i[reportedPosition[{tr}]]≠(∅ ⦂ ℙ(ℤ))∧(∃b⦂ℤ·∀x⦂ℤ·x∈VSS_i[reportedPosition[{tr}]]⇒b≤x)∧VSS_i[occupiedBy∼[{tr}]]≠(∅ ⦂ ℙ(ℤ))∧(∃b⦂ℤ·∀x⦂ℤ·x∈VSS_i[occupiedBy∼[{tr}]]⇒b≤x)" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-L"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="inv2/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of Invariant" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-M"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr⦂TRAIN·tr∈inMission⇒VSS_i[reportedPosition[{tr}]]≠(∅ ⦂ ℙ(ℤ))∧(∃b⦂ℤ·∀x⦂ℤ·x∈VSS_i[reportedPosition[{tr}]]⇒b≥x)∧VSS_i[occupiedBy∼[{tr}]]≠(∅ ⦂ ℙ(ℤ))∧(∃b⦂ℤ·∀x⦂ℤ·x∈VSS_i[occupiedBy∼[{tr}]]⇒b≥x)" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-M"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="INITIALISATION/assocMult_reportedPosition/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  establishment" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpiree"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="(∅ ⦂ ℙ(TRAIN×VSS))∈(∅ ⦂ ℙ(TRAIN))  VSS" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIvqMShkEeip5da7u-uH2w"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tR"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1t_"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIvqMShkEeip5da7u-uH2w"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#INITIALISATION\/assocMult_reportedPosition\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-L|org.eventb.core.poPredicate#PRD0"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="INITIALISATION/attribType_disconnectPropagationTimerExpired/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  establishment" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpiree"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="VSS × {FALSE}∈VSS → BOOL" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIwRQChkEeip5da7u-uH2w"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tR"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1t_"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIwRQChkEeip5da7u-uH2w"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#INITIALISATION\/attribType_disconnectPropagationTimerExpired\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-L|org.eventb.core.poPredicate#PRD1"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="INITIALISATION/attribType_muteTimerExpired/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  establishment" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpiree"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="(∅ ⦂ ℙ(TRAIN×BOOL))∈(∅ ⦂ ℙ(TRAIN)) → BOOL" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIwRQShkEeip5da7u-uH2w"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tR"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1t_"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIwRQShkEeip5da7u-uH2w"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#INITIALISATION\/attribType_muteTimerExpired\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-L|org.eventb.core.poPredicate#PRD2"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="INITIALISATION/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  establishment" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpiree"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr⦂TRAIN·tr∈(∅ ⦂ ℙ(TRAIN))⇒min(VSS_i[(∅ ⦂ ℙ(TRAIN×VSS))[{tr}]])≤min(VSS_i[(∅ ⦂ ℙ(VSS×TRAIN))∼[{tr}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tR"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1t_"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#INITIALISATION\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-M|org.eventb.core.poPredicate#PRD3"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="INITIALISATION/inv2/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  establishment" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpiree"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr⦂TRAIN·tr∈(∅ ⦂ ℙ(TRAIN))⇒max(VSS_i[(∅ ⦂ ℙ(TRAIN×VSS))[{tr}]])≤max(VSS_i[(∅ ⦂ ℙ(VSS×TRAIN))∼[{tr}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tR"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1t_"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#INITIALISATION\/inv2\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD4"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTdisconnectPropagationTimerExpiree" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poIdentifier name="inMission'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="ghost'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="disconnectPropagationTimerExpired'" org.eventb.core.type="ℙ(VSS×BOOL)"/>
+<org.eventb.core.poIdentifier name="connected'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="train'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="next_train'" org.eventb.core.type="ℙ(TRAIN×TRAIN)"/>
+<org.eventb.core.poIdentifier name="ma'" org.eventb.core.type="ℙ(TRAIN×VSS)"/>
+<org.eventb.core.poIdentifier name="unsafe'" org.eventb.core.type="ℙ(TRAIN×BOOL)"/>
+<org.eventb.core.poIdentifier name="muteTimerExpired'" org.eventb.core.type="ℙ(TRAIN×BOOL)"/>
+<org.eventb.core.poIdentifier name="noMission'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="occupiedBy'" org.eventb.core.type="ℙ(VSS×TRAIN)"/>
+<org.eventb.core.poIdentifier name="reportedPosition'" org.eventb.core.type="ℙ(TRAIN×VSS)"/>
+<org.eventb.core.poIdentifier name="occupiedTTD'" org.eventb.core.type="ℙ(TTD)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPdisconnectPropagationTimerExpiree" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTIDENTdisconnectPropagationTimerExpiree" org.eventb.core.poStamp="0"/>
+<org.eventb.core.poSequent name="ENV_leave_network/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpiref"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr0⦂TRAIN·tr0∈inMission⇒min(VSS_i[reportedPosition[{tr0}]])≤min(VSS_i[(occupiedBy ⩥ {tr})∼[{tr0}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tS"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1t`"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#ENV_leave_network\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-M|org.eventb.core.poPredicate#PRD3"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="ENV_leave_network/inv2/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpiref"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr0⦂TRAIN·tr0∈inMission⇒max(VSS_i[reportedPosition[{tr0}]])≤max(VSS_i[(occupiedBy ⩥ {tr})∼[{tr0}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tS"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1t`"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#ENV_leave_network\/inv2\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD4"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTdisconnectPropagationTimerExpiref" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="20">
+<org.eventb.core.poIdentifier name="ghost'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="train'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="next_train'" org.eventb.core.type="ℙ(TRAIN×TRAIN)"/>
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="noMission'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="occupiedBy'" org.eventb.core.type="ℙ(VSS×TRAIN)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPdisconnectPropagationTimerExpiref" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTIDENTdisconnectPropagationTimerExpiref" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∈train" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XejpUQyxEeiI47opYxrTSg|org.eventb.core.guard#_VgC4wwyyEeiI47opYxrTSg"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="tr∉dom(next_train)" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XejpUQyxEeiI47opYxrTSg|org.eventb.core.guard#_Xg4kkQyxEeiI47opYxrTSh"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="occupiedBy∼[{tr}]={Lst_VSS}" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSAfR0EeemGtrJ89W1tQ|org.eventb.core.guard#_m62C8SuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="tr∈ghost" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tT|org.eventb.core.guard#_XHQ5cgHWEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="Sections[{Lst_TTD}]∩dom(occupiedBy ⩥ {tr})≠(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tS|org.eventb.core.guard#("/>
+<org.eventb.core.poPredicate name="PRD5" org.eventb.core.predicate="tr∈noMission" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tS|org.eventb.core.guard#_pUPGgwKiEeiYuL1vM5OOOw"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="ENV_front_move_next/grd4/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of Guard" org.eventb.core.poStamp="21">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpiregvsv"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="vss∈dom(VSS_i)∧VSS_i∈VSS ⇸ ℤ∧VSS_i[occupiedBy∼[{tr}]]≠(∅ ⦂ ℙ(ℤ))∧(∃b⦂ℤ·∀x⦂ℤ·x∈VSS_i[occupiedBy∼[{tr}]]⇒b≥x)" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1ta|org.eventb.core.guard#("/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1ta|org.eventb.core.guard#("/>
+<org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpiregvsv"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="ENV_front_move_next/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="21">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpireg"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr0⦂TRAIN·tr0∈inMission⇒min(VSS_i[reportedPosition[{tr0}]])≤min(VSS_i[(occupiedBy∪{vss ↦ tr})∼[{tr0}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tT"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1ta"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#ENV_front_move_next\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-M|org.eventb.core.poPredicate#PRD3"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="ENV_front_move_next/inv2/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="21">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpireg"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr0⦂TRAIN·tr0∈inMission⇒max(VSS_i[reportedPosition[{tr0}]])≤max(VSS_i[(occupiedBy∪{vss ↦ tr})∼[{tr0}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tT"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1ta"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#ENV_front_move_next\/inv2\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD4"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTdisconnectPropagationTimerExpireg" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="20">
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="vss" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="occupiedBy'" org.eventb.core.type="ℙ(VSS×TRAIN)"/>
+<org.eventb.core.poIdentifier name="occupiedTTD'" org.eventb.core.type="ℙ(TTD)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTHYPdisconnectPropagationTimerExpiregvsv" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTIDENTdisconnectPropagationTimerExpireg" org.eventb.core.poStamp="21">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∈train" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSAvR0EeemGtrJ89W1tQ|org.eventb.core.guard#_m62C9CuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="vss∈VSS" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSAvR0EeemGtrJ89W1tQ|org.eventb.core.guard#_m62C9SuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="Lst_VSS∉occupiedBy∼[{tr}]" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSAvR0EeemGtrJ89W1tQ|org.eventb.core.guard#_DSCGVgHUEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="vss∈Next_VSS[occupiedBy∼[{tr}]]" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSAvR0EeemGtrJ89W1tQ|org.eventb.core.guard#_DSCGVwHUEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="vss ↦ tr∉occupiedBy" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSAvR0EeemGtrJ89W1tQ|org.eventb.core.guard#_m62qAiuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD5" org.eventb.core.predicate="VSS_i(vss)=max(VSS_i[occupiedBy∼[{tr}]])+1" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSAvR0EeemGtrJ89W1tQ|org.eventb.core.guard#_m62qAyuDEeip5da7u-uH2y"/>
+<org.eventb.core.poPredicate name="PRD6" org.eventb.core.predicate="vss∈dom(occupiedBy)∧tr∈dom(next_train)⇒VSS_i(vss)=min(VSS_i[occupiedBy∼[{next_train(tr)}]])" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSAvR0EeemGtrJ89W1tQ|org.eventb.core.guard#_m62qAyuDEeip5da7u-uH2z"/>
+<org.eventb.core.poPredicate name="PRD7" org.eventb.core.predicate="∀tr_next⦂TRAIN·tr ↦ tr_next∈next_train⇒VSS_i(vss)≤min(VSS_i[occupiedBy∼[{tr_next}]])" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSAvR0EeemGtrJ89W1tQ|org.eventb.core.guard#_m62qAyuDEeip5da7u-uH2{"/>
+<org.eventb.core.poPredicate name="PRD8" org.eventb.core.predicate="tr∈dom(ma)⇒vss∈ma[{tr}]" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tT|org.eventb.core.guard#("/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPdisconnectPropagationTimerExpireg" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpiregvsv" org.eventb.core.poStamp="21">
+<org.eventb.core.poPredicate name="PRD9" org.eventb.core.predicate="VSS_i(vss)&gt;max(VSS_i[occupiedBy∼[{tr}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1ta|org.eventb.core.guard#("/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="ENV_rear_leave_section/grd4/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of Guard" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpirehvsu"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="vss∈dom(VSS_i)∧VSS_i∈VSS ⇸ ℤ∧VSS_i[occupiedBy∼[{tr}]]≠(∅ ⦂ ℙ(ℤ))∧(∃b⦂ℤ·∀x⦂ℤ·x∈VSS_i[occupiedBy∼[{tr}]]⇒b≤x)" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tb|org.eventb.core.guard#("/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tb|org.eventb.core.guard#("/>
+<org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpirehvsu"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="ENV_rear_leave_section/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpireh"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr0⦂TRAIN·tr0∈inMission⇒min(VSS_i[reportedPosition[{tr0}]])≤min(VSS_i[(occupiedBy ∖ {vss ↦ tr})∼[{tr0}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tU"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tb"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#ENV_rear_leave_section\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-M|org.eventb.core.poPredicate#PRD3"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="ENV_rear_leave_section/inv2/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpireh"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr0⦂TRAIN·tr0∈inMission⇒max(VSS_i[reportedPosition[{tr0}]])≤max(VSS_i[(occupiedBy ∖ {vss ↦ tr})∼[{tr0}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tU"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tb"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#ENV_rear_leave_section\/inv2\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD4"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTdisconnectPropagationTimerExpireh" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="20">
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="vss" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="occupiedBy'" org.eventb.core.type="ℙ(VSS×TRAIN)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTHYPdisconnectPropagationTimerExpirehvsu" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTIDENTdisconnectPropagationTimerExpireh" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∈train" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_m63RECuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="vss∈VSS" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_m63RESuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="vss ↦ tr∈occupiedBy" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_m63REiuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="vss≠Lst_VSS" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_vNHYMPUqEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="Next_VSS(vss)∈occupiedBy∼[{tr}]" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_m63REyuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD5" org.eventb.core.predicate="vss∉Next_VSS[occupiedBy∼[{tr}]]" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_jX3_0PU7EeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="PRD6" org.eventb.core.predicate="∀ttd⦂TTD·ttd=Sections∼(vss)⇒(Sections[{ttd}] ∖ {vss})∩dom(occupiedBy)≠(∅ ⦂ ℙ(VSS))∨occupiedBy[{vss}]≠{tr}" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tU|org.eventb.core.guard#)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPdisconnectPropagationTimerExpireh" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpirehvsu" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD7" org.eventb.core.predicate="VSS_i(vss)=min(VSS_i[occupiedBy∼[{tr}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tb|org.eventb.core.guard#("/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTIDENTdisconnectPropagationTimerExpirei" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="20">
+<org.eventb.core.poIdentifier name="ghost'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="connected'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPdisconnectPropagationTimerExpirei" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTIDENTdisconnectPropagationTimerExpirei" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∈ghost" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_tU7QIPR9EeemGtrJ89W1tQ|org.eventb.core.guard#_XHSHkQHWEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="tr∈inMission" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tV|org.eventb.core.guard#_fprxQAOpEeiYuL1vM5OOOw"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="VBD_mute_timer_expired/attribType_muteTimerExpired/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpirej"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="muteTimerExpired{tr ↦ TRUE}∈inMission → BOOL" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIwRQShkEeip5da7u-uH2w"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tW"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1td"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIwRQShkEeip5da7u-uH2w"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#VBD_mute_timer_expired\/attribType_muteTimerExpired\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-L|org.eventb.core.poPredicate#PRD2"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTdisconnectPropagationTimerExpirej" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="20">
+<org.eventb.core.poIdentifier name="ghost'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="connected'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="muteTimerExpired'" org.eventb.core.type="ℙ(TRAIN×BOOL)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPdisconnectPropagationTimerExpirej" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTIDENTdisconnectPropagationTimerExpirej" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∈connected" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_tU7QIfR9EeemGtrJ89W1tQ|org.eventb.core.guard#_XHSuogHWEeiYuL1vM5OOOw"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="ENV_train_split/grd16/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of Guard" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpirekA"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="rear0∈dom(VSS_i)∧VSS_i∈VSS ⇸ ℤ∧front∈dom(VSS_i)" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_pUPtkAKiEeiYuL1vM5OOOx"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_pUPtkAKiEeiYuL1vM5OOOx"/>
+<org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpirekA"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="ENV_train_split/grd17/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of Guard" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpirekB"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="front0∈dom(VSS_i)∧VSS_i∈VSS ⇸ ℤ∧VSS_i[vss_set∪vss_set0]≠(∅ ⦂ ℙ(ℤ))∧(∃b⦂ℤ·∀x⦂ℤ·x∈VSS_i[vss_set∪vss_set0]⇒b≥x)" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_pUPtkAKiEeiYuL1vM5OOOy"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_pUPtkAKiEeiYuL1vM5OOOy"/>
+<org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpirekB"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="ENV_train_split/grd18/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of Guard" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpirekC"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="rear∈dom(VSS_i)∧VSS_i∈VSS ⇸ ℤ∧VSS_i[vss_set∪vss_set0]≠(∅ ⦂ ℙ(ℤ))∧(∃b⦂ℤ·∀x⦂ℤ·x∈VSS_i[vss_set∪vss_set0]⇒b≤x)" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_pUPtkAKiEeiYuL1vM5OOOz"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_pUPtkAKiEeiYuL1vM5OOOz"/>
+<org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpirekC"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="ENV_train_split/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="22">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpirek"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr1⦂TRAIN·tr1∈inMission⇒min(VSS_i[reportedPosition[{tr1}]])≤min(VSS_i[((occupiedBy ⩥ {tr0})∪(vss_set0 × {tr0})∪(vss_set × {tr}))∼[{tr1}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tX"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#ENV_train_split\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-M|org.eventb.core.poPredicate#PRD3"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="ENV_train_split/inv2/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="22">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpirek"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr1⦂TRAIN·tr1∈inMission⇒max(VSS_i[reportedPosition[{tr1}]])≤max(VSS_i[((occupiedBy ⩥ {tr0})∪(vss_set0 × {tr0})∪(vss_set × {tr}))∼[{tr1}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tX"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#ENV_train_split\/inv2\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD4"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTdisconnectPropagationTimerExpirek" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="20">
+<org.eventb.core.poIdentifier name="ghost'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="tr0" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="front0" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="train'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="rear0" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="next_train'" org.eventb.core.type="ℙ(TRAIN×TRAIN)"/>
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="following_train" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="noMission'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="rear" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="vss_set" org.eventb.core.type="ℙ(VSS)"/>
+<org.eventb.core.poIdentifier name="front" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="occupiedBy'" org.eventb.core.type="ℙ(VSS×TRAIN)"/>
+<org.eventb.core.poIdentifier name="vss_set0" org.eventb.core.type="ℙ(VSS)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTHYPdisconnectPropagationTimerExpirekA" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTIDENTdisconnectPropagationTimerExpirek" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∉train" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_JIpjkChkEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="vss_set∈ℙ(VSS)" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_JIpjkShkEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="vss_set0∈ℙ(VSS)" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_JIqKoChkEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="tr0∈train" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_JIqKoShkEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="following_train∈ℙ(train)" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_pUPtkAKiEeiYuL1vM5OOO\|"/>
+<org.eventb.core.poPredicate name="PRD5" org.eventb.core.predicate="following_train=next_train∼[{tr0}]" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_pUPtkAKiEeiYuL1vM5OOO}"/>
+<org.eventb.core.poPredicate name="PRD6" org.eventb.core.predicate="vss_set⊆VSS" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOOx"/>
+<org.eventb.core.poPredicate name="PRD7" org.eventb.core.predicate="vss_set0⊆VSS" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOO{"/>
+<org.eventb.core.poPredicate name="PRD8" org.eventb.core.predicate="vss_set∪vss_set0⊆dom(occupiedBy)" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOO\|"/>
+<org.eventb.core.poPredicate name="PRD9" org.eventb.core.predicate="occupiedBy∼[{tr0}]=vss_set0∪vss_set" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOO}"/>
+<org.eventb.core.poPredicate name="PRD10" org.eventb.core.predicate="front0∈vss_set0" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOO~"/>
+<org.eventb.core.poPredicate name="PRD11" org.eventb.core.predicate="rear0∈vss_set0" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOP+"/>
+<org.eventb.core.poPredicate name="PRD12" org.eventb.core.predicate="front∈vss_set" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOP,"/>
+<org.eventb.core.poPredicate name="PRD13" org.eventb.core.predicate="rear∈vss_set" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOP-"/>
+<org.eventb.core.poPredicate name="PRD14" org.eventb.core.predicate="Next_VSS[vss_set ∖ {front}]=vss_set ∖ {rear}" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOP."/>
+<org.eventb.core.poPredicate name="PRD15" org.eventb.core.predicate="Next_VSS∼[vss_set ∖ {rear}]=vss_set ∖ {front}" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOP\/"/>
+<org.eventb.core.poPredicate name="PRD16" org.eventb.core.predicate="Next_VSS[vss_set0 ∖ {front0}]=vss_set0 ∖ {rear0}" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOP0"/>
+<org.eventb.core.poPredicate name="PRD17" org.eventb.core.predicate="Next_VSS[vss_set0 ∖ {front0}]=vss_set0 ∖ {rear0}" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOP1"/>
+<org.eventb.core.poPredicate name="PRD18" org.eventb.core.predicate="Next_VSS[(vss_set∪vss_set0) ∖ {front0}]=(vss_set∪vss_set0) ∖ {rear}" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOP3"/>
+<org.eventb.core.poPredicate name="PRD19" org.eventb.core.predicate="Next_VSS∼[(vss_set∪vss_set0) ∖ {rear}]=(vss_set∪vss_set0) ∖ {front0}" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOP4"/>
+<org.eventb.core.poPredicate name="PRD20" org.eventb.core.predicate="card(vss_set∩vss_set0)≤1" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOP5"/>
+<org.eventb.core.poPredicate name="PRD21" org.eventb.core.predicate="tr∉train" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_XHTVsAHWEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="PRD22" org.eventb.core.predicate="Next_VSS∼[vss_set0 ∖ {rear0}]=vss_set0 ∖ {front0}" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_JIrYwShkEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD23" org.eventb.core.predicate="Next_VSS[vss_set∩vss_set0 ∖ {rear0}]=vss_set∩vss_set0 ∖ {front}" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_JIr_0ChkEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD24" org.eventb.core.predicate="Next_VSS∼[vss_set∩vss_set0 ∖ {front}]=vss_set∩vss_set0 ∖ {rear0}" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_JIr_0ShkEeip5da7u-uH2w"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTHYPdisconnectPropagationTimerExpirekB" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpirekA" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD25" org.eventb.core.predicate="VSS_i(rear0)≥VSS_i(front)" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_pUPtkAKiEeiYuL1vM5OOOx"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTHYPdisconnectPropagationTimerExpirekC" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpirekB" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD26" org.eventb.core.predicate="VSS_i(front0)=max(VSS_i[vss_set∪vss_set0])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_pUPtkAKiEeiYuL1vM5OOOy"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPdisconnectPropagationTimerExpirek" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpirekC" org.eventb.core.poStamp="22">
+<org.eventb.core.poPredicate name="PRD27" org.eventb.core.predicate="VSS_i(rear)=min(VSS_i[vss_set∪vss_set0])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_pUPtkAKiEeiYuL1vM5OOOz"/>
+<org.eventb.core.poPredicate name="PRD28" org.eventb.core.predicate="max(VSS_i[vss_set])≤min(VSS_i[vss_set0])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1te|org.eventb.core.guard#_pUPtkAKiEeiYuL1vM5OOP'"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="ENV_join_network/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="24">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpirel"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr0⦂TRAIN·tr0∈inMission⇒min(VSS_i[reportedPosition[{tr0}]])≤min(VSS_i[(occupiedBy∪{Fst_VSS ↦ tr})∼[{tr0}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tY"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tf"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#ENV_join_network\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-M|org.eventb.core.poPredicate#PRD3"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="ENV_join_network/inv2/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="24">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpirel"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr0⦂TRAIN·tr0∈inMission⇒max(VSS_i[reportedPosition[{tr0}]])≤max(VSS_i[(occupiedBy∪{Fst_VSS ↦ tr})∼[{tr0}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tY"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tf"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#ENV_join_network\/inv2\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD4"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTdisconnectPropagationTimerExpirel" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="24">
+<org.eventb.core.poIdentifier name="ghost'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="last_train" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="train'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="next_train'" org.eventb.core.type="ℙ(TRAIN×TRAIN)"/>
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="noMission'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="occupiedBy'" org.eventb.core.type="ℙ(VSS×TRAIN)"/>
+<org.eventb.core.poIdentifier name="occupiedTTD'" org.eventb.core.type="ℙ(TTD)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPdisconnectPropagationTimerExpirel" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTIDENTdisconnectPropagationTimerExpirel" org.eventb.core.poStamp="24">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∉train" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XejpUAyxEeiI47opYxrTSg|org.eventb.core.guard#_VgC4wQyyEeiI47opYxrTSg"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="last_train=train ∖ ran(next_train)" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XejpUAyxEeiI47opYxrTSg|org.eventb.core.guard#_Xg39ggyxEeiI47opYxrTSj"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="train≠(∅ ⦂ ℙ(TRAIN))⇒(∃lt⦂TRAIN·last_train={lt})" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XejpUAyxEeiI47opYxrTSg|org.eventb.core.guard#_Xg39ggyxEeiI47opYxrTSl"/>
+<org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="tr∉train" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_tU7QIfR9EeemGtrJ89W1tR|org.eventb.core.guard#_XHTVsQHWEeiYuL1vM5OOOw"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="ENV_last_train_leave_ttd/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpirem"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr0⦂TRAIN·tr0∈inMission⇒min(VSS_i[reportedPosition[{tr0}]])≤min(VSS_i[(occupiedBy ∖ {vss ↦ tr})∼[{tr0}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tZ"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tg"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#ENV_last_train_leave_ttd\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-M|org.eventb.core.poPredicate#PRD3"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="ENV_last_train_leave_ttd/inv2/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpirem"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr0⦂TRAIN·tr0∈inMission⇒max(VSS_i[reportedPosition[{tr0}]])≤max(VSS_i[(occupiedBy ∖ {vss ↦ tr})∼[{tr0}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tZ"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tg"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#ENV_last_train_leave_ttd\/inv2\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD4"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTdisconnectPropagationTimerExpirem" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="20">
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="vss" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="ttd" org.eventb.core.type="TTD"/>
+<org.eventb.core.poIdentifier name="occupiedBy'" org.eventb.core.type="ℙ(VSS×TRAIN)"/>
+<org.eventb.core.poIdentifier name="occupiedTTD'" org.eventb.core.type="ℙ(TTD)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPdisconnectPropagationTimerExpirem" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTIDENTdisconnectPropagationTimerExpirem" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∈train" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_m63RECuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="vss∈VSS" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_m63RESuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="vss ↦ tr∈occupiedBy" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_m63REiuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="vss≠Lst_VSS" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_vNHYMPUqEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="Next_VSS(vss)∈occupiedBy∼[{tr}]" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_m63REyuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD5" org.eventb.core.predicate="vss∉Next_VSS[occupiedBy∼[{tr}]]" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_jX3_0PU7EeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="PRD6" org.eventb.core.predicate="ttd∈occupiedTTD" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tZ|org.eventb.core.guard#_cLJl4AHdEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="PRD7" org.eventb.core.predicate="ttd=Sections∼(vss)" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tZ|org.eventb.core.guard#_LMkFMQHaEeiYuL1vM5OOOx"/>
+<org.eventb.core.poPredicate name="PRD8" org.eventb.core.predicate="(Sections[{ttd}] ∖ {vss})∩dom(occupiedBy)=(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tZ|org.eventb.core.guard#_LMkFMQHaEeiYuL1vM5OOOy"/>
+<org.eventb.core.poPredicate name="PRD9" org.eventb.core.predicate="occupiedBy[{vss}]={tr}" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tZ|org.eventb.core.guard#_LMkFMQHaEeiYuL1vM5OOOz"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="ENV_leave_network_and_free_ttd/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpiren"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr0⦂TRAIN·tr0∈inMission⇒min(VSS_i[reportedPosition[{tr0}]])≤min(VSS_i[(occupiedBy ⩥ {tr})∼[{tr0}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1t["/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1th"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#ENV_leave_network_and_free_ttd\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-M|org.eventb.core.poPredicate#PRD3"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="ENV_leave_network_and_free_ttd/inv2/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpiren"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr0⦂TRAIN·tr0∈inMission⇒max(VSS_i[reportedPosition[{tr0}]])≤max(VSS_i[(occupiedBy ⩥ {tr})∼[{tr0}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1t["/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1th"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#ENV_leave_network_and_free_ttd\/inv2\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD4"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTdisconnectPropagationTimerExpiren" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="20">
+<org.eventb.core.poIdentifier name="ghost'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="train'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="next_train'" org.eventb.core.type="ℙ(TRAIN×TRAIN)"/>
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="noMission'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="occupiedBy'" org.eventb.core.type="ℙ(VSS×TRAIN)"/>
+<org.eventb.core.poIdentifier name="occupiedTTD'" org.eventb.core.type="ℙ(TTD)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPdisconnectPropagationTimerExpiren" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTIDENTdisconnectPropagationTimerExpiren" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∈train" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XejpUQyxEeiI47opYxrTSg|org.eventb.core.guard#_VgC4wwyyEeiI47opYxrTSg"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="tr∉dom(next_train)" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XejpUQyxEeiI47opYxrTSg|org.eventb.core.guard#_Xg4kkQyxEeiI47opYxrTSh"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="occupiedBy∼[{tr}]={Lst_VSS}" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSAfR0EeemGtrJ89W1tQ|org.eventb.core.guard#_m62C8SuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="tr∈ghost" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tT|org.eventb.core.guard#_XHQ5cgHWEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="Sections[{Lst_TTD}]∩dom(occupiedBy ⩥ {tr})=(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1t\\|org.eventb.core.guard#("/>
+<org.eventb.core.poPredicate name="PRD5" org.eventb.core.predicate="tr∈noMission" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_t8160PR0EeemGtrJ89W1t[|org.eventb.core.guard#_pUPtkgKiEeiYuL1vM5OOOw"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="ENV_start_of_mission/assocMult_reportedPosition/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpireo"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="reportedPosition∪({tr} × occupiedBy∼[{tr}])∈inMission∪{tr}  VSS" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIvqMShkEeip5da7u-uH2w"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_bB5-gAHgEeiYuL1vM5OOOw"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1ti"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIvqMShkEeip5da7u-uH2w"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#ENV_start_of_mission\/assocMult_reportedPosition\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-L|org.eventb.core.poPredicate#PRD0"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="ENV_start_of_mission/attribType_muteTimerExpired/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpireo"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="muteTimerExpired{tr ↦ FALSE}∈inMission∪{tr} → BOOL" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIwRQShkEeip5da7u-uH2w"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_bB5-gAHgEeiYuL1vM5OOOw"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1ti"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIwRQShkEeip5da7u-uH2w"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#ENV_start_of_mission\/attribType_muteTimerExpired\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-L|org.eventb.core.poPredicate#PRD2"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="ENV_start_of_mission/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpireo"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr0⦂TRAIN·tr0∈inMission∪{tr}⇒min(VSS_i[(reportedPosition∪({tr} × occupiedBy∼[{tr}]))[{tr0}]])≤min(VSS_i[occupiedBy∼[{tr0}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_bB5-gAHgEeiYuL1vM5OOOw"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1ti"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#ENV_start_of_mission\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-M|org.eventb.core.poPredicate#PRD3"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="ENV_start_of_mission/inv2/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpireo"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr0⦂TRAIN·tr0∈inMission∪{tr}⇒max(VSS_i[(reportedPosition∪({tr} × occupiedBy∼[{tr}]))[{tr0}]])≤max(VSS_i[occupiedBy∼[{tr0}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_bB5-gAHgEeiYuL1vM5OOOw"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1ti"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#ENV_start_of_mission\/inv2\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD4"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTdisconnectPropagationTimerExpireo" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="20">
+<org.eventb.core.poIdentifier name="inMission'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="ghost'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="connected'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="ma'" org.eventb.core.type="ℙ(TRAIN×VSS)"/>
+<org.eventb.core.poIdentifier name="unsafe'" org.eventb.core.type="ℙ(TRAIN×BOOL)"/>
+<org.eventb.core.poIdentifier name="muteTimerExpired'" org.eventb.core.type="ℙ(TRAIN×BOOL)"/>
+<org.eventb.core.poIdentifier name="noMission'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="reportedPosition'" org.eventb.core.type="ℙ(TRAIN×VSS)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPdisconnectPropagationTimerExpireo" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTIDENTdisconnectPropagationTimerExpireo" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∈ghost" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_bB5-gAHgEeiYuL1vM5OOOw|org.eventb.core.guard#_pUQ7sQKiEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="tr∈noMission" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_bB5-gAHgEeiYuL1vM5OOOw|org.eventb.core.guard#_pUQ7sgKiEeiYuL1vM5OOOw"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="ENV_end_of_mission/assocMult_reportedPosition/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpirep"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="{tr} ⩤ reportedPosition∈inMission ∖ {tr}  VSS" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIvqMShkEeip5da7u-uH2w"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_bB5-gQHgEeiYuL1vM5OOOw"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tj"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIvqMShkEeip5da7u-uH2w"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#ENV_end_of_mission\/assocMult_reportedPosition\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-L|org.eventb.core.poPredicate#PRD0"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="ENV_end_of_mission/attribType_muteTimerExpired/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpirep"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="{tr} ⩤ muteTimerExpired∈inMission ∖ {tr} → BOOL" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIwRQShkEeip5da7u-uH2w"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_bB5-gQHgEeiYuL1vM5OOOw"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tj"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIwRQShkEeip5da7u-uH2w"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#ENV_end_of_mission\/attribType_muteTimerExpired\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-L|org.eventb.core.poPredicate#PRD2"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="ENV_end_of_mission/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpirep"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr0⦂TRAIN·tr0∈inMission ∖ {tr}⇒min(VSS_i[({tr} ⩤ reportedPosition)[{tr0}]])≤min(VSS_i[occupiedBy∼[{tr0}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_bB5-gQHgEeiYuL1vM5OOOw"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tj"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#ENV_end_of_mission\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-M|org.eventb.core.poPredicate#PRD3"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="ENV_end_of_mission/inv2/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpirep"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr0⦂TRAIN·tr0∈inMission ∖ {tr}⇒max(VSS_i[({tr} ⩤ reportedPosition)[{tr0}]])≤max(VSS_i[occupiedBy∼[{tr0}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_bB5-gQHgEeiYuL1vM5OOOw"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tj"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#ENV_end_of_mission\/inv2\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD4"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTdisconnectPropagationTimerExpirep" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="20">
+<org.eventb.core.poIdentifier name="inMission'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="ghost'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="connected'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="ma'" org.eventb.core.type="ℙ(TRAIN×VSS)"/>
+<org.eventb.core.poIdentifier name="unsafe'" org.eventb.core.type="ℙ(TRAIN×BOOL)"/>
+<org.eventb.core.poIdentifier name="muteTimerExpired'" org.eventb.core.type="ℙ(TRAIN×BOOL)"/>
+<org.eventb.core.poIdentifier name="noMission'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="reportedPosition'" org.eventb.core.type="ℙ(TRAIN×VSS)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPdisconnectPropagationTimerExpirep" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTIDENTdisconnectPropagationTimerExpirep" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∈connected" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_bB5-gQHgEeiYuL1vM5OOOw|org.eventb.core.guard#_pURiwgKiEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="tr∈inMission" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_bB5-gQHgEeiYuL1vM5OOOw|org.eventb.core.guard#_pURiwwKiEeiYuL1vM5OOOw"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTIDENTdisconnectPropagationTimerExpireq" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="20">
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="ma'" org.eventb.core.type="ℙ(TRAIN×VSS)"/>
+<org.eventb.core.poIdentifier name="vss_set" org.eventb.core.type="ℙ(VSS)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPdisconnectPropagationTimerExpireq" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTIDENTdisconnectPropagationTimerExpireq" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∈connected" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_fsXGAAHhEeiYuL1vM5OOOw|org.eventb.core.guard#_pUSJ0QKiEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="vss_set∩ma[{tr}]=(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_fsXGAAHhEeiYuL1vM5OOOw|org.eventb.core.guard#_pUSJ0QKiEeiYuL1vM5OOOz"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="vss_set≠(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_fsXGAAHhEeiYuL1vM5OOOw|org.eventb.core.guard#_pUSJ0QKiEeiYuL1vM5OOO\|"/>
+<org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="∀vss⦂VSS·vss∈vss_set⇒VSS_i(vss)∈min(VSS_i[vss_set]) ‥ max(VSS_i[vss_set])" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_fsXGAAHhEeiYuL1vM5OOOw|org.eventb.core.guard#_pUSJ0QKiEeiYuL1vM5OOO}"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTIDENTdisconnectPropagationTimerExpirer" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="20">
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="ma'" org.eventb.core.type="ℙ(TRAIN×VSS)"/>
+<org.eventb.core.poIdentifier name="vss_set" org.eventb.core.type="ℙ(VSS)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPdisconnectPropagationTimerExpirer" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTIDENTdisconnectPropagationTimerExpirer" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∈connected" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_fsXGAQHhEeiYuL1vM5OOOw|org.eventb.core.guard#_pUSJ0wKiEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="unsafe(tr)=TRUE" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_fsXGAQHhEeiYuL1vM5OOOw|org.eventb.core.guard#_pUSJ0wKiEeiYuL1vM5OOOz"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="vss_set⊂ma[{tr}]" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_fsXGAQHhEeiYuL1vM5OOOw|org.eventb.core.guard#_pUSJ0wKiEeiYuL1vM5OOOy"/>
+<org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="vss_set≠(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_fsXGAQHhEeiYuL1vM5OOOw|org.eventb.core.guard#_pUSJ0wKiEeiYuL1vM5OOO{"/>
+<org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="∀vss⦂VSS·vss∈vss_set⇒VSS_i(vss)∈min(VSS_i[vss_set]) ‥ max(VSS_i[vss_set])" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_fsXGAQHhEeiYuL1vM5OOOw|org.eventb.core.guard#_pUSJ0wKiEeiYuL1vM5OOO}"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTIDENTdisconnectPropagationTimerExpires" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="20">
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="unsafe'" org.eventb.core.type="ℙ(TRAIN×BOOL)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPdisconnectPropagationTimerExpires" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTIDENTdisconnectPropagationTimerExpires" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∈connected" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_VbkEQAHkEeiYuL1vM5OOOw|org.eventb.core.guard#_fpu0kAOpEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="unsafe(tr)=TRUE" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_VbkEQAHkEeiYuL1vM5OOOw|org.eventb.core.guard#_DqRCQQKnEeiYuL1vM5OOOx"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="occupiedBy∼[{tr}]⊆ma[{tr}]" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_VbkEQAHkEeiYuL1vM5OOOw|org.eventb.core.guard#__XTg0QK9EeiYuL1vM5OOOx"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTIDENTdisconnectPropagationTimerExpiret" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="20">
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="unsafe'" org.eventb.core.type="ℙ(TRAIN×BOOL)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPdisconnectPropagationTimerExpiret" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTIDENTdisconnectPropagationTimerExpiret" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∈connected" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_VbkEQQHkEeiYuL1vM5OOOw|org.eventb.core.guard#_fpu0kgOpEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="unsafe(tr)=FALSE" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_VbkEQQHkEeiYuL1vM5OOOw|org.eventb.core.guard#_DqRCQwKnEeiYuL1vM5OOOy"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="RBC_trim_ma/grd3/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of Guard" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpireu*"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="VSS_i[vss_set]≠(∅ ⦂ ℙ(ℤ))∧(∃b⦂ℤ·∀x⦂ℤ·x∈VSS_i[vss_set]⇒b≥x)∧VSS_i[reportedPosition[{tr}]]≠(∅ ⦂ ℙ(ℤ))∧(∃b⦂ℤ·∀x⦂ℤ·x∈VSS_i[reportedPosition[{tr}]]⇒b≤x)" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1to|org.eventb.core.guard#_fpvboAOpEeiYuL1vM5OOOz"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1to|org.eventb.core.guard#_fpvboAOpEeiYuL1vM5OOOz"/>
+<org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpireu*"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="RBC_trim_ma/grd3/GRD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Guard strengthening (split)" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpireu"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="max(VSS_i[vss_set])&lt;min(VSS_i[occupiedBy∼[{tr}]])" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_rQOkAAKgEeiYuL1vM5OOOw|org.eventb.core.guard#_fpvboAOpEeiYuL1vM5OOOz"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_rQOkAAKgEeiYuL1vM5OOOw"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M3.bum|org.eventb.core.machineFile#Env_M3|org.eventb.core.event#_rQOkAAKgEeiYuL1vM5OOOw|org.eventb.core.guard#_fpvboAOpEeiYuL1vM5OOOz"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1to"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#RBC_trim_ma\/grd3\/GRD|org.eventb.core.poPredicateSet#SEQHYP"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTdisconnectPropagationTimerExpireu" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="20">
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="ma'" org.eventb.core.type="ℙ(TRAIN×VSS)"/>
+<org.eventb.core.poIdentifier name="vss_set" org.eventb.core.type="ℙ(VSS)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTHYPdisconnectPropagationTimerExpireu*" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTIDENTdisconnectPropagationTimerExpireu" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∈connected" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1to|org.eventb.core.guard#_JIt1AChkEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="vss_set⊂ma[{tr}]" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1to|org.eventb.core.guard#__XTg1QK9EeiYuL1vM5OOOy"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="vss_set≠(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1to|org.eventb.core.guard#__XTg1QK9EeiYuL1vM5OOOz"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPdisconnectPropagationTimerExpireu" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpireu*" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="max(VSS_i[vss_set])&lt;min(VSS_i[reportedPosition[{tr}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_t8160PR0EeemGtrJ89W1to|org.eventb.core.guard#_fpvboAOpEeiYuL1vM5OOOz"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="VBD_receive_position_report/grd2/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of Guard" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpirev)"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="VSS_i[pos]≠(∅ ⦂ ℙ(ℤ))∧(∃b⦂ℤ·∀x⦂ℤ·x∈VSS_i[pos]⇒b≤x)∧VSS_i[occupiedBy∼[{tr}]]≠(∅ ⦂ ℙ(ℤ))∧(∃b⦂ℤ·∀x⦂ℤ·x∈VSS_i[occupiedBy∼[{tr}]]⇒b≤x)" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_giODoATZEeiiL8sVyhrWNA|org.eventb.core.guard#_jxYuUQTZEeiiL8sVyhrWND"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_giODoATZEeiiL8sVyhrWNA|org.eventb.core.guard#_jxYuUQTZEeiiL8sVyhrWND"/>
+<org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpirev)"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="VBD_receive_position_report/grd5/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of Guard" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpirev*"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="VSS_i[pos]≠(∅ ⦂ ℙ(ℤ))∧(∃b⦂ℤ·∀x⦂ℤ·x∈VSS_i[pos]⇒b≥x)∧VSS_i[occupiedBy∼[{tr}]]≠(∅ ⦂ ℙ(ℤ))∧(∃b⦂ℤ·∀x⦂ℤ·x∈VSS_i[occupiedBy∼[{tr}]]⇒b≥x)" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_giODoATZEeiiL8sVyhrWNA|org.eventb.core.guard#_n0MtkAUHEeiiL8sVyhrWNE"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_giODoATZEeiiL8sVyhrWNA|org.eventb.core.guard#_n0MtkAUHEeiiL8sVyhrWNE"/>
+<org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpirev*"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="VBD_receive_position_report/assocMult_reportedPosition/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpirev"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="({tr} ⩤ reportedPosition)∪({tr} × pos)∈inMission  VSS" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIvqMShkEeip5da7u-uH2w"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_giODoATZEeiiL8sVyhrWNA"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIvqMShkEeip5da7u-uH2w"/>
+<org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#VBD_receive_position_report\/assocMult_reportedPosition\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-L|org.eventb.core.poPredicate#PRD0"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="VBD_receive_position_report/attribType_disconnectPropagationTimerExpired/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpirev"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="(pos0 ⩤ disconnectPropagationTimerExpired)∪(pos0 × {FALSE})∈VSS → BOOL" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIwRQChkEeip5da7u-uH2w"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_giODoATZEeiiL8sVyhrWNA"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIwRQChkEeip5da7u-uH2w"/>
+<org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#VBD_receive_position_report\/attribType_disconnectPropagationTimerExpired\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-L|org.eventb.core.poPredicate#PRD1"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="VBD_receive_position_report/attribType_muteTimerExpired/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpirev"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="muteTimerExpired{tr ↦ FALSE}∈inMission → BOOL" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIwRQShkEeip5da7u-uH2w"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_giODoATZEeiiL8sVyhrWNA"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIwRQShkEeip5da7u-uH2w"/>
+<org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#VBD_receive_position_report\/attribType_muteTimerExpired\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-L|org.eventb.core.poPredicate#PRD2"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="VBD_receive_position_report/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpirev"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr0⦂TRAIN·tr0∈inMission⇒min(VSS_i[(({tr} ⩤ reportedPosition)∪({tr} × pos))[{tr0}]])≤min(VSS_i[occupiedBy∼[{tr0}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_giODoATZEeiiL8sVyhrWNA"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+<org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#VBD_receive_position_report\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-M|org.eventb.core.poPredicate#PRD3"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="VBD_receive_position_report/inv2/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpirev"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀tr0⦂TRAIN·tr0∈inMission⇒max(VSS_i[(({tr} ⩤ reportedPosition)∪({tr} × pos))[{tr0}]])≤max(VSS_i[occupiedBy∼[{tr0}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_giODoATZEeiiL8sVyhrWNA"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+<org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#VBD_receive_position_report\/inv2\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD4"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTdisconnectPropagationTimerExpirev" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="20">
+<org.eventb.core.poIdentifier name="pos" org.eventb.core.type="ℙ(VSS)"/>
+<org.eventb.core.poIdentifier name="disconnectPropagationTimerExpired'" org.eventb.core.type="ℙ(VSS×BOOL)"/>
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="pos0" org.eventb.core.type="ℙ(VSS)"/>
+<org.eventb.core.poIdentifier name="muteTimerExpired'" org.eventb.core.type="ℙ(TRAIN×BOOL)"/>
+<org.eventb.core.poIdentifier name="reportedPosition'" org.eventb.core.type="ℙ(TRAIN×VSS)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTHYPdisconnectPropagationTimerExpirev)" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTIDENTdisconnectPropagationTimerExpirev" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∈connected" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_giODoATZEeiiL8sVyhrWNA|org.eventb.core.guard#_JIvDIChkEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="pos⊆ma[{tr}]" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_giODoATZEeiiL8sVyhrWNA|org.eventb.core.guard#_jxYuUQTZEeiiL8sVyhrWNB"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="pos≠(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_giODoATZEeiiL8sVyhrWNA|org.eventb.core.guard#_jxYuUQTZEeiiL8sVyhrWNF"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTHYPdisconnectPropagationTimerExpirev*" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpirev)" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="min(VSS_i[pos])≤min(VSS_i[occupiedBy∼[{tr}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_giODoATZEeiiL8sVyhrWNA|org.eventb.core.guard#_jxYuUQTZEeiiL8sVyhrWND"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPdisconnectPropagationTimerExpirev" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpirev*" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="max(VSS_i[pos])≤max(VSS_i[occupiedBy∼[{tr}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_giODoATZEeiiL8sVyhrWNA|org.eventb.core.guard#_n0MtkAUHEeiiL8sVyhrWNE"/>
+<org.eventb.core.poPredicate name="PRD5" org.eventb.core.predicate="pos0=reportedPosition[{tr}]" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_giODoATZEeiiL8sVyhrWNA|org.eventb.core.guard#_n0MtkAUHEeiiL8sVyhrWND"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="VBD_disconnect_propagation_timer_expired/grd2/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of Guard" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpirew("/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="tr∈dom(muteTimerExpired)∧muteTimerExpired∈TRAIN ⇸ BOOL" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_B8I8QAUHEeiiL8sVyhrWNA|org.eventb.core.guard#_n0NUoQUHEeiiL8sVyhrWNC"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_B8I8QAUHEeiiL8sVyhrWNA|org.eventb.core.guard#_n0NUoQUHEeiiL8sVyhrWNC"/>
+<org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpirew("/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="VBD_disconnect_propagation_timer_expired/attribType_disconnectPropagationTimerExpired/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTALLHYPdisconnectPropagationTimerExpirew"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="disconnectPropagationTimerExpired{vss ↦ TRUE}∈VSS → BOOL" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIwRQChkEeip5da7u-uH2w"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_B8I8QAUHEeiiL8sVyhrWNA"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIwRQChkEeip5da7u-uH2w"/>
+<org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poSequent#VBD_disconnect_propagation_timer_expired\/attribType_disconnectPropagationTimerExpired\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-L|org.eventb.core.poPredicate#PRD1"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTdisconnectPropagationTimerExpirew" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="20">
+<org.eventb.core.poIdentifier name="disconnectPropagationTimerExpired'" org.eventb.core.type="ℙ(VSS×BOOL)"/>
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="vss" org.eventb.core.type="VSS"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTHYPdisconnectPropagationTimerExpirew(" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTIDENTdisconnectPropagationTimerExpirew" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="vss∈VSS" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_B8I8QAUHEeiiL8sVyhrWNA|org.eventb.core.guard#_JIw4UChkEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="tr ↦ vss∈reportedPosition" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_B8I8QAUHEeiiL8sVyhrWNA|org.eventb.core.guard#_n0NUoQUHEeiiL8sVyhrWNB"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPdisconnectPropagationTimerExpirew" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#EVTHYPdisconnectPropagationTimerExpirew(" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="muteTimerExpired(tr)=TRUE" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.event#_B8I8QAUHEeiiL8sVyhrWNA|org.eventb.core.guard#_n0NUoQUHEeiiL8sVyhrWNC"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="HYPENV_C-L" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="reportedPosition∈inMission  VSS" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIvqMShkEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="disconnectPropagationTimerExpired∈VSS → BOOL" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIwRQChkEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="muteTimerExpired∈inMission → BOOL" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_JIwRQShkEeip5da7u-uH2w"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="HYPENV_C-M" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-L" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="∀tr⦂TRAIN·tr∈inMission⇒min(VSS_i[reportedPosition[{tr}]])≤min(VSS_i[occupiedBy∼[{tr}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tp"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="ALLHYP" org.eventb.core.parentSet="/HL3/VBD_M4.bpo|org.eventb.core.poFile#VBD_M4|org.eventb.core.poPredicateSet#HYPENV_C-M" org.eventb.core.poStamp="20">
+<org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="∀tr⦂TRAIN·tr∈inMission⇒max(VSS_i[reportedPosition[{tr}]])≤max(VSS_i[occupiedBy∼[{tr}]])" org.eventb.core.source="/HL3/VBD_M4.bum|org.eventb.core.machineFile#VBD_M4|org.eventb.core.invariant#_uo00IQToEeiiL8sVyhrWNB"/>
+</org.eventb.core.poPredicateSet>
+</org.eventb.core.poFile>

@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.poFile org.eventb.core.poStamp="23">
+<org.eventb.core.poPredicateSet name="CTXHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poIdentifier name="TRAIN" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poPredicate name="TRAIO" org.eventb.core.predicate="finite(TRAIN)" org.eventb.core.source="/HL3/ENV_C-1.buc|org.eventb.core.contextFile#ENV_C-1|org.eventb.core.axiom#("/>
+<org.eventb.core.poIdentifier name="VSS" org.eventb.core.type="ℙ(VSS)"/>
+<org.eventb.core.poIdentifier name="Fst_VSS" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="Lst_VSS" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="Max_VSS_i" org.eventb.core.type="ℤ"/>
+<org.eventb.core.poIdentifier name="Next_VSS" org.eventb.core.type="ℙ(VSS×VSS)"/>
+<org.eventb.core.poIdentifier name="VSS_i" org.eventb.core.type="ℙ(VSS×ℤ)"/>
+<org.eventb.core.poPredicate name="Max_VSS_j" org.eventb.core.predicate="Next_VSS∈VSS ⤔ VSS" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_bdaa0PRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_k" org.eventb.core.predicate="Next_VSS≠Next_VSS∼" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_krALwPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_l" org.eventb.core.predicate="∀S⦂ℙ(VSS)·S⊆Next_VSS[S]⇒S=(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_oqqfQPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_m" org.eventb.core.predicate="Fst_VSS∈VSS" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_rkzVIPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_n" org.eventb.core.predicate="Lst_VSS∈VSS" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_3l5IcPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_o" org.eventb.core.predicate="Fst_VSS≠Lst_VSS" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_7BS4UPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_p" org.eventb.core.predicate="∀vss⦂VSS·vss∈VSS⇒(vss≠Fst_VSS⇔vss∈ran(Next_VSS))" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_bdZzwPRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_q" org.eventb.core.predicate="∀vss⦂VSS·vss∈VSS⇒(vss≠Lst_VSS⇔vss∈dom(Next_VSS))" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_bdZzwfRjEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_r" org.eventb.core.predicate="finite(VSS)" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tR"/>
+<org.eventb.core.poPredicate name="Max_VSS_s" org.eventb.core.predicate="Max_VSS_i∈ℕ1" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tV"/>
+<org.eventb.core.poPredicate name="Max_VSS_t" org.eventb.core.predicate="VSS_i∈VSS ↣ 0 ‥ Max_VSS_i" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tW"/>
+<org.eventb.core.poPredicate name="Max_VSS_u" org.eventb.core.predicate="VSS_i(Fst_VSS)=0" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tX"/>
+<org.eventb.core.poPredicate name="Max_VSS_v" org.eventb.core.predicate="∀vss⦂VSS·vss∈VSS ∖ {Lst_VSS}⇒VSS_i(Next_VSS(vss))=VSS_i(vss)+1" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tY"/>
+<org.eventb.core.poPredicate name="Max_VSS_w" org.eventb.core.predicate="VSS_i(Lst_VSS)=Max_VSS_i" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1tZ"/>
+<org.eventb.core.poPredicate name="Max_VSS_x" org.eventb.core.predicate="max(ran(VSS_i))=Max_VSS_i" org.eventb.core.source="/HL3/Env_C0.buc|org.eventb.core.contextFile#Env_C0|org.eventb.core.axiom#_t4mZMPRiEeemGtrJ89W1t["/>
+<org.eventb.core.poIdentifier name="TTD" org.eventb.core.type="ℙ(TTD)"/>
+<org.eventb.core.poIdentifier name="Fst_TTD" org.eventb.core.type="TTD"/>
+<org.eventb.core.poIdentifier name="Lst_TTD" org.eventb.core.type="TTD"/>
+<org.eventb.core.poIdentifier name="Next_TTD" org.eventb.core.type="ℙ(TTD×TTD)"/>
+<org.eventb.core.poIdentifier name="Sections" org.eventb.core.type="ℙ(TTD×VSS)"/>
+<org.eventb.core.poPredicate name="Max_VSS_y" org.eventb.core.predicate="Next_TTD∈TTD ⤔ TTD" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_wDJaw_VKEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_z" org.eventb.core.predicate="Sections∼∈VSS ⇸ TTD" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_wDJaxPVKEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_{" org.eventb.core.predicate="Fst_TTD∈TTD" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_NL22UPVLEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_|" org.eventb.core.predicate="Lst_TTD∈TTD" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_NL22UfVLEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_}" org.eventb.core.predicate="Fst_TTD≠Lst_TTD" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_NL22UvVLEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS_~" org.eventb.core.predicate="Next_TTD≠Next_TTD∼" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_NL22U_VLEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS`'" org.eventb.core.predicate="∀ttd⦂TTD·ttd∈TTD⇒(ttd≠Fst_TTD⇔ttd∈ran(Next_TTD))" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_wDJawPVKEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS`(" org.eventb.core.predicate="∀ttd⦂TTD·ttd∈TTD⇒(ttd≠Lst_TTD⇔ttd∈dom(Next_TTD))" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_wDJawfVKEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS`)" org.eventb.core.predicate="Sections∈TTD  VSS" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_wDJawvVKEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="Max_VSS`*" org.eventb.core.predicate="∀S⦂ℙ(TTD)·S⊆Next_TTD[S]⇒S=(∅ ⦂ ℙ(TTD))" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_yhSqUPbNEeeAUKuLPlopDA"/>
+<org.eventb.core.poPredicate name="Max_VSS`+" org.eventb.core.predicate="Fst_VSS∈Sections[{Fst_TTD}]" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_3iWwcPbNEeeAUKuLPlopDA"/>
+<org.eventb.core.poPredicate name="Max_VSS`," org.eventb.core.predicate="Lst_VSS∈Sections[{Lst_TTD}]" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_6H2zEPbNEeeAUKuLPlopDA"/>
+<org.eventb.core.poPredicate name="Max_VSS`-" org.eventb.core.predicate="∀vss⦂VSS,ttd⦂TTD·ttd≠Lst_TTD∧vss∈Sections[{ttd}]⇒Sections∼(Next_VSS(vss))=ttd∨Sections∼(Next_VSS(vss))=Next_TTD(ttd)" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_yhSqUfbNEeeAUKuLPlopDA"/>
+<org.eventb.core.poPredicate name="Max_VSS`." org.eventb.core.predicate="∀vss⦂VSS·vss∈Sections[{Lst_TTD}]∧vss≠Lst_VSS⇒Sections∼(Next_VSS(vss))=Lst_TTD" org.eventb.core.source="/HL3/Env_C1.buc|org.eventb.core.contextFile#Env_C1|org.eventb.core.axiom#_MBRAcPbVEeeAUKuLPlopDA"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="ABSHYP" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poStamp="19">
+<org.eventb.core.poIdentifier name="connected" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="ghost" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="next_train" org.eventb.core.type="ℙ(TRAIN×TRAIN)"/>
+<org.eventb.core.poIdentifier name="occupiedBy" org.eventb.core.type="ℙ(VSS×TRAIN)"/>
+<org.eventb.core.poIdentifier name="occupiedTTD" org.eventb.core.type="ℙ(TTD)"/>
+<org.eventb.core.poIdentifier name="train" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poPredicate name="occupiedTTE" org.eventb.core.predicate="train∈ℙ(TRAIN)" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.invariant#_VgDf1AyyEeiI47opYxrTSg"/>
+<org.eventb.core.poPredicate name="occupiedTTF" org.eventb.core.predicate="next_train∈train ⤔ train" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.invariant#_VgEG4AyyEeiI47opYxrTSg"/>
+<org.eventb.core.poPredicate name="occupiedTTG" org.eventb.core.predicate="train∈ℙ(TRAIN)" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.invariant#_m634ISuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="occupiedTTH" org.eventb.core.predicate="occupiedBy∈VSS  train" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.invariant#_m634IiuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="occupiedTTI" org.eventb.core.predicate="∀tr⦂TRAIN·tr∈train⇒(∃f⦂VSS·f∈occupiedBy∼[{tr}]∧Next_VSS[occupiedBy∼[{tr}] ∖ {f}]⊆occupiedBy∼[{tr}])" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.invariant#_OUZpMfU_EeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="occupiedTTJ" org.eventb.core.predicate="∀tr⦂TRAIN·tr ↦ tr∉next_train" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tU"/>
+<org.eventb.core.poPredicate name="occupiedTTK" org.eventb.core.predicate="∀tr_p⦂TRAIN,tr_n⦂TRAIN·tr_p ↦ tr_n∈next_train⇒max(VSS_i[occupiedBy∼[{tr_p}]])≤min(VSS_i[occupiedBy∼[{tr_n}]])" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1tT"/>
+<org.eventb.core.poPredicate name="occupiedTTL" org.eventb.core.predicate="train⊆TRAIN" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.invariant#_XHT8wQHWEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="occupiedTTM" org.eventb.core.predicate="ghost⊆train" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.invariant#_XHT8wgHWEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="occupiedTTN" org.eventb.core.predicate="connected⊆train" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.invariant#_XHT8wwHWEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="occupiedTTO" org.eventb.core.predicate="partition(train,ghost,connected)" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.invariant#_XHT8xAHWEeiYuL1vM5OOOw"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="cdm_inv1/THM" org.eventb.core.accurate="true" org.eventb.core.poDesc="Theorem" org.eventb.core.poStamp="19">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#HYPENV_C-?"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀ttd⦂TTD·ttd∈occupiedTTD⇒Sections[{ttd}]∩dom(occupiedBy)≠(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_cLKM8gHdEeiYuL1vM5OOOw"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_cLKM8gHdEeiYuL1vM5OOOw"/>
+<org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poSelHintSnd="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#HYPENV_C-?"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="INITIALISATION/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  establishment" org.eventb.core.poStamp="19">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTALLHYPoccupiedTTE"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀ttd⦂TTD·ttd∉(∅ ⦂ ℙ(TTD))⇔Sections[{ttd}]∩dom(∅ ⦂ ℙ(VSS×TRAIN))=(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1t["/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tR"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tR"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1t["/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poSelHintSnd="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poSequent#INITIALISATION\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#HYPENV_C-?|org.eventb.core.poPredicate#PRD1"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENToccupiedTTE" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poIdentifier name="ghost'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="connected'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="train'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="next_train'" org.eventb.core.type="ℙ(TRAIN×TRAIN)"/>
+<org.eventb.core.poIdentifier name="occupiedBy'" org.eventb.core.type="ℙ(VSS×TRAIN)"/>
+<org.eventb.core.poIdentifier name="occupiedTTD'" org.eventb.core.type="ℙ(TTD)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPoccupiedTTE" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTIDENToccupiedTTE" org.eventb.core.poStamp="0"/>
+<org.eventb.core.poSequent name="ENV_leave_network/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="19">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTALLHYPoccupiedTTF"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀ttd⦂TTD·ttd∉occupiedTTD⇔Sections[{ttd}]∩dom(occupiedBy ⩥ {tr})=(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1t["/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tT"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tS"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1t["/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poSequent#ENV_leave_network\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#HYPENV_C-?|org.eventb.core.poPredicate#PRD1"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENToccupiedTTF" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="19">
+<org.eventb.core.poIdentifier name="ghost'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="train'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="next_train'" org.eventb.core.type="ℙ(TRAIN×TRAIN)"/>
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="occupiedBy'" org.eventb.core.type="ℙ(VSS×TRAIN)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPoccupiedTTF" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTIDENToccupiedTTF" org.eventb.core.poStamp="19">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∈train" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XejpUQyxEeiI47opYxrTSg|org.eventb.core.guard#_VgC4wwyyEeiI47opYxrTSg"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="tr∉dom(next_train)" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XejpUQyxEeiI47opYxrTSg|org.eventb.core.guard#_Xg4kkQyxEeiI47opYxrTSh"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="occupiedBy∼[{tr}]={Lst_VSS}" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSAfR0EeemGtrJ89W1tQ|org.eventb.core.guard#_m62C8SuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="tr∈ghost" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tT|org.eventb.core.guard#_XHQ5cgHWEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="Sections[{Lst_TTD}]∩dom(occupiedBy ⩥ {tr})≠(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tS|org.eventb.core.guard#("/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="ENV_front_move_next/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="21">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTALLHYPoccupiedTTG"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀ttd⦂TTD·ttd∉occupiedTTD∪Sections∼[{vss}]⇔Sections[{ttd}]∩dom(occupiedBy∪{vss ↦ tr})=(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1t["/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tU"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tT"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1t["/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poSequent#ENV_front_move_next\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#HYPENV_C-?|org.eventb.core.poPredicate#PRD1"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENToccupiedTTG" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="19">
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="vss" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="occupiedBy'" org.eventb.core.type="ℙ(VSS×TRAIN)"/>
+<org.eventb.core.poIdentifier name="occupiedTTD'" org.eventb.core.type="ℙ(TTD)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPoccupiedTTG" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTIDENToccupiedTTG" org.eventb.core.poStamp="21">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∈train" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSAvR0EeemGtrJ89W1tQ|org.eventb.core.guard#_m62C9CuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="vss∈VSS" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSAvR0EeemGtrJ89W1tQ|org.eventb.core.guard#_m62C9SuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="Lst_VSS∉occupiedBy∼[{tr}]" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSAvR0EeemGtrJ89W1tQ|org.eventb.core.guard#_DSCGVgHUEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="vss∈Next_VSS[occupiedBy∼[{tr}]]" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSAvR0EeemGtrJ89W1tQ|org.eventb.core.guard#_DSCGVwHUEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="vss ↦ tr∉occupiedBy" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSAvR0EeemGtrJ89W1tQ|org.eventb.core.guard#_m62qAiuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD5" org.eventb.core.predicate="VSS_i(vss)=max(VSS_i[occupiedBy∼[{tr}]])+1" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSAvR0EeemGtrJ89W1tQ|org.eventb.core.guard#_m62qAyuDEeip5da7u-uH2y"/>
+<org.eventb.core.poPredicate name="PRD6" org.eventb.core.predicate="vss∈dom(occupiedBy)∧tr∈dom(next_train)⇒VSS_i(vss)=min(VSS_i[occupiedBy∼[{next_train(tr)}]])" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSAvR0EeemGtrJ89W1tQ|org.eventb.core.guard#_m62qAyuDEeip5da7u-uH2z"/>
+<org.eventb.core.poPredicate name="PRD7" org.eventb.core.predicate="∀tr_next⦂TRAIN·tr ↦ tr_next∈next_train⇒VSS_i(vss)≤min(VSS_i[occupiedBy∼[{tr_next}]])" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSAvR0EeemGtrJ89W1tQ|org.eventb.core.guard#_m62qAyuDEeip5da7u-uH2{"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="ENV_rear_leave_section/grd3/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of Guard" org.eventb.core.poStamp="19">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTHYPoccupiedTTH,"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="vss∈dom(Sections∼)∧Sections∼∈VSS ⇸ TTD" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tU|org.eventb.core.guard#)"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tU|org.eventb.core.guard#)"/>
+<org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTHYPoccupiedTTH,"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="ENV_rear_leave_section/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="19">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTALLHYPoccupiedTTH"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀ttd⦂TTD·ttd∉occupiedTTD⇔Sections[{ttd}]∩dom(occupiedBy ∖ {vss ↦ tr})=(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1t["/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tV"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tU"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1t["/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poSequent#ENV_rear_leave_section\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#HYPENV_C-?|org.eventb.core.poPredicate#PRD1"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENToccupiedTTH" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="19">
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="vss" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="occupiedBy'" org.eventb.core.type="ℙ(VSS×TRAIN)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTHYPoccupiedTTH," org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTIDENToccupiedTTH" org.eventb.core.poStamp="19">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∈train" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_m63RECuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="vss∈VSS" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_m63RESuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="vss ↦ tr∈occupiedBy" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_m63REiuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="vss≠Lst_VSS" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_vNHYMPUqEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="Next_VSS(vss)∈occupiedBy∼[{tr}]" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_m63REyuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD5" org.eventb.core.predicate="vss∉Next_VSS[occupiedBy∼[{tr}]]" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_jX3_0PU7EeemGtrJ89W1tQ"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPoccupiedTTH" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTHYPoccupiedTTH," org.eventb.core.poStamp="19">
+<org.eventb.core.poPredicate name="PRD6" org.eventb.core.predicate="∀ttd⦂TTD·ttd=Sections∼(vss)⇒(Sections[{ttd}] ∖ {vss})∩dom(occupiedBy)≠(∅ ⦂ ℙ(VSS))∨occupiedBy[{vss}]≠{tr}" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tU|org.eventb.core.guard#)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTIDENToccupiedTTI" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="19">
+<org.eventb.core.poIdentifier name="ghost'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="connected'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPoccupiedTTI" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTIDENToccupiedTTI" org.eventb.core.poStamp="19">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∈ghost" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_tU7QIPR9EeemGtrJ89W1tQ|org.eventb.core.guard#_XHSHkQHWEeiYuL1vM5OOOw"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTIDENToccupiedTTJ" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="19">
+<org.eventb.core.poIdentifier name="ghost'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="connected'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPoccupiedTTJ" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTIDENToccupiedTTJ" org.eventb.core.poStamp="19">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∈connected" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_tU7QIfR9EeemGtrJ89W1tQ|org.eventb.core.guard#_XHSuogHWEeiYuL1vM5OOOw"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="ENV_train_split/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="19">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTALLHYPoccupiedTTK"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀ttd⦂TTD·ttd∉occupiedTTD⇔Sections[{ttd}]∩dom((occupiedBy ⩥ {tr0})∪(vss_set0 × {tr0})∪(vss_set × {tr}))=(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1t["/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_PZ3skAGtEeijfcazZ_hVUg"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tX"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1t["/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poSequent#ENV_train_split\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#HYPENV_C-?|org.eventb.core.poPredicate#PRD1"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENToccupiedTTK" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="19">
+<org.eventb.core.poIdentifier name="ghost'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="tr0" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="front0" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="train'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="rear0" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="next_train'" org.eventb.core.type="ℙ(TRAIN×TRAIN)"/>
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="following_train" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="rear" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="vss_set" org.eventb.core.type="ℙ(VSS)"/>
+<org.eventb.core.poIdentifier name="front" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="occupiedBy'" org.eventb.core.type="ℙ(VSS×TRAIN)"/>
+<org.eventb.core.poIdentifier name="vss_set0" org.eventb.core.type="ℙ(VSS)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPoccupiedTTK" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTIDENToccupiedTTK" org.eventb.core.poStamp="19">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∉train" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XekQYAyxEeiI47opYxrTSg|org.eventb.core.guard#_VgDf0gyyEeiI47opYxrTSg"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="tr0∈train" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XekQYAyxEeiI47opYxrTSg|org.eventb.core.guard#_VgDf0wyyEeiI47opYxrTSj"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="following_train∈ℙ(train)" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XekQYAyxEeiI47opYxrTSg|org.eventb.core.guard#_VgDf0wyyEeiI47opYxrTSp"/>
+<org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="following_train=next_train∼[{tr0}]" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XekQYAyxEeiI47opYxrTSg|org.eventb.core.guard#_VgDf0wyyEeiI47opYxrTSl"/>
+<org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="vss_set⊆VSS" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_ArvZgAHUEeiYuL1vM5OOOw|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOOx"/>
+<org.eventb.core.poPredicate name="PRD5" org.eventb.core.predicate="vss_set0⊆VSS" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_ArvZgAHUEeiYuL1vM5OOOw|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOO{"/>
+<org.eventb.core.poPredicate name="PRD6" org.eventb.core.predicate="vss_set∪vss_set0⊆dom(occupiedBy)" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_ArvZgAHUEeiYuL1vM5OOOw|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOO\|"/>
+<org.eventb.core.poPredicate name="PRD7" org.eventb.core.predicate="occupiedBy∼[{tr0}]=vss_set0∪vss_set" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_ArvZgAHUEeiYuL1vM5OOOw|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOO}"/>
+<org.eventb.core.poPredicate name="PRD8" org.eventb.core.predicate="front0∈vss_set0" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_ArvZgAHUEeiYuL1vM5OOOw|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOO~"/>
+<org.eventb.core.poPredicate name="PRD9" org.eventb.core.predicate="rear0∈vss_set0" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_ArvZgAHUEeiYuL1vM5OOOw|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOP+"/>
+<org.eventb.core.poPredicate name="PRD10" org.eventb.core.predicate="front∈vss_set" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_ArvZgAHUEeiYuL1vM5OOOw|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOP,"/>
+<org.eventb.core.poPredicate name="PRD11" org.eventb.core.predicate="rear∈vss_set" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_ArvZgAHUEeiYuL1vM5OOOw|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOP-"/>
+<org.eventb.core.poPredicate name="PRD12" org.eventb.core.predicate="Next_VSS[vss_set ∖ {front}]=vss_set ∖ {rear}" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_ArvZgAHUEeiYuL1vM5OOOw|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOP."/>
+<org.eventb.core.poPredicate name="PRD13" org.eventb.core.predicate="Next_VSS∼[vss_set ∖ {rear}]=vss_set ∖ {front}" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_ArvZgAHUEeiYuL1vM5OOOw|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOP\/"/>
+<org.eventb.core.poPredicate name="PRD14" org.eventb.core.predicate="Next_VSS[vss_set0 ∖ {front0}]=vss_set0 ∖ {rear0}" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_ArvZgAHUEeiYuL1vM5OOOw|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOP0"/>
+<org.eventb.core.poPredicate name="PRD15" org.eventb.core.predicate="Next_VSS[vss_set0 ∖ {front0}]=vss_set0 ∖ {rear0}" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_ArvZgAHUEeiYuL1vM5OOOw|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOP1"/>
+<org.eventb.core.poPredicate name="PRD16" org.eventb.core.predicate="Next_VSS[(vss_set∪vss_set0) ∖ {front0}]=(vss_set∪vss_set0) ∖ {rear}" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_ArvZgAHUEeiYuL1vM5OOOw|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOP3"/>
+<org.eventb.core.poPredicate name="PRD17" org.eventb.core.predicate="Next_VSS∼[(vss_set∪vss_set0) ∖ {rear}]=(vss_set∪vss_set0) ∖ {front0}" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_ArvZgAHUEeiYuL1vM5OOOw|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOP4"/>
+<org.eventb.core.poPredicate name="PRD18" org.eventb.core.predicate="card(vss_set∩vss_set0)≤1" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_ArvZgAHUEeiYuL1vM5OOOw|org.eventb.core.guard#_DSDUdgHUEeiYuL1vM5OOP5"/>
+<org.eventb.core.poPredicate name="PRD19" org.eventb.core.predicate="max(VSS_i[vss_set])≤min(VSS_i[vss_set0])" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_ArvZgAHUEeiYuL1vM5OOOw|org.eventb.core.guard#_m65GQCuDEeip5da7u-uH2y"/>
+<org.eventb.core.poPredicate name="PRD20" org.eventb.core.predicate="vss_set∈ℙ(VSS)" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_PZ3skAGtEeijfcazZ_hVUg|org.eventb.core.guard#_iBGJwAHWEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="PRD21" org.eventb.core.predicate="vss_set0∈ℙ(VSS)" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_PZ3skAGtEeijfcazZ_hVUg|org.eventb.core.guard#_iBGJwQHWEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="PRD22" org.eventb.core.predicate="Next_VSS∼[vss_set0 ∖ {rear0}]=vss_set0 ∖ {front0}" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_PZ3skAGtEeijfcazZ_hVUg|org.eventb.core.guard#_iBGJwgHWEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="PRD23" org.eventb.core.predicate="Next_VSS[vss_set∩vss_set0 ∖ {rear0}]=vss_set∩vss_set0 ∖ {front}" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_PZ3skAGtEeijfcazZ_hVUg|org.eventb.core.guard#_iBGw0AHWEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="PRD24" org.eventb.core.predicate="Next_VSS∼[vss_set∩vss_set0 ∖ {front}]=vss_set∩vss_set0 ∖ {rear0}" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_PZ3skAGtEeijfcazZ_hVUg|org.eventb.core.guard#_iBGw0QHWEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="PRD25" org.eventb.core.predicate="tr∉train" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_PZ3skAGtEeijfcazZ_hVUg|org.eventb.core.guard#_XHTVsAHWEeiYuL1vM5OOOw"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="ENV_join_network/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="23">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTALLHYPoccupiedTTL"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀ttd⦂TTD·ttd∉occupiedTTD∪{Fst_TTD}⇔Sections[{ttd}]∩dom(occupiedBy∪{Fst_VSS ↦ tr})=(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1t["/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_tU7QIfR9EeemGtrJ89W1tR"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tY"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1t["/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poSequent#ENV_join_network\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#HYPENV_C-?|org.eventb.core.poPredicate#PRD1"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENToccupiedTTL" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="23">
+<org.eventb.core.poIdentifier name="ghost'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="last_train" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="train'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="next_train'" org.eventb.core.type="ℙ(TRAIN×TRAIN)"/>
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="occupiedBy'" org.eventb.core.type="ℙ(VSS×TRAIN)"/>
+<org.eventb.core.poIdentifier name="occupiedTTD'" org.eventb.core.type="ℙ(TTD)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPoccupiedTTL" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTIDENToccupiedTTL" org.eventb.core.poStamp="23">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∉train" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XejpUAyxEeiI47opYxrTSg|org.eventb.core.guard#_VgC4wQyyEeiI47opYxrTSg"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="last_train=train ∖ ran(next_train)" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XejpUAyxEeiI47opYxrTSg|org.eventb.core.guard#_Xg39ggyxEeiI47opYxrTSj"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="train≠(∅ ⦂ ℙ(TRAIN))⇒(∃lt⦂TRAIN·last_train={lt})" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XejpUAyxEeiI47opYxrTSg|org.eventb.core.guard#_Xg39ggyxEeiI47opYxrTSl"/>
+<org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="tr∉train" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_tU7QIfR9EeemGtrJ89W1tR|org.eventb.core.guard#_XHTVsQHWEeiYuL1vM5OOOw"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="ENV_last_train_leave_ttd/grd3/WD" org.eventb.core.accurate="true" org.eventb.core.poDesc="Well-definedness of Guard" org.eventb.core.poStamp="19">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTHYPoccupiedTTMvsu"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="vss∈dom(Sections∼)∧Sections∼∈VSS ⇸ TTD" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tZ|org.eventb.core.guard#_LMkFMQHaEeiYuL1vM5OOOx"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tZ|org.eventb.core.guard#_LMkFMQHaEeiYuL1vM5OOOx"/>
+<org.eventb.core.poSelHint name="SEQHYS" org.eventb.core.poSelHintFst="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTHYPoccupiedTTMvsu"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poSequent name="ENV_last_train_leave_ttd/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="19">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTALLHYPoccupiedTTM"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀ttd0⦂TTD·ttd0∉occupiedTTD ∖ {ttd}⇔Sections[{ttd0}]∩dom(occupiedBy ∖ {vss ↦ tr})=(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1t["/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tV"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tZ"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1t["/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poSequent#ENV_last_train_leave_ttd\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#HYPENV_C-?|org.eventb.core.poPredicate#PRD1"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENToccupiedTTM" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="19">
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="vss" org.eventb.core.type="VSS"/>
+<org.eventb.core.poIdentifier name="ttd" org.eventb.core.type="TTD"/>
+<org.eventb.core.poIdentifier name="occupiedBy'" org.eventb.core.type="ℙ(VSS×TRAIN)"/>
+<org.eventb.core.poIdentifier name="occupiedTTD'" org.eventb.core.type="ℙ(TTD)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTHYPoccupiedTTMvsu" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTIDENToccupiedTTM" org.eventb.core.poStamp="19">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∈train" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_m63RECuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="vss∈VSS" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_m63RESuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="vss ↦ tr∈occupiedBy" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_m63REiuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="vss≠Lst_VSS" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_vNHYMPUqEeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="Next_VSS(vss)∈occupiedBy∼[{tr}]" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_m63REyuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD5" org.eventb.core.predicate="vss∉Next_VSS[occupiedBy∼[{tr}]]" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSA_R0EeemGtrJ89W1tQ|org.eventb.core.guard#_jX3_0PU7EeemGtrJ89W1tQ"/>
+<org.eventb.core.poPredicate name="PRD6" org.eventb.core.predicate="ttd∈occupiedTTD" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tZ|org.eventb.core.guard#_cLJl4AHdEeiYuL1vM5OOOw"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPoccupiedTTM" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTHYPoccupiedTTMvsu" org.eventb.core.poStamp="19">
+<org.eventb.core.poPredicate name="PRD7" org.eventb.core.predicate="ttd=Sections∼(vss)" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tZ|org.eventb.core.guard#_LMkFMQHaEeiYuL1vM5OOOx"/>
+<org.eventb.core.poPredicate name="PRD8" org.eventb.core.predicate="(Sections[{ttd}] ∖ {vss})∩dom(occupiedBy)=(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tZ|org.eventb.core.guard#_LMkFMQHaEeiYuL1vM5OOOy"/>
+<org.eventb.core.poPredicate name="PRD9" org.eventb.core.predicate="occupiedBy[{vss}]={tr}" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tZ|org.eventb.core.guard#_LMkFMQHaEeiYuL1vM5OOOz"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="ENV_leave_network_and_free_ttd/inv1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="19">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTALLHYPoccupiedTTN"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="∀ttd⦂TTD·ttd∉occupiedTTD ∖ {Lst_TTD}⇔Sections[{ttd}]∩dom(occupiedBy ⩥ {tr})=(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1t["/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tT"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1t\\"/>
+<org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1t["/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poSequent#ENV_leave_network_and_free_ttd\/inv1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#HYPENV_C-?|org.eventb.core.poPredicate#PRD1"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENToccupiedTTN" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="19">
+<org.eventb.core.poIdentifier name="ghost'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="train'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="next_train'" org.eventb.core.type="ℙ(TRAIN×TRAIN)"/>
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="occupiedBy'" org.eventb.core.type="ℙ(VSS×TRAIN)"/>
+<org.eventb.core.poIdentifier name="occupiedTTD'" org.eventb.core.type="ℙ(TTD)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPoccupiedTTN" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#EVTIDENToccupiedTTN" org.eventb.core.poStamp="19">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∈train" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XejpUQyxEeiI47opYxrTSg|org.eventb.core.guard#_VgC4wwyyEeiI47opYxrTSg"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="tr∉dom(next_train)" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XejpUQyxEeiI47opYxrTSg|org.eventb.core.guard#_Xg4kkQyxEeiI47opYxrTSh"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="occupiedBy∼[{tr}]={Lst_VSS}" org.eventb.core.source="/HL3/Env_M0.bum|org.eventb.core.machineFile#Env_M0|org.eventb.core.event#_4VPSAfR0EeemGtrJ89W1tQ|org.eventb.core.guard#_m62C8SuDEeip5da7u-uH2w"/>
+<org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="tr∈ghost" org.eventb.core.source="/HL3/Env_M1.bum|org.eventb.core.machineFile#Env_M1|org.eventb.core.event#_t8160PR0EeemGtrJ89W1tT|org.eventb.core.guard#_XHQ5cgHWEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="Sections[{Lst_TTD}]∩dom(occupiedBy ⩥ {tr})=(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.event#_t8160PR0EeemGtrJ89W1t\\|org.eventb.core.guard#("/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="HYPENV_C-?" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="occupiedTTD∈ℙ(TTD)" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_cLKM8QHdEeiYuL1vM5OOOw"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="∀ttd⦂TTD·ttd∉occupiedTTD⇔Sections[{ttd}]∩dom(occupiedBy)=(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_t8160PR0EeemGtrJ89W1t["/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="ALLHYP" org.eventb.core.parentSet="/HL3/Env_M2.bpo|org.eventb.core.poFile#Env_M2|org.eventb.core.poPredicateSet#HYPENV_C-?" org.eventb.core.poStamp="19">
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="∀ttd⦂TTD·ttd∈occupiedTTD⇒Sections[{ttd}]∩dom(occupiedBy)≠(∅ ⦂ ℙ(VSS))" org.eventb.core.source="/HL3/Env_M2.bum|org.eventb.core.machineFile#Env_M2|org.eventb.core.invariant#_cLKM8gHdEeiYuL1vM5OOOw"/>
+</org.eventb.core.poPredicateSet>
+</org.eventb.core.poFile>

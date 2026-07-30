@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.contextFile org.eventb.core.configuration="org.eventb.core.fwd;de.prob.symbolic.ctxBase" org.eventb.core.generated="false" org.eventb.texttools.text_lastmodified="1673860737013" org.eventb.texttools.text_representation="context M4_Zoom_prob_mc_Ctx extends M4_Zoom_Ctx M1_Landing_Sequence_prob_mc_Ctx&#10;&#10;axioms&#10;  @min_zoom_inst MIN_ZOOM = 15&#10;  @max_zoom_inst MAX_ZOOM = PLANNING_HORIZON&#10;  @ZOOM_LEVELS_inst ZOOM_LEVELS = {x ∣ x ∈ MIN_ZOOM‥MAX_ZOOM ∧ x mod 5 = 0}&#10;end&#10;&#10;" version="3">
+    <org.eventb.core.extendsContext name="'" org.eventb.core.target="M4_Zoom_Ctx"/>
+    <org.eventb.core.extendsContext name="_zdaukJV-Ee2bW8RMX2JWmg" org.eventb.core.target="M1_Landing_Sequence_prob_mc_Ctx"/>
+    <org.eventb.core.axiom name="_zdaukZV-Ee2bW8RMX2JWmg" org.eventb.core.generated="false" org.eventb.core.label="min_zoom_inst" org.eventb.core.predicate="MIN_ZOOM = 15"/>
+    <org.eventb.core.axiom name="_zdaukpV-Ee2bW8RMX2JWmg" org.eventb.core.generated="false" org.eventb.core.label="max_zoom_inst" org.eventb.core.predicate="MAX_ZOOM = PLANNING_HORIZON"/>
+    <org.eventb.core.axiom name="_zdauk5V-Ee2bW8RMX2JWmg" org.eventb.core.generated="false" org.eventb.core.label="ZOOM_LEVELS_inst" org.eventb.core.predicate="ZOOM_LEVELS = {x ∣ x ∈ MIN_ZOOM‥MAX_ZOOM ∧ x mod 5 = 0}"/>
+</org.eventb.core.contextFile>
