@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.contextFile org.eventb.core.configuration="org.eventb.core.fwd;de.prob.symbolic.ctxBase" org.eventb.core.generated="false" org.eventb.texttools.text_lastmodified="1673860775842" org.eventb.texttools.text_representation="context M9_Mouse_prob_mc_Ctx extends M9_Mouse_Ctx M4_Zoom_prob_mc_Ctx&#10;end&#10;" version="3">
+    <org.eventb.core.extendsContext name="'" org.eventb.core.target="M9_Mouse_Ctx"/>
+    <org.eventb.core.extendsContext name="_5PsPMJV-Ee2bW8RMX2JWmg" org.eventb.core.target="M4_Zoom_prob_mc_Ctx"/>
+</org.eventb.core.contextFile>

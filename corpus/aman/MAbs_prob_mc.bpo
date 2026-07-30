@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.poFile org.eventb.core.poStamp="0">
+    <org.eventb.core.poPredicateSet name="CTXHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="AIRPLANES" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poPredicate name="AIRPLANET" org.eventb.core.predicate="finite(AIRPLANES)" org.eventb.core.source="/Abstraction/M0_AMAN_Update_Ctx.buc|org.eventb.core.contextFile#M0_AMAN_Update_Ctx|org.eventb.core.axiom#_wFUvsUrzEe2jiPlvG5m5_Q"/>
+        <org.eventb.core.poIdentifier name="AIRCRAFT_SEPARATION_MIN" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="DIST" org.eventb.core.type="ℙ(ℤ×ℤ×ℤ)"/>
+        <org.eventb.core.poIdentifier name="PLANNING_HORIZON" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="PLANNING_INTERVAL" org.eventb.core.type="ℙ(ℤ)"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIO" org.eventb.core.predicate="DIST=(λx⦂ℤ ↦ y⦂ℤ·x∈ℤ∧y∈ℤ ∣ max({y − x,x − y}))" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_QW8AcUr1Ee2jiPlvG5m5_Q"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIP" org.eventb.core.predicate="∀x⦂ℤ,y⦂ℤ·x∈ℤ∧y∈ℤ⇒DIST(x ↦ y)=DIST(y ↦ x)" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_QW8Ackr1Ee2jiPlvG5m5_Q"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIQ" org.eventb.core.predicate="PLANNING_HORIZON∈15 ‥ 45" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_4vJoEEr6Ee2jiPlvG5m5_Q"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIR" org.eventb.core.predicate="PLANNING_HORIZON mod 5=0" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_ELIQQEsIEe2nbO8NfDiKnQ"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIS" org.eventb.core.predicate="PLANNING_INTERVAL=1 ‥ PLANNING_HORIZON" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_ELIQQUsIEe2nbO8NfDiKnQ"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIT" org.eventb.core.predicate="finite(PLANNING_INTERVAL)" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_8hQ1YH1bEe25Nuc5zcUFzQ"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIU" org.eventb.core.predicate="AIRCRAFT_SEPARATION_MIN=3" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_TpulwWnUEe21Fse6RF_HiQ"/>
+        <org.eventb.core.poIdentifier name="MAX_ZOOM" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="ZOOM_LEVELS" org.eventb.core.type="ℙ(ℤ)"/>
+        <org.eventb.core.poIdentifier name="MIN_ZOOM" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIV" org.eventb.core.predicate="MIN_ZOOM=15" org.eventb.core.source="/Abstraction/M4_Zoom_Ctx.buc|org.eventb.core.contextFile#M4_Zoom_Ctx|org.eventb.core.axiom#_jTG8QUsFEe2kV4Y3e_fvVw"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIW" org.eventb.core.predicate="MAX_ZOOM=PLANNING_HORIZON" org.eventb.core.source="/Abstraction/M4_Zoom_Ctx.buc|org.eventb.core.contextFile#M4_Zoom_Ctx|org.eventb.core.axiom#_jTHjUEsFEe2kV4Y3e_fvVw"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIX" org.eventb.core.predicate="ZOOM_LEVELS={x⦂ℤ·x∈MIN_ZOOM ‥ MAX_ZOOM∧x mod 5=0 ∣ x}" org.eventb.core.source="/Abstraction/M4_Zoom_Ctx.buc|org.eventb.core.contextFile#M4_Zoom_Ctx|org.eventb.core.axiom#_jmZegGssEe2OdPtmHwqkUw"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIY" org.eventb.core.predicate="ZOOM_LEVELS⊆PLANNING_INTERVAL" org.eventb.core.source="/Abstraction/M4_Zoom_Ctx.buc|org.eventb.core.contextFile#M4_Zoom_Ctx|org.eventb.core.axiom#_L3-r8GstEe2GEOS6_rrIrQ"/>
+        <org.eventb.core.poIdentifier name="mouse_positions" org.eventb.core.type="ℙ(mouse_positions)"/>
+        <org.eventb.core.poIdentifier name="hold_button_pos" org.eventb.core.type="mouse_positions"/>
+        <org.eventb.core.poIdentifier name="airplane_pos" org.eventb.core.type="mouse_positions"/>
+        <org.eventb.core.poIdentifier name="block_time_pos" org.eventb.core.type="mouse_positions"/>
+        <org.eventb.core.poIdentifier name="nothing_pos" org.eventb.core.type="mouse_positions"/>
+        <org.eventb.core.poIdentifier name="zoom_slider_pos" org.eventb.core.type="mouse_positions"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIZ" org.eventb.core.predicate="partition(mouse_positions,{hold_button_pos},{zoom_slider_pos},{airplane_pos},{block_time_pos},{nothing_pos})" org.eventb.core.source="/Abstraction/M9_Mouse_Ctx.buc|org.eventb.core.contextFile#M9_Mouse_Ctx|org.eventb.core.axiom#_p4M_MG8bEe2yf4TIGcxCyA"/>
+        <org.eventb.core.poIdentifier name="abstract_blocks" org.eventb.core.type="ℙ(abstract_blocks)"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MI[" org.eventb.core.predicate="finite(abstract_blocks)" org.eventb.core.source="/Abstraction/MAbs_Ctx.buc|org.eventb.core.contextFile#MAbs_Ctx|org.eventb.core.axiom#_CRe_cXV4Ee2lB9-jpgZg-g"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MI\" org.eventb.core.predicate="card(AIRPLANES)=2" org.eventb.core.source="/Abstraction/MAbs_prob_mc_Ctx.buc|org.eventb.core.contextFile#MAbs_prob_mc_Ctx|org.eventb.core.axiom#_sMKyUHVwEe27GpPif9GRiQ"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MI]" org.eventb.core.predicate="PLANNING_HORIZON=20" org.eventb.core.source="/Abstraction/MAbs_prob_mc_Ctx.buc|org.eventb.core.contextFile#MAbs_prob_mc_Ctx|org.eventb.core.axiom#_sMKyUXVwEe27GpPif9GRiQ"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MI^" org.eventb.core.predicate="card(abstract_blocks)=2" org.eventb.core.source="/Abstraction/MAbs_prob_mc_Ctx.buc|org.eventb.core.contextFile#MAbs_prob_mc_Ctx|org.eventb.core.axiom#_3pvvQHV4Ee2lB9-jpgZg-g"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="ABSHYP" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="abstract_mousePositionBlockSlot" org.eventb.core.type="ℙ(abstract_blocks)"/>
+        <org.eventb.core.poIdentifier name="zoomLevel" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="clickStartPosition" org.eventb.core.type="ℙ(mouse_positions)"/>
+        <org.eventb.core.poIdentifier name="abstract_mousePositionAirplane" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="abstract_selectedAirplane" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="mousePositionZoomSlider" org.eventb.core.type="ℙ(ℤ)"/>
+        <org.eventb.core.poIdentifier name="abstract_blockedTime" org.eventb.core.type="ℙ(abstract_blocks)"/>
+        <org.eventb.core.poIdentifier name="timeout" org.eventb.core.type="BOOL"/>
+        <org.eventb.core.poIdentifier name="dragged_zoom_level" org.eventb.core.type="ℙ(ℤ)"/>
+        <org.eventb.core.poIdentifier name="currentMousePosition" org.eventb.core.type="mouse_positions"/>
+        <org.eventb.core.poIdentifier name="abstract_isClickedBlock" org.eventb.core.type="ℙ(abstract_blocks)"/>
+        <org.eventb.core.poIdentifier name="scheduledAirplanes" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="held_airplanes" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="abstract_dragged_airplane" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlou" org.eventb.core.predicate="clickStartPosition⊆mouse_positions" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_lLDc03VsEe2VVrqbNWbb9w"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlov" org.eventb.core.predicate="abstract_blockedTime⊆abstract_blocks" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_LxobwHFhEe27-u4L-DWg0w"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlow" org.eventb.core.predicate="finite(abstract_blockedTime)" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_U-jOMH1dEe25Nuc5zcUFzQ"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlox" org.eventb.core.predicate="scheduledAirplanes⊆AIRPLANES" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_mlnVQHFZEe2kheD1oS2bGg"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSloy" org.eventb.core.predicate="held_airplanes⊆scheduledAirplanes" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-3xsnC1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSloz" org.eventb.core.predicate="zoomLevel∈ZOOM_LEVELS" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-4YwHC1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlo{" org.eventb.core.predicate="timeout∈BOOL" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-4YwXC1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlo|" org.eventb.core.predicate="abstract_selectedAirplane⊆scheduledAirplanes" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-4YwnC1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlo}" org.eventb.core.predicate="finite(abstract_selectedAirplane)" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_VqCBMXJGEe2iLYU5iCYclg"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlo~" org.eventb.core.predicate="card(abstract_selectedAirplane)≤1" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_VqCBMnJGEe2iLYU5iCYclg"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp'" org.eventb.core.predicate="abstract_dragged_airplane⊆abstract_selectedAirplane" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-4_0nC1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp(" org.eventb.core.predicate="finite(abstract_dragged_airplane)" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-4_03C1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp)" org.eventb.core.predicate="card(abstract_dragged_airplane)≤1" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-4_1HC1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp*" org.eventb.core.predicate="dragged_zoom_level⊆ZOOM_LEVELS" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-5m4XC1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp+" org.eventb.core.predicate="finite(dragged_zoom_level)" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-5m4nC1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp," org.eventb.core.predicate="card(dragged_zoom_level)≤1" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-5m43C1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp-" org.eventb.core.predicate="abstract_dragged_airplane=(∅ ⦂ ℙ(AIRPLANES))∨dragged_zoom_level=(∅ ⦂ ℙ(ℤ))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-5m5HC1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp." org.eventb.core.predicate="currentMousePosition∈mouse_positions" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-5m5XC1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp/" org.eventb.core.predicate="abstract_isClickedBlock⊆abstract_blocks" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_vD1lIHFhEe27-u4L-DWg0w"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp0" org.eventb.core.predicate="finite(abstract_isClickedBlock)" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-6N8HC1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp1" org.eventb.core.predicate="card(abstract_isClickedBlock)≤1" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-6N8XC1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp2" org.eventb.core.predicate="abstract_mousePositionBlockSlot⊆abstract_blocks" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-6N8nC1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp3" org.eventb.core.predicate="finite(abstract_mousePositionBlockSlot)" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-6N83C1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp4" org.eventb.core.predicate="card(abstract_mousePositionBlockSlot)≤1" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-61AHC1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp5" org.eventb.core.predicate="abstract_mousePositionAirplane⊆scheduledAirplanes" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-61AXC1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp6" org.eventb.core.predicate="finite(abstract_mousePositionAirplane)" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-61AnC1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp7" org.eventb.core.predicate="card(abstract_mousePositionAirplane)≤1" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-61A3C1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp8" org.eventb.core.predicate="mousePositionZoomSlider⊆ZOOM_LEVELS" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-61BHC1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp9" org.eventb.core.predicate="finite(mousePositionZoomSlider)" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-7cEHC1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp:" org.eventb.core.predicate="card(mousePositionZoomSlider)≤1" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-7cEXC1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp;" org.eventb.core.predicate="currentMousePosition=airplane_pos⇔abstract_mousePositionAirplane≠(∅ ⦂ ℙ(AIRPLANES))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-7cEnC1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp=" org.eventb.core.predicate="currentMousePosition=zoom_slider_pos⇔mousePositionZoomSlider≠(∅ ⦂ ℙ(ℤ))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-8DIHC1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp&gt;" org.eventb.core.predicate="currentMousePosition=block_time_pos⇔abstract_mousePositionBlockSlot≠(∅ ⦂ ℙ(abstract_blocks))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-8DIXC1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp?" org.eventb.core.predicate="abstract_dragged_airplane⊆abstract_mousePositionAirplane" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_S-8DInC1Ee2DQcV2t76uug"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlp@" org.eventb.core.predicate="clickStartPosition={airplane_pos}⇔abstract_dragged_airplane≠(∅ ⦂ ℙ(AIRPLANES))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_lLHuQXVsEe2VVrqbNWbb9w"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlpA" org.eventb.core.predicate="clickStartPosition={block_time_pos}⇔abstract_isClickedBlock≠(∅ ⦂ ℙ(abstract_blocks))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_lLHuQnVsEe2VVrqbNWbb9w"/>
+        <org.eventb.core.poPredicate name="abstract_mousePositionBlockSlpB" org.eventb.core.predicate="clickStartPosition={zoom_slider_pos}⇔dragged_zoom_level≠(∅ ⦂ ℙ(ℤ))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.invariant#_lLHuQ3VsEe2VVrqbNWbb9w"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlou" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="held_airplanes'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="clickStartPosition'" org.eventb.core.type="ℙ(mouse_positions)"/>
+        <org.eventb.core.poIdentifier name="scheduledAirplanes'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="currentMousePosition'" org.eventb.core.type="mouse_positions"/>
+        <org.eventb.core.poIdentifier name="abstract_mousePositionAirplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="abstract_selectedAirplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="abstract_isClickedBlock'" org.eventb.core.type="ℙ(abstract_blocks)"/>
+        <org.eventb.core.poIdentifier name="zoomLevel'" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="dragged_zoom_level'" org.eventb.core.type="ℙ(ℤ)"/>
+        <org.eventb.core.poIdentifier name="timeout'" org.eventb.core.type="BOOL"/>
+        <org.eventb.core.poIdentifier name="abstract_blockedTime'" org.eventb.core.type="ℙ(abstract_blocks)"/>
+        <org.eventb.core.poIdentifier name="abstract_dragged_airplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="mousePositionZoomSlider'" org.eventb.core.type="ℙ(ℤ)"/>
+        <org.eventb.core.poIdentifier name="abstract_mousePositionBlockSlot'" org.eventb.core.type="ℙ(abstract_blocks)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlou" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlou" org.eventb.core.poStamp="0"/>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlov" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="currentMousePosition'" org.eventb.core.type="mouse_positions"/>
+        <org.eventb.core.poIdentifier name="abstract_mousePositionAirplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="mousePositionZoomSlider'" org.eventb.core.type="ℙ(ℤ)"/>
+        <org.eventb.core.poIdentifier name="abstract_mousePositionBlockSlot'" org.eventb.core.type="ℙ(abstract_blocks)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlov" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlov" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="abstract_dragged_airplane=(∅ ⦂ ℙ(AIRPLANES))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFgfXnFkEe27-u4L-DWg0w|org.eventb.core.guard#_JszVEG8jEe2yf4TIGcxCyA"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlow" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="currentMousePosition'" org.eventb.core.type="mouse_positions"/>
+        <org.eventb.core.poIdentifier name="abstract_mousePositionAirplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="dragged_zoom_level'" org.eventb.core.type="ℙ(ℤ)"/>
+        <org.eventb.core.poIdentifier name="mousePositionZoomSlider'" org.eventb.core.type="ℙ(ℤ)"/>
+        <org.eventb.core.poIdentifier name="abstract_mousePositionBlockSlot'" org.eventb.core.type="ℙ(abstract_blocks)"/>
+        <org.eventb.core.poIdentifier name="target_zoom" org.eventb.core.type="ℤ"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlow" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlow" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="target_zoom∈ZOOM_LEVELS" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_Hyp4EHVvEe27GpPif9GRiQ|org.eventb.core.guard#_ii7QgWtGEe2lKdAw_mOWFw"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="dragged_zoom_level≠(∅ ⦂ ℙ(ℤ))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_Hyp4EHVvEe27GpPif9GRiQ|org.eventb.core.guard#_ii7QgmtGEe2lKdAw_mOWFw"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="target_zoom∉dragged_zoom_level" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_Hyp4EHVvEe27GpPif9GRiQ|org.eventb.core.guard#_ii7Qg2tGEe2lKdAw_mOWFw"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlox" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="currentMousePosition'" org.eventb.core.type="mouse_positions"/>
+        <org.eventb.core.poIdentifier name="abstract_mousePositionAirplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="zoom" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="mousePositionZoomSlider'" org.eventb.core.type="ℙ(ℤ)"/>
+        <org.eventb.core.poIdentifier name="abstract_mousePositionBlockSlot'" org.eventb.core.type="ℙ(abstract_blocks)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlox" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlox" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="zoom∈ZOOM_LEVELS" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFggn3FkEe27-u4L-DWg0w|org.eventb.core.guard#_JszVEm8jEe2yf4TIGcxCyA"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="abstract_dragged_airplane=(∅ ⦂ ℙ(AIRPLANES))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFggn3FkEe27-u4L-DWg0w|org.eventb.core.guard#_ZWpXwm8jEe2yf4TIGcxCyA"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSloy" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="abstract_block" org.eventb.core.type="abstract_blocks"/>
+        <org.eventb.core.poIdentifier name="currentMousePosition'" org.eventb.core.type="mouse_positions"/>
+        <org.eventb.core.poIdentifier name="abstract_mousePositionAirplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="mousePositionZoomSlider'" org.eventb.core.type="ℙ(ℤ)"/>
+        <org.eventb.core.poIdentifier name="abstract_mousePositionBlockSlot'" org.eventb.core.type="ℙ(abstract_blocks)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSloy" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSloy" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="abstract_block∈abstract_blocks" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFhGIHFkEe27-u4L-DWg0w|org.eventb.core.guard#_ZWpXxG8jEe2yf4TIGcxCyA"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="abstract_dragged_airplane=(∅ ⦂ ℙ(AIRPLANES))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFhGIHFkEe27-u4L-DWg0w|org.eventb.core.guard#_ZWpXxW8jEe2yf4TIGcxCyA"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSloz" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="airplane" org.eventb.core.type="AIRPLANES"/>
+        <org.eventb.core.poIdentifier name="currentMousePosition'" org.eventb.core.type="mouse_positions"/>
+        <org.eventb.core.poIdentifier name="abstract_mousePositionAirplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="mousePositionZoomSlider'" org.eventb.core.type="ℙ(ℤ)"/>
+        <org.eventb.core.poIdentifier name="abstract_mousePositionBlockSlot'" org.eventb.core.type="ℙ(abstract_blocks)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSloz" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSloz" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="airplane∈scheduledAirplanes" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFhGIXFkEe27-u4L-DWg0w|org.eventb.core.guard#_5eKRUW8kEe2yf4TIGcxCyA"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="abstract_dragged_airplane=(∅ ⦂ ℙ(AIRPLANES))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFhGIXFkEe27-u4L-DWg0w|org.eventb.core.guard#_YGlZ4G8qEe2yf4TIGcxCyA"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlo{" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="currentMousePosition'" org.eventb.core.type="mouse_positions"/>
+        <org.eventb.core.poIdentifier name="abstract_mousePositionAirplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="mousePositionZoomSlider'" org.eventb.core.type="ℙ(ℤ)"/>
+        <org.eventb.core.poIdentifier name="abstract_mousePositionBlockSlot'" org.eventb.core.type="ℙ(abstract_blocks)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlo{" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlo{" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="abstract_dragged_airplane=(∅ ⦂ ℙ(AIRPLANES))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFhGInFkEe27-u4L-DWg0w|org.eventb.core.guard#_5eKRVW8kEe2yf4TIGcxCyA"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlo|" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="held_airplanes'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="new_abstract_blockedTime" org.eventb.core.type="ℙ(abstract_blocks)"/>
+        <org.eventb.core.poIdentifier name="scheduledAirplanes'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="currentMousePosition'" org.eventb.core.type="mouse_positions"/>
+        <org.eventb.core.poIdentifier name="abstract_mousePositionAirplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="abstract_selectedAirplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="timeout'" org.eventb.core.type="BOOL"/>
+        <org.eventb.core.poIdentifier name="abstract_blockedTime'" org.eventb.core.type="ℙ(abstract_blocks)"/>
+        <org.eventb.core.poIdentifier name="new_scheduledAirplanes" org.eventb.core.type="ℙ(AIRPLANES)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlo|" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlo\|" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="new_scheduledAirplanes⊆AIRPLANES" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFhGI3FkEe27-u4L-DWg0w|org.eventb.core.guard#_ZuOo4HJmEe2mH6MQB8CJSA"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="abstract_dragged_airplane=(∅ ⦂ ℙ(AIRPLANES))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFhGI3FkEe27-u4L-DWg0w|org.eventb.core.guard#_b1g_8HIuEe2iLYU5iCYclg"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="currentMousePosition∈{nothing_pos,airplane_pos}" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFhGI3FkEe27-u4L-DWg0w|org.eventb.core.guard#_5eKRWW8kEe2yf4TIGcxCyA"/>
+        <org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="new_abstract_blockedTime⊆abstract_blocks" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFhGI3FkEe27-u4L-DWg0w|org.eventb.core.guard#_3CjgkHJQEe2vR5ds7o1MyQ"/>
+        <org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="clickStartPosition=(∅ ⦂ ℙ(mouse_positions))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFhGI3FkEe27-u4L-DWg0w|org.eventb.core.guard#_p-mO4HVtEe2VVrqbNWbb9w"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlo}" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="held_airplanes'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="new_abstract_blockedTime" org.eventb.core.type="ℙ(abstract_blocks)"/>
+        <org.eventb.core.poIdentifier name="scheduledAirplanes'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="airplane" org.eventb.core.type="AIRPLANES"/>
+        <org.eventb.core.poIdentifier name="currentMousePosition'" org.eventb.core.type="mouse_positions"/>
+        <org.eventb.core.poIdentifier name="abstract_mousePositionAirplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="abstract_selectedAirplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="timeout'" org.eventb.core.type="BOOL"/>
+        <org.eventb.core.poIdentifier name="abstract_blockedTime'" org.eventb.core.type="ℙ(abstract_blocks)"/>
+        <org.eventb.core.poIdentifier name="new_scheduledAirplanes" org.eventb.core.type="ℙ(AIRPLANES)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlo}" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlo}" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="new_scheduledAirplanes⊆AIRPLANES" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFhtMHFkEe27-u4L-DWg0w|org.eventb.core.guard#_ZuPP8HJmEe2mH6MQB8CJSA"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="abstract_dragged_airplane=(∅ ⦂ ℙ(AIRPLANES))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFhtMHFkEe27-u4L-DWg0w|org.eventb.core.guard#_tykbYHIuEe2iLYU5iCYclg"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="airplane∈new_scheduledAirplanes" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFhtMHFkEe27-u4L-DWg0w|org.eventb.core.guard#_mjzjUG8oEe2yf4TIGcxCyA"/>
+        <org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="currentMousePosition∈{nothing_pos,airplane_pos}" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFhtMHFkEe27-u4L-DWg0w|org.eventb.core.guard#_dWZGoG8qEe2yf4TIGcxCyA"/>
+        <org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="new_abstract_blockedTime⊆abstract_blocks" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFhtMHFkEe27-u4L-DWg0w|org.eventb.core.guard#_3CkHoXJQEe2vR5ds7o1MyQ"/>
+        <org.eventb.core.poPredicate name="PRD5" org.eventb.core.predicate="clickStartPosition=(∅ ⦂ ℙ(mouse_positions))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFhtMHFkEe27-u4L-DWg0w|org.eventb.core.guard#_p-m18HVtEe2VVrqbNWbb9w"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlo~" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="held_airplanes'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="new_abstract_blockedTime" org.eventb.core.type="ℙ(abstract_blocks)"/>
+        <org.eventb.core.poIdentifier name="scheduledAirplanes'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="abstract_selectedAirplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="timeout'" org.eventb.core.type="BOOL"/>
+        <org.eventb.core.poIdentifier name="abstract_blockedTime'" org.eventb.core.type="ℙ(abstract_blocks)"/>
+        <org.eventb.core.poIdentifier name="new_scheduledAirplanes" org.eventb.core.type="ℙ(AIRPLANES)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlo~" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlo~" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="new_scheduledAirplanes⊆AIRPLANES" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFhtMXFkEe27-u4L-DWg0w|org.eventb.core.guard#_ZuPP8XJmEe2mH6MQB8CJSA"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="abstract_dragged_airplane=(∅ ⦂ ℙ(AIRPLANES))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFhtMXFkEe27-u4L-DWg0w|org.eventb.core.guard#_60ic4HIuEe2iLYU5iCYclg"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="currentMousePosition∉{nothing_pos,airplane_pos}" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFhtMXFkEe27-u4L-DWg0w|org.eventb.core.guard#_mjzjUW8oEe2yf4TIGcxCyA"/>
+        <org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="new_abstract_blockedTime⊆abstract_blocks" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFhtMXFkEe27-u4L-DWg0w|org.eventb.core.guard#_3CkHpHJQEe2vR5ds7o1MyQ"/>
+        <org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="clickStartPosition=(∅ ⦂ ℙ(mouse_positions))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFhtMXFkEe27-u4L-DWg0w|org.eventb.core.guard#_p-m18XVtEe2VVrqbNWbb9w"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlp'" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="abstract_selectedAirplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="timeout'" org.eventb.core.type="BOOL"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlp'" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlp'" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="abstract_dragged_airplane=(∅ ⦂ ℙ(AIRPLANES))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_-AW84HFjEe27-u4L-DWg0w|org.eventb.core.guard#_9dqbQHIuEe2iLYU5iCYclg"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlp(" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="clickStartPosition'" org.eventb.core.type="ℙ(mouse_positions)"/>
+        <org.eventb.core.poIdentifier name="abstract_dragged_airplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="aircraft" org.eventb.core.type="AIRPLANES"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlp(" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlp(" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="aircraft∈abstract_dragged_airplane" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFiUQHFkEe27-u4L-DWg0w|org.eventb.core.guard#_dYDv8HJeEe2c_cjbqDAaMg"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="clickStartPosition={airplane_pos}" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFiUQHFkEe27-u4L-DWg0w|org.eventb.core.guard#_p-m18nVtEe2VVrqbNWbb9w"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlp)" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="clickStartPosition'" org.eventb.core.type="ℙ(mouse_positions)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlp)" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlp)" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="currentMousePosition=hold_button_pos" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFiUQXFkEe27-u4L-DWg0w|org.eventb.core.guard#_mjzjUm8oEe2yf4TIGcxCyA"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="clickStartPosition=(∅ ⦂ ℙ(mouse_positions))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFiUQXFkEe27-u4L-DWg0w|org.eventb.core.guard#_NvoCQHVuEe27GpPif9GRiQ"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlp*" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="held_airplanes'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="clickStartPosition'" org.eventb.core.type="ℙ(mouse_positions)"/>
+        <org.eventb.core.poIdentifier name="airplane" org.eventb.core.type="AIRPLANES"/>
+        <org.eventb.core.poIdentifier name="abstract_selectedAirplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlp*" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlp*" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="airplane∈scheduledAirplanes ∖ held_airplanes" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFiUQnFkEe27-u4L-DWg0w|org.eventb.core.guard#_rKMYgmmqEe2s8uUhoFrjqA"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="airplane∈abstract_selectedAirplane" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFiUQnFkEe27-u4L-DWg0w|org.eventb.core.guard#_4MolwGCDEe2lPbpCXMzguA"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="abstract_dragged_airplane=(∅ ⦂ ℙ(AIRPLANES))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFiUQnFkEe27-u4L-DWg0w|org.eventb.core.guard#_CSrpcHIvEe2iLYU5iCYclg"/>
+        <org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="clickStartPosition={hold_button_pos}" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFiUQnFkEe27-u4L-DWg0w|org.eventb.core.guard#_KfJT028qEe2yf4TIGcxCyA"/>
+        <org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="currentMousePosition=hold_button_pos" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFiUQnFkEe27-u4L-DWg0w|org.eventb.core.guard#_M8gLMG_nEe28wMQsbIptog"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlp+" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="clickStartPosition'" org.eventb.core.type="ℙ(mouse_positions)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlp+" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlp+" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="clickStartPosition={hold_button_pos}" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFiUQ3FkEe27-u4L-DWg0w|org.eventb.core.guard#_4v5uEG8tEe2yf4TIGcxCyA"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="currentMousePosition≠hold_button_pos" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFiUQ3FkEe27-u4L-DWg0w|org.eventb.core.guard#_FkZfwG_oEe28wMQsbIptog"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlp," org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="clickStartPosition'" org.eventb.core.type="ℙ(mouse_positions)"/>
+        <org.eventb.core.poIdentifier name="abstract_isClickedBlock'" org.eventb.core.type="ℙ(abstract_blocks)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlp," org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlp," org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="currentMousePosition=block_time_pos" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFiURHFkEe27-u4L-DWg0w|org.eventb.core.guard#_4F4hoG_mEe28wMQsbIptog"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="clickStartPosition=(∅ ⦂ ℙ(mouse_positions))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFiURHFkEe27-u4L-DWg0w|org.eventb.core.guard#_p-ndAHVtEe2VVrqbNWbb9w"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlp-" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="clickStartPosition'" org.eventb.core.type="ℙ(mouse_positions)"/>
+        <org.eventb.core.poIdentifier name="abstract_isClickedBlock'" org.eventb.core.type="ℙ(abstract_blocks)"/>
+        <org.eventb.core.poIdentifier name="abstract_blockedTime'" org.eventb.core.type="ℙ(abstract_blocks)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlp-" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlp-" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="abstract_isClickedBlock=abstract_mousePositionBlockSlot" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFiURXFkEe27-u4L-DWg0w|org.eventb.core.guard#_WPHwoHJZEe2vR5ds7o1MyQ"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="abstract_isClickedBlock≠(∅ ⦂ ℙ(abstract_blocks))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFiURXFkEe27-u4L-DWg0w|org.eventb.core.guard#_p-ndAnVtEe2VVrqbNWbb9w"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="clickStartPosition={block_time_pos}" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFiURXFkEe27-u4L-DWg0w|org.eventb.core.guard#_p-ndA3VtEe2VVrqbNWbb9w"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlp." org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="clickStartPosition'" org.eventb.core.type="ℙ(mouse_positions)"/>
+        <org.eventb.core.poIdentifier name="abstract_isClickedBlock'" org.eventb.core.type="ℙ(abstract_blocks)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlp." org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlp." org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="abstract_isClickedBlock≠(∅ ⦂ ℙ(abstract_blocks))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFiURnFkEe27-u4L-DWg0w|org.eventb.core.guard#_p-ndBXVtEe2VVrqbNWbb9w"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlp/" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="new_abstract_blockedTime" org.eventb.core.type="ℙ(abstract_blocks)"/>
+        <org.eventb.core.poIdentifier name="clickStartPosition'" org.eventb.core.type="ℙ(mouse_positions)"/>
+        <org.eventb.core.poIdentifier name="abstract_isClickedBlock'" org.eventb.core.type="ℙ(abstract_blocks)"/>
+        <org.eventb.core.poIdentifier name="abstract_blockedTime'" org.eventb.core.type="ℙ(abstract_blocks)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlp/" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlp\/" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="abstract_isClickedBlock=abstract_mousePositionBlockSlot" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFiUR3FkEe27-u4L-DWg0w|org.eventb.core.guard#_p-ndB3VtEe2VVrqbNWbb9w"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="abstract_isClickedBlock⊆abstract_blockedTime" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFiUR3FkEe27-u4L-DWg0w|org.eventb.core.guard#_5GlewHJZEe2vR5ds7o1MyQ"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="abstract_isClickedBlock≠(∅ ⦂ ℙ(abstract_blocks))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFiUR3FkEe27-u4L-DWg0w|org.eventb.core.guard#_p-ndCHVtEe2VVrqbNWbb9w"/>
+        <org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="new_abstract_blockedTime=abstract_blockedTime ∖ abstract_mousePositionBlockSlot∨new_abstract_blockedTime=abstract_blockedTime" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFiUR3FkEe27-u4L-DWg0w|org.eventb.core.guard#_3bSeQX1UEe2wpdum-WZ8EA"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlp0" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="targetZoom" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="clickStartPosition'" org.eventb.core.type="ℙ(mouse_positions)"/>
+        <org.eventb.core.poIdentifier name="new_abstract_selectedAirplane" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="abstract_selectedAirplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="zoomLevel'" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="dragged_zoom_level'" org.eventb.core.type="ℙ(ℤ)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlp0" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlp0" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="targetZoom∈dragged_zoom_level" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7UHFkEe27-u4L-DWg0w|org.eventb.core.guard#_4I--8EsFEe2kV4Y3e_fvVw"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="currentMousePosition=zoom_slider_pos" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7UHFkEe27-u4L-DWg0w|org.eventb.core.guard#_FkZfwW_oEe28wMQsbIptog"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="abstract_isClickedBlock=(∅ ⦂ ℙ(abstract_blocks))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7UHFkEe27-u4L-DWg0w|org.eventb.core.guard#_8LQugHJKEe2iLYU5iCYclg"/>
+        <org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="new_abstract_selectedAirplane∈{abstract_selectedAirplane,∅ ⦂ ℙ(AIRPLANES)}" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7UHFkEe27-u4L-DWg0w|org.eventb.core.guard#_2-hgQnyEEe2PEbATrvji4g"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlp1" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="clickStartPosition'" org.eventb.core.type="ℙ(mouse_positions)"/>
+        <org.eventb.core.poIdentifier name="abstract_selectedAirplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="abstract_airplane" org.eventb.core.type="AIRPLANES"/>
+        <org.eventb.core.poIdentifier name="abstract_dragged_airplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlp1" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlp1" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="abstract_airplane∈scheduledAirplanes ∖ abstract_selectedAirplane" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7UXFkEe27-u4L-DWg0w|org.eventb.core.guard#_cK0_cHJsEe2mH6MQB8CJSA"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="abstract_dragged_airplane=(∅ ⦂ ℙ(AIRPLANES))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7UXFkEe27-u4L-DWg0w|org.eventb.core.guard#_lgWYcHIsEe2iLYU5iCYclg"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="dragged_zoom_level=(∅ ⦂ ℙ(ℤ))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7UXFkEe27-u4L-DWg0w|org.eventb.core.guard#_yhrosWtFEe2lKdAw_mOWFw"/>
+        <org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="currentMousePosition=airplane_pos" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7UXFkEe27-u4L-DWg0w|org.eventb.core.guard#_FkaG0W_oEe28wMQsbIptog"/>
+        <org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="abstract_airplane∈abstract_mousePositionAirplane" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7UXFkEe27-u4L-DWg0w|org.eventb.core.guard#_O1vDEHJrEe2mH6MQB8CJSA"/>
+        <org.eventb.core.poPredicate name="PRD5" org.eventb.core.predicate="clickStartPosition=(∅ ⦂ ℙ(mouse_positions))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7UXFkEe27-u4L-DWg0w|org.eventb.core.guard#_p-oEEXVtEe2VVrqbNWbb9w"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlp2" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="airplane" org.eventb.core.type="AIRPLANES"/>
+        <org.eventb.core.poIdentifier name="abstract_selectedAirplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlp2" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlp2" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="airplane∈abstract_selectedAirplane" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7UnFkEe27-u4L-DWg0w|org.eventb.core.guard#_DljmIFB7Ee2iD7Neb-ZRaw"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="airplane∈scheduledAirplanes" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7UnFkEe27-u4L-DWg0w|org.eventb.core.guard#_Dlk0QVB7Ee2iD7Neb-ZRaw"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="abstract_dragged_airplane=(∅ ⦂ ℙ(AIRPLANES))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7UnFkEe27-u4L-DWg0w|org.eventb.core.guard#_FduCEHIvEe2iLYU5iCYclg"/>
+        <org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="currentMousePosition=nothing_pos" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7UnFkEe27-u4L-DWg0w|org.eventb.core.guard#_gfvE0G_oEe2ppLrshJ_bTA"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlp3" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="clickStartPosition'" org.eventb.core.type="ℙ(mouse_positions)"/>
+        <org.eventb.core.poIdentifier name="abstract_airplane" org.eventb.core.type="AIRPLANES"/>
+        <org.eventb.core.poIdentifier name="abstract_dragged_airplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlp3" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlp3" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="abstract_airplane∈abstract_selectedAirplane" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7U3FkEe27-u4L-DWg0w|org.eventb.core.guard#_lZ9mUHJdEe2c_cjbqDAaMg"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="abstract_dragged_airplane=(∅ ⦂ ℙ(AIRPLANES))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7U3FkEe27-u4L-DWg0w|org.eventb.core.guard#_IFjnAHIvEe2iLYU5iCYclg"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="dragged_zoom_level=(∅ ⦂ ℙ(ℤ))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7U3FkEe27-u4L-DWg0w|org.eventb.core.guard#_H2xW8GtGEe2lKdAw_mOWFw"/>
+        <org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="currentMousePosition=airplane_pos" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7U3FkEe27-u4L-DWg0w|org.eventb.core.guard#_gfvr4G_oEe2ppLrshJ_bTA"/>
+        <org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="abstract_airplane∈abstract_mousePositionAirplane" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7U3FkEe27-u4L-DWg0w|org.eventb.core.guard#_jfHqQHJdEe2c_cjbqDAaMg"/>
+        <org.eventb.core.poPredicate name="PRD5" org.eventb.core.predicate="clickStartPosition=(∅ ⦂ ℙ(mouse_positions))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7U3FkEe27-u4L-DWg0w|org.eventb.core.guard#_p-oEE3VtEe2VVrqbNWbb9w"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlp4" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="clickStartPosition'" org.eventb.core.type="ℙ(mouse_positions)"/>
+        <org.eventb.core.poIdentifier name="abstract_airplane" org.eventb.core.type="AIRPLANES"/>
+        <org.eventb.core.poIdentifier name="abstract_dragged_airplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlp4" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlp4" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="abstract_airplane∈abstract_dragged_airplane" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7VHFkEe27-u4L-DWg0w|org.eventb.core.guard#_R4eKMHI9Ee2iLYU5iCYclg"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="currentMousePosition=airplane_pos" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7VHFkEe27-u4L-DWg0w|org.eventb.core.guard#_AyzjkG_pEe2ppLrshJ_bTA"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="abstract_airplane∈abstract_mousePositionAirplane" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7VHFkEe27-u4L-DWg0w|org.eventb.core.guard#_NGM-8HJGEe2iLYU5iCYclg"/>
+        <org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="clickStartPosition={airplane_pos}" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFi7VHFkEe27-u4L-DWg0w|org.eventb.core.guard#_p-orIHVtEe2VVrqbNWbb9w"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlp5" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="airplane" org.eventb.core.type="AIRPLANES"/>
+        <org.eventb.core.poIdentifier name="abstract_dragged_airplane'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlp5" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlp5" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="airplane∈abstract_dragged_airplane" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFjiYHFkEe27-u4L-DWg0w|org.eventb.core.guard#_EFpi42qPEe2k4ruNXAHSNA"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="currentMousePosition=airplane_pos" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFjiYHFkEe27-u4L-DWg0w|org.eventb.core.guard#_0Hv7UG_qEe2Se5rMPkF7GQ"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="airplane∈abstract_mousePositionAirplane" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFjiYHFkEe27-u4L-DWg0w|org.eventb.core.guard#_FkaG0G_oEe28wMQsbIptog"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTabstract_mousePositionBlockSlp6" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="clickStartPosition'" org.eventb.core.type="ℙ(mouse_positions)"/>
+        <org.eventb.core.poIdentifier name="dragged_zoom_level'" org.eventb.core.type="ℙ(ℤ)"/>
+        <org.eventb.core.poIdentifier name="target_zoom" org.eventb.core.type="ℤ"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPabstract_mousePositionBlockSlp6" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#EVTIDENTabstract_mousePositionBlockSlp6" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="target_zoom∈ZOOM_LEVELS" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFjiYXFkEe27-u4L-DWg0w|org.eventb.core.guard#_BX2VsHIrEe2iLYU5iCYclg"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="dragged_zoom_level=(∅ ⦂ ℙ(ℤ))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFjiYXFkEe27-u4L-DWg0w|org.eventb.core.guard#_V3zVUHFzEe2HcpoyejDwZw"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="abstract_dragged_airplane=(∅ ⦂ ℙ(AIRPLANES))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFjiYXFkEe27-u4L-DWg0w|org.eventb.core.guard#_XxWuUHIrEe2iLYU5iCYclg"/>
+        <org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="mousePositionZoomSlider={zoomLevel}" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFjiYXFkEe27-u4L-DWg0w|org.eventb.core.guard#_PxI5MW_rEe2Se5rMPkF7GQ"/>
+        <org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="target_zoom∉dragged_zoom_level" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFjiYXFkEe27-u4L-DWg0w|org.eventb.core.guard#_BX28wHIrEe2iLYU5iCYclg"/>
+        <org.eventb.core.poPredicate name="PRD5" org.eventb.core.predicate="clickStartPosition=(∅ ⦂ ℙ(mouse_positions))" org.eventb.core.source="/Abstraction/MAbs.bum|org.eventb.core.machineFile#MAbs|org.eventb.core.event#_GFjiYXFkEe27-u4L-DWg0w|org.eventb.core.guard#_T1miAHVuEe27GpPif9GRiQ"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="ALLHYP" org.eventb.core.parentSet="/Abstraction/MAbs_prob_mc.bpo|org.eventb.core.poFile#MAbs_prob_mc|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poStamp="0"/>
+</org.eventb.core.poFile>

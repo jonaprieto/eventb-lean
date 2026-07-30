@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.machineFile org.eventb.core.configuration="org.eventb.core.fwd" org.eventb.core.generated="false" org.eventb.texttools.text_lastmodified="1673860835902" org.eventb.texttools.text_representation="machine M9_Push_Mouse_Button_prob_mc refines M9_Push_Mouse_Buttons  sees M9_Mouse_prob_mc_Ctx&#10;&#10;variables landing_sequence held_airplanes blockedTime zoomLevel timeout selectedAirplane dragged_airplane dragged_zoom_level currentMousePosition isClickedBlock mousePositionBlockSlot mousePositionAirplane mousePositionZoomSlider clickStartPosition&#10;&#10;events&#10;  event INITIALISATION extends INITIALISATION&#10;  end&#10;&#10;  event Move_Mouse_Hold extends Move_Mouse_Hold&#10;  end&#10;&#10;  event Move_Mouse_Zoom_Zooming extends Move_Mouse_Zoom_Zooming&#10;  end&#10;&#10;  event Move_Mouse_Zoom_Not_Zooming extends Move_Mouse_Zoom_Not_Zooming&#10;  end&#10;&#10;  event Move_Mouse_Block extends Move_Mouse_Block&#10;  end&#10;&#10;  event Move_Mouse_Airplane extends Move_Mouse_Airplane&#10;  end&#10;&#10;  event Move_Mouse_Nothing extends Move_Mouse_Nothing&#10;  end&#10;&#10;  event AMAN_Update_mouse_to_nothing extends AMAN_Update_mouse_to_nothing&#10;  end&#10;&#10;  event AMAN_Update_mouse_to_airplane extends AMAN_Update_mouse_to_airplane&#10;  end&#10;&#10;  event AMAN_Update_mouse_stays extends AMAN_Update_mouse_stays&#10;  end&#10;&#10;  event AMAN_Timeout extends AMAN_Timeout&#10;  end&#10;&#10;  event Move_Aircraft extends Move_Aircraft&#10;  end&#10;&#10;  event Click_Hold_Button extends Click_Hold_Button&#10;  end&#10;&#10;  event Release_Trigger_Hold_Button extends Release_Trigger_Hold_Button&#10;  end&#10;&#10;  event Release_Abort_Hold_Button extends Release_Abort_Hold_Button&#10;  end&#10;&#10;  event Click_Block_Time extends Click_Block_Time&#10;  end&#10;&#10;  event Release_Trigger_Block_Time extends Release_Trigger_Block_Time&#10;  end&#10;&#10;  event Release_Abort_Time_Button extends Release_Abort_Time_Button&#10;  end&#10;&#10;  event Release_Trigger_Deblock_Time extends Release_Trigger_Deblock_Time&#10;  end&#10;&#10;  event changeZoom extends changeZoom&#10;  end&#10;&#10;  event selectAirplane extends selectAirplane&#10;  end&#10;&#10;  event deselectAirplane extends deselectAirplane&#10;  end&#10;&#10;  event resume_dragging_airplane extends resume_dragging_airplane&#10;  end&#10;&#10;  event stop_dragging_airplane extends stop_dragging_airplane&#10;  end&#10;&#10;  event drag_airplane extends drag_airplane&#10;  end&#10;&#10;  event start_dragging_zoom_slider extends start_dragging_zoom_slider&#10;  end&#10;end&#10;" version="5">
+    <org.eventb.core.refinesMachine name="'" org.eventb.core.target="M9_Push_Mouse_Buttons"/>
+    <org.eventb.core.seesContext name="_CMfyIJV_Ee2bW8RMX2JWmg" org.eventb.core.target="M9_Mouse_prob_mc_Ctx"/>
+    <org.eventb.core.variable name="_2d0Q4Er1Ee2jiPlvG5m5_Q" org.eventb.core.generated="false" org.eventb.core.identifier="landing_sequence"/>
+    <org.eventb.core.variable name="_Ldd2cEr9Ee2jiPlvG5m5_Q" org.eventb.core.generated="false" org.eventb.core.identifier="held_airplanes"/>
+    <org.eventb.core.variable name="_vzAdYEsDEe2jiPlvG5m5_Q" org.eventb.core.generated="false" org.eventb.core.identifier="blockedTime"/>
+    <org.eventb.core.variable name="_r3618EsFEe2kV4Y3e_fvVw" org.eventb.core.generated="false" org.eventb.core.identifier="zoomLevel"/>
+    <org.eventb.core.variable name="_uWdLQGnNEe21Fse6RF_HiQ" org.eventb.core.generated="false" org.eventb.core.identifier="timeout"/>
+    <org.eventb.core.variable name="_o1zz8F9KEe2m8_5luKWjkQ" org.eventb.core.generated="false" org.eventb.core.identifier="selectedAirplane"/>
+    <org.eventb.core.variable name="_tLT90Gp9Ee2TX71I9CyCTw" org.eventb.core.generated="false" org.eventb.core.identifier="dragged_airplane"/>
+    <org.eventb.core.variable name="_tLT90Wp9Ee2TX71I9CyCTw" org.eventb.core.generated="false" org.eventb.core.identifier="dragged_zoom_level"/>
+    <org.eventb.core.variable name="_uA-ycG8bEe2yf4TIGcxCyA" org.eventb.core.generated="false" org.eventb.core.identifier="currentMousePosition"/>
+    <org.eventb.core.variable name="_GFNG0G8kEe2yf4TIGcxCyA" org.eventb.core.generated="false" org.eventb.core.identifier="isClickedBlock"/>
+    <org.eventb.core.variable name="_TLjKoG8nEe2yf4TIGcxCyA" org.eventb.core.generated="false" org.eventb.core.identifier="mousePositionBlockSlot"/>
+    <org.eventb.core.variable name="_TLjKoW8nEe2yf4TIGcxCyA" org.eventb.core.generated="false" org.eventb.core.identifier="mousePositionAirplane"/>
+    <org.eventb.core.variable name="_TLjKom8nEe2yf4TIGcxCyA" org.eventb.core.generated="false" org.eventb.core.identifier="mousePositionZoomSlider"/>
+    <org.eventb.core.variable name="_b0rjU3VsEe2VVrqbNWbb9w" org.eventb.core.generated="false" org.eventb.core.identifier="clickStartPosition"/>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_R" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="INITIALISATION"/>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_S" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="Move_Mouse_Hold">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="Move_Mouse_Hold"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_T" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="Move_Mouse_Zoom_Zooming">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="Move_Mouse_Zoom_Zooming"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_U" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="Move_Mouse_Zoom_Not_Zooming">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="Move_Mouse_Zoom_Not_Zooming"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_V" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="Move_Mouse_Block">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="Move_Mouse_Block"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_W" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="Move_Mouse_Airplane">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="Move_Mouse_Airplane"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_X" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="Move_Mouse_Nothing">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="Move_Mouse_Nothing"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_Y" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="AMAN_Update_mouse_to_nothing">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="AMAN_Update_mouse_to_nothing"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_Z" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="AMAN_Update_mouse_to_airplane">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="AMAN_Update_mouse_to_airplane"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_[" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="AMAN_Update_mouse_stays">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="AMAN_Update_mouse_stays"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_\" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="AMAN_Timeout">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="AMAN_Timeout"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_]" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="Move_Aircraft">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="Move_Aircraft"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_^" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="Click_Hold_Button">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="Click_Hold_Button"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5__" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="Release_Trigger_Hold_Button">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="Release_Trigger_Hold_Button"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_`" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="Release_Abort_Hold_Button">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="Release_Abort_Hold_Button"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_a" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="Click_Block_Time">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="Click_Block_Time"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_b" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="Release_Trigger_Block_Time">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="Release_Trigger_Block_Time"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_c" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="Release_Abort_Time_Button">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="Release_Abort_Time_Button"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_d" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="Release_Trigger_Deblock_Time">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="Release_Trigger_Deblock_Time"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_e" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="changeZoom">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="changeZoom"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_f" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="selectAirplane">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="selectAirplane"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_g" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="deselectAirplane">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="deselectAirplane"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_h" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="resume_dragging_airplane">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="resume_dragging_airplane"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_i" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="stop_dragging_airplane">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="stop_dragging_airplane"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_j" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="drag_airplane">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="drag_airplane"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_vzAdYEsDEe2jiPlvG5m5_k" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="start_dragging_zoom_slider">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="start_dragging_zoom_slider"/>
+    </org.eventb.core.event>
+</org.eventb.core.machineFile>

@@ -1,0 +1,304 @@
+/*******************************************************************************
+ * Copyright (c) 2016,2021 University of Southampton.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *     University of Southampton - initial API and implementation
+ *******************************************************************************/
+grammar ac.soton.xeventb.xcontext.XContext with org.eclipse.xtext.common.Terminals hidden(WS, ML_COMMENT, SL_COMMENT)
+
+//import "http://emf.eventb.org/models/core/context/2014" as econtext
+import "platform:/resource/org.eventb.emf.core/model/eventbcore.ecore#//context"as econtext
+import "http://www.eclipse.org/emf/2002/Ecore" as ecore
+import "http://soton.ac.uk/models/eventb/record/2022" as erecords
+import "http://soton.ac.uk/models/eventb/coreextension/2014" as eventbcoreex
+
+XContext returns econtext::Context:
+	{econtext::Context}
+	(comment = STRING)?
+	'context' name=ID
+	(
+		 // Multiple-extend clause
+		('extends' extends+=[econtext::Context |QualifiedName]+) |
+		// Individual-extend clause
+		(('extend' | 'ext') extends+=[econtext::Context |QualifiedName]) |
+		// Multiple-(carrier)set clause 
+		('sets' orderedChildren+=XCarrierSet+) |
+		// Individual-(carrier)set clause
+		(orderedChildren+=XIndividualCarrierSet) |
+		// Multiple-constant clause
+		('constants' orderedChildren+=XConstant+) |
+		// Individual-constant clause
+		(orderedChildren+=XIndividualConstant) |
+		(orderedChildren += XRecord) |
+		/*
+		 * Multiple-axiom clause
+		 * To avoid ambiguity, theorems is no longer allowed to be a part of "axioms",
+		 * instead, keyword "theorem" will signify an individual theorem.
+		 */
+		('axioms' orderedChildren+=XAxiom+) |
+		// Individual-axiom clause
+		(orderedChildren+=XIndividualAxiom) |
+		// Individual-theorem clause
+		(orderedChildren+=XIndividualTheorem)
+	)*
+	// Since CamilleX 3.0, we do not need to have the final 'end' keyword
+	('end')?
+;
+
+QualifiedName:
+   ID ('.' ID)*
+ ; 
+
+XCarrierSet returns econtext::CarrierSet:
+	{econtext::CarrierSet}
+	(comment = STRING)?
+	name=ID
+;
+
+XIndividualCarrierSet returns econtext::CarrierSet:
+	{econtext::CarrierSet}
+	(comment = STRING)?
+	'set'
+	name=ID
+;
+
+
+XConstant returns econtext::Constant:
+	{econtext::Constant}
+	(comment = STRING)?
+	name=ID
+;
+
+XIndividualConstant returns eventbcoreex::TypedConstant:
+	{eventbcoreex::TypedConstant}
+	(comment = STRING)?
+	('constant' | 'cst') 
+	name=ID (':' type=XType)? ('=' value=XFormula)?
+;
+
+XAxiom returns econtext::Axiom:
+	{econtext::Axiom}
+	(comment = STRING)?	
+	name=XLABEL predicate=XFormula
+;
+
+XIndividualAxiom returns econtext::Axiom:
+	{econtext::Axiom}
+	(comment = STRING)?	
+	('axiom' | 'axm') name=XLABEL predicate=XFormula
+;
+
+XIndividualTheorem returns econtext::Axiom:
+	{econtext::Axiom}
+	(comment = STRING)?	
+	theorem?=('theorem' | 'thm') name=XLABEL predicate=XFormula
+;
+
+//
+//XTheorem returns econtext::Axiom:
+//	{econtext::Axiom}
+//	(comment = STRING)?	
+//	theorem?='thm' name=XLABEL predicate=XFormula
+//;
+
+terminal XLABEL returns ecore::EString:
+	'@' !(':')+ ':'
+;
+
+XFormula returns ecore::EString:
+	(
+		EVENTB_IDENTIFIER_KEYWORD |
+		EVENTB_PREDICATE_SYMBOLS |
+		EVENTB_EXPRESSION_SYMBOLS |
+		ID |
+		INT |
+		UNTRANSLATED_TOKEN
+	)+ 
+;
+
+XType returns ecore::EString:
+	XTypePrimitive (XTYPEOPERATOR XTypePrimitive)*
+;
+
+XTYPEOPERATOR returns ecore::EString:
+	'↔' | // Symbols for building set of relations
+	'' | 
+	'' | 
+	'' | 
+	'⇸' | 
+	'→' | 
+	'⤔' | 
+	'↣' | 
+	'⤀' | 
+	'↠' | 
+	'⤖' | 
+	'×'
+;
+
+XTypePrimitive returns ecore::EString:
+	ID |
+	'BOOL' |
+	'ℕ1' | 
+	'ℕ' | 
+	'ℤ' | 
+	'(' XType ')'| 
+	'ℙ' '(' XType ')' |
+	'ℙ1' '(' XType ')'
+;
+
+// IMPORTANT: Do not make these terminal as it can cause problem with the XType
+EVENTB_IDENTIFIER_KEYWORD returns ecore::EString:
+	'BOOL' |
+	'FALSE' |
+	'TRUE' |
+	'bool' |
+	'card' |
+	'dom' |
+	'finite' |
+	'id' |
+	'inter' |
+	'max' |
+	'min' |
+	'mod' |
+	'pred' |
+	'prj1' |
+	'prj2' |
+	'ran' |
+	'succ' |
+	'union' |
+	'ℕ1' |
+	'ℕ' |
+	'ℙ1' |
+	'ℙ' |
+	'ℤ'
+;
+
+EVENTB_PREDICATE_SYMBOLS returns ecore::EString:
+	'(' | // Predicate calculus symbols
+	')' |
+	'⇔' | 
+	'⇒' |
+	'∧' | '&' |
+	'∨' |
+	'¬' |
+	'⊤' |
+	'⊥' |
+	'∀' | '!' |
+	'∃' | '#' |
+	',' |
+	'·' | '.' |
+	'=' | // Build predicates from expressions
+	'≠' |
+	'≤' |
+	'<' |
+	'≥' |
+	'>' |
+	'∈' | ':' | // Include this for Rodin keyboard
+	'∉' | 
+	'⊂' |
+	'⊄' |
+	'⊆' |
+	'⊈' |
+	'partition' // This is missing from the Rodin D7 deliverable
+;
+
+EVENTB_EXPRESSION_SYMBOLS returns ecore::EString:
+	'↔' | // Symbols for building set of relations
+	'' |
+	'' |
+	'' |
+	'⇸' |
+	'→' |
+	'⤔' |
+	'↣' |
+	'⤀' |
+	'↠' |
+	'⤖' |
+	'{' | // Symbols for manipulating sets
+	'}' |
+	'↦' |
+	'∅' |
+	'∩' |
+	'∪' |
+	'∖' |
+	'×' |
+	'[' | // Symbols for manipulating functions and relations
+	']' |
+	'' |
+	'∘' |
+	';' |
+	'⊗' |
+	'∥' |
+	'∼' |
+	'◁' |
+	'⩤' |
+	'▷' |
+	'⩥' |
+	'λ' | '%' // Symbols for quantified expressions
+	'⋂' |
+	'⋃' |
+	'∣' |
+	'‥' | // Symbols for arithmetic expressions
+	'+' |
+	'−' | '-' |
+	'∗' | '*' |
+	'÷' | '/' | 
+	'^' |
+	'\\' // Allowed for LaTeX combos
+;
+
+
+@Override 
+terminal ID: '^'?('a'..'z'|'A'..'Z'|'_'| 'i'..'ￜ') ('a'..'z'|'A'..'Z'|'_'| 'i'..'ￜ'|'0'..'9' | "'")*;
+
+// This to allow untranslated mathematical symbols in XFormula
+terminal UNTRANSLATED_TOKEN: ('!'|'#'|'%'|'&'|'*'|'-'|':'|'|'|'\\'|','|'~'|'/'|'.')+;
+
+@Override 
+terminal STRING: '"' ( '\\' . /* 'b'|'t'|'n'|'f'|'r'|'u'|'"'|"'"|'\\' */ | !('\\'|'"') )* '"';
+
+/*
+ * support for records
+ */
+ 
+XRecord returns erecords::Record:
+	{erecords::Record}
+	(extended ?= 'extended')?
+	'record' name = ID
+	('inherits' inheritsNames +=ID)?
+	('field' fields += Field | 'constraint' constraints += XConstraint)*
+	'end'
+;
+
+
+
+FieldType returns ecore::EString:
+	(
+		ID |
+		EVENTB_IDENTIFIER_KEYWORD 
+	)
+;
+
+Field returns erecords::Field:
+	{erecords::Field}
+	(comment = STRING)?	
+	name = ID (':')
+	(multiplicity=Multiplicity)?
+	(type= FieldType)	
+;
+
+enum Multiplicity returns erecords::Multiplicity:
+				ONE = 'one' | MANY = 'many' | OPTIONAL = 'opt';
+
+XConstraint returns erecords::Constraint:
+	{erecords::Constraint}
+	(comment = STRING)?	
+	name=XLABEL predicate=XFormula
+;

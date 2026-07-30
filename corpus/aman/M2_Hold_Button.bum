@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.machineFile org.eventb.core.configuration="org.eventb.core.fwd" org.eventb.core.generated="false" org.eventb.texttools.text_lastmodified="1669053728645" org.eventb.texttools.text_representation="machine M2_Hold_Button refines M1_Landing_Sequence  sees M1_Landing_Sequence_Ctx&#10;&#10;variables landing_sequence held_airplanes&#10;&#10;invariants&#10;  @inv4,1 held_airplanes ⊆ dom(landing_sequence)&#10;&#10;events&#10;  event INITIALISATION extends INITIALISATION&#10;    then&#10;      @act2,1 held_airplanes ≔ ∅&#10;  end&#10;&#10;  event AMAN_Update extends AMAN_Update&#10;    then&#10;      @act2,1 held_airplanes ≔ ∅&#10;  end&#10;&#10;  event Move_Aircraft extends Move_Aircraft&#10;  end&#10;&#10;  event Hold_Button&#10;    any airplane&#10;    where&#10;      @grd2,1 airplane ∈ dom(landing_sequence) ∖ held_airplanes&#10;    then&#10;      @act2,1 held_airplanes ≔ held_airplanes ∪ {airplane}&#10;  end&#10;end&#10;" version="5">
+    <org.eventb.core.refinesMachine name="'" org.eventb.core.target="M1_Landing_Sequence"/>
+    <org.eventb.core.seesContext name="_7WIDoEr1Ee2jiPlvG5m5_Q" org.eventb.core.target="M1_Landing_Sequence_Ctx"/>
+    <org.eventb.core.variable name="_2d0Q4Er1Ee2jiPlvG5m5_Q" org.eventb.core.generated="false" org.eventb.core.identifier="landing_sequence"/>
+    <org.eventb.core.event name="_7WIDoEr1Ee2jiPlvG5m5_R" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="INITIALISATION">
+        <org.eventb.core.action name="_rKMYgGmqEe2s8uUhoFrjqA" org.eventb.core.assignment="held_airplanes ≔ ∅" org.eventb.core.generated="false" org.eventb.core.label="act2,1"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_7WIDoEr1Ee2jiPlvG5m5_S" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="AMAN_Update">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="AMAN_Update"/>
+        <org.eventb.core.action name="_rKMYgWmqEe2s8uUhoFrjqA" org.eventb.core.assignment="held_airplanes ≔ ∅" org.eventb.core.generated="false" org.eventb.core.label="act2,1"/>
+    </org.eventb.core.event>
+    <org.eventb.core.event name="_7WIDoEr1Ee2jiPlvG5m5_T" org.eventb.core.convergence="0" org.eventb.core.extended="true" org.eventb.core.generated="false" org.eventb.core.label="Move_Aircraft">
+        <org.eventb.core.refinesEvent name="'" org.eventb.core.target="Move_Aircraft"/>
+    </org.eventb.core.event>
+    <org.eventb.core.variable name="_Ldd2cEr9Ee2jiPlvG5m5_Q" org.eventb.core.generated="false" org.eventb.core.identifier="held_airplanes"/>
+    <org.eventb.core.event name="_LdedgEr9Ee2jiPlvG5m5_Q" org.eventb.core.convergence="0" org.eventb.core.extended="false" org.eventb.core.generated="false" org.eventb.core.label="Hold_Button">
+        <org.eventb.core.parameter name="_LdedgUr9Ee2jiPlvG5m5_Q" org.eventb.core.generated="false" org.eventb.core.identifier="airplane"/>
+        <org.eventb.core.guard name="_rKMYgmmqEe2s8uUhoFrjqA" org.eventb.core.generated="false" org.eventb.core.label="grd2,1" org.eventb.core.predicate="airplane ∈ dom(landing_sequence) ∖ held_airplanes"/>
+        <org.eventb.core.action name="_rKMYg2mqEe2s8uUhoFrjqA" org.eventb.core.assignment="held_airplanes ≔ held_airplanes ∪ {airplane}" org.eventb.core.generated="false" org.eventb.core.label="act2,1"/>
+    </org.eventb.core.event>
+    <org.eventb.core.invariant name="_QUw8kEr9Ee2jiPlvG5m5_Q" org.eventb.core.generated="false" org.eventb.core.label="inv4,1" org.eventb.core.predicate="held_airplanes ⊆ dom(landing_sequence)"/>
+</org.eventb.core.machineFile>

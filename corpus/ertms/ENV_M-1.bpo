@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.poFile org.eventb.core.poStamp="2">
+<org.eventb.core.poPredicateSet name="CTXHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poIdentifier name="TRAIN" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poPredicate name="TRAIO" org.eventb.core.predicate="finite(TRAIN)" org.eventb.core.source="/HL3/ENV_C-1.buc|org.eventb.core.contextFile#ENV_C-1|org.eventb.core.axiom#("/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="ABSHYP" org.eventb.core.parentSet="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poIdentifier name="next_train" org.eventb.core.type="ℙ(TRAIN×TRAIN)"/>
+<org.eventb.core.poIdentifier name="train" org.eventb.core.type="ℙ(TRAIN)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="INITIALISATION/assocMult_next_train/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  establishment" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poPredicateSet#EVTALLHYPnext_traio"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="(∅ ⦂ ℙ(TRAIN×TRAIN))∈(∅ ⦂ ℙ(TRAIN)) ⤔ (∅ ⦂ ℙ(TRAIN))" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.invariant#_VgEG4AyyEeiI47opYxrTSg"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#'"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.invariant#_VgEG4AyyEeiI47opYxrTSg"/>
+<org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poSelHintSnd="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poSequent#INITIALISATION\/assocMult_next_train\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD1"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTnext_traio" org.eventb.core.parentSet="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poIdentifier name="train'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="next_train'" org.eventb.core.type="ℙ(TRAIN×TRAIN)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPnext_traio" org.eventb.core.parentSet="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poPredicateSet#EVTIDENTnext_traio" org.eventb.core.poStamp="0"/>
+<org.eventb.core.poSequent name="ENV_join_network/assocMult_next_train/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="2">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poPredicateSet#EVTALLHYPnext_traip"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="next_train({tr} × last_train)∈train∪{tr} ⤔ train∪{tr}" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.invariant#_VgEG4AyyEeiI47opYxrTSg"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XejpUAyxEeiI47opYxrTSg"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.invariant#_VgEG4AyyEeiI47opYxrTSg"/>
+<org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poSequent#ENV_join_network\/assocMult_next_train\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD1"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTnext_traip" org.eventb.core.parentSet="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="2">
+<org.eventb.core.poIdentifier name="last_train" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="train'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="next_train'" org.eventb.core.type="ℙ(TRAIN×TRAIN)"/>
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPnext_traip" org.eventb.core.parentSet="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poPredicateSet#EVTIDENTnext_traip" org.eventb.core.poStamp="2">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∉train" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XejpUAyxEeiI47opYxrTSg|org.eventb.core.guard#_VgC4wQyyEeiI47opYxrTSg"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="last_train=train ∖ ran(next_train)" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XejpUAyxEeiI47opYxrTSg|org.eventb.core.guard#_Xg39ggyxEeiI47opYxrTSj"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="train≠(∅ ⦂ ℙ(TRAIN))⇒(∃lt⦂TRAIN·last_train={lt})" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XejpUAyxEeiI47opYxrTSg|org.eventb.core.guard#_Xg39ggyxEeiI47opYxrTSl"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="ENV_leave_network/assocMult_next_train/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poPredicateSet#EVTALLHYPnext_traiq"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="next_train ⩥ {tr}∈train ∖ {tr} ⤔ train ∖ {tr}" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.invariant#_VgEG4AyyEeiI47opYxrTSg"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XejpUQyxEeiI47opYxrTSg"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.invariant#_VgEG4AyyEeiI47opYxrTSg"/>
+<org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poSequent#ENV_leave_network\/assocMult_next_train\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD1"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTnext_traiq" org.eventb.core.parentSet="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poIdentifier name="train'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="next_train'" org.eventb.core.type="ℙ(TRAIN×TRAIN)"/>
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPnext_traiq" org.eventb.core.parentSet="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poPredicateSet#EVTIDENTnext_traiq" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∈train" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XejpUQyxEeiI47opYxrTSg|org.eventb.core.guard#_VgC4wwyyEeiI47opYxrTSg"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="tr∉dom(next_train)" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XejpUQyxEeiI47opYxrTSg|org.eventb.core.guard#_Xg4kkQyxEeiI47opYxrTSh"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poSequent name="ENV_train_split/assocMult_next_train/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poPredicateSet#EVTALLHYPnext_trair"/>
+<org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="next_train((following_train × {tr})∪{tr ↦ tr0})∈train∪{tr} ⤔ train∪{tr}" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.invariant#_VgEG4AyyEeiI47opYxrTSg"/>
+<org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XekQYAyxEeiI47opYxrTSg"/>
+<org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.invariant#_VgEG4AyyEeiI47opYxrTSg"/>
+<org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poSequent#ENV_train_split\/assocMult_next_train\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+<org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD1"/>
+</org.eventb.core.poSequent>
+<org.eventb.core.poPredicateSet name="EVTIDENTnext_trair" org.eventb.core.parentSet="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poIdentifier name="tr0" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="train'" org.eventb.core.type="ℙ(TRAIN)"/>
+<org.eventb.core.poIdentifier name="next_train'" org.eventb.core.type="ℙ(TRAIN×TRAIN)"/>
+<org.eventb.core.poIdentifier name="tr" org.eventb.core.type="TRAIN"/>
+<org.eventb.core.poIdentifier name="following_train" org.eventb.core.type="ℙ(TRAIN)"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="EVTALLHYPnext_trair" org.eventb.core.parentSet="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poPredicateSet#EVTIDENTnext_trair" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="tr∉train" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XekQYAyxEeiI47opYxrTSg|org.eventb.core.guard#_VgDf0gyyEeiI47opYxrTSg"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="tr0∈train" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XekQYAyxEeiI47opYxrTSg|org.eventb.core.guard#_VgDf0wyyEeiI47opYxrTSj"/>
+<org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="following_train∈ℙ(train)" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XekQYAyxEeiI47opYxrTSg|org.eventb.core.guard#_VgDf0wyyEeiI47opYxrTSp"/>
+<org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="following_train=next_train∼[{tr0}]" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.event#_XekQYAyxEeiI47opYxrTSg|org.eventb.core.guard#_VgDf0wyyEeiI47opYxrTSl"/>
+</org.eventb.core.poPredicateSet>
+<org.eventb.core.poPredicateSet name="ALLHYP" org.eventb.core.parentSet="/HL3/ENV_M-1.bpo|org.eventb.core.poFile#ENV_M-1|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poStamp="0">
+<org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="train∈ℙ(TRAIN)" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.invariant#_VgDf1AyyEeiI47opYxrTSg"/>
+<org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="next_train∈train ⤔ train" org.eventb.core.source="/HL3/ENV_M-1.bum|org.eventb.core.machineFile#ENV_M-1|org.eventb.core.invariant#_VgEG4AyyEeiI47opYxrTSg"/>
+</org.eventb.core.poPredicateSet>
+</org.eventb.core.poFile>

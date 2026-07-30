@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.poFile org.eventb.core.poStamp="0">
+    <org.eventb.core.poPredicateSet name="CTXHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="AIRPLANES" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poPredicate name="AIRPLANET" org.eventb.core.predicate="finite(AIRPLANES)" org.eventb.core.source="/Abstraction/M0_AMAN_Update_Ctx.buc|org.eventb.core.contextFile#M0_AMAN_Update_Ctx|org.eventb.core.axiom#_wFUvsUrzEe2jiPlvG5m5_Q"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="ABSHYP" org.eventb.core.parentSet="/Abstraction/M0_AMAN_Update.bpo|org.eventb.core.poFile#M0_AMAN_Update|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="scheduledAirplanes" org.eventb.core.type="ℙ(AIRPLANES)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTscheduledAirplanet" org.eventb.core.parentSet="/Abstraction/M0_AMAN_Update.bpo|org.eventb.core.poFile#M0_AMAN_Update|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="scheduledAirplanes'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPscheduledAirplanet" org.eventb.core.parentSet="/Abstraction/M0_AMAN_Update.bpo|org.eventb.core.poFile#M0_AMAN_Update|org.eventb.core.poPredicateSet#EVTIDENTscheduledAirplanet" org.eventb.core.poStamp="0"/>
+    <org.eventb.core.poPredicateSet name="EVTIDENTscheduledAirplaneu" org.eventb.core.parentSet="/Abstraction/M0_AMAN_Update.bpo|org.eventb.core.poFile#M0_AMAN_Update|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="scheduledAirplanes'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="newScheduledAirplanes" org.eventb.core.type="ℙ(AIRPLANES)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPscheduledAirplaneu" org.eventb.core.parentSet="/Abstraction/M0_AMAN_Update.bpo|org.eventb.core.poFile#M0_AMAN_Update|org.eventb.core.poPredicateSet#EVTIDENTscheduledAirplaneu" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="newScheduledAirplanes⊆AIRPLANES" org.eventb.core.source="/Abstraction/M0_AMAN_Update.bum|org.eventb.core.machineFile#M0_AMAN_Update|org.eventb.core.event#_AKLywGmmEe2s8uUhoFrjqA|org.eventb.core.guard#_hDvs8WmqEe2s8uUhoFrjqA"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="ALLHYP" org.eventb.core.parentSet="/Abstraction/M0_AMAN_Update.bpo|org.eventb.core.poFile#M0_AMAN_Update|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="scheduledAirplanes⊆AIRPLANES" org.eventb.core.source="/Abstraction/M0_AMAN_Update.bum|org.eventb.core.machineFile#M0_AMAN_Update|org.eventb.core.invariant#_hDvs82mqEe2s8uUhoFrjqA"/>
+    </org.eventb.core.poPredicateSet>
+</org.eventb.core.poFile>

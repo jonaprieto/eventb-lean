@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.poFile org.eventb.core.poStamp="0">
+    <org.eventb.core.poPredicateSet name="CTXHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="AIRPLANES" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poPredicate name="AIRPLANET" org.eventb.core.predicate="finite(AIRPLANES)" org.eventb.core.source="/Abstraction/M0_AMAN_Update_Ctx.buc|org.eventb.core.contextFile#M0_AMAN_Update_Ctx|org.eventb.core.axiom#_wFUvsUrzEe2jiPlvG5m5_Q"/>
+        <org.eventb.core.poIdentifier name="AIRCRAFT_SEPARATION_MIN" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="DIST" org.eventb.core.type="ℙ(ℤ×ℤ×ℤ)"/>
+        <org.eventb.core.poIdentifier name="PLANNING_HORIZON" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="PLANNING_INTERVAL" org.eventb.core.type="ℙ(ℤ)"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIO" org.eventb.core.predicate="DIST=(λx⦂ℤ ↦ y⦂ℤ·x∈ℤ∧y∈ℤ ∣ max({y − x,x − y}))" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_QW8AcUr1Ee2jiPlvG5m5_Q"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIP" org.eventb.core.predicate="∀x⦂ℤ,y⦂ℤ·x∈ℤ∧y∈ℤ⇒DIST(x ↦ y)=DIST(y ↦ x)" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_QW8Ackr1Ee2jiPlvG5m5_Q"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIQ" org.eventb.core.predicate="PLANNING_HORIZON∈15 ‥ 45" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_4vJoEEr6Ee2jiPlvG5m5_Q"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIR" org.eventb.core.predicate="PLANNING_HORIZON mod 5=0" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_ELIQQEsIEe2nbO8NfDiKnQ"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIS" org.eventb.core.predicate="PLANNING_INTERVAL=1 ‥ PLANNING_HORIZON" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_ELIQQUsIEe2nbO8NfDiKnQ"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIT" org.eventb.core.predicate="finite(PLANNING_INTERVAL)" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_8hQ1YH1bEe25Nuc5zcUFzQ"/>
+        <org.eventb.core.poPredicate name="AIRCRAFT_SEPARATION_MIU" org.eventb.core.predicate="AIRCRAFT_SEPARATION_MIN=3" org.eventb.core.source="/Abstraction/M1_Landing_Sequence_Ctx.buc|org.eventb.core.contextFile#M1_Landing_Sequence_Ctx|org.eventb.core.axiom#_TpulwWnUEe21Fse6RF_HiQ"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="ABSHYP" org.eventb.core.parentSet="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="blockedTime" org.eventb.core.type="ℙ(ℤ)"/>
+        <org.eventb.core.poIdentifier name="scheduledAirplanes" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="held_airplanes" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="landing_sequence" org.eventb.core.type="ℙ(AIRPLANES×ℤ)"/>
+        <org.eventb.core.poPredicate name="scheduledAirplanet" org.eventb.core.predicate="scheduledAirplanes⊆AIRPLANES" org.eventb.core.source="/Abstraction/M0_AMAN_Update.bum|org.eventb.core.machineFile#M0_AMAN_Update|org.eventb.core.invariant#_hDvs82mqEe2s8uUhoFrjqA"/>
+        <org.eventb.core.poPredicate name="scheduledAirplaneu" org.eventb.core.predicate="landing_sequence∈AIRPLANES ⇸ PLANNING_INTERVAL" org.eventb.core.source="/Abstraction/M1_Landing_Sequence.bum|org.eventb.core.machineFile#M1_Landing_Sequence|org.eventb.core.invariant#_jsvIcWmqEe2s8uUhoFrjqA"/>
+        <org.eventb.core.poPredicate name="scheduledAirplanev" org.eventb.core.predicate="∀a1⦂AIRPLANES,a2⦂AIRPLANES·a1∈dom(landing_sequence)∧a2∈dom(landing_sequence)∧a1≠a2⇒DIST(landing_sequence(a1) ↦ landing_sequence(a2))≥AIRCRAFT_SEPARATION_MIN" org.eventb.core.source="/Abstraction/M1_Landing_Sequence.bum|org.eventb.core.machineFile#M1_Landing_Sequence|org.eventb.core.invariant#_jsvIcmmqEe2s8uUhoFrjqA"/>
+        <org.eventb.core.poPredicate name="scheduledAirplanew" org.eventb.core.predicate="scheduledAirplanes=dom(landing_sequence)" org.eventb.core.source="/Abstraction/M1_Landing_Sequence.bum|org.eventb.core.machineFile#M1_Landing_Sequence|org.eventb.core.invariant#_jsvIc2mqEe2s8uUhoFrjqA"/>
+        <org.eventb.core.poPredicate name="scheduledAirplanex" org.eventb.core.predicate="held_airplanes⊆dom(landing_sequence)" org.eventb.core.source="/Abstraction/M2_Hold_Button.bum|org.eventb.core.machineFile#M2_Hold_Button|org.eventb.core.invariant#_QUw8kEr9Ee2jiPlvG5m5_Q"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poSequent name="INITIALISATION/inv3,1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  establishment" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#EVTALLHYPM1_Landing_Sequence_Ct~"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="(∅ ⦂ ℙ(ℤ))⊆PLANNING_INTERVAL" org.eventb.core.source="/Abstraction/M3_Block_Timeslots.bum|org.eventb.core.machineFile#M3_Block_Timeslots|org.eventb.core.invariant#_0vSqhmmqEe2s8uUhoFrjqA"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/Abstraction/M2_Hold_Button.bum|org.eventb.core.machineFile#M2_Hold_Button|org.eventb.core.event#_7WIDoEr1Ee2jiPlvG5m5_R"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/Abstraction/M3_Block_Timeslots.bum|org.eventb.core.machineFile#M3_Block_Timeslots|org.eventb.core.event#_Ldd2cEr9Ee2jiPlvG5m5_R"/>
+        <org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/Abstraction/M3_Block_Timeslots.bum|org.eventb.core.machineFile#M3_Block_Timeslots|org.eventb.core.invariant#_0vSqhmmqEe2s8uUhoFrjqA"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poSelHintSnd="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poSequent#INITIALISATION\/inv3,1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD0"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poPredicateSet name="EVTIDENTM1_Landing_Sequence_Ct~" org.eventb.core.parentSet="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#CTXHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="held_airplanes'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="blockedTime'" org.eventb.core.type="ℙ(ℤ)"/>
+        <org.eventb.core.poIdentifier name="landing_sequence'" org.eventb.core.type="ℙ(AIRPLANES×ℤ)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPM1_Landing_Sequence_Ct~" org.eventb.core.parentSet="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#EVTIDENTM1_Landing_Sequence_Ct~" org.eventb.core.poStamp="0"/>
+    <org.eventb.core.poSequent name="AMAN_Update/inv3,1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#EVTALLHYPM1_Landing_Sequence_Cu'"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="{t⦂ℤ·t∈PLANNING_INTERVAL∧t+passed_minute∈blockedTime ∣ t}⊆PLANNING_INTERVAL" org.eventb.core.source="/Abstraction/M3_Block_Timeslots.bum|org.eventb.core.machineFile#M3_Block_Timeslots|org.eventb.core.invariant#_0vSqhmmqEe2s8uUhoFrjqA"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="ABSTRACT" org.eventb.core.source="/Abstraction/M2_Hold_Button.bum|org.eventb.core.machineFile#M2_Hold_Button|org.eventb.core.event#_7WIDoEr1Ee2jiPlvG5m5_S"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="CONCRETE" org.eventb.core.source="/Abstraction/M3_Block_Timeslots.bum|org.eventb.core.machineFile#M3_Block_Timeslots|org.eventb.core.event#_Ldd2cEr9Ee2jiPlvG5m5_S"/>
+        <org.eventb.core.poSource name="SEQHYT" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/Abstraction/M3_Block_Timeslots.bum|org.eventb.core.machineFile#M3_Block_Timeslots|org.eventb.core.invariant#_0vSqhmmqEe2s8uUhoFrjqA"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poSequent#AMAN_Update\/inv3,1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYV" org.eventb.core.poSelHintFst="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD0"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poPredicateSet name="EVTIDENTM1_Landing_Sequence_Cu'" org.eventb.core.parentSet="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="held_airplanes'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="new_landing_sequence" org.eventb.core.type="ℙ(AIRPLANES×ℤ)"/>
+        <org.eventb.core.poIdentifier name="passed_minute" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="blockedTime'" org.eventb.core.type="ℙ(ℤ)"/>
+        <org.eventb.core.poIdentifier name="landing_sequence'" org.eventb.core.type="ℙ(AIRPLANES×ℤ)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPM1_Landing_Sequence_Cu'" org.eventb.core.parentSet="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#EVTIDENTM1_Landing_Sequence_Cu'" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="new_landing_sequence∈AIRPLANES ⇸ PLANNING_INTERVAL" org.eventb.core.source="/Abstraction/M1_Landing_Sequence.bum|org.eventb.core.machineFile#M1_Landing_Sequence|org.eventb.core.event#_yCuQgUrzEe2jiPlvG5m5_S|org.eventb.core.guard#_QO_WUGmqEe2s8uUhoFrjqA"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="∀a1⦂AIRPLANES,a2⦂AIRPLANES·a1∈dom(new_landing_sequence)∧a2∈dom(new_landing_sequence)∧a1≠a2⇒DIST(new_landing_sequence(a1) ↦ new_landing_sequence(a2))≥AIRCRAFT_SEPARATION_MIN" org.eventb.core.source="/Abstraction/M1_Landing_Sequence.bum|org.eventb.core.machineFile#M1_Landing_Sequence|org.eventb.core.event#_yCuQgUrzEe2jiPlvG5m5_S|org.eventb.core.guard#_jsuhYGmqEe2s8uUhoFrjqA"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="passed_minute∈ℕ" org.eventb.core.source="/Abstraction/M3_Block_Timeslots.bum|org.eventb.core.machineFile#M3_Block_Timeslots|org.eventb.core.event#_Ldd2cEr9Ee2jiPlvG5m5_S|org.eventb.core.guard#_MnjLAGmpEe2s8uUhoFrjqA"/>
+        <org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="ran(new_landing_sequence)∩blockedTime=(∅ ⦂ ℙ(ℤ))" org.eventb.core.source="/Abstraction/M3_Block_Timeslots.bum|org.eventb.core.machineFile#M3_Block_Timeslots|org.eventb.core.event#_Ldd2cEr9Ee2jiPlvG5m5_S|org.eventb.core.guard#_RrLngGmqEe2s8uUhoFrjqA"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTM1_Landing_Sequence_Cu(" org.eventb.core.parentSet="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="time" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="aircraft" org.eventb.core.type="AIRPLANES"/>
+        <org.eventb.core.poIdentifier name="landing_sequence'" org.eventb.core.type="ℙ(AIRPLANES×ℤ)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPM1_Landing_Sequence_Cu(" org.eventb.core.parentSet="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#EVTIDENTM1_Landing_Sequence_Cu(" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="aircraft∈dom(landing_sequence)" org.eventb.core.source="/Abstraction/M1_Landing_Sequence.bum|org.eventb.core.machineFile#M1_Landing_Sequence|org.eventb.core.event#_UusuEEr5Ee2jiPlvG5m5_Q|org.eventb.core.guard#_jsuhYWmqEe2s8uUhoFrjqA"/>
+        <org.eventb.core.poPredicate name="PRD1" org.eventb.core.predicate="time∈PLANNING_INTERVAL" org.eventb.core.source="/Abstraction/M1_Landing_Sequence.bum|org.eventb.core.machineFile#M1_Landing_Sequence|org.eventb.core.event#_UusuEEr5Ee2jiPlvG5m5_Q|org.eventb.core.guard#_jsuhYmmqEe2s8uUhoFrjqA"/>
+        <org.eventb.core.poPredicate name="PRD2" org.eventb.core.predicate="time≠landing_sequence(aircraft)" org.eventb.core.source="/Abstraction/M1_Landing_Sequence.bum|org.eventb.core.machineFile#M1_Landing_Sequence|org.eventb.core.event#_UusuEEr5Ee2jiPlvG5m5_Q|org.eventb.core.guard#_jsuhY2mqEe2s8uUhoFrjqA"/>
+        <org.eventb.core.poPredicate name="PRD3" org.eventb.core.predicate="∀a⦂AIRPLANES·a∈dom(landing_sequence) ∖ {aircraft}⇒DIST(landing_sequence(a) ↦ time)≥AIRCRAFT_SEPARATION_MIN" org.eventb.core.source="/Abstraction/M1_Landing_Sequence.bum|org.eventb.core.machineFile#M1_Landing_Sequence|org.eventb.core.event#_UusuEEr5Ee2jiPlvG5m5_Q|org.eventb.core.guard#_jsuhZGmqEe2s8uUhoFrjqA"/>
+        <org.eventb.core.poPredicate name="PRD4" org.eventb.core.predicate="time∉blockedTime" org.eventb.core.source="/Abstraction/M3_Block_Timeslots.bum|org.eventb.core.machineFile#M3_Block_Timeslots|org.eventb.core.event#_Ldd2cEr9Ee2jiPlvG5m5_T|org.eventb.core.guard#_0vSqgWmqEe2s8uUhoFrjqA"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTIDENTM1_Landing_Sequence_Cu)" org.eventb.core.parentSet="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="held_airplanes'" org.eventb.core.type="ℙ(AIRPLANES)"/>
+        <org.eventb.core.poIdentifier name="airplane" org.eventb.core.type="AIRPLANES"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPM1_Landing_Sequence_Cu)" org.eventb.core.parentSet="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#EVTIDENTM1_Landing_Sequence_Cu)" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="airplane∈dom(landing_sequence) ∖ held_airplanes" org.eventb.core.source="/Abstraction/M2_Hold_Button.bum|org.eventb.core.machineFile#M2_Hold_Button|org.eventb.core.event#_LdedgEr9Ee2jiPlvG5m5_Q|org.eventb.core.guard#_rKMYgmmqEe2s8uUhoFrjqA"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poSequent name="Block_Time/inv3,1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#EVTALLHYPM1_Landing_Sequence_Cu*"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="blockedTime∪{time}⊆PLANNING_INTERVAL" org.eventb.core.source="/Abstraction/M3_Block_Timeslots.bum|org.eventb.core.machineFile#M3_Block_Timeslots|org.eventb.core.invariant#_0vSqhmmqEe2s8uUhoFrjqA"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/Abstraction/M3_Block_Timeslots.bum|org.eventb.core.machineFile#M3_Block_Timeslots|org.eventb.core.event#_vzAdYksDEe2jiPlvG5m5_Q"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/Abstraction/M3_Block_Timeslots.bum|org.eventb.core.machineFile#M3_Block_Timeslots|org.eventb.core.invariant#_0vSqhmmqEe2s8uUhoFrjqA"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poSequent#Block_Time\/inv3,1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD0"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poPredicateSet name="EVTIDENTM1_Landing_Sequence_Cu*" org.eventb.core.parentSet="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="time" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="blockedTime'" org.eventb.core.type="ℙ(ℤ)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPM1_Landing_Sequence_Cu*" org.eventb.core.parentSet="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#EVTIDENTM1_Landing_Sequence_Cu*" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="time∈PLANNING_INTERVAL ∖ blockedTime" org.eventb.core.source="/Abstraction/M3_Block_Timeslots.bum|org.eventb.core.machineFile#M3_Block_Timeslots|org.eventb.core.event#_vzAdYksDEe2jiPlvG5m5_Q|org.eventb.core.guard#_0vSqgmmqEe2s8uUhoFrjqA"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poSequent name="Deblock_Time/inv3,1/INV" org.eventb.core.accurate="true" org.eventb.core.poDesc="Invariant  preservation" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicateSet name="SEQHYP" org.eventb.core.parentSet="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#EVTALLHYPM1_Landing_Sequence_Cu+"/>
+        <org.eventb.core.poPredicate name="SEQHYQ" org.eventb.core.predicate="blockedTime ∖ {time}⊆PLANNING_INTERVAL" org.eventb.core.source="/Abstraction/M3_Block_Timeslots.bum|org.eventb.core.machineFile#M3_Block_Timeslots|org.eventb.core.invariant#_0vSqhmmqEe2s8uUhoFrjqA"/>
+        <org.eventb.core.poSource name="SEQHYR" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/Abstraction/M3_Block_Timeslots.bum|org.eventb.core.machineFile#M3_Block_Timeslots|org.eventb.core.event#_vzAdZksDEe2jiPlvG5m5_Q"/>
+        <org.eventb.core.poSource name="SEQHYS" org.eventb.core.poRole="DEFAULT" org.eventb.core.source="/Abstraction/M3_Block_Timeslots.bum|org.eventb.core.machineFile#M3_Block_Timeslots|org.eventb.core.invariant#_0vSqhmmqEe2s8uUhoFrjqA"/>
+        <org.eventb.core.poSelHint name="SEQHYT" org.eventb.core.poSelHintFst="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poSelHintSnd="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poSequent#Deblock_Time\/inv3,1\/INV|org.eventb.core.poPredicateSet#SEQHYP"/>
+        <org.eventb.core.poSelHint name="SEQHYU" org.eventb.core.poSelHintFst="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#ALLHYP|org.eventb.core.poPredicate#PRD0"/>
+    </org.eventb.core.poSequent>
+    <org.eventb.core.poPredicateSet name="EVTIDENTM1_Landing_Sequence_Cu+" org.eventb.core.parentSet="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#ALLHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poIdentifier name="time" org.eventb.core.type="ℤ"/>
+        <org.eventb.core.poIdentifier name="blockedTime'" org.eventb.core.type="ℙ(ℤ)"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="EVTALLHYPM1_Landing_Sequence_Cu+" org.eventb.core.parentSet="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#EVTIDENTM1_Landing_Sequence_Cu+" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="time∈blockedTime" org.eventb.core.source="/Abstraction/M3_Block_Timeslots.bum|org.eventb.core.machineFile#M3_Block_Timeslots|org.eventb.core.event#_vzAdZksDEe2jiPlvG5m5_Q|org.eventb.core.guard#_0vSqhGmqEe2s8uUhoFrjqA"/>
+    </org.eventb.core.poPredicateSet>
+    <org.eventb.core.poPredicateSet name="ALLHYP" org.eventb.core.parentSet="/Abstraction/M3_Block_Timeslots.bpo|org.eventb.core.poFile#M3_Block_Timeslots|org.eventb.core.poPredicateSet#ABSHYP" org.eventb.core.poStamp="0">
+        <org.eventb.core.poPredicate name="PRD0" org.eventb.core.predicate="blockedTime⊆PLANNING_INTERVAL" org.eventb.core.source="/Abstraction/M3_Block_Timeslots.bum|org.eventb.core.machineFile#M3_Block_Timeslots|org.eventb.core.invariant#_0vSqhmmqEe2s8uUhoFrjqA"/>
+    </org.eventb.core.poPredicateSet>
+</org.eventb.core.poFile>
