@@ -33,6 +33,20 @@ jobs:
           path: .lake
           key: lake-${{ runner.os }}-${{ hashFiles('lake-manifest.json', 'lean-toolchain') }}
           restore-keys: lake-${{ runner.os }}-
+      - name: Authenticate to the private grip dependency
+        env:
+          GRIP_TOKEN: ${{ secrets.GRIP_TOKEN }}
+        run: |
+          # jonaprieto/grip is private, so an anonymous runner cannot clone it and lake
+          # fails with a bare "git exited with code 128". Fail here instead, with the fix.
+          if [ -z "$GRIP_TOKEN" ]; then
+            echo "::error::grip is private. Either 'gh secret set GRIP_TOKEN' with a" \
+                 "repo-scoped PAT that can read jonaprieto/grip, or make grip public."
+            exit 1
+          fi
+          git config --global \
+            url."https://x-access-token:${GRIP_TOKEN}@github.com/".insteadOf \
+            "https://github.com/"
       - uses: leanprover/lean-action@v1
         with:
           build-args: "EventB gates"
@@ -78,11 +92,26 @@ jobs:
           path: .lake
           key: lake-${{ runner.os }}-${{ hashFiles('lake-manifest.json', 'lean-toolchain') }}
           restore-keys: lake-${{ runner.os }}-
+      - name: Authenticate to the private grip dependency
+        env:
+          GRIP_TOKEN: ${{ secrets.GRIP_TOKEN }}
+        run: |
+          # jonaprieto/grip is private, so an anonymous runner cannot clone it and lake
+          # fails with a bare "git exited with code 128". Fail here instead, with the fix.
+          if [ -z "$GRIP_TOKEN" ]; then
+            echo "::error::grip is private. Either 'gh secret set GRIP_TOKEN' with a" \
+                 "repo-scoped PAT that can read jonaprieto/grip, or make grip public."
+            exit 1
+          fi
+          git config --global \
+            url."https://x-access-token:${GRIP_TOKEN}@github.com/".insteadOf \
+            "https://github.com/"
       - uses: leanprover/lean-action@v1
         with:
           build-args: "EventB"
       - name: Audit refinement soundness axioms
         run: |
           lake env lean EventB/Semantics.lean | tee /tmp/axioms.txt
-          grep -Fxq "'Proved.sound' does not depend on any axioms" /tmp/axioms.txt
-          grep -Fxq "'Refines.sound' does not depend on any axioms" /tmp/axioms.txt
+          # Not -x: `lake env lean` prefixes each line with `file:line:col:`.
+          grep -Fq "'Proved.sound' does not depend on any axioms" /tmp/axioms.txt
+          grep -Fq "'Refines.sound' does not depend on any axioms" /tmp/axioms.txt
