@@ -14,7 +14,7 @@ M2_Hold_Button	AMAN_Update/inv4,1/INV	PASS
 M2_Hold_Button	Move_Aircraft/inv4,1/INV	PASS
 M2_Hold_Button	Hold_Button/inv4,1/INV	PASS
 M3_Block_Timeslots	INITIALISATION/inv3,1/INV	PASS
-M3_Block_Timeslots	AMAN_Update/inv3,1/INV	FAIL:differs
+M3_Block_Timeslots	AMAN_Update/inv3,1/INV	PASS
 M3_Block_Timeslots	Block_Time/inv3,1/INV	PASS
 M3_Block_Timeslots	Deblock_Time/inv3,1/INV	PASS
 M4_Zoom	INITIALISATION/inv6,1/INV	PASS
@@ -723,8 +723,8 @@ MAbs_helper	AMAN_Update_mouse_to_nothing/zoom_pos_not_empty/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_nothing/block_pos_not_empty/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_nothing/airplane_Position_fin/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_nothing/airplane_Position_card/INV	PASS
-MAbs_helper	AMAN_Update_mouse_to_nothing/blockedTime/INV	FAIL:differs
-MAbs_helper	AMAN_Update_mouse_to_nothing/blockedTime_glue/INV	FAIL:differs
+MAbs_helper	AMAN_Update_mouse_to_nothing/blockedTime/INV	PASS
+MAbs_helper	AMAN_Update_mouse_to_nothing/blockedTime_glue/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_airplane/landing_sequence_1/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_airplane/landing_sequence_2/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_airplane/landing_sequence_3/INV	FAIL:differs
@@ -739,8 +739,8 @@ MAbs_helper	AMAN_Update_mouse_to_airplane/zoom_pos_not_empty/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_airplane/block_pos_not_empty/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_airplane/airplane_Position_fin/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_airplane/airplane_Position_card/INV	PASS
-MAbs_helper	AMAN_Update_mouse_to_airplane/blockedTime/INV	FAIL:differs
-MAbs_helper	AMAN_Update_mouse_to_airplane/blockedTime_glue/INV	FAIL:differs
+MAbs_helper	AMAN_Update_mouse_to_airplane/blockedTime/INV	PASS
+MAbs_helper	AMAN_Update_mouse_to_airplane/blockedTime_glue/INV	PASS
 MAbs_helper	AMAN_Update_mouse_stays/landing_sequence_1/INV	PASS
 MAbs_helper	AMAN_Update_mouse_stays/landing_sequence_2/INV	PASS
 MAbs_helper	AMAN_Update_mouse_stays/landing_sequence_3/INV	FAIL:differs
@@ -749,8 +749,8 @@ MAbs_helper	AMAN_Update_mouse_stays/selected_airplane_glue_2/INV	PASS
 MAbs_helper	AMAN_Update_mouse_stays/dragged_airplane/INV	PASS
 MAbs_helper	AMAN_Update_mouse_stays/mousePositionAirplane_glue/INV	PASS
 MAbs_helper	AMAN_Update_mouse_stays/mousePositionAirplane_glue_2/INV	PASS
-MAbs_helper	AMAN_Update_mouse_stays/blockedTime/INV	FAIL:differs
-MAbs_helper	AMAN_Update_mouse_stays/blockedTime_glue/INV	FAIL:differs
+MAbs_helper	AMAN_Update_mouse_stays/blockedTime/INV	PASS
+MAbs_helper	AMAN_Update_mouse_stays/blockedTime_glue/INV	PASS
 MAbs_helper	AMAN_Timeout/selected_airplane_glue/INV	PASS
 MAbs_helper	AMAN_Timeout/selected_airplane_glue_2/INV	PASS
 MAbs_helper	AMAN_Timeout/dragged_airplane/INV	PASS

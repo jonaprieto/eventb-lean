@@ -174,7 +174,13 @@ private def parsePrefix : Nat → St → Except String (Term × St)
           parsePostfix fuel (.bind "{" inner body) s
         | _ =>
           let s ← expect s "}"
-          parsePostfix fuel (.set (flattenCommas inner)) s
+          -- `{E ∣ P}` is the short form of `{E · P ∣ E}`, not a set literal whose one
+          -- element happens to contain a bar. Parsing it as a literal made the same set
+          -- take two different shapes depending on which spelling was used.
+          match inner with
+          | .bin "∣" expr pred =>
+              parsePostfix fuel (.bind "{" expr (.bin "∣" pred expr)) s
+          | _ => parsePostfix fuel (.set (flattenCommas inner)) s
     else if o == "∅" then
       parsePostfix fuel (.set []) s
     else if o == "⊤" || o == "⊥" then
@@ -278,6 +284,8 @@ private def sameTree (a b : String) : Bool :=
 -- expression apart.
 #guard (parse "∀a1,a2 · a1 ∈ S ∧ a2 ∈ S ⇒ a1 = a2").isOk
 #guard (parse "{x · x ∈ S ∣ x + 1}").isOk
+-- The short form of comprehension denotes the same set as the long one.
+#guard sameTree "{x ∣ x ∈ S}" "{x · x ∈ S ∣ x}"
 #guard (parse "λx ↦ y · x ∈ ℤ ∧ y ∈ ℤ ∣ x + y").isOk
 
 -- Functional override written by juxtaposition, as Rodin writes it.

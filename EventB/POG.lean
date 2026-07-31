@@ -210,7 +210,7 @@ private def wdRequired (formula : String) : Bool :=
   | .error _ => false
 
 /- Rules tried against the corpus and rejected by measurement, recorded so they are not
-retried. All three were plausible and all three made the gates worse:
+retried. Each was plausible and each made the gates worse:
 
 - Skip INV for typing-shaped invariants (`v ∈ T` or `v ⊆ T` where `T` mentions no
   variable of the machine), first for the variable. Names 1105 -> 1058, statements
@@ -222,10 +222,11 @@ retried. All three were plausible and all three made the gates worse:
   and inverted: Rodin generates SIM precisely when the label is restated.
 - Skip INV for typing-shaped invariants by the cruder test "right-hand side mentions no
   variable at all". 1002 -> 955.
-- Give INITIALISATION no hypotheses, on the reasoning that no invariant holds before the
-  machine starts. Semantically appealing and empirically false: Rodin's INITIALISATION
-  sequents carry 12 to 14 hypotheses, and only 3 of them carry none. Scored +3 by
-  accident while introducing a 30-case regression.
+- Give INITIALISATION *no* hypotheses at all, on the reasoning that no invariant holds
+  before the machine starts. Too strong: Rodin's INITIALISATION sequents carry 12 to 14
+  hypotheses, and only 3 carry none. The refinement that works, and that `generate` now
+  does, is to give it the context axioms but not the invariants. Axioms hold always; the
+  invariants are what initialisation has to establish.
 -/
 
 /-- The standing hypotheses for non-initialization obligations: every axiom of every
