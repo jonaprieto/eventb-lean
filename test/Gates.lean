@@ -265,11 +265,15 @@ recorded answer: the goal is derived from the `.bum` alone.
 
 Rodin keeps a sequent's hypotheses in a parent chain of predicate sets, so the whole
 chain has to be resolved before they can be compared. -/
+private def refName (ref : String) : String :=
+  ((ref.splitOn "#").getLast!).replace "\\/" "/"
+    |>.replace "\\\\" "\\"
+
 private partial def predicateSets (e : XmlElem) : List (String × Option String × List String) :=
   let here :=
     if e.tag == "org.eventb.core.poPredicateSet" then
       [(((e.attr? "name").getD ""),
-        (e.attr? "org.eventb.core.parentSet").map (fun t => (t.splitOn "#").getLast!),
+        (e.attr? "org.eventb.core.parentSet").map refName,
         e.children.filter (fun c => c.tag == "org.eventb.core.poPredicate")
           |>.filterMap (fun c => c.attr? "org.eventb.core.predicate"))]
     else []
@@ -295,7 +299,7 @@ private partial def goldHyps (e : XmlElem)
       | some n =>
         let inner := e.children.find? (fun c => c.tag == "org.eventb.core.poPredicateSet")
         let parent := inner.bind (fun i =>
-          (i.attr? "org.eventb.core.parentSet").map (fun t => (t.splitOn "#").getLast!))
+          (i.attr? "org.eventb.core.parentSet").map refName)
         [(n, chainHyps sets parent)]
       | none => []
     else []
@@ -347,6 +351,29 @@ private def readGoldHyps (path : System.FilePath) : IO (List (String × List Str
   | .error _ => return []
   | .ok xml => return goldHyps xml (predicateSets xml)
 
+private def canonical : Term → Term
+  | .bin op a b => .bin op (canonical a) (canonical b)
+  | .pre op a => .pre op (canonical a)
+  | .post op a => .post op (canonical a)
+  | .app f a => .app (canonical f) (canonical a)
+  | .img r a => .img (canonical r) (canonical a)
+  | .set ts =>
+      match ts.map canonical with
+      | [.bin "∣" vars pred] =>
+          .bind "{" vars (.bin "∣" pred vars)
+      | ts => .set ts
+  | .bind kind pat body =>
+      let pat := canonical pat
+      let body := canonical body
+      if kind == "{" then
+        match pat with
+        | .bin "∣" vars pred => .bind kind vars (.bin "∣" pred body)
+        | _ => .bind kind pat body
+      else .bind kind pat body
+  | t => t
+
+private def comparable (t : Term) : Term := canonical (Formula.stripAscriptions t)
+
 /-- Hypotheses are scored as sets: Rodin's order is an artefact of how it walks the
 predicate-set chain, and a generator that produces the same assumptions in a different
 order is not wrong. -/
@@ -360,8 +387,8 @@ private def checkHyps (project : Project) (file : String)
     match gold.find? (fun p => p.1 == o.name) with
     | none => some { key := key, status := "FAIL:no such sequent in .bpo" }
     | some (_, gs) =>
-      let want := gs.filterMap (fun t => (Formula.parse t).toOption.map Formula.stripAscriptions)
-      let ours := o.hyps.map Formula.stripAscriptions
+      let want := gs.filterMap (fun t => (Formula.parse t).toOption.map comparable)
+      let ours := o.hyps.map comparable
       let missing := want.filter (fun w => !ours.contains w)
       let extra := ours.filter (fun h => !want.contains h)
       if missing.isEmpty && extra.isEmpty then some { key := key, status := "PASS" }

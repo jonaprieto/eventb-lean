@@ -228,10 +228,10 @@ retried. All three were plausible and all three made the gates worse:
   accident while introducing a 30-case regression.
 -/
 
-/-- The hypotheses available to any obligation of `name`: every axiom of every context
-in the dependency closure, then every invariant up the refinement chain, in declaration
-order. `closure` already computes that order for the typechecker, so the two cannot
-drift apart. -/
+/-- The standing hypotheses for non-initialization obligations: every axiom of every
+context in the dependency closure, then every invariant up the refinement chain, in
+declaration order. `closure` already computes that order for the typechecker, so the two
+cannot drift apart. -/
 def contextHyps (p : Project) (name : String) : List Term :=
   let (_, order) := closure p [] name
   order.flatMap fun dep =>
@@ -239,6 +239,14 @@ def contextHyps (p : Project) (name : String) : List Term :=
     | none => []
     | some c =>
       (childrenOf c.elem "axiom" ++ childrenOf c.elem "invariant").filterMap fun a =>
+        (Formula.parse ((attrOf a "predicate").getD "")).toOption
+
+private def contextAxioms (p : Project) (name : String) : List Term :=
+  let (_, order) := closure p [] name
+  order.flatMap fun dep =>
+    match lookupComponent p dep with
+    | none => []
+    | some c => (childrenOf c.elem "axiom").filterMap fun a =>
         (Formula.parse ((attrOf a "predicate").getD "")).toOption
 
 /-- Obligations for one machine or context. -/
@@ -265,8 +273,9 @@ def generate (p : Project) (name : String) : List Obligation := Id.run do
             [{ name := labelOf ev ++ "/" ++ labelOf g ++ "/THM", kind := "THM" }]
     if !isMachine then return out
     let invariants := childrenOf c.elem "invariant"
-    let base := contextHyps p name
     for ev in childrenOf c.elem "event" do
+      let base := if labelOf ev == "INITIALISATION" then contextAxioms p name
+        else contextHyps p name
       let actions := effectiveActions p name ev
       let assigned := actions.flatMap assignedBy
       -- An invariant needs re-proving only if the event can change something it

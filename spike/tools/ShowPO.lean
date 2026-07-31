@@ -21,6 +21,9 @@ def main (args : List String) : IO Unit := do
   let want := args[1]!
   for o in generate project file do
     if o.name == want then
+      IO.println o.name
+      for h in o.hyps do
+        IO.println s!"  HYP: {Formula.print h}"
       match o.goal with
-      | some g => IO.println s!"{o.name}\n  ours: {Formula.print g}"
-      | none => IO.println s!"{o.name}\n  ours: (no goal derived)"
+      | some g => IO.println s!"  ours: {Formula.print g}"
+      | none => IO.println "  ours: (no goal derived)"
