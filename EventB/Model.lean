@@ -1,42 +1,42 @@
 /-
-The P0 Rodin model is deliberately shallow. XML attributes remain strings;
+The P0 model is deliberately shallow. XML attributes remain strings;
 formula syntax and typing are P1/P2 concerns.
 -/
 
-import EventB.Rodin.Xml
+import EventB.Xml
 
-namespace EventB.Rodin
+namespace EventB
 
 abbrev XmlAttrs := List (String × String)
 
-inductive RodinElem where
-  | machineFile : XmlAttrs → List RodinElem → RodinElem
-  | contextFile : XmlAttrs → List RodinElem → RodinElem
-  | seesContext : XmlAttrs → List RodinElem → RodinElem
-  | refinesMachine : XmlAttrs → List RodinElem → RodinElem
-  | extendsContext : XmlAttrs → List RodinElem → RodinElem
-  | carrierSet : XmlAttrs → List RodinElem → RodinElem
-  | constant : XmlAttrs → List RodinElem → RodinElem
-  | axiom : XmlAttrs → List RodinElem → RodinElem
-  | variable : XmlAttrs → List RodinElem → RodinElem
-  | invariant : XmlAttrs → List RodinElem → RodinElem
-  | event : XmlAttrs → List RodinElem → RodinElem
-  | refinesEvent : XmlAttrs → List RodinElem → RodinElem
-  | parameter : XmlAttrs → List RodinElem → RodinElem
-  | witness : XmlAttrs → List RodinElem → RodinElem
-  | guard : XmlAttrs → List RodinElem → RodinElem
-  | action : XmlAttrs → List RodinElem → RodinElem
+inductive Elem where
+  | machineFile : XmlAttrs → List Elem → Elem
+  | contextFile : XmlAttrs → List Elem → Elem
+  | seesContext : XmlAttrs → List Elem → Elem
+  | refinesMachine : XmlAttrs → List Elem → Elem
+  | extendsContext : XmlAttrs → List Elem → Elem
+  | carrierSet : XmlAttrs → List Elem → Elem
+  | constant : XmlAttrs → List Elem → Elem
+  | axiom : XmlAttrs → List Elem → Elem
+  | variable : XmlAttrs → List Elem → Elem
+  | invariant : XmlAttrs → List Elem → Elem
+  | event : XmlAttrs → List Elem → Elem
+  | refinesEvent : XmlAttrs → List Elem → Elem
+  | parameter : XmlAttrs → List Elem → Elem
+  | witness : XmlAttrs → List Elem → Elem
+  | guard : XmlAttrs → List Elem → Elem
+  | action : XmlAttrs → List Elem → Elem
   /-- Anything outside the `org.eventb.core.*` namespace, kept verbatim by tag.
   ERTMS-HL3 embeds iUML-B state machines and class diagrams as
   `ac.soton.eventb.emf.core.extension.persistence.serialisedExtension` nodes; dropping
   them would make the reader lossy, and hard-erroring on them would reject 12 of the 38
   corpus files over payload that is not Event-B. Unknown `org.eventb.core.*` elements
   still fail loudly. -/
-  | extension : String → XmlAttrs → List RodinElem → RodinElem
+  | extension : String → XmlAttrs → List Elem → Elem
   deriving BEq, Repr
 
-structure RodinModel where
-  root : RodinElem
+structure Model where
+  root : Elem
   deriving BEq, Repr
 
 def inventoryTags : List String :=
@@ -44,7 +44,7 @@ def inventoryTags : List String :=
    "axiom", "constant", "machineFile", "seesContext", "refinesMachine", "extendsContext",
    "contextFile", "witness", "carrierSet"]
 
-def RodinElem.tag : RodinElem → String
+def Elem.tag : Elem → String
   | .machineFile _ _ => "org.eventb.core.machineFile"
   | .contextFile _ _ => "org.eventb.core.contextFile"
   | .seesContext _ _ => "org.eventb.core.seesContext"
@@ -63,7 +63,7 @@ def RodinElem.tag : RodinElem → String
   | .action _ _ => "org.eventb.core.action"
   | .extension tag _ _ => tag
 
-def RodinElem.attrs : RodinElem → XmlAttrs
+def Elem.attrs : Elem → XmlAttrs
   | .machineFile attrs _ => attrs
   | .contextFile attrs _ => attrs
   | .seesContext attrs _ => attrs
@@ -82,7 +82,7 @@ def RodinElem.attrs : RodinElem → XmlAttrs
   | .action attrs _ => attrs
   | .extension _ attrs _ => attrs
 
-def RodinElem.children : RodinElem → List RodinElem
+def Elem.children : Elem → List Elem
   | .machineFile _ children => children
   | .contextFile _ children => children
   | .seesContext _ children => children
@@ -101,17 +101,32 @@ def RodinElem.children : RodinElem → List RodinElem
   | .action _ children => children
   | .extension _ _ children => children
 
-def RodinElem.attr? (elem : RodinElem) (key : String) : Option String :=
+def Elem.attr? (elem : Elem) (key : String) : Option String :=
   elem.attrs.find? (fun (name, _) => name == key) |>.map (·.2)
 
-private partial def countTag (wanted : String) (elem : RodinElem) : Nat :=
+private partial def countTag (wanted : String) (elem : Elem) : Nat :=
   (if elem.tag == wanted then 1 else 0) +
     elem.children.foldl (fun count child => count + countTag wanted child) 0
 
-def RodinModel.inventory (model : RodinModel) : List (String × Nat) :=
+def Model.inventory (model : Model) : List (String × Nat) :=
   inventoryTags.map (fun tag => (tag, countTag ("org.eventb.core." ++ tag) model.root))
 
-private partial def mapElem (elem : XmlElem) : Except String RodinElem := do
+/-- Attributes carrying an Event-B formula. `expression` is the variant used by
+`org.eventb.core.variant`, which the corpus does not exercise but Rodin emits. -/
+def formulaAttrs : List String :=
+  ["org.eventb.core.predicate", "org.eventb.core.assignment", "org.eventb.core.expression"]
+
+/-- Every formula in the model, in document order, tagged by the owning element's label
+so a P1 failure names the invariant or guard it came from. -/
+partial def Elem.formulas (elem : Elem) : List (String × String) :=
+  let label := (elem.attr? "org.eventb.core.label").getD (elem.tag.splitOn "." |>.getLast!)
+  let here := formulaAttrs.filterMap (fun a => (elem.attr? a).map (fun f => (label, f)))
+  elem.children.foldl (fun acc c => acc ++ c.formulas) here
+
+def Model.formulas (model : Model) : List (String × String) :=
+  model.root.formulas
+
+private partial def mapElem (elem : XmlElem) : Except String Elem := do
   let children ← elem.children.mapM mapElem
   match elem.tag with
   | "org.eventb.core.machineFile" => pure (.machineFile elem.attrs children)
@@ -132,34 +147,34 @@ private partial def mapElem (elem : XmlElem) : Except String RodinElem := do
   | "org.eventb.core.action" => pure (.action elem.attrs children)
   | tag =>
       if tag.startsWith "org.eventb.core." then
-        .error ("unknown Rodin core element: " ++ tag)
+        .error ("unknown Event-B core element: " ++ tag)
       else
         pure (.extension tag elem.attrs children)
 
-def fromXml (xml : XmlElem) : Except String RodinModel := do
+def fromXml (xml : XmlElem) : Except String Model := do
   let root ← mapElem xml
   match root with
   | .machineFile _ _ | .contextFile _ _ => pure { root := root }
   | _ => .error ("expected machineFile or contextFile root, got " ++ root.tag)
 
-def parseModel (source : ByteArray) : Except String RodinModel :=
-  match parse source with
+def parseModel (source : ByteArray) : Except String Model :=
+  match parseXml source with
   | .error err => .error (err.pretty source)
   | .ok xml => fromXml xml
 
-def parseMachine (source : ByteArray) : Except String RodinModel := do
+def parseMachine (source : ByteArray) : Except String Model := do
   let model ← parseModel source
   match model.root with
   | .machineFile _ _ => pure model
   | _ => .error "expected machineFile root"
 
-def parseContext (source : ByteArray) : Except String RodinModel := do
+def parseContext (source : ByteArray) : Except String Model := do
   let model ← parseModel source
   match model.root with
   | .contextFile _ _ => pure model
   | _ => .error "expected contextFile root"
 
-def readModel (path : System.FilePath) : IO (Except String RodinModel) := do
+def readModel (path : System.FilePath) : IO (Except String Model) := do
   pure (parseModel (← IO.FS.readBinFile path))
 
-end EventB.Rodin
+end EventB
