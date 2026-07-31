@@ -21,6 +21,12 @@ inductive Ty where
   | mvar : Nat → Ty
   deriving BEq, Repr, Inhabited
 
+/-- Node count, used to bound the substitution traversals in `Infer`. -/
+def Ty.size : Ty → Nat
+  | .given _ | .int | .bool | .mvar _ => 1
+  | .pow t => t.size + 1
+  | .prod a b => a.size + b.size + 1
+
 def Ty.print : Ty → String
   | .given s => s
   | .int => "ℤ"
@@ -34,29 +40,37 @@ def Ty.print : Ty → String
       a.print ++ "×" ++ right
   | .mvar n => s!"?{n}"
 
-/-- Rodin's spelling, parsed back so the gate can compare trees rather than strings and
-report a mismatch instead of a diff of two lines of Unicode. -/
-partial def Ty.parse (s : String) : Option Ty :=
-  go s.toList |>.bind fun (t, rest) => if rest.isEmpty then some t else none
-where
-  go (cs : List Char) : Option (Ty × List Char) := do
-    let (lhs, rest) ← atom cs
-    products lhs rest
-  products (lhs : Ty) (cs : List Char) : Option (Ty × List Char) :=
+mutual
+
+/-- Same shape as the formula lexer: every branch consumes at least one character, but
+that fact lives inside `takeWhile` and the literal patterns rather than in a type, so
+`fuel` states it. Seeded at the input length, it cannot run out on a terminating scan. -/
+private def parseGo : Nat → List Char → Option (Ty × List Char)
+  | 0, _ => none
+  | fuel + 1, cs => do
+    let (lhs, rest) ← parseAtom fuel cs
+    parseProducts fuel lhs rest
+
+private def parseProducts : Nat → Ty → List Char → Option (Ty × List Char)
+  | 0, lhs, cs => some (lhs, cs)
+  | fuel + 1, lhs, cs =>
     match cs with
     | '×' :: rest => do
-        let (rhs, rest) ← atom rest
-        products (.prod lhs rhs) rest
+        let (rhs, rest) ← parseAtom fuel rest
+        parseProducts fuel (.prod lhs rhs) rest
     | _ => some (lhs, cs)
-  atom (cs : List Char) : Option (Ty × List Char) :=
+
+private def parseAtom : Nat → List Char → Option (Ty × List Char)
+  | 0, _ => none
+  | fuel + 1, cs =>
     match cs with
     | 'ℙ' :: '(' :: rest => do
-        let (inner, rest) ← go rest
+        let (inner, rest) ← parseGo fuel rest
         match rest with
         | ')' :: rest => some (.pow inner, rest)
         | _ => none
     | '(' :: rest => do
-        let (inner, rest) ← go rest
+        let (inner, rest) ← parseGo fuel rest
         match rest with
         | ')' :: rest => some (inner, rest)
         | _ => none
@@ -67,5 +81,11 @@ where
         else
           let s := String.ofList name
           some (if s == "BOOL" then .bool else .given s, cs.drop name.length)
+
+end
+
+def Ty.parse (s : String) : Option Ty :=
+  let cs := s.toList
+  parseGo (cs.length + 1) cs |>.bind fun (t, rest) => if rest.isEmpty then some t else none
 
 end EventB.Typing
