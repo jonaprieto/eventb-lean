@@ -44,6 +44,7 @@ syntax "any " ident+ : ebEventPart
 syntax "guard " ebLabelled : ebEventPart
 syntax "action " ebLabelled : ebEventPart
 syntax "witness " ebLabelled : ebEventPart
+syntax "status " ident : ebEventPart
 
 syntax "refines " ident : ebEventPart
 
@@ -78,6 +79,15 @@ private def identAttrs (name : String) : TSyntax `term :=
 private def targetAttrs (name : String) : TSyntax `term :=
   Unhygienic.run `([("org.eventb.core.target", $(quote name))])
 
+private def eventAttrs (label : String) (conv : Option String) : TSyntax `term :=
+  match conv with
+  | none => Unhygienic.run `([("org.eventb.core.label", $(quote label))])
+  | some s =>
+      let convergence := if s == "convergent" then "1"
+        else if s == "anticipated" then "2" else "0"
+      Unhygienic.run `([("org.eventb.core.label", $(quote label)),
+        ("org.eventb.core.convergence", $(quote convergence))])
+
 private def noKids : TSyntax `term := Unhygienic.run `(([] : List EventB.Elem))
 
 /-- Reject anything that is not an Event-B formula, at elaboration time. -/
@@ -99,8 +109,9 @@ private def listOf (ts : Array (TSyntax `term)) : TSyntax `term :=
   Unhygienic.run `([$ts,*])
 
 private def eventParts (parts : Array (TSyntax `ebEventPart)) :
-    CommandElabM (Array (TSyntax `term)) := do
+    CommandElabM (Array (TSyntax `term) × Option String) := do
   let mut out := #[]
+  let mut conv : Option String := none
   for p in parts do
     match p with
     | `(ebEventPart| refines $r:ident) =>
@@ -123,15 +134,15 @@ private def eventParts (parts : Array (TSyntax `ebEventPart)) :
         checkFormula stx f
         out := out.push (mkElem "witness"
           (labelledAttrs "org.eventb.core.predicate" lab f isThm) noKids)
+    | `(ebEventPart| status $s:ident) => conv := some s.getId.toString
     | stx => throwErrorAt stx "unexpected event clause"
-  return out
+  return (out, conv)
 
 private def eventOf (stx : TSyntax `ebEvent) : CommandElabM (TSyntax `term) := do
   match stx with
   | `(ebEvent| event $n:ident where $ps:ebEventPart*) => do
-      let kids ← eventParts ps
-      let attrs : TSyntax `term := Unhygienic.run
-        `([("org.eventb.core.label", $(quote n.getId.toString))])
+      let (kids, conv) ← eventParts ps
+      let attrs := eventAttrs n.getId.toString conv
       return mkElem "event" attrs (listOf kids)
   | other => throwErrorAt other "expected an event"
 
