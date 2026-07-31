@@ -13,35 +13,82 @@ namespace EventB.Widgets
 open Lean Server Elab Command
 open EventB Formula POG ProofWidgets
 
+private def elementWith (tag : String) (attributes : List (String × Json))
+    (children : List Html) : Html :=
+  .element tag attributes.toArray children.toArray
+
 private def element (tag : String) (children : List Html) : Html :=
-  .element tag #[] children.toArray
+  elementWith tag [] children
 
 private def text (value : String) : Html := .text value
 
+private def style (value : String) : String × Json := ("style", .str value)
+
+private def badge (label color : String) : Html :=
+  elementWith "span" [style (s!"color:{color};font-size:.75em;font-weight:700;" ++
+    "letter-spacing:.03em;margin-left:.5rem;padding:.15rem .4rem;" ++
+    "border:1px solid {color};border-radius:999px;")] [text label]
+
 private def formula (value : Formula.Term) : Html :=
-  element "pre" [element "code" [text (Formula.print value)]]
+  elementWith "pre" [style ("overflow-x:auto;margin:.35rem 0;padding:.5rem;" ++
+    "border-radius:4px;background:rgba(127,127,127,.12);")] [
+      element "code" [text (Formula.print value)]
+    ]
 
 private def hypothesisList (hyps : List Formula.Term) : Html :=
   if hyps.isEmpty then
-    element "p" [text "none"]
+    elementWith "p" [style "opacity:.7;margin:.25rem 0;"] [text "none"]
   else
-    element "ul" (hyps.map fun hypothesis =>
-      element "li" [formula hypothesis])
+    elementWith "ul" [style "margin:.25rem 0;padding-left:1.25rem;"]
+      (hyps.map fun hypothesis => element "li" [formula hypothesis])
 
 private def obligationBody (obligation : Obligation) : Html :=
-  element "div" [
-    element "p" [text s!"kind: {obligation.kind}"],
-    element "h4" [text "Hypotheses"],
+  elementWith "div" [style "padding:.25rem .75rem .75rem;"] [
+    elementWith "p" [style "margin:.35rem 0;opacity:.75;"] [
+      text s!"{obligation.hyps.length} hypotheses"
+    ],
+    elementWith "h4" [style "margin:.6rem 0 .2rem;font-size:.85em;"] [
+      text "Hypotheses"
+    ],
     hypothesisList obligation.hyps,
-    element "h4" [text "Goal"],
+    elementWith "h4" [style "margin:.6rem 0 .2rem;font-size:.85em;"] [text "Goal"],
     match obligation.goal with
-    | some goal => formula goal
-    | none => element "p" [text "no statement derived"]
+    | some goal => elementWith "div" [style "border-left:3px solid #4da3ff;"] [
+        formula goal
+      ]
+    | none => elementWith "p" [style "opacity:.7;margin:.25rem 0;"] [
+        text "No statement derived yet."
+      ]
   ]
 
+private def kindColor : String → String
+  | "INV" => "#4da3ff"
+  | "GRD" => "#e5c07b"
+  | "SIM" => "#c678dd"
+  | "WD" => "#56b6c2"
+  | "THM" => "#98c379"
+  | "WFIS" => "#61afef"
+  | "WWD" => "#e06c75"
+  | _ => "#abb2bf"
+
+private def kindTitle : String → String
+  | "INV" => "Invariant preservation"
+  | "GRD" => "Guard strengthening"
+  | "SIM" => "Action simulation"
+  | "WD" => "Well-definedness"
+  | "THM" => "Theorem"
+  | "WFIS" => "Witness feasibility"
+  | "WWD" => "Witness well-definedness"
+  | kind => kind
+
 private def obligationCard (obligation : Obligation) : Html :=
-  element "details" [
-    element "summary" [text s!"{obligation.name} [{obligation.kind}]"],
+  elementWith "details" [style ("margin:.35rem 0;border:1px solid rgba(127,127,127,.3);" ++
+    "border-left:3px solid {kindColor obligation.kind};border-radius:4px;")] [
+    elementWith "summary" [style "cursor:pointer;padding:.45rem .6rem;"] [
+      text obligation.name,
+      badge (if obligation.goal.isSome then "derived" else "pending")
+        (if obligation.goal.isSome then "#98c379" else "#e06c75")
+    ],
     obligationBody obligation
   ]
 
@@ -50,22 +97,65 @@ private def kinds : List String := ["INV", "WD", "GRD", "SIM", "THM", "WFIS", "W
 private def countKind (kind : String) (obligations : List Obligation) : Nat :=
   obligations.countP (·.kind == kind)
 
+private def countDerived (obligations : List Obligation) : Nat :=
+  obligations.countP (·.goal.isSome)
+
+private def stat (label value color : String) : Html :=
+  elementWith "div" [style (s!"border-top:3px solid {color};padding:.5rem .65rem;" ++
+    "border-radius:4px;background:rgba(127,127,127,.1);")] [
+      elementWith "div" [style "font-size:1.35em;font-weight:700;"] [text value],
+      elementWith "div" [style "font-size:.75em;opacity:.75;"] [text label]
+    ]
+
 private def summary (obligations : List Obligation) : Html :=
-  let counts := kinds.filterMap fun kind =>
-    let count := countKind kind obligations
-    if count == 0 then none else some s!"{kind} {count}"
-  element "p" [text s!"{obligations.length} obligations: {String.intercalate ", " counts}"]
+  elementWith "div" [style ("display:grid;grid-template-columns:repeat(3,minmax(0,1fr));" ++
+    "gap:.5rem;margin:.75rem 0;")] [
+      stat "total obligations" (toString obligations.length) "#4da3ff",
+      stat "goals derived" (toString (countDerived obligations)) "#98c379",
+      stat "obligation classes"
+        (toString (kinds.countP (fun kind => countKind kind obligations > 0))) "#c678dd"
+    ]
+
+private def openAttribute (isOpen : Bool) : List (String × Json) :=
+  if isOpen then [("open", .bool true)] else []
+
+private def kindSection (kind : String) (obligations : List Obligation) (isOpen : Bool) :
+    Option Html :=
+  if obligations.isEmpty then
+    none
+  else
+    some <| elementWith "details"
+      (openAttribute isOpen ++ [style ("margin:.55rem 0;border:1px solid rgba(127,127,127,.3);" ++
+        "border-left:4px solid {kindColor kind};border-radius:5px;")]) [
+      elementWith "summary" [style "cursor:pointer;padding:.55rem .7rem;font-weight:600;"] [
+        badge kind (kindColor kind),
+        text s!"{kindTitle kind} · {obligations.length}"
+      ],
+      elementWith "div" [style "padding:0 .35rem .35rem;"]
+        (obligations.map obligationCard)
+    ]
+
+private def firstKind (obligations : List Obligation) : Option String :=
+  kinds.find? (fun kind => countKind kind obligations > 0)
 
 /-- Render the obligations for a project component in the Lean Infoview. -/
 def renderProject (project : Typing.Project) (machine : String) : Html :=
   let obligations := POG.generate project machine
-  element "section" [
-    element "h3" [text s!"Event-B obligations: {machine}"],
+  let first := firstKind obligations
+  let sections := kinds.filterMap fun kind =>
+    kindSection kind (obligations.filter (·.kind == kind)) (first == some kind)
+  elementWith "section" [style "max-width:58rem;line-height:1.35;padding:.25rem .5rem;"] [
+    elementWith "header" [style "margin-bottom:.5rem;"] [
+      elementWith "h3" [style "margin:.35rem 0;font-size:1.35em;"] [
+        text s!"Event-B obligations · {machine}"
+      ],
+      elementWith "p" [style "margin:.25rem 0;opacity:.75;"] [
+        text "Proof-obligation explorer · expand a class, then an obligation"
+      ]
+    ],
     summary obligations,
-    if obligations.isEmpty then
-      element "p" [text "No obligations generated."]
-    else
-      element "div" (obligations.map obligationCard)
+    if sections.isEmpty then element "p" [text "No obligations generated."]
+    else element "div" sections
   ]
 
 /-- Display generated obligations without changing the ordinary text POG command. -/
