@@ -7,7 +7,7 @@ package «eventb» where
 -- Pinned by SHA, not `main`: corpus gate numbers are only reproducible if the
 -- parser underneath them is too.
 require grip from git
-  "https://github.com/jonaprieto/grip" @ "8413dc0c14afcdda2578dc3da0acc3cabe0b85c3"
+  "https://github.com/jonaprieto/grip" @ "eb29a2331729a7087eab54838557e7490e802a29"
 
 @[default_target]
 lean_lib «EventB» where
