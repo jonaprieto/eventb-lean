@@ -22,3 +22,9 @@ lean_exe «gates» where
 lean_exe «bench» where
   root := `Bench
   srcDir := "bench"
+
+-- Spike tooling: dumps parsed formulas as JSON so the discharge experiment works from
+-- the real parser rather than a second implementation of it.
+lean_exe «astdump» where
+  root := `AstDump
+  srcDir := "spike/tools"

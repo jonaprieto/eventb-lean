@@ -7,3 +7,8 @@ bench/results/*/raw/
 AGENTS.md
 PLAN.md
 STATUS.md
+
+# The spike vendors Mathlib; do not track its build tree.
+spike/.lake/
+spike/Spike/Obligations.lean
+spike/pos.json
