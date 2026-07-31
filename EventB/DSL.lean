@@ -6,24 +6,22 @@ authored here goes through the typechecker, the obligation generator and every g
 without any of them knowing where it came from. That is the whole design: one target
 representation, two front ends.
 
-Formulas are string literals parsed at elaboration time by `Formula.parse`, rather than
-given Lean notation of their own. Event-B and Lean disagree about `∈`, `⊆`, `∪` and most
-of the rest, so native notation would mean either shadowing Lean's or inventing a second
-spelling of Event-B's; quoting sidesteps both and reuses the parser the corpus already
-exercises. A formula that does not parse is an elaboration error pointing at the literal.
+Formulas are parsed at elaboration time by `Formula.parse`. The DSL accepts ordinary Lean
+term syntax for predicates, while quoted formulas remain available for Event-B operators
+that Lean does not parse. Actions may use Lean's `:=` spelling for Event-B's `≔`.
 
     eventb_context Ctx where
       sets AIRPLANES
       constants MAX
-      axiom axm1 : "MAX ∈ ℕ"
+      axiom axm1 : MAX ∈ ℕ
 
     eventb_machine M sees Ctx where
       variables sched
-      invariant inv1 : "sched ⊆ AIRPLANES"
+      invariant inv1 : sched ⊆ AIRPLANES
       event Add where
         any a
         guard grd1 : "a ∈ AIRPLANES ∖ sched"
-        action act1 : "sched ≔ sched ∪ {a}"
+        action act1 : sched := sched ∪ {a}
 
     #eventb_pog M
 -/
@@ -36,8 +34,14 @@ namespace EventB.DSL
 open Lean Elab Command Term
 
 declare_syntax_cat ebLabelled
-syntax ident ":" str : ebLabelled
-syntax "theorem " ident ":" str : ebLabelled
+declare_syntax_cat ebFormula
+syntax str : ebFormula
+syntax:12 term "⇒" term : ebFormula
+syntax:12 term "=>" term : ebFormula
+syntax:50 term ":=" term : ebFormula
+syntax term : ebFormula
+syntax ident ":" ebFormula : ebLabelled
+syntax "theorem " ident ":" ebFormula : ebLabelled
 
 declare_syntax_cat ebEventPart
 syntax "any " ident+ : ebEventPart
@@ -102,11 +106,17 @@ private def checkFormula (stx : Syntax) (s : String) : CommandElabM Unit := do
   | .ok _ => pure ()
   | .error e => throwErrorAt stx s!"not an Event-B formula: {e}"
 
+private def formulaText (f : TSyntax `ebFormula) : String :=
+  match f with
+  | `(ebFormula| $s:str) => s.getString
+  | _ => f.raw.prettyPrint.pretty
+
 private def labelledOf : TSyntax `ebLabelled → CommandElabM (String × String × Syntax × Bool)
-  | `(ebLabelled| $l:ident : $f:str) => pure (l.getId.toString, f.getString, f, false)
-  | `(ebLabelled| theorem $l:ident : $f:str) =>
-      pure (l.getId.toString, f.getString, f, true)
-  | stx => throwErrorAt stx "expected `label : \"formula\"`"
+  | `(ebLabelled| $l:ident : $f:ebFormula) =>
+      pure (l.getId.toString, formulaText f, f.raw, false)
+  | `(ebLabelled| theorem $l:ident : $f:ebFormula) =>
+      pure (l.getId.toString, formulaText f, f.raw, true)
+  | stx => throwErrorAt stx "expected `label : formula`"
 
 private def mkElem (ctor : String) (attrs kids : TSyntax `term) : TSyntax `term :=
   Unhygienic.run `($(mkIdent ("EventB.Elem." ++ ctor : String).toName) $attrs $kids)

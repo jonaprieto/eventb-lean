@@ -76,19 +76,21 @@ so the typechecker, the generator and every gate are shared:
 eventb_machine M where
   sees Ctx
   variables sched
-  invariant inv1 : "sched ⊆ AIRPLANES"
+  invariant inv1 : sched ⊆ AIRPLANES
   event Add where
     any a
     guard grd1 : "a ∈ AIRPLANES ∖ sched"
-    action act1 : "sched ≔ sched ∪ {a}"
+    action act1 : sched := sched ∪ {a}
 
 #eventb_pog M Ctx
 -- Add/inv1/INV
 --     ⊢ ((sched ∪ {a}) ⊆ AIRPLANES)
 ```
 
-A formula that is not Event-B is a Lean elaboration error pointing at the literal. See
-`examples/Counter.lean`.
+Predicates use ordinary Lean term syntax where the notation is compatible; quoted
+formulas remain available for Event-B-only operators such as `∖`. Actions use `:=` as
+the unquoted spelling of Event-B's `≔`. A formula that is not Event-B is an elaboration
+error pointing at the formula. See `examples/Counter.lean`.
 
 The executable examples are grouped in four files: `Counter.lean` is the small
 introductory model; `BookBridge.lean`, `BookPrograms.lean`, and `BookSystems.lean`
@@ -106,12 +108,15 @@ For an interactive view in the Lean VS Code Infoview, open
 `examples/WidgetDemo.lean`. It uses the optional ProofWidgets front end:
 
 ```lean
+#eventb_model_widget widgetProject WidgetCtx
+#eventb_model_widget widgetProject BridgeController
 #eventb_pog_widget widgetProject BridgeController
 ```
 
-The panel shows the self-contained bridge refinement's obligation count, class,
-hypotheses, and generated goal in expandable cards. `lake build Examples` compiles
-this demo; the widget does not alter the CLI, POG output, proof status, or trust ledger.
+The first panels show the context and machine surface—symbols, axioms, invariants,
+events, and refinement links. The last panel shows obligation counts, classes,
+hypotheses, and generated goals in expandable cards. `lake build Examples` compiles
+this demo; the widgets do not alter the CLI, POG output, proof status, or trust ledger.
 
 
 Corpus-wide, `eventb diff` reports **1105 obligations matching Rodin, 28 only Rodin has,
