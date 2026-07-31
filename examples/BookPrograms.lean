@@ -122,6 +122,7 @@ eventb_machine BinarySearch1 where
   variables p q r
   invariant inv1_1 : "p ≤ q"
   invariant inv1_2 : "f(p) ≤ v ∧ v < f(q + 1)"
+  variant variant1 : "q − p"
   event dec where
     refines progress
     status convergent
@@ -217,6 +218,7 @@ eventb_machine SquareRoot0 where
   sees RootCtx
   variables r
   invariant inv0_1 : "r ∈ ℕ"
+  variant variant1 : "n − r"
   event INITIALISATION where
     action act1 : "r ≔ 0"
   event final where
@@ -262,6 +264,7 @@ eventb_machine Inverse1 where
   variables r p q
   invariant inv1_1 : "r ≤ q"
   invariant inv1_2 : "f(r) ≤ n ∧ n < f(q + 1)"
+  variant variant1 : "q − r"
   event INITIALISATION where
     action act1 : "r, q ≔ 0, n"
   event dec where

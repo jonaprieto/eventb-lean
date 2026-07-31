@@ -173,6 +173,7 @@ eventb_machine Slots1 where
   invariant inv1_1 : "adr_r ∈ {1, 2, 3}"
   invariant inv1_2 : "adr_w ∈ {1, 2, 3, 4, 5}"
   invariant inv1_3 : "pair_w = reading ⇒ indx_w ≠ indx_r"
+  variant variant1 : "5 − adr_w"
   event Writer_1 where
     refines Writer_1
     any d
@@ -323,6 +324,7 @@ eventb_machine Tree1 where
     guard grd2 : "n = r ∨ c(n) = c(r)"
     action act1 : "c(n) ≔ c(n) + 1"
   event ascending where
+    extends increment
     any n
     guard grd1 : "n ∈ N ∖ {r}"
     guard grd2 : "c(n) = c(f(n))"

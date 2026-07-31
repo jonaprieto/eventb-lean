@@ -40,6 +40,7 @@ eventb_machine Bridge1 where
   invariant inv1_3 : "c ∈ ℕ"
   invariant inv1_4 : "a + b + c = n"
   invariant inv1_5 : "a = 0 ∨ c = 0"
+  variant variant1 : "2 ∗ a + b"
   event INITIALISATION where
     action act1 : "a, b, c ≔ 0, 0, 0"
   event ML_out where
@@ -156,6 +157,7 @@ eventb_machine File1 where
   invariant inv1_1 : "r ∈ 1‥n + 1"
   invariant inv1_2 : "h = (1‥r − 1) ◁ f"
   invariant inv1_3 : "b = TRUE ⇒ r = n + 1"
+  variant variant1 : "n + 1 − r"
   event INITIALISATION where
     action act1 : "h ≔ ∅"
     action act2 : "r ≔ 1"

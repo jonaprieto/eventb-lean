@@ -47,6 +47,7 @@ syntax "witness " ebLabelled : ebEventPart
 syntax "status " ident : ebEventPart
 
 syntax "refines " ident : ebEventPart
+syntax "extends " ident : ebEventPart
 
 declare_syntax_cat ebEvent
 syntax "event " ident "where " ebEventPart* : ebEvent
@@ -56,6 +57,7 @@ syntax "refines " ident : ebMachinePart
 syntax "sees " ident+ : ebMachinePart
 syntax "variables " ident+ : ebMachinePart
 syntax "invariant " ebLabelled : ebMachinePart
+syntax "variant " ebLabelled : ebMachinePart
 syntax ebEvent : ebMachinePart
 
 declare_syntax_cat ebContextPart
@@ -78,6 +80,10 @@ private def identAttrs (name : String) : TSyntax `term :=
 
 private def targetAttrs (name : String) : TSyntax `term :=
   Unhygienic.run `([("org.eventb.core.target", $(quote name))])
+
+private def extendedTargetAttrs (name : String) : TSyntax `term :=
+  Unhygienic.run `([("org.eventb.core.target", $(quote name)),
+    ("org.eventb.core.extended", "true")])
 
 private def eventAttrs (label : String) (conv : Option String) : TSyntax `term :=
   match conv with
@@ -116,6 +122,9 @@ private def eventParts (parts : Array (TSyntax `ebEventPart)) :
     match p with
     | `(ebEventPart| refines $r:ident) =>
         out := out.push (mkElem "refinesEvent" (targetAttrs r.getId.toString) noKids)
+    | `(ebEventPart| extends $r:ident) =>
+        out := out.push
+          (mkElem "refinesEvent" (extendedTargetAttrs r.getId.toString) noKids)
     | `(ebEventPart| any $xs:ident*) =>
         for x in xs do
           out := out.push (mkElem "parameter" (identAttrs x.getId.toString) noKids)
@@ -180,6 +189,11 @@ private def elabMachine : CommandElab := fun stx => do
             checkFormula s f
             kids := kids.push (mkElem "invariant"
               (labelledAttrs "org.eventb.core.predicate" lab f isThm) noKids)
+        | `(ebMachinePart| variant $l:ebLabelled) =>
+            let (lab, f, s, isThm) ← labelledOf l
+            checkFormula s f
+            kids := kids.push (mkElem "variant"
+              (labelledAttrs "org.eventb.core.expression" lab f isThm) noKids)
         | `(ebMachinePart| $e:ebEvent) => kids := kids.push (← eventOf e)
         | other => throwErrorAt other "unexpected machine clause"
       define n (mkElem "machineFile" (Unhygienic.run `(([] : List (String × String))))

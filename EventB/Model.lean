@@ -20,6 +20,9 @@ inductive Elem where
   | axiom : XmlAttrs → List Elem → Elem
   | variable : XmlAttrs → List Elem → Elem
   | invariant : XmlAttrs → List Elem → Elem
+  /-- A machine variant. It is absent from the pinned corpus but part of Event-B's
+  notation, so native examples can preserve it without changing corpus inventory. -/
+  | variant : XmlAttrs → List Elem → Elem
   | event : XmlAttrs → List Elem → Elem
   | refinesEvent : XmlAttrs → List Elem → Elem
   | parameter : XmlAttrs → List Elem → Elem
@@ -55,6 +58,7 @@ def Elem.tag : Elem → String
   | .axiom _ _ => "org.eventb.core.axiom"
   | .variable _ _ => "org.eventb.core.variable"
   | .invariant _ _ => "org.eventb.core.invariant"
+  | .variant _ _ => "org.eventb.core.variant"
   | .event _ _ => "org.eventb.core.event"
   | .refinesEvent _ _ => "org.eventb.core.refinesEvent"
   | .parameter _ _ => "org.eventb.core.parameter"
@@ -74,6 +78,7 @@ def Elem.attrs : Elem → XmlAttrs
   | .axiom attrs _ => attrs
   | .variable attrs _ => attrs
   | .invariant attrs _ => attrs
+  | .variant attrs _ => attrs
   | .event attrs _ => attrs
   | .refinesEvent attrs _ => attrs
   | .parameter attrs _ => attrs
@@ -93,6 +98,7 @@ def Elem.children : Elem → List Elem
   | .axiom _ children => children
   | .variable _ children => children
   | .invariant _ children => children
+  | .variant _ children => children
   | .event _ children => children
   | .refinesEvent _ children => children
   | .parameter _ children => children
@@ -104,7 +110,7 @@ def Elem.children : Elem → List Elem
 def Elem.attr? (elem : Elem) (key : String) : Option String :=
   elem.attrs.find? (fun (name, _) => name == key) |>.map (·.2)
 
-/-- `Elem.children` is a 17-case match, so the equation compiler cannot see through it
+/-- `Elem.children` is an 18-case match, so the equation compiler cannot see through it
 to know the sublist is smaller. Proving it once here lets every traversal below be a
 plain `def` with a `sizeOf` measure, instead of `partial`. -/
 theorem Elem.sizeOf_children (e : Elem) : sizeOf e.children < sizeOf e := by
@@ -176,6 +182,7 @@ private def mapElem (elem : XmlElem) : Except String Elem := do
   | "org.eventb.core.axiom" => pure (.axiom elem.attrs children)
   | "org.eventb.core.variable" => pure (.variable elem.attrs children)
   | "org.eventb.core.invariant" => pure (.invariant elem.attrs children)
+  | "org.eventb.core.variant" => pure (.variant elem.attrs children)
   | "org.eventb.core.event" => pure (.event elem.attrs children)
   | "org.eventb.core.refinesEvent" => pure (.refinesEvent elem.attrs children)
   | "org.eventb.core.parameter" => pure (.parameter elem.attrs children)
