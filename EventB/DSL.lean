@@ -164,21 +164,22 @@ private def checkScope (owners : List String) (stx : Syntax) (term : Formula.Ter
     if !builtinIdentifier name && (← symbolLocation? owners name).isNone then
       throwErrorAt stx s!"unknown Event-B identifier `{name}`"
 
-private def addDefinitionInfo (id : Syntax) (location : DeclarationLocation) :
+private def addDefinitionInfo (id : Syntax) (symbol : String) (location : DeclarationLocation) :
     CommandElabM Unit := do
   pushInfoLeaf <| .ofDelabTermInfo {
     elaborator := `EventB.DSL
     stx := id
     lctx := {}
     expectedType? := none
-    expr := mkConst ``True
+    expr := mkStrLit symbol
     location? := some location
+    docString? := some s!"Event-B symbol `{symbol}`"
   }
 
 private def addFormulaInfos (owners : List String) (stx : Syntax) : CommandElabM Unit := do
   for id in formulaIdentifiers stx do
     if let some location ← symbolLocation? owners id.getId.toString then
-      addDefinitionInfo id location
+      addDefinitionInfo id id.getId.toString location
 
 /-- Reject anything that is not an Event-B formula, at elaboration time. -/
 private def checkFormula (owners : List String) (stx : Syntax) (s : String) :
