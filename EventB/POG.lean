@@ -207,6 +207,21 @@ private def wdRequired (formula : String) : Bool :=
   | .ok t => needsWD t
   | .error _ => false
 
+/- Rules tried against the corpus and rejected by measurement, recorded so they are not
+retried. All three were plausible and all three made the gates worse:
+
+- Skip INV for typing-shaped invariants (`v ∈ T` or `v ⊆ T` where `T` mentions no
+  variable of the machine), first for the variable. Names 1105 -> 1058, statements
+  856/1033 -> 813/883. It removes 150 spurious obligations at the cost of 47 real ones.
+  Precision improves and recall falls, which is the wrong trade here: a missing
+  obligation is unsound, a spurious one is only wasted work. Rodin does emit INV for
+  typing invariants.
+- Skip GRD and SIM when the concrete event restates the abstract label. 1002 -> 971,
+  and inverted: Rodin generates SIM precisely when the label is restated.
+- Skip INV for typing-shaped invariants by the cruder test "right-hand side mentions no
+  variable at all". 1002 -> 955.
+-/
+
 /-- Obligations for one machine or context. -/
 def generate (p : Project) (name : String) : List Obligation := Id.run do
   match lookupComponent p name with
