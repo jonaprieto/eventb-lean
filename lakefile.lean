@@ -36,3 +36,7 @@ lean_exe «astdump» where
 lean_exe «showpo» where
   root := `ShowPO
   srcDir := "spike/tools"
+
+lean_exe «eventb» where
+  root := `Cli
+  srcDir := "cli"

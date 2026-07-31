@@ -24,6 +24,25 @@ P3b statements: 1041/1685 derived
 P3b hypotheses: 906/1685 derived
 ```
 
+## Using it
+
+Build the executable, then point it at a Rodin project directory. `check` lists the
+generated obligations; `diff` compares their names with Rodin's `.bpo` files:
+
+```text
+$ lake exe eventb check corpus/aman --machine M0_AMAN_Update --kind INV
+M0_AMAN_Update: INITIALISATION/inv0,1/INV [INV] derived
+M0_AMAN_Update: AMAN_Update/inv0,1/INV [INV] derived
+
+$ lake exe eventb diff corpus/aman | head -n 6
+M0_AMAN_Update: 0 match, 0 only Rodin, 2 only ours
+  only ours: INITIALISATION/inv0,1/INV, AMAN_Update/inv0,1/INV
+M0_AMAN_Update_Ctx: 0 match, 0 only Rodin, 0 only ours
+M0_AMAN_Update_prob_mc_Ctx: 1 match, 0 only Rodin, 0 only ours
+M1_Landing_Sequence: 13 match, 0 only Rodin, 8 only ours
+  only ours: INITIALISATION/inv13,2/WD, INITIALISATION/act0,1/SIM, AMAN_Update/inv13,2/WD, AMAN_Update/grd0,1/GRD, AMAN_Update/act0,1/SIM, AMAN_Update/newScheduledAirplanes/WFIS, Move_Aircraft/inv13,2/WD, Move_Aircraft/act1,1/WD
+```
+
 ## Why the numbers mean something
 
 There are no hand-written fixtures. Rodin already wrote its answers into the model
