@@ -149,6 +149,12 @@ def inferComponent (p : Project) (name : String) :
     return (out, errs)
   return (← run.run' {})
 
+/-- Infer one expression against an already-built component environment. -/
+def inferTerm (env : List (String × Ty)) (t : Term) : Except String Ty := do
+  let (ty, st) ← (inferExpr t).run { env := env }
+  let (ty, _) ← (zonk ty).run st
+  return ty
+
 /-! Self-checks. The corpus pins the common cases; these pin the shapes it happens not
 to contain, and the printer conventions the `.bpo` comparison depends on. -/
 
