@@ -68,6 +68,10 @@ private def substOf (action : Elem) : List (String × Term) :=
   | none => []
   | some a =>
     match Formula.parse a with
+    -- `f(x) ≔ E` overrides the function at one point. Rodin writes the result as
+    -- `f{x ↦ E}`, so the substitution builds exactly that.
+    | .ok (.bin "≔" (.app (.id f) x) rhs) =>
+        [(f, .bin "" (.id f) (.set [.bin "↦" x rhs]))]
     | .ok (.bin "≔" lhs rhs) =>
         match Formula.flattenCommas lhs, Formula.flattenCommas rhs with
         | [.id v], [e] => [(v, e)]

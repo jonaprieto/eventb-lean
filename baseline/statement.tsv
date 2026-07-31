@@ -6,12 +6,12 @@ M1_Landing_Sequence	INITIALISATION/glue1,1/INV	FAIL:differs
 M1_Landing_Sequence	AMAN_Update/inv1,1/INV	PASS
 M1_Landing_Sequence	AMAN_Update/inv13,2/INV	PASS
 M1_Landing_Sequence	AMAN_Update/glue1,1/INV	FAIL:differs
-M1_Landing_Sequence	Move_Aircraft/inv1,1/INV	FAIL:differs
-M1_Landing_Sequence	Move_Aircraft/inv13,2/INV	FAIL:differs
-M1_Landing_Sequence	Move_Aircraft/glue1,1/INV	FAIL:differs
+M1_Landing_Sequence	Move_Aircraft/inv1,1/INV	PASS
+M1_Landing_Sequence	Move_Aircraft/inv13,2/INV	PASS
+M1_Landing_Sequence	Move_Aircraft/glue1,1/INV	PASS
 M2_Hold_Button	INITIALISATION/inv4,1/INV	PASS
 M2_Hold_Button	AMAN_Update/inv4,1/INV	PASS
-M2_Hold_Button	Move_Aircraft/inv4,1/INV	FAIL:differs
+M2_Hold_Button	Move_Aircraft/inv4,1/INV	PASS
 M2_Hold_Button	Hold_Button/inv4,1/INV	PASS
 M3_Block_Timeslots	INITIALISATION/inv3,1/INV	PASS
 M3_Block_Timeslots	AMAN_Update/inv3,1/INV	FAIL:differs
@@ -31,7 +31,7 @@ M6_Select_Airplane	AMAN_Update/selectedAirplane_card/INV	PASS
 M6_Select_Airplane	AMAN_Timeout/inv7,1/INV	PASS
 M6_Select_Airplane	AMAN_Timeout/selectedAirplane_finite/INV	PASS
 M6_Select_Airplane	AMAN_Timeout/selectedAirplane_card/INV	PASS
-M6_Select_Airplane	Move_Aircraft/inv7,1/INV	FAIL:differs
+M6_Select_Airplane	Move_Aircraft/inv7,1/INV	PASS
 M6_Select_Airplane	Hold_Button/inv7,1/INV	PASS
 M6_Select_Airplane	Hold_Button/selectedAirplane_finite/INV	PASS
 M6_Select_Airplane	Hold_Button/selectedAirplane_card/INV	PASS
@@ -231,7 +231,7 @@ M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_airplane/zoom_pos_not_empty/INV	PASS
 M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_airplane/block_pos_not_empty/INV	PASS
 M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_airplane/mouse_over_airplane_when_dragged/INV	PASS
 M9_Push_Mouse_Buttons	Move_Aircraft/is_mouse_pressed/INV	FAIL:no such sequent in .bpo
-M9_Push_Mouse_Buttons	Move_Aircraft/airplane_Position/INV	FAIL:differs
+M9_Push_Mouse_Buttons	Move_Aircraft/airplane_Position/INV	PASS
 M9_Push_Mouse_Buttons	Move_Aircraft/click_start_airplane/INV	PASS
 M9_Push_Mouse_Buttons	Move_Aircraft/click_start_block/INV	PASS
 M9_Push_Mouse_Buttons	Move_Aircraft/click_start_zoom/INV	PASS
@@ -754,14 +754,14 @@ MAbs_helper	AMAN_Update_mouse_stays/blockedTime_glue/INV	FAIL:differs
 MAbs_helper	AMAN_Timeout/selected_airplane_glue/INV	PASS
 MAbs_helper	AMAN_Timeout/selected_airplane_glue_2/INV	FAIL:differs
 MAbs_helper	AMAN_Timeout/dragged_airplane/INV	PASS
-MAbs_helper	Move_Aircraft/landing_sequence_1/INV	FAIL:differs
-MAbs_helper	Move_Aircraft/landing_sequence_2/INV	FAIL:differs
-MAbs_helper	Move_Aircraft/landing_sequence_3/INV	FAIL:differs
-MAbs_helper	Move_Aircraft/selected_airplane_glue/INV	FAIL:differs
+MAbs_helper	Move_Aircraft/landing_sequence_1/INV	PASS
+MAbs_helper	Move_Aircraft/landing_sequence_2/INV	PASS
+MAbs_helper	Move_Aircraft/landing_sequence_3/INV	PASS
+MAbs_helper	Move_Aircraft/selected_airplane_glue/INV	PASS
 MAbs_helper	Move_Aircraft/dragged_airplane/INV	PASS
 MAbs_helper	Move_Aircraft/dragged_airplane_type_glue/INV	FAIL:differs
-MAbs_helper	Move_Aircraft/mousePositionAirplane_glue/INV	FAIL:differs
-MAbs_helper	Move_Aircraft/mousePositionAirplane_glue_2/INV	FAIL:differs
+MAbs_helper	Move_Aircraft/mousePositionAirplane_glue/INV	PASS
+MAbs_helper	Move_Aircraft/mousePositionAirplane_glue_2/INV	PASS
 MAbs_helper	Move_Aircraft/mouse_over_airplane_when_dragged/INV	PASS
 MAbs_helper	Release_Trigger_Hold_Button/selected_airplane_glue/INV	PASS
 MAbs_helper	Release_Trigger_Hold_Button/selected_airplane_glue_2/INV	FAIL:differs
@@ -918,7 +918,7 @@ Env_M3	ENV_start_of_mission/typeof_noMission/INV	PASS
 Env_M3	ENV_start_of_mission/typeof_inMission/INV	PASS
 Env_M3	ENV_start_of_mission/distinct_states_in_train_statemachine1/INV	PASS
 Env_M3	ENV_start_of_mission/assocMult_ma/INV	PASS
-Env_M3	ENV_start_of_mission/attribType_unsafe/INV	FAIL:differs
+Env_M3	ENV_start_of_mission/attribType_unsafe/INV	PASS
 Env_M3	ENV_start_of_mission/inv1/INV	PASS
 Env_M3	ENV_start_of_mission/inv2/INV	FAIL:differs
 Env_M3	ENV_start_of_mission/inv3/INV	FAIL:no such sequent in .bpo
@@ -934,11 +934,11 @@ Env_M3	RBC_extend_ma/assocMult_ma/INV	PASS
 Env_M3	RBC_extend_ma/inv2/INV	FAIL:differs
 Env_M3	RBC_shrink_ma/assocMult_ma/INV	PASS
 Env_M3	RBC_shrink_ma/inv2/INV	FAIL:differs
-Env_M3	set_as_safe/attribType_unsafe/INV	FAIL:differs
+Env_M3	set_as_safe/attribType_unsafe/INV	PASS
 Env_M3	set_as_safe/inv2/INV	FAIL:differs
 Env_M3	set_as_safe/inv3/INV	FAIL:no such sequent in .bpo
 Env_M3	set_as_safe/inv4/INV	FAIL:no such sequent in .bpo
-Env_M3	set_as_unsafe/attribType_unsafe/INV	FAIL:differs
+Env_M3	set_as_unsafe/attribType_unsafe/INV	PASS
 Env_M3	set_as_unsafe/inv2/INV	FAIL:differs
 Env_M3	set_as_unsafe/inv3/INV	FAIL:no such sequent in .bpo
 Env_M3	set_as_unsafe/inv4/INV	FAIL:no such sequent in .bpo
@@ -955,7 +955,7 @@ VBD_M4	ENV_front_move_next/inv1/INV	FAIL:differs
 VBD_M4	ENV_front_move_next/inv2/INV	FAIL:differs
 VBD_M4	ENV_rear_leave_section/inv1/INV	FAIL:differs
 VBD_M4	ENV_rear_leave_section/inv2/INV	FAIL:differs
-VBD_M4	VBD_mute_timer_expired/attribType_muteTimerExpired/INV	FAIL:differs
+VBD_M4	VBD_mute_timer_expired/attribType_muteTimerExpired/INV	PASS
 VBD_M4	VBD_mute_timer_expired/inv1/INV	FAIL:no such sequent in .bpo
 VBD_M4	VBD_mute_timer_expired/inv2/INV	FAIL:no such sequent in .bpo
 VBD_M4	ENV_train_split/inv1/INV	FAIL:differs
@@ -963,7 +963,7 @@ VBD_M4	ENV_train_split/inv2/INV	FAIL:differs
 VBD_M4	ENV_join_network/inv1/INV	FAIL:differs
 VBD_M4	ENV_join_network/inv2/INV	FAIL:differs
 VBD_M4	ENV_start_of_mission/assocMult_reportedPosition/INV	PASS
-VBD_M4	ENV_start_of_mission/attribType_muteTimerExpired/INV	FAIL:differs
+VBD_M4	ENV_start_of_mission/attribType_muteTimerExpired/INV	PASS
 VBD_M4	ENV_start_of_mission/inv1/INV	FAIL:differs
 VBD_M4	ENV_start_of_mission/inv2/INV	FAIL:differs
 VBD_M4	ENV_end_of_mission/assocMult_reportedPosition/INV	PASS
@@ -976,10 +976,10 @@ VBD_M4	set_as_unsafe/inv1/INV	FAIL:no such sequent in .bpo
 VBD_M4	set_as_unsafe/inv2/INV	FAIL:no such sequent in .bpo
 VBD_M4	VBD_receive_position_report/assocMult_reportedPosition/INV	PASS
 VBD_M4	VBD_receive_position_report/attribType_disconnectPropagationTimerExpired/INV	PASS
-VBD_M4	VBD_receive_position_report/attribType_muteTimerExpired/INV	FAIL:differs
+VBD_M4	VBD_receive_position_report/attribType_muteTimerExpired/INV	PASS
 VBD_M4	VBD_receive_position_report/inv1/INV	FAIL:differs
 VBD_M4	VBD_receive_position_report/inv2/INV	FAIL:differs
-VBD_M4	VBD_disconnect_propagation_timer_expired/attribType_disconnectPropagationTimerExpired/INV	FAIL:differs
+VBD_M4	VBD_disconnect_propagation_timer_expired/attribType_disconnectPropagationTimerExpired/INV	PASS
 VBD_M5	INITIALISATION/typeof_trusted/INV	PASS
 VBD_M5	INITIALISATION/typeof_controlled/INV	PASS
 VBD_M5	INITIALISATION/VSS_supertypeOf_availableVSS/INV	FAIL:no such sequent in .bpo
