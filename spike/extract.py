@@ -1,59 +1,66 @@
 #!/usr/bin/env python3
 """Resolve complete proof obligations out of Rodin's .bpo files.
 
-A sequent names a hypothesis set, and that set names a parent, and so on up a chain;
-the predicates of the whole chain are the hypotheses. The sequent's own poPredicate
-elements are the goal. Nothing else in the repo needs this, so it stays a script:
-its output is the spike's input, not a build artifact.
+Uses a real XML parse: predicate sets nest, and a regex pairs the wrong open and close
+tags, which silently produced sequents with no hypotheses at all.
+
+A sequent names a hypothesis set; that set names a parent, and so on up a chain. The
+predicates and identifiers of the whole chain are the context. The sequent's own
+poPredicate children are the goal.
 """
 import glob
-import html
 import json
-import re
 import sys
+import xml.etree.ElementTree as ET
 
-SET = re.compile(
-    r'<org\.eventb\.core\.poPredicateSet name="([^"]+)"([^>]*)>(.*?)</org\.eventb\.core\.poPredicateSet>|'
-    r'<org\.eventb\.core\.poPredicateSet name="([^"]+)"([^>]*)/>',
-    re.S)
-PRED = re.compile(r'<org\.eventb\.core\.poPredicate[^>]*org\.eventb\.core\.predicate="([^"]*)"')
-IDENT = re.compile(r'<org\.eventb\.core\.poIdentifier name="([^"]+)" org\.eventb\.core\.type="([^"]*)"')
-SEQ = re.compile(
-    r'<org\.eventb\.core\.poSequent name="([^"]+)"([^>]*)>(.*?)</org\.eventb\.core\.poSequent>', re.S)
-PARENT = re.compile(r'org\.eventb\.core\.parentSet="[^"]*#([^"|]+)"')
+CORE = 'org.eventb.core.'
+
+
+def attr(e, name):
+    return e.get(CORE + name)
+
+
+def last_segment(ref):
+    return ref.split('#')[-1] if ref else None
 
 
 def parse_file(path):
-    src = open(path, encoding='utf-8').read()
+    root = ET.parse(path).getroot()
     sets = {}
-    for m in SET.finditer(src):
-        name = m.group(1) or m.group(4)
-        attrs = m.group(2) or m.group(5) or ''
-        body = m.group(3) or ''
-        parent = PARENT.search(attrs)
-        sets[name] = {
-            'parent': parent.group(1) if parent else None,
-            'preds': [html.unescape(p) for p in PRED.findall(body)],
-            'idents': [(n, html.unescape(t)) for n, t in IDENT.findall(body)],
+    for e in root.iter(CORE + 'poPredicateSet'):
+        sets[e.get('name')] = {
+            'parent': last_segment(attr(e, 'parentSet')),
+            'preds': [attr(p, 'predicate') for p in e.findall(CORE + 'poPredicate')],
+            'idents': [(i.get('name'), attr(i, 'type'))
+                       for i in e.findall(CORE + 'poIdentifier')],
         }
     out = []
-    for m in SEQ.finditer(src):
-        name, body = m.group(1), m.group(3)
-        goals = [html.unescape(p) for p in PRED.findall(body)]
-        inner = SET.search(body)
+    for seq in root.findall(CORE + 'poSequent'):
+        goals = [attr(p, 'predicate') for p in seq.findall(CORE + 'poPredicate')]
+        inner = seq.find(CORE + 'poPredicateSet')
+        cur = last_segment(attr(inner, 'parentSet')) if inner is not None else None
         chain, seen = [], set()
-        cur = PARENT.search(inner.group(2) or inner.group(5) or '').group(1) if inner and PARENT.search(
-            inner.group(2) or inner.group(5) or '') else None
         while cur and cur in sets and cur not in seen:
             seen.add(cur)
             chain.append(cur)
             cur = sets[cur]['parent']
         hyps, idents = [], []
         for s in reversed(chain):
-            hyps += sets[s]['preds']
+            hyps += [p for p in sets[s]['preds'] if p]
             idents += sets[s]['idents']
-        out.append({'file': path.split('/')[-1][:-4], 'name': name,
-                    'kind': name.split('/')[-1], 'idents': idents,
+        # The set attached to the sequent may itself carry predicates and identifiers.
+        if inner is not None:
+            hyps += [attr(p, 'predicate') for p in inner.findall(CORE + 'poPredicate')]
+            idents += [(i.get('name'), attr(i, 'type'))
+                       for i in inner.findall(CORE + 'poIdentifier')]
+        seen_names = set()
+        uniq = []
+        for n, t in idents:
+            if n not in seen_names:
+                seen_names.add(n)
+                uniq.append((n, t))
+        out.append({'file': path.split('/')[-1][:-4], 'name': seq.get('name'),
+                    'kind': seq.get('name').split('/')[-1], 'idents': uniq,
                     'hyps': hyps, 'goal': goals[-1] if goals else None})
     return out
 
@@ -63,7 +70,10 @@ def main():
     for p in sorted(glob.glob('corpus/*/*.bpo')):
         pos += parse_file(p)
     complete = [p for p in pos if p['goal']]
-    print(f"sequents {len(pos)}, with a goal {len(complete)}", file=sys.stderr)
+    n_id = sum(1 for p in complete if p['idents'])
+    n_hy = sum(1 for p in complete if p['hyps'])
+    print(f"sequents {len(pos)}, with a goal {len(complete)}, "
+          f"with identifiers {n_id}, with hypotheses {n_hy}", file=sys.stderr)
     json.dump(complete, open('spike/pos.json', 'w'), ensure_ascii=False, indent=1)
 
 
