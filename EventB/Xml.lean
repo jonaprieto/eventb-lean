@@ -1,12 +1,12 @@
 /-
-Event-B's Rodin files are regular XML: one declaration, one root element, and
+Rodin's .bum/.buc files are regular XML: one declaration, one root element, and
 element-only content. Keep this reader byte-oriented; formulas are attribute
 strings and belong to the next phase.
 -/
 
 import Grip
 
-namespace EventB.Rodin
+namespace EventB
 
 open Grip
 open Grip.Ascii
@@ -165,14 +165,14 @@ private def document : GParser conditional XmlElem :=
       (GParser.seqL element (GParser.seqR GParser.ws GParser.eof)))
 
 /-- Parse one Rodin XML document from its UTF-8 bytes. -/
-def parse (source : ByteArray) : Except Grip.ParseError XmlElem :=
+def parseXml (source : ByteArray) : Except Grip.ParseError XmlElem :=
   GParser.parse document source
 
 /-- Parse one Rodin XML document from a Lean string. -/
-def parseString (source : String) : Except Grip.ParseError XmlElem :=
-  parse source.toUTF8
+def parseXmlString (source : String) : Except Grip.ParseError XmlElem :=
+  parseXml source.toUTF8
 
-#guard match parseString
+#guard match parseXmlString
     "<?xml version=\"1.0\"?><root a=\"&lt;&#10;&amp;\"><group><x/></group></root>" with
   | .ok elem => elem.tag == "root"
       && elem.attrs == [("a", "<\n&")]
@@ -180,4 +180,4 @@ def parseString (source : String) : Except Grip.ParseError XmlElem :=
   | .error _ => false
 
 
-end EventB.Rodin
+end EventB
