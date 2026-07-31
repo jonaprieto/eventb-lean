@@ -179,6 +179,75 @@ private def totalKeywords : List String :=
   ["dom", "ran", "bool", "prj1", "prj2", "id", "union", "succ", "pred", "finite",
    "partition"]
 
+private def wdTop : Term := .id "⊤"
+
+private def wdIsTop : Term → Bool
+  | .id "⊤" => true
+  | _ => false
+
+private def wdAtoms : Term → List Term
+  | .id "⊤" => []
+  | .bin "∧" a b => wdAtoms a ++ wdAtoms b
+  | t => [t]
+
+private def wdDedupAux (seen : List Term) : List Term → List Term
+  | [] => seen.reverse
+  | t :: ts =>
+      if seen.contains t then wdDedupAux seen ts else wdDedupAux (t :: seen) ts
+
+private def wdDedup (ts : List Term) : List Term := wdDedupAux [] ts
+
+private def wdBuild : List Term → Term
+  | [] => wdTop
+  | t :: ts => ts.foldl (fun acc next => .bin "∧" acc next) t
+
+private def wdAnd (a b : Term) : Term :=
+  wdBuild (wdDedup (wdAtoms a ++ wdAtoms b))
+
+private def wdDrop (known : List Term) : Term → Term
+  | .id "⊤" => wdTop
+  | .bin "∧" a b => wdAnd (wdDrop known a) (wdDrop known b)
+  | .bin "⇒" p q =>
+      let q := wdDrop (known ++ wdAtoms p) q
+      if wdIsTop q then wdTop else .bin "⇒" p q
+  | .bind k pat body =>
+      let body := wdDrop known body
+      if wdIsTop body then wdTop else .bind k pat body
+  | t => if known.contains t then wdTop else t
+
+private def wdImpliesKnown (known : List Term) (p q : Term) : Term :=
+  let q := wdDrop (known ++ wdAtoms p) q
+  if wdIsTop q || wdIsTop p then q else .bin "⇒" p q
+
+private def wdImplies (p q : Term) : Term := wdImpliesKnown [] p q
+
+private def wdType : Ty → Term
+  | .given n => .id n
+  | .int => .id "ℤ"
+  | .bool => .id "BOOL"
+  | .pow t => .pre "ℙ" (wdType t)
+  | .prod a b => .bin "×" (wdType a) (wdType b)
+  | .mvar n => .id s!"?{n}"
+
+private def wdFunctionType (env : List (String × Ty)) (f : Term) : Option Term :=
+  match inferTerm env f with
+  | .ok (.pow (.prod a b)) => some (.bin "⇸" (wdType a) (wdType b))
+  | _ => none
+
+private def wdNonempty (s : Term) : Term := .bin "≠" s (.set [])
+
+private def wdBound (isMax : Bool) (s : Term) : Term :=
+  let b := .id (if (identifiers s).contains "b" then "b0" else "b")
+  let x := .id (if (identifiers s).contains "x" then "x0" else "x")
+  let order := if isMax then .bin "≥" b x else .bin "≤" b x
+  .bind "∃" b (.bind "∀" x (.bin "⇒" (.bin "∈" x s) order))
+
+private def wdPattern : Term → Term
+  | .bin "↦" a b => .bin "," (wdPattern a) (wdPattern b)
+  | .bin "," a b => .bin "," (wdPattern a) (wdPattern b)
+  | .bin "⦂" a t => .bin "⦂" (wdPattern a) t
+  | t => t
+
 mutual
 
 def needsWD : Term → Bool
@@ -204,10 +273,114 @@ def needsWDAny : List Term → Bool
 
 end
 
+mutual
+
+private def wdTermAux : Nat → List (String × Ty) → Term → Option Term
+  | 0, _, _ => none
+  | _, _, .num _ | _, _, .id _ => some wdTop
+  | fuel + 1, env, .bin op a b => do
+      let wa ← wdTermAux fuel env a
+      let wb ← wdTermAux fuel env b
+      if op == "∧" || op == "⇒" then
+        return wdAnd wa (wdImpliesKnown (wdAtoms wa) a wb)
+      if op == "∨" then
+        return if wdIsTop wb then wa else wdAnd wa (.bin "∨" a wb)
+      if op == "÷" then
+        return wdAnd (wdAnd wa wb) (.bin "≠" b (.num 0))
+      if op == "mod" then
+        return wdAnd (wdAnd wa wb)
+          (.bin "∧" (.bin "≤" (.num 0) a) (.bin "<" (.num 0) b))
+      return wdAnd wa wb
+  | fuel + 1, env, .pre op a => do
+      let wa ← wdTermAux fuel env a
+      if op == "⋂" then return (wdAnd wa (wdNonempty a))
+      return wa
+  | fuel + 1, env, .post _ a => wdTermAux fuel env a
+  | fuel + 1, env, .app f a => do
+      let wa ← wdTermAux fuel env a
+      match f with
+      | .id "card" =>
+          return wdAnd wa (.app (.id "finite") a)
+      | .id "min" =>
+          return wdAnd (wdAnd wa (wdNonempty a)) (wdBound false a)
+      | .id "max" =>
+          return wdAnd (wdAnd wa (wdNonempty a)) (wdBound true a)
+      | .id "inter" =>
+          return wdAnd wa (wdNonempty a)
+      | .id n =>
+          if totalKeywords.contains n then return wa
+          else
+            let wf ← wdTermAux fuel env f
+            let ft ← wdFunctionType env f
+            return wdAnd (wdAnd (wdAnd wf wa)
+              (.bin "∈" a (.app (.id "dom") f)))
+              (.bin "∈" f ft)
+      | _ =>
+          let wf ← wdTermAux fuel env f
+          let ft ← wdFunctionType env f
+          return wdAnd (wdAnd (wdAnd wf wa)
+            (.bin "∈" a (.app (.id "dom") f)))
+            (.bin "∈" f ft)
+  | fuel + 1, env, .img r a => do
+      let wr ← wdTermAux fuel env r
+      let wa ← wdTermAux fuel env a
+      return wdAnd wr wa
+  | fuel + 1, env, .set ts => wdTerms fuel env ts
+  | fuel + 1, env, .bind k pat body =>
+      if k == "∀" || k == "∃" then do
+        let wb ← wdTermAux fuel env body
+        if wdIsTop wb then return wdTop
+        if (patternNames pat).all (fun n => !(identifiers wb).contains n) then
+          return wb
+        return .bind k pat wb
+      else
+        match body with
+        | .bin "∣" pred expr => do
+            let wp ← wdTermAux fuel env pred
+            let we ← wdTermAux fuel env expr
+            let w := wdAnd wp (wdImplies pred we)
+            return if wdIsTop w then wdTop else
+              if k == "λ" || k == "{" then .bind "∀" (wdPattern pat) w else w
+        | _ => wdTermAux fuel env body
+
+private def wdTerms : Nat → List (String × Ty) → List Term → Option Term
+  | 0, _, _ => none
+  | _, _, [] => some wdTop
+  | fuel + 1, env, t :: ts => do
+      let wt ← wdTermAux fuel env t
+      let ws ← wdTerms fuel env ts
+      return wdAnd wt ws
+
+end
+
+mutual
+
+private def wdFuel : Term → Nat
+  | .id _ | .num _ => 1
+  | .bin _ a b => wdFuel a + wdFuel b + 1
+  | .pre _ a | .post _ a => wdFuel a + 1
+  | .app f a | .img f a => wdFuel f + wdFuel a + 1
+  | .set ts => wdFuelList ts + 1
+  | .bind _ p b => wdFuel p + wdFuel b + 1
+
+private def wdFuelList : List Term → Nat
+  | [] => 0
+  | t :: ts => wdFuel t + wdFuelList ts + 1
+
+end
+
+private def wdTerm (env : List (String × Ty)) (t : Term) : Option Term :=
+  wdTermAux (wdFuel t + 1) env t
+
 private def wdRequired (formula : String) : Bool :=
   match Formula.parse formula with
   | .ok t => needsWD t
   | .error _ => false
+
+private def wdGoal (env : List (String × Ty)) (formula : String) : Option Term :=
+  match Formula.parse formula with
+  | .ok t => wdTerm env t
+  | .error _ => none
 
 /- Rules tried against the corpus and rejected by measurement, recorded so they are not
 retried. Each was plausible and each made the gates worse:
@@ -227,6 +400,8 @@ retried. Each was plausible and each made the gates worse:
   hypotheses, and only 3 carry none. The refinement that works, and that `generate` now
   does, is to give it the context axioms but not the invariants. Axioms hold always; the
   invariants are what initialisation has to establish.
+- Emit `WD(P ∨ Q)` as the logically equivalent `WD(P) ∧ (¬P ⇒ WD(Q))`. Rodin's
+  normal form is `WD(P) ∧ (P ∨ WD(Q))`; the implication spelling loses WD matches.
 -/
 
 /-- The standing hypotheses for non-initialization obligations: every axiom of every
@@ -256,6 +431,9 @@ def generate (p : Project) (name : String) : List Obligation := Id.run do
   | none => return []
   | some c =>
     let isMachine := c.elem.tag == "org.eventb.core.machineFile"
+    let types := match inferComponent p name with
+      | .ok (env, _) => env
+      | .error _ => []
     let mut out : List Obligation := []
     -- A `theorem` invariant or axiom must follow from what precedes it.
     for a in childrenOf c.elem "axiom" ++ childrenOf c.elem "invariant" do
@@ -269,7 +447,8 @@ def generate (p : Project) (name : String) : List Obligation := Id.run do
     -- invariant, and under its event for a guard, action or witness.
     for a in childrenOf c.elem "axiom" ++ childrenOf c.elem "invariant" do
       if wdRequired ((attrOf a "predicate").getD "") then
-        out := out ++ [{ name := labelOf a ++ "/WD", kind := "WD" }]
+        out := out ++ [{ name := labelOf a ++ "/WD", kind := "WD",
+                         goal := wdGoal types ((attrOf a "predicate").getD "") }]
     -- A guard can be marked `theorem` too, and is then named under its event.
     for ev in childrenOf c.elem "event" do
       for g in childrenOf ev "guard" do
@@ -308,7 +487,8 @@ def generate (p : Project) (name : String) : List Obligation := Id.run do
             -- conditionally defined before, the substituted form needs its own WD.
             if wdRequired ((attrOf inv "predicate").getD "") then
               out := out ++
-                [{ name := labelOf ev ++ "/" ++ labelOf inv ++ "/WD", kind := "WD" }]
+                [{ name := labelOf ev ++ "/" ++ labelOf inv ++ "/WD", kind := "WD",
+                   goal := wdGoal types ((attrOf inv "predicate").getD "") }]
       -- Refinement obligations are named after the abstract event's labels.
       if let some (am, ae) := abstractEvent p name ev then
         if (attrOf ev "extended").getD "false" != "true" then
@@ -347,11 +527,13 @@ def generate (p : Project) (name : String) : List Obligation := Id.run do
       for g in effectiveGuards p name ev do
         if wdRequired ((attrOf g "predicate").getD "") then
           out := out ++
-            [{ name := labelOf ev ++ "/" ++ labelOf g ++ "/WD", kind := "WD" }]
+            [{ name := labelOf ev ++ "/" ++ labelOf g ++ "/WD", kind := "WD",
+               goal := wdGoal types ((attrOf g "predicate").getD "") }]
       for act in actions do
         if wdRequired ((attrOf act "assignment").getD "") then
           out := out ++
-            [{ name := labelOf ev ++ "/" ++ labelOf act ++ "/WD", kind := "WD" }]
+            [{ name := labelOf ev ++ "/" ++ labelOf act ++ "/WD", kind := "WD",
+               goal := wdGoal types ((attrOf act "assignment").getD "") }]
       for w in childrenOf ev "witness" do
         out := out ++
           [{ name := labelOf ev ++ "/" ++ labelOf w ++ "/WFIS", kind := "WFIS" }]

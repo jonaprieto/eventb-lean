@@ -1,74 +1,134 @@
 M0_AMAN_Update	INITIALISATION/inv0,1/INV	FAIL:no such sequent in .bpo
 M0_AMAN_Update	AMAN_Update/inv0,1/INV	FAIL:no such sequent in .bpo
+M0_AMAN_Update_prob_mc_Ctx	axm_init_airplanes/WD	FAIL:missing 1 extra 0
+M1_Landing_Sequence	inv13,2/WD	FAIL:missing 10 extra 0
 M1_Landing_Sequence	INITIALISATION/inv1,1/INV	FAIL:missing 0 extra 8
 M1_Landing_Sequence	INITIALISATION/inv13,2/INV	FAIL:missing 0 extra 8
+M1_Landing_Sequence	INITIALISATION/inv13,2/WD	FAIL:no such sequent in .bpo
 M1_Landing_Sequence	INITIALISATION/glue1,1/INV	FAIL:missing 0 extra 8
 M1_Landing_Sequence	AMAN_Update/inv1,1/INV	PASS
 M1_Landing_Sequence	AMAN_Update/inv13,2/INV	PASS
+M1_Landing_Sequence	AMAN_Update/inv13,2/WD	FAIL:no such sequent in .bpo
 M1_Landing_Sequence	AMAN_Update/glue1,1/INV	PASS
 M1_Landing_Sequence	AMAN_Update/grd0,1/GRD	FAIL:no such sequent in .bpo
+M1_Landing_Sequence	AMAN_Update/inv1,2/WD	FAIL:missing 13 extra 0
 M1_Landing_Sequence	Move_Aircraft/inv1,1/INV	PASS
 M1_Landing_Sequence	Move_Aircraft/inv13,2/INV	PASS
+M1_Landing_Sequence	Move_Aircraft/inv13,2/WD	FAIL:no such sequent in .bpo
 M1_Landing_Sequence	Move_Aircraft/glue1,1/INV	PASS
+M1_Landing_Sequence	Move_Aircraft/grd1,3/WD	FAIL:missing 14 extra 0
+M1_Landing_Sequence	Move_Aircraft/grd1,4/WD	FAIL:missing 15 extra 0
+M1_Landing_Sequence	Move_Aircraft/act1,1/WD	FAIL:no such sequent in .bpo
 M1_Landing_Sequence_Ctx	axm3,2/THM	FAIL:missing 0 extra 6
+M1_Landing_Sequence_Ctx	axm3,1/WD	FAIL:missing 1 extra 0
+M1_Landing_Sequence_Ctx	axm3,2/WD	FAIL:missing 2 extra 0
+M1_Landing_Sequence_Ctx	axm3,4/WD	FAIL:missing 4 extra 0
 M2_Hold_Button	INITIALISATION/inv4,1/INV	PASS
 M2_Hold_Button	AMAN_Update/inv4,1/INV	PASS
+M2_Hold_Button	AMAN_Update/inv1,2/WD	FAIL:no such sequent in .bpo
 M2_Hold_Button	Move_Aircraft/inv4,1/INV	PASS
+M2_Hold_Button	Move_Aircraft/grd1,3/WD	FAIL:no such sequent in .bpo
+M2_Hold_Button	Move_Aircraft/grd1,4/WD	FAIL:no such sequent in .bpo
+M2_Hold_Button	Move_Aircraft/act1,1/WD	FAIL:no such sequent in .bpo
 M2_Hold_Button	Hold_Button/inv4,1/INV	PASS
 M3_Block_Timeslots	INITIALISATION/inv3,1/INV	PASS
 M3_Block_Timeslots	AMAN_Update/inv3,1/INV	PASS
+M3_Block_Timeslots	AMAN_Update/inv1,2/WD	FAIL:no such sequent in .bpo
+M3_Block_Timeslots	Move_Aircraft/grd1,3/WD	FAIL:no such sequent in .bpo
+M3_Block_Timeslots	Move_Aircraft/grd1,4/WD	FAIL:no such sequent in .bpo
+M3_Block_Timeslots	Move_Aircraft/act1,1/WD	FAIL:no such sequent in .bpo
 M3_Block_Timeslots	Block_Time/inv3,1/INV	PASS
 M3_Block_Timeslots	Deblock_Time/inv3,1/INV	PASS
 M4_Zoom	INITIALISATION/inv6,1/INV	PASS
+M4_Zoom	AMAN_Update/inv1,2/WD	FAIL:no such sequent in .bpo
+M4_Zoom	Move_Aircraft/grd1,3/WD	FAIL:no such sequent in .bpo
+M4_Zoom	Move_Aircraft/grd1,4/WD	FAIL:no such sequent in .bpo
+M4_Zoom	Move_Aircraft/grd6,1/WD	FAIL:missing 24 extra 0
+M4_Zoom	Move_Aircraft/act1,1/WD	FAIL:no such sequent in .bpo
+M4_Zoom	Hold_Button/grd6,1/WD	FAIL:missing 20 extra 0
 M4_Zoom	changeZoom/inv6,1/INV	PASS
 M4_Zoom_Ctx	ZOOM_LEVELS_sub_PLANNING_INTERVAL/THM	FAIL:missing 0 extra 1
+M4_Zoom_Ctx	ZOOM_LEVELS_value/WD	FAIL:missing 10 extra 0
+M4_Zoom_prob_mc_Ctx	ZOOM_LEVELS_inst/WD	FAIL:missing 17 extra 0
 M5_AMAN_Timeout	INITIALISATION/inv5,1/INV	FAIL:no such sequent in .bpo
 M5_AMAN_Timeout	AMAN_Update/inv5,1/INV	FAIL:no such sequent in .bpo
+M5_AMAN_Timeout	AMAN_Update/inv1,2/WD	FAIL:no such sequent in .bpo
 M5_AMAN_Timeout	AMAN_Timeout/inv5,1/INV	FAIL:no such sequent in .bpo
+M5_AMAN_Timeout	Move_Aircraft/grd1,3/WD	FAIL:no such sequent in .bpo
+M5_AMAN_Timeout	Move_Aircraft/grd1,4/WD	FAIL:no such sequent in .bpo
+M5_AMAN_Timeout	Move_Aircraft/grd6,1/WD	FAIL:no such sequent in .bpo
+M5_AMAN_Timeout	Move_Aircraft/act1,1/WD	FAIL:no such sequent in .bpo
+M5_AMAN_Timeout	Hold_Button/grd6,1/WD	FAIL:no such sequent in .bpo
+M6_Select_Airplane	selectedAirplane_card/WD	FAIL:missing 22 extra 0
 M6_Select_Airplane	INITIALISATION/inv7,1/INV	PASS
 M6_Select_Airplane	INITIALISATION/selectedAirplane_finite/INV	PASS
 M6_Select_Airplane	INITIALISATION/selectedAirplane_card/INV	PASS
+M6_Select_Airplane	INITIALISATION/selectedAirplane_card/WD	FAIL:no such sequent in .bpo
 M6_Select_Airplane	AMAN_Update/inv7,1/INV	PASS
 M6_Select_Airplane	AMAN_Update/selectedAirplane_finite/INV	PASS
 M6_Select_Airplane	AMAN_Update/selectedAirplane_card/INV	PASS
+M6_Select_Airplane	AMAN_Update/selectedAirplane_card/WD	FAIL:no such sequent in .bpo
+M6_Select_Airplane	AMAN_Update/inv1,2/WD	FAIL:no such sequent in .bpo
 M6_Select_Airplane	AMAN_Timeout/inv7,1/INV	PASS
 M6_Select_Airplane	AMAN_Timeout/selectedAirplane_finite/INV	PASS
 M6_Select_Airplane	AMAN_Timeout/selectedAirplane_card/INV	PASS
+M6_Select_Airplane	AMAN_Timeout/selectedAirplane_card/WD	FAIL:no such sequent in .bpo
 M6_Select_Airplane	Move_Aircraft/inv7,1/INV	PASS
+M6_Select_Airplane	Move_Aircraft/grd1,3/WD	FAIL:no such sequent in .bpo
+M6_Select_Airplane	Move_Aircraft/grd1,4/WD	FAIL:no such sequent in .bpo
+M6_Select_Airplane	Move_Aircraft/grd6,1/WD	FAIL:no such sequent in .bpo
+M6_Select_Airplane	Move_Aircraft/act1,1/WD	FAIL:no such sequent in .bpo
 M6_Select_Airplane	Hold_Button/inv7,1/INV	PASS
 M6_Select_Airplane	Hold_Button/selectedAirplane_finite/INV	PASS
 M6_Select_Airplane	Hold_Button/selectedAirplane_card/INV	PASS
+M6_Select_Airplane	Hold_Button/selectedAirplane_card/WD	FAIL:no such sequent in .bpo
+M6_Select_Airplane	Hold_Button/grd6,1/WD	FAIL:no such sequent in .bpo
 M6_Select_Airplane	changeZoom/inv7,1/INV	PASS
 M6_Select_Airplane	changeZoom/selectedAirplane_finite/INV	PASS
 M6_Select_Airplane	changeZoom/selectedAirplane_card/INV	PASS
+M6_Select_Airplane	changeZoom/selectedAirplane_card/WD	FAIL:no such sequent in .bpo
 M6_Select_Airplane	selectAirplane/inv7,1/INV	PASS
 M6_Select_Airplane	selectAirplane/selectedAirplane_finite/INV	PASS
 M6_Select_Airplane	selectAirplane/selectedAirplane_card/INV	PASS
+M6_Select_Airplane	selectAirplane/selectedAirplane_card/WD	FAIL:no such sequent in .bpo
+M6_Select_Airplane	selectAirplane/grd6,2/WD	FAIL:missing 24 extra 0
 M6_Select_Airplane	deselectAirplane/inv7,1/INV	PASS
 M6_Select_Airplane	deselectAirplane/selectedAirplane_finite/INV	PASS
 M6_Select_Airplane	deselectAirplane/selectedAirplane_card/INV	PASS
+M6_Select_Airplane	deselectAirplane/selectedAirplane_card/WD	FAIL:no such sequent in .bpo
 M7_Interaction_Pauses_Updates	INITIALISATION/dragging_airplane_type/INV	FAIL:no such sequent in .bpo
 M7_Interaction_Pauses_Updates	INITIALISATION/dragging_selected_airplane/INV	PASS
 M7_Interaction_Pauses_Updates	AMAN_Update/dragging_selected_airplane/INV	PASS
+M7_Interaction_Pauses_Updates	AMAN_Update/inv1,2/WD	FAIL:no such sequent in .bpo
 M7_Interaction_Pauses_Updates	AMAN_Timeout/dragging_selected_airplane/INV	PASS
 M7_Interaction_Pauses_Updates	Move_Aircraft/dragging_airplane_type/INV	FAIL:no such sequent in .bpo
 M7_Interaction_Pauses_Updates	Move_Aircraft/dragging_selected_airplane/INV	PASS
+M7_Interaction_Pauses_Updates	Move_Aircraft/grd1,3/WD	FAIL:no such sequent in .bpo
+M7_Interaction_Pauses_Updates	Move_Aircraft/grd1,4/WD	FAIL:no such sequent in .bpo
+M7_Interaction_Pauses_Updates	Move_Aircraft/grd6,1/WD	FAIL:no such sequent in .bpo
+M7_Interaction_Pauses_Updates	Move_Aircraft/act1,1/WD	FAIL:no such sequent in .bpo
 M7_Interaction_Pauses_Updates	Hold_Button/dragging_selected_airplane/INV	PASS
+M7_Interaction_Pauses_Updates	Hold_Button/grd6,1/WD	FAIL:no such sequent in .bpo
 M7_Interaction_Pauses_Updates	changeZoom/dragging_selected_airplane/INV	PASS
 M7_Interaction_Pauses_Updates	selectAirplane/dragging_airplane_type/INV	FAIL:no such sequent in .bpo
 M7_Interaction_Pauses_Updates	selectAirplane/dragging_selected_airplane/INV	PASS
+M7_Interaction_Pauses_Updates	selectAirplane/grd6,2/WD	FAIL:no such sequent in .bpo
 M7_Interaction_Pauses_Updates	deselectAirplane/dragging_selected_airplane/INV	PASS
 M7_Interaction_Pauses_Updates	resume_dragging_airplane/dragging_airplane_type/INV	FAIL:no such sequent in .bpo
 M7_Interaction_Pauses_Updates	resume_dragging_airplane/dragging_selected_airplane/INV	PASS
 M7_Interaction_Pauses_Updates	stop_dragging_airplane/dragging_airplane_type/INV	FAIL:no such sequent in .bpo
 M7_Interaction_Pauses_Updates	stop_dragging_airplane/dragging_selected_airplane/INV	PASS
+M8_Interaction_Events	dragged_airplane_card/WD	FAIL:missing 27 extra 0
+M8_Interaction_Events	dragged_zoom_level_card/WD	FAIL:missing 31 extra 0
 M8_Interaction_Events	INITIALISATION/dragged_airplane_type/INV	PASS
 M8_Interaction_Events	INITIALISATION/dragged_airplane_finite/INV	PASS
 M8_Interaction_Events	INITIALISATION/dragged_airplane_card/INV	PASS
+M8_Interaction_Events	INITIALISATION/dragged_airplane_card/WD	FAIL:no such sequent in .bpo
 M8_Interaction_Events	INITIALISATION/dragging_airplane_glue/INV	PASS
 M8_Interaction_Events	INITIALISATION/dragged_zoom_level_type/INV	PASS
 M8_Interaction_Events	INITIALISATION/dragged_zoom_level_finite/INV	PASS
 M8_Interaction_Events	INITIALISATION/dragged_zoom_level_card/INV	PASS
+M8_Interaction_Events	INITIALISATION/dragged_zoom_level_card/WD	FAIL:no such sequent in .bpo
 M8_Interaction_Events	INITIALISATION/cannot_move_airplane_while_zooming/INV	PASS
 M8_Interaction_Events	INITIALISATION/act1,1/SIM	FAIL:no such sequent in .bpo
 M8_Interaction_Events	INITIALISATION/act2,1/SIM	FAIL:no such sequent in .bpo
@@ -83,6 +143,7 @@ M8_Interaction_Events	AMAN_Update/act2,1/SIM	FAIL:no such sequent in .bpo
 M8_Interaction_Events	AMAN_Update/act3,1/SIM	FAIL:no such sequent in .bpo
 M8_Interaction_Events	AMAN_Update/act5,1/SIM	FAIL:no such sequent in .bpo
 M8_Interaction_Events	AMAN_Update/act7,1/SIM	FAIL:no such sequent in .bpo
+M8_Interaction_Events	AMAN_Update/inv1,2/WD	FAIL:no such sequent in .bpo
 M8_Interaction_Events	AMAN_Timeout/dragged_airplane_type/INV	PASS
 M8_Interaction_Events	AMAN_Timeout/not_dragging_airplane/GRD	PASS
 M8_Interaction_Events	AMAN_Timeout/act5,1/SIM	FAIL:no such sequent in .bpo
@@ -90,18 +151,24 @@ M8_Interaction_Events	AMAN_Timeout/act7,1/SIM	FAIL:no such sequent in .bpo
 M8_Interaction_Events	Move_Aircraft/dragged_airplane_type/INV	PASS
 M8_Interaction_Events	Move_Aircraft/dragged_airplane_finite/INV	PASS
 M8_Interaction_Events	Move_Aircraft/dragged_airplane_card/INV	PASS
+M8_Interaction_Events	Move_Aircraft/dragged_airplane_card/WD	FAIL:no such sequent in .bpo
 M8_Interaction_Events	Move_Aircraft/dragging_airplane_glue/INV	PASS
 M8_Interaction_Events	Move_Aircraft/cannot_move_airplane_while_zooming/INV	PASS
 M8_Interaction_Events	Move_Aircraft/is_dragging_airplane/GRD	PASS
 M8_Interaction_Events	Move_Aircraft/act1,1/SIM	FAIL:no such sequent in .bpo
+M8_Interaction_Events	Move_Aircraft/grd1,3/WD	FAIL:missing 34 extra 0
+M8_Interaction_Events	Move_Aircraft/grd1,4/WD	FAIL:missing 35 extra 0
+M8_Interaction_Events	Move_Aircraft/act1,1/WD	FAIL:no such sequent in .bpo
 M8_Interaction_Events	Hold_Button/dragged_airplane_type/INV	PASS
 M8_Interaction_Events	Hold_Button/not_dragging_airplane/GRD	PASS
 M8_Interaction_Events	Hold_Button/act2,1/SIM	FAIL:no such sequent in .bpo
 M8_Interaction_Events	Hold_Button/act6,1/SIM	FAIL:no such sequent in .bpo
+M8_Interaction_Events	Hold_Button/grd6,1/WD	FAIL:no such sequent in .bpo
 M8_Interaction_Events	changeZoom/dragged_airplane_type/INV	PASS
 M8_Interaction_Events	changeZoom/dragged_zoom_level_type/INV	PASS
 M8_Interaction_Events	changeZoom/dragged_zoom_level_finite/INV	PASS
 M8_Interaction_Events	changeZoom/dragged_zoom_level_card/INV	PASS
+M8_Interaction_Events	changeZoom/dragged_zoom_level_card/WD	FAIL:no such sequent in .bpo
 M8_Interaction_Events	changeZoom/cannot_move_airplane_while_zooming/INV	PASS
 M8_Interaction_Events	changeZoom/not_dragging_airplane/GRD	PASS
 M8_Interaction_Events	changeZoom/act6,1/SIM	FAIL:no such sequent in .bpo
@@ -109,39 +176,64 @@ M8_Interaction_Events	changeZoom/selectedAirplane/SIM	FAIL:no such sequent in .b
 M8_Interaction_Events	selectAirplane/dragged_airplane_type/INV	PASS
 M8_Interaction_Events	selectAirplane/dragged_airplane_finite/INV	PASS
 M8_Interaction_Events	selectAirplane/dragged_airplane_card/INV	PASS
+M8_Interaction_Events	selectAirplane/dragged_airplane_card/WD	FAIL:no such sequent in .bpo
 M8_Interaction_Events	selectAirplane/dragging_airplane_glue/INV	PASS
 M8_Interaction_Events	selectAirplane/cannot_move_airplane_while_zooming/INV	PASS
 M8_Interaction_Events	selectAirplane/not_dragging_airplane/GRD	PASS
 M8_Interaction_Events	selectAirplane/act6,1/SIM	FAIL:no such sequent in .bpo
+M8_Interaction_Events	selectAirplane/grd6,3/WD	FAIL:missing 35 extra 0
+M8_Interaction_Events	selectAirplane/dragged_airplane/WD	FAIL:missing 38 extra 0
 M8_Interaction_Events	deselectAirplane/dragged_airplane_type/INV	PASS
 M8_Interaction_Events	deselectAirplane/not_dragging_airplane/GRD	PASS
 M8_Interaction_Events	deselectAirplane/act6,1/SIM	FAIL:no such sequent in .bpo
+M8_Interaction_Events	deselectAirplane/grd6,3/WD	FAIL:missing 35 extra 0
 M8_Interaction_Events	resume_dragging_airplane/dragged_airplane_type/INV	PASS
 M8_Interaction_Events	resume_dragging_airplane/dragged_airplane_finite/INV	PASS
 M8_Interaction_Events	resume_dragging_airplane/dragged_airplane_card/INV	PASS
+M8_Interaction_Events	resume_dragging_airplane/dragged_airplane_card/WD	FAIL:no such sequent in .bpo
 M8_Interaction_Events	resume_dragging_airplane/dragging_airplane_glue/INV	PASS
 M8_Interaction_Events	resume_dragging_airplane/cannot_move_airplane_while_zooming/INV	PASS
 M8_Interaction_Events	resume_dragging_airplane/airplane_selected/GRD	PASS
 M8_Interaction_Events	resume_dragging_airplane/not_dragging_airplane/GRD	PASS
+M8_Interaction_Events	resume_dragging_airplane/dragged_airplane/WD	FAIL:missing 36 extra 0
 M8_Interaction_Events	stop_dragging_airplane/dragged_airplane_type/INV	PASS
 M8_Interaction_Events	stop_dragging_airplane/dragged_airplane_finite/INV	PASS
 M8_Interaction_Events	stop_dragging_airplane/dragged_airplane_card/INV	PASS
+M8_Interaction_Events	stop_dragging_airplane/dragged_airplane_card/WD	FAIL:no such sequent in .bpo
 M8_Interaction_Events	stop_dragging_airplane/dragging_airplane_glue/INV	PASS
 M8_Interaction_Events	stop_dragging_airplane/cannot_move_airplane_while_zooming/INV	PASS
 M8_Interaction_Events	stop_dragging_airplane/is_dragging_airplane/GRD	PASS
+M8_Interaction_Events	stop_dragging_airplane/dest_not_allowed/WD	FAIL:missing 34 extra 0
 M8_Interaction_Events	drag_airplane/dragged_airplane_type/INV	PASS
 M8_Interaction_Events	drag_airplane/dragged_airplane_finite/INV	PASS
 M8_Interaction_Events	drag_airplane/dragged_airplane_card/INV	PASS
+M8_Interaction_Events	drag_airplane/dragged_airplane_card/WD	FAIL:no such sequent in .bpo
 M8_Interaction_Events	drag_airplane/dragging_airplane_glue/INV	PASS
 M8_Interaction_Events	drag_airplane/cannot_move_airplane_while_zooming/INV	PASS
+M8_Interaction_Events	drag_airplane/different_time/WD	FAIL:missing 35 extra 0
 M8_Interaction_Events	start_dragging_zoom_slider/dragged_zoom_level_type/INV	PASS
 M8_Interaction_Events	start_dragging_zoom_slider/dragged_zoom_level_finite/INV	PASS
 M8_Interaction_Events	start_dragging_zoom_slider/dragged_zoom_level_card/INV	PASS
+M8_Interaction_Events	start_dragging_zoom_slider/dragged_zoom_level_card/WD	FAIL:no such sequent in .bpo
 M8_Interaction_Events	start_dragging_zoom_slider/cannot_move_airplane_while_zooming/INV	PASS
 M8_Interaction_Events	drag_zoom_slider/dragged_zoom_level_type/INV	PASS
 M8_Interaction_Events	drag_zoom_slider/dragged_zoom_level_finite/INV	PASS
 M8_Interaction_Events	drag_zoom_slider/dragged_zoom_level_card/INV	PASS
+M8_Interaction_Events	drag_zoom_slider/dragged_zoom_level_card/WD	FAIL:no such sequent in .bpo
 M8_Interaction_Events	drag_zoom_slider/cannot_move_airplane_while_zooming/INV	PASS
+M9_Push_Mouse_Button_prob_mc	Move_Aircraft/grd1,3/WD	FAIL:no such sequent in .bpo
+M9_Push_Mouse_Button_prob_mc	Move_Aircraft/grd1,4/WD	FAIL:no such sequent in .bpo
+M9_Push_Mouse_Button_prob_mc	Move_Aircraft/act1,1/WD	FAIL:no such sequent in .bpo
+M9_Push_Mouse_Button_prob_mc	selectAirplane/grd6,3/WD	FAIL:no such sequent in .bpo
+M9_Push_Mouse_Button_prob_mc	selectAirplane/dragged_airplane/WD	FAIL:no such sequent in .bpo
+M9_Push_Mouse_Button_prob_mc	deselectAirplane/grd6,3/WD	FAIL:no such sequent in .bpo
+M9_Push_Mouse_Button_prob_mc	resume_dragging_airplane/dragged_airplane/WD	FAIL:no such sequent in .bpo
+M9_Push_Mouse_Button_prob_mc	stop_dragging_airplane/dest_not_allowed/WD	FAIL:no such sequent in .bpo
+M9_Push_Mouse_Button_prob_mc	drag_airplane/different_time/WD	FAIL:no such sequent in .bpo
+M9_Push_Mouse_Buttons	is_clicked_block_card/WD	FAIL:missing 38 extra 0
+M9_Push_Mouse_Buttons	block_slot_position_card/WD	FAIL:missing 41 extra 0
+M9_Push_Mouse_Buttons	airplane_Position_card/WD	FAIL:missing 44 extra 0
+M9_Push_Mouse_Buttons	zoom_Position_card/WD	FAIL:missing 47 extra 0
 M9_Push_Mouse_Buttons	Move_Aircraft/theorem/THM	FAIL:missing 4 extra 0
 M9_Push_Mouse_Buttons	Release_Trigger_Block_Time/theorem/THM	FAIL:missing 3 extra 0
 M9_Push_Mouse_Buttons	stop_dragging_airplane/theorem/THM	FAIL:missing 4 extra 0
@@ -150,15 +242,19 @@ M9_Push_Mouse_Buttons	INITIALISATION/current_mouse_selection/INV	FAIL:no such se
 M9_Push_Mouse_Buttons	INITIALISATION/is_clicked_block/INV	PASS
 M9_Push_Mouse_Buttons	INITIALISATION/is_clicked_block_fin/INV	PASS
 M9_Push_Mouse_Buttons	INITIALISATION/is_clicked_block_card/INV	PASS
+M9_Push_Mouse_Buttons	INITIALISATION/is_clicked_block_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	INITIALISATION/block_slot_position/INV	PASS
 M9_Push_Mouse_Buttons	INITIALISATION/block_slot_position_fin/INV	PASS
 M9_Push_Mouse_Buttons	INITIALISATION/block_slot_position_card/INV	PASS
+M9_Push_Mouse_Buttons	INITIALISATION/block_slot_position_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	INITIALISATION/airplane_Position/INV	PASS
 M9_Push_Mouse_Buttons	INITIALISATION/airplane_Position_fin/INV	PASS
 M9_Push_Mouse_Buttons	INITIALISATION/airplane_Position_card/INV	PASS
+M9_Push_Mouse_Buttons	INITIALISATION/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	INITIALISATION/zoom_Position/INV	PASS
 M9_Push_Mouse_Buttons	INITIALISATION/zoom_Position_fin/INV	PASS
 M9_Push_Mouse_Buttons	INITIALISATION/zoom_Position_card/INV	PASS
+M9_Push_Mouse_Buttons	INITIALISATION/zoom_Position_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	INITIALISATION/mouse_pos_not_empty/INV	PASS
 M9_Push_Mouse_Buttons	INITIALISATION/zoom_pos_not_empty/INV	PASS
 M9_Push_Mouse_Buttons	INITIALISATION/block_pos_not_empty/INV	PASS
@@ -170,12 +266,15 @@ M9_Push_Mouse_Buttons	Move_Mouse_Hold/current_mouse_selection/INV	FAIL:no such s
 M9_Push_Mouse_Buttons	Move_Mouse_Hold/block_slot_position/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Hold/block_slot_position_fin/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Hold/block_slot_position_card/INV	PASS
+M9_Push_Mouse_Buttons	Move_Mouse_Hold/block_slot_position_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Move_Mouse_Hold/airplane_Position/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Hold/airplane_Position_fin/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Hold/airplane_Position_card/INV	PASS
+M9_Push_Mouse_Buttons	Move_Mouse_Hold/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Move_Mouse_Hold/zoom_Position/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Hold/zoom_Position_fin/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Hold/zoom_Position_card/INV	PASS
+M9_Push_Mouse_Buttons	Move_Mouse_Hold/zoom_Position_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Move_Mouse_Hold/mouse_pos_not_empty/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Hold/zoom_pos_not_empty/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Hold/block_pos_not_empty/INV	PASS
@@ -184,12 +283,15 @@ M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Zooming/current_mouse_selection/INV	FAIL:n
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Zooming/block_slot_position/INV	FAIL:missing 3 extra 0
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Zooming/block_slot_position_fin/INV	FAIL:missing 3 extra 0
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Zooming/block_slot_position_card/INV	FAIL:missing 3 extra 0
+M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Zooming/block_slot_position_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Zooming/airplane_Position/INV	FAIL:missing 3 extra 0
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Zooming/airplane_Position_fin/INV	FAIL:missing 3 extra 0
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Zooming/airplane_Position_card/INV	FAIL:missing 3 extra 0
+M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Zooming/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Zooming/zoom_Position/INV	FAIL:missing 3 extra 0
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Zooming/zoom_Position_fin/INV	FAIL:missing 3 extra 0
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Zooming/zoom_Position_card/INV	FAIL:missing 3 extra 0
+M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Zooming/zoom_Position_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Zooming/mouse_pos_not_empty/INV	FAIL:missing 3 extra 0
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Zooming/zoom_pos_not_empty/INV	FAIL:missing 3 extra 0
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Zooming/block_pos_not_empty/INV	FAIL:missing 3 extra 0
@@ -198,12 +300,15 @@ M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Not_Zooming/current_mouse_selection/INV	FA
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Not_Zooming/block_slot_position/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Not_Zooming/block_slot_position_fin/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Not_Zooming/block_slot_position_card/INV	PASS
+M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Not_Zooming/block_slot_position_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Not_Zooming/airplane_Position/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Not_Zooming/airplane_Position_fin/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Not_Zooming/airplane_Position_card/INV	PASS
+M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Not_Zooming/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Not_Zooming/zoom_Position/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Not_Zooming/zoom_Position_fin/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Not_Zooming/zoom_Position_card/INV	PASS
+M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Not_Zooming/zoom_Position_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Not_Zooming/mouse_pos_not_empty/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Not_Zooming/zoom_pos_not_empty/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Zoom_Not_Zooming/block_pos_not_empty/INV	PASS
@@ -212,12 +317,15 @@ M9_Push_Mouse_Buttons	Move_Mouse_Block/current_mouse_selection/INV	FAIL:no such 
 M9_Push_Mouse_Buttons	Move_Mouse_Block/block_slot_position/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Block/block_slot_position_fin/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Block/block_slot_position_card/INV	PASS
+M9_Push_Mouse_Buttons	Move_Mouse_Block/block_slot_position_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Move_Mouse_Block/airplane_Position/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Block/airplane_Position_fin/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Block/airplane_Position_card/INV	PASS
+M9_Push_Mouse_Buttons	Move_Mouse_Block/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Move_Mouse_Block/zoom_Position/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Block/zoom_Position_fin/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Block/zoom_Position_card/INV	PASS
+M9_Push_Mouse_Buttons	Move_Mouse_Block/zoom_Position_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Move_Mouse_Block/mouse_pos_not_empty/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Block/zoom_pos_not_empty/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Block/block_pos_not_empty/INV	PASS
@@ -226,12 +334,15 @@ M9_Push_Mouse_Buttons	Move_Mouse_Airplane/current_mouse_selection/INV	FAIL:no su
 M9_Push_Mouse_Buttons	Move_Mouse_Airplane/block_slot_position/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Airplane/block_slot_position_fin/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Airplane/block_slot_position_card/INV	PASS
+M9_Push_Mouse_Buttons	Move_Mouse_Airplane/block_slot_position_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Move_Mouse_Airplane/airplane_Position/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Airplane/airplane_Position_fin/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Airplane/airplane_Position_card/INV	PASS
+M9_Push_Mouse_Buttons	Move_Mouse_Airplane/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Move_Mouse_Airplane/zoom_Position/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Airplane/zoom_Position_fin/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Airplane/zoom_Position_card/INV	PASS
+M9_Push_Mouse_Buttons	Move_Mouse_Airplane/zoom_Position_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Move_Mouse_Airplane/mouse_pos_not_empty/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Airplane/zoom_pos_not_empty/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Airplane/block_pos_not_empty/INV	PASS
@@ -240,12 +351,15 @@ M9_Push_Mouse_Buttons	Move_Mouse_Nothing/current_mouse_selection/INV	FAIL:no suc
 M9_Push_Mouse_Buttons	Move_Mouse_Nothing/block_slot_position/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Nothing/block_slot_position_fin/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Nothing/block_slot_position_card/INV	PASS
+M9_Push_Mouse_Buttons	Move_Mouse_Nothing/block_slot_position_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Move_Mouse_Nothing/airplane_Position/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Nothing/airplane_Position_fin/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Nothing/airplane_Position_card/INV	PASS
+M9_Push_Mouse_Buttons	Move_Mouse_Nothing/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Move_Mouse_Nothing/zoom_Position/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Nothing/zoom_Position_fin/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Nothing/zoom_Position_card/INV	PASS
+M9_Push_Mouse_Buttons	Move_Mouse_Nothing/zoom_Position_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Move_Mouse_Nothing/mouse_pos_not_empty/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Nothing/zoom_pos_not_empty/INV	PASS
 M9_Push_Mouse_Buttons	Move_Mouse_Nothing/block_pos_not_empty/INV	PASS
@@ -254,6 +368,7 @@ M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_nothing/current_mouse_selection/INV	F
 M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_nothing/airplane_Position/INV	FAIL:missing 5 extra 0
 M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_nothing/airplane_Position_fin/INV	FAIL:missing 5 extra 0
 M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_nothing/airplane_Position_card/INV	FAIL:missing 5 extra 0
+M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_nothing/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_nothing/mouse_pos_not_empty/INV	FAIL:missing 5 extra 0
 M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_nothing/zoom_pos_not_empty/INV	FAIL:missing 5 extra 0
 M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_nothing/block_pos_not_empty/INV	FAIL:missing 5 extra 0
@@ -262,6 +377,7 @@ M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_airplane/current_mouse_selection/INV	
 M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_airplane/airplane_Position/INV	FAIL:missing 5 extra 0
 M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_airplane/airplane_Position_fin/INV	FAIL:missing 5 extra 0
 M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_airplane/airplane_Position_card/INV	FAIL:missing 5 extra 0
+M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_airplane/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_airplane/mouse_pos_not_empty/INV	FAIL:missing 5 extra 0
 M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_airplane/zoom_pos_not_empty/INV	FAIL:missing 5 extra 0
 M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_airplane/block_pos_not_empty/INV	FAIL:missing 5 extra 0
@@ -272,6 +388,9 @@ M9_Push_Mouse_Buttons	Move_Aircraft/click_start_airplane/INV	PASS
 M9_Push_Mouse_Buttons	Move_Aircraft/click_start_block/INV	PASS
 M9_Push_Mouse_Buttons	Move_Aircraft/click_start_zoom/INV	PASS
 M9_Push_Mouse_Buttons	Move_Aircraft/mouse_over_airplane_when_dragged/INV	PASS
+M9_Push_Mouse_Buttons	Move_Aircraft/grd1,3/WD	FAIL:no such sequent in .bpo
+M9_Push_Mouse_Buttons	Move_Aircraft/grd1,4/WD	FAIL:no such sequent in .bpo
+M9_Push_Mouse_Buttons	Move_Aircraft/act1,1/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Click_Hold_Button/is_mouse_pressed/INV	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Click_Hold_Button/click_start_airplane/INV	PASS
 M9_Push_Mouse_Buttons	Click_Hold_Button/click_start_block/INV	PASS
@@ -288,6 +407,7 @@ M9_Push_Mouse_Buttons	Click_Block_Time/is_mouse_pressed/INV	FAIL:no such sequent
 M9_Push_Mouse_Buttons	Click_Block_Time/is_clicked_block/INV	PASS
 M9_Push_Mouse_Buttons	Click_Block_Time/is_clicked_block_fin/INV	PASS
 M9_Push_Mouse_Buttons	Click_Block_Time/is_clicked_block_card/INV	PASS
+M9_Push_Mouse_Buttons	Click_Block_Time/is_clicked_block_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Click_Block_Time/click_start_airplane/INV	PASS
 M9_Push_Mouse_Buttons	Click_Block_Time/click_start_block/INV	PASS
 M9_Push_Mouse_Buttons	Click_Block_Time/click_start_zoom/INV	PASS
@@ -295,6 +415,7 @@ M9_Push_Mouse_Buttons	Release_Trigger_Block_Time/is_mouse_pressed/INV	FAIL:no su
 M9_Push_Mouse_Buttons	Release_Trigger_Block_Time/is_clicked_block/INV	PASS
 M9_Push_Mouse_Buttons	Release_Trigger_Block_Time/is_clicked_block_fin/INV	PASS
 M9_Push_Mouse_Buttons	Release_Trigger_Block_Time/is_clicked_block_card/INV	PASS
+M9_Push_Mouse_Buttons	Release_Trigger_Block_Time/is_clicked_block_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Release_Trigger_Block_Time/click_start_airplane/INV	PASS
 M9_Push_Mouse_Buttons	Release_Trigger_Block_Time/click_start_block/INV	PASS
 M9_Push_Mouse_Buttons	Release_Trigger_Block_Time/click_start_zoom/INV	PASS
@@ -303,6 +424,7 @@ M9_Push_Mouse_Buttons	Release_Abort_Time_Button/is_mouse_pressed/INV	FAIL:no suc
 M9_Push_Mouse_Buttons	Release_Abort_Time_Button/is_clicked_block/INV	PASS
 M9_Push_Mouse_Buttons	Release_Abort_Time_Button/is_clicked_block_fin/INV	PASS
 M9_Push_Mouse_Buttons	Release_Abort_Time_Button/is_clicked_block_card/INV	PASS
+M9_Push_Mouse_Buttons	Release_Abort_Time_Button/is_clicked_block_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Release_Abort_Time_Button/click_start_airplane/INV	PASS
 M9_Push_Mouse_Buttons	Release_Abort_Time_Button/click_start_block/INV	PASS
 M9_Push_Mouse_Buttons	Release_Abort_Time_Button/click_start_zoom/INV	PASS
@@ -310,6 +432,7 @@ M9_Push_Mouse_Buttons	Release_Trigger_Deblock_Time/is_mouse_pressed/INV	FAIL:no 
 M9_Push_Mouse_Buttons	Release_Trigger_Deblock_Time/is_clicked_block/INV	PASS
 M9_Push_Mouse_Buttons	Release_Trigger_Deblock_Time/is_clicked_block_fin/INV	PASS
 M9_Push_Mouse_Buttons	Release_Trigger_Deblock_Time/is_clicked_block_card/INV	PASS
+M9_Push_Mouse_Buttons	Release_Trigger_Deblock_Time/is_clicked_block_card/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Release_Trigger_Deblock_Time/click_start_airplane/INV	PASS
 M9_Push_Mouse_Buttons	Release_Trigger_Deblock_Time/click_start_block/INV	PASS
 M9_Push_Mouse_Buttons	Release_Trigger_Deblock_Time/click_start_zoom/INV	PASS
@@ -326,22 +449,35 @@ M9_Push_Mouse_Buttons	selectAirplane/click_start_airplane/INV	PASS
 M9_Push_Mouse_Buttons	selectAirplane/click_start_block/INV	PASS
 M9_Push_Mouse_Buttons	selectAirplane/click_start_zoom/INV	PASS
 M9_Push_Mouse_Buttons	selectAirplane/mouse_over_airplane_when_dragged/INV	PASS
+M9_Push_Mouse_Buttons	selectAirplane/grd6,3/WD	FAIL:no such sequent in .bpo
+M9_Push_Mouse_Buttons	selectAirplane/dragged_airplane/WD	FAIL:no such sequent in .bpo
+M9_Push_Mouse_Buttons	deselectAirplane/grd6,3/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	resume_dragging_airplane/is_mouse_pressed/INV	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	resume_dragging_airplane/click_start_airplane/INV	PASS
 M9_Push_Mouse_Buttons	resume_dragging_airplane/click_start_block/INV	PASS
 M9_Push_Mouse_Buttons	resume_dragging_airplane/click_start_zoom/INV	PASS
 M9_Push_Mouse_Buttons	resume_dragging_airplane/mouse_over_airplane_when_dragged/INV	PASS
+M9_Push_Mouse_Buttons	resume_dragging_airplane/dragged_airplane/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	stop_dragging_airplane/is_mouse_pressed/INV	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	stop_dragging_airplane/click_start_airplane/INV	PASS
 M9_Push_Mouse_Buttons	stop_dragging_airplane/click_start_block/INV	PASS
 M9_Push_Mouse_Buttons	stop_dragging_airplane/click_start_zoom/INV	PASS
 M9_Push_Mouse_Buttons	stop_dragging_airplane/mouse_over_airplane_when_dragged/INV	PASS
+M9_Push_Mouse_Buttons	stop_dragging_airplane/dest_not_allowed/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	drag_airplane/click_start_airplane/INV	PASS
 M9_Push_Mouse_Buttons	drag_airplane/mouse_over_airplane_when_dragged/INV	PASS
+M9_Push_Mouse_Buttons	drag_airplane/different_time/WD	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	start_dragging_zoom_slider/is_mouse_pressed/INV	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	start_dragging_zoom_slider/click_start_airplane/INV	PASS
 M9_Push_Mouse_Buttons	start_dragging_zoom_slider/click_start_block/INV	PASS
 M9_Push_Mouse_Buttons	start_dragging_zoom_slider/click_start_zoom/INV	PASS
+MAbs	abstract_selectedAirplane_card/WD	FAIL:missing 23 extra 0
+MAbs	dragged_airplane_card/WD	FAIL:missing 26 extra 0
+MAbs	dragged_zoom_level_card/WD	FAIL:missing 29 extra 0
+MAbs	is_clicked_block_card/WD	FAIL:missing 34 extra 0
+MAbs	block_slot_position_card/WD	FAIL:missing 37 extra 0
+MAbs	airplane_Position_card/WD	FAIL:missing 40 extra 0
+MAbs	zoom_Position_card/WD	FAIL:missing 43 extra 0
 MAbs	Move_Aircraft/theorem/THM	FAIL:missing 1 extra 0
 MAbs	Release_Trigger_Block_Time/theorem/THM	FAIL:missing 2 extra 0
 MAbs	stop_dragging_airplane/theorem/THM	FAIL:missing 3 extra 0
@@ -355,26 +491,33 @@ MAbs	INITIALISATION/inv5,1/INV	FAIL:no such sequent in .bpo
 MAbs	INITIALISATION/inv7,1/INV	PASS
 MAbs	INITIALISATION/abstract_selectedAirplane_finite/INV	PASS
 MAbs	INITIALISATION/abstract_selectedAirplane_card/INV	PASS
+MAbs	INITIALISATION/abstract_selectedAirplane_card/WD	FAIL:no such sequent in .bpo
 MAbs	INITIALISATION/dragged_airplane_type/INV	PASS
 MAbs	INITIALISATION/dragged_airplane_finite/INV	PASS
 MAbs	INITIALISATION/dragged_airplane_card/INV	PASS
+MAbs	INITIALISATION/dragged_airplane_card/WD	FAIL:no such sequent in .bpo
 MAbs	INITIALISATION/dragged_zoom_level_type/INV	PASS
 MAbs	INITIALISATION/dragged_zoom_level_finite/INV	PASS
 MAbs	INITIALISATION/dragged_zoom_level_card/INV	PASS
+MAbs	INITIALISATION/dragged_zoom_level_card/WD	FAIL:no such sequent in .bpo
 MAbs	INITIALISATION/cannot_move_airplane_while_zooming/INV	PASS
 MAbs	INITIALISATION/current_mouse_selection/INV	FAIL:no such sequent in .bpo
 MAbs	INITIALISATION/ABS_blocked/INV	FAIL:no such sequent in .bpo
 MAbs	INITIALISATION/is_clicked_block_fin/INV	PASS
 MAbs	INITIALISATION/is_clicked_block_card/INV	PASS
+MAbs	INITIALISATION/is_clicked_block_card/WD	FAIL:no such sequent in .bpo
 MAbs	INITIALISATION/block_slot_position/INV	FAIL:no such sequent in .bpo
 MAbs	INITIALISATION/block_slot_position_fin/INV	PASS
 MAbs	INITIALISATION/block_slot_position_card/INV	PASS
+MAbs	INITIALISATION/block_slot_position_card/WD	FAIL:no such sequent in .bpo
 MAbs	INITIALISATION/airplane_Position/INV	PASS
 MAbs	INITIALISATION/airplane_Position_fin/INV	PASS
 MAbs	INITIALISATION/airplane_Position_card/INV	PASS
+MAbs	INITIALISATION/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs	INITIALISATION/zoom_Position/INV	PASS
 MAbs	INITIALISATION/zoom_Position_fin/INV	PASS
 MAbs	INITIALISATION/zoom_Position_card/INV	PASS
+MAbs	INITIALISATION/zoom_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs	INITIALISATION/mouse_pos_not_empty/INV	PASS
 MAbs	INITIALISATION/zoom_pos_not_empty/INV	PASS
 MAbs	INITIALISATION/block_pos_not_empty/INV	PASS
@@ -386,12 +529,15 @@ MAbs	Move_Mouse_Hold/current_mouse_selection/INV	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Hold/block_slot_position/INV	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Hold/block_slot_position_fin/INV	PASS
 MAbs	Move_Mouse_Hold/block_slot_position_card/INV	PASS
+MAbs	Move_Mouse_Hold/block_slot_position_card/WD	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Hold/airplane_Position/INV	PASS
 MAbs	Move_Mouse_Hold/airplane_Position_fin/INV	PASS
 MAbs	Move_Mouse_Hold/airplane_Position_card/INV	PASS
+MAbs	Move_Mouse_Hold/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Hold/zoom_Position/INV	PASS
 MAbs	Move_Mouse_Hold/zoom_Position_fin/INV	PASS
 MAbs	Move_Mouse_Hold/zoom_Position_card/INV	PASS
+MAbs	Move_Mouse_Hold/zoom_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Hold/mouse_pos_not_empty/INV	PASS
 MAbs	Move_Mouse_Hold/zoom_pos_not_empty/INV	PASS
 MAbs	Move_Mouse_Hold/block_pos_not_empty/INV	PASS
@@ -399,17 +545,21 @@ MAbs	Move_Mouse_Hold/mouse_over_airplane_when_dragged/INV	PASS
 MAbs	Move_Mouse_Zoom_Zooming_1/dragged_zoom_level_type/INV	PASS
 MAbs	Move_Mouse_Zoom_Zooming_1/dragged_zoom_level_finite/INV	PASS
 MAbs	Move_Mouse_Zoom_Zooming_1/dragged_zoom_level_card/INV	PASS
+MAbs	Move_Mouse_Zoom_Zooming_1/dragged_zoom_level_card/WD	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Zoom_Zooming_1/cannot_move_airplane_while_zooming/INV	PASS
 MAbs	Move_Mouse_Zoom_Zooming_1/current_mouse_selection/INV	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Zoom_Zooming_1/block_slot_position/INV	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Zoom_Zooming_1/block_slot_position_fin/INV	PASS
 MAbs	Move_Mouse_Zoom_Zooming_1/block_slot_position_card/INV	PASS
+MAbs	Move_Mouse_Zoom_Zooming_1/block_slot_position_card/WD	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Zoom_Zooming_1/airplane_Position/INV	PASS
 MAbs	Move_Mouse_Zoom_Zooming_1/airplane_Position_fin/INV	PASS
 MAbs	Move_Mouse_Zoom_Zooming_1/airplane_Position_card/INV	PASS
+MAbs	Move_Mouse_Zoom_Zooming_1/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Zoom_Zooming_1/zoom_Position/INV	PASS
 MAbs	Move_Mouse_Zoom_Zooming_1/zoom_Position_fin/INV	PASS
 MAbs	Move_Mouse_Zoom_Zooming_1/zoom_Position_card/INV	PASS
+MAbs	Move_Mouse_Zoom_Zooming_1/zoom_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Zoom_Zooming_1/mouse_pos_not_empty/INV	PASS
 MAbs	Move_Mouse_Zoom_Zooming_1/zoom_pos_not_empty/INV	PASS
 MAbs	Move_Mouse_Zoom_Zooming_1/block_pos_not_empty/INV	PASS
@@ -419,12 +569,15 @@ MAbs	Move_Mouse_Zoom_Not_Zooming/current_mouse_selection/INV	FAIL:no such sequen
 MAbs	Move_Mouse_Zoom_Not_Zooming/block_slot_position/INV	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Zoom_Not_Zooming/block_slot_position_fin/INV	PASS
 MAbs	Move_Mouse_Zoom_Not_Zooming/block_slot_position_card/INV	PASS
+MAbs	Move_Mouse_Zoom_Not_Zooming/block_slot_position_card/WD	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Zoom_Not_Zooming/airplane_Position/INV	PASS
 MAbs	Move_Mouse_Zoom_Not_Zooming/airplane_Position_fin/INV	PASS
 MAbs	Move_Mouse_Zoom_Not_Zooming/airplane_Position_card/INV	PASS
+MAbs	Move_Mouse_Zoom_Not_Zooming/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Zoom_Not_Zooming/zoom_Position/INV	PASS
 MAbs	Move_Mouse_Zoom_Not_Zooming/zoom_Position_fin/INV	PASS
 MAbs	Move_Mouse_Zoom_Not_Zooming/zoom_Position_card/INV	PASS
+MAbs	Move_Mouse_Zoom_Not_Zooming/zoom_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Zoom_Not_Zooming/mouse_pos_not_empty/INV	PASS
 MAbs	Move_Mouse_Zoom_Not_Zooming/zoom_pos_not_empty/INV	PASS
 MAbs	Move_Mouse_Zoom_Not_Zooming/block_pos_not_empty/INV	PASS
@@ -433,12 +586,15 @@ MAbs	Move_Mouse_Block/current_mouse_selection/INV	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Block/block_slot_position/INV	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Block/block_slot_position_fin/INV	PASS
 MAbs	Move_Mouse_Block/block_slot_position_card/INV	PASS
+MAbs	Move_Mouse_Block/block_slot_position_card/WD	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Block/airplane_Position/INV	PASS
 MAbs	Move_Mouse_Block/airplane_Position_fin/INV	PASS
 MAbs	Move_Mouse_Block/airplane_Position_card/INV	PASS
+MAbs	Move_Mouse_Block/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Block/zoom_Position/INV	PASS
 MAbs	Move_Mouse_Block/zoom_Position_fin/INV	PASS
 MAbs	Move_Mouse_Block/zoom_Position_card/INV	PASS
+MAbs	Move_Mouse_Block/zoom_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Block/mouse_pos_not_empty/INV	PASS
 MAbs	Move_Mouse_Block/zoom_pos_not_empty/INV	PASS
 MAbs	Move_Mouse_Block/block_pos_not_empty/INV	PASS
@@ -447,12 +603,15 @@ MAbs	Move_Mouse_Airplane/current_mouse_selection/INV	FAIL:no such sequent in .bp
 MAbs	Move_Mouse_Airplane/block_slot_position/INV	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Airplane/block_slot_position_fin/INV	PASS
 MAbs	Move_Mouse_Airplane/block_slot_position_card/INV	PASS
+MAbs	Move_Mouse_Airplane/block_slot_position_card/WD	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Airplane/airplane_Position/INV	PASS
 MAbs	Move_Mouse_Airplane/airplane_Position_fin/INV	PASS
 MAbs	Move_Mouse_Airplane/airplane_Position_card/INV	PASS
+MAbs	Move_Mouse_Airplane/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Airplane/zoom_Position/INV	PASS
 MAbs	Move_Mouse_Airplane/zoom_Position_fin/INV	PASS
 MAbs	Move_Mouse_Airplane/zoom_Position_card/INV	PASS
+MAbs	Move_Mouse_Airplane/zoom_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Airplane/mouse_pos_not_empty/INV	PASS
 MAbs	Move_Mouse_Airplane/zoom_pos_not_empty/INV	PASS
 MAbs	Move_Mouse_Airplane/block_pos_not_empty/INV	PASS
@@ -461,12 +620,15 @@ MAbs	Move_Mouse_Nothing/current_mouse_selection/INV	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Nothing/block_slot_position/INV	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Nothing/block_slot_position_fin/INV	PASS
 MAbs	Move_Mouse_Nothing/block_slot_position_card/INV	PASS
+MAbs	Move_Mouse_Nothing/block_slot_position_card/WD	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Nothing/airplane_Position/INV	PASS
 MAbs	Move_Mouse_Nothing/airplane_Position_fin/INV	PASS
 MAbs	Move_Mouse_Nothing/airplane_Position_card/INV	PASS
+MAbs	Move_Mouse_Nothing/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Nothing/zoom_Position/INV	PASS
 MAbs	Move_Mouse_Nothing/zoom_Position_fin/INV	PASS
 MAbs	Move_Mouse_Nothing/zoom_Position_card/INV	PASS
+MAbs	Move_Mouse_Nothing/zoom_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs	Move_Mouse_Nothing/mouse_pos_not_empty/INV	PASS
 MAbs	Move_Mouse_Nothing/zoom_pos_not_empty/INV	PASS
 MAbs	Move_Mouse_Nothing/block_pos_not_empty/INV	PASS
@@ -479,11 +641,13 @@ MAbs	AMAN_Update_mouse_to_nothing/inv5,1/INV	FAIL:no such sequent in .bpo
 MAbs	AMAN_Update_mouse_to_nothing/inv7,1/INV	FAIL:missing 0 extra 56
 MAbs	AMAN_Update_mouse_to_nothing/abstract_selectedAirplane_finite/INV	FAIL:missing 0 extra 56
 MAbs	AMAN_Update_mouse_to_nothing/abstract_selectedAirplane_card/INV	FAIL:missing 0 extra 56
+MAbs	AMAN_Update_mouse_to_nothing/abstract_selectedAirplane_card/WD	FAIL:no such sequent in .bpo
 MAbs	AMAN_Update_mouse_to_nothing/dragged_airplane_type/INV	FAIL:missing 0 extra 56
 MAbs	AMAN_Update_mouse_to_nothing/current_mouse_selection/INV	FAIL:no such sequent in .bpo
 MAbs	AMAN_Update_mouse_to_nothing/airplane_Position/INV	FAIL:missing 0 extra 56
 MAbs	AMAN_Update_mouse_to_nothing/airplane_Position_fin/INV	FAIL:missing 0 extra 56
 MAbs	AMAN_Update_mouse_to_nothing/airplane_Position_card/INV	FAIL:missing 0 extra 56
+MAbs	AMAN_Update_mouse_to_nothing/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs	AMAN_Update_mouse_to_nothing/mouse_pos_not_empty/INV	FAIL:missing 0 extra 56
 MAbs	AMAN_Update_mouse_to_nothing/zoom_pos_not_empty/INV	FAIL:missing 0 extra 56
 MAbs	AMAN_Update_mouse_to_nothing/block_pos_not_empty/INV	FAIL:missing 0 extra 56
@@ -496,11 +660,13 @@ MAbs	AMAN_Update_mouse_to_airplane/inv5,1/INV	FAIL:no such sequent in .bpo
 MAbs	AMAN_Update_mouse_to_airplane/inv7,1/INV	PASS
 MAbs	AMAN_Update_mouse_to_airplane/abstract_selectedAirplane_finite/INV	PASS
 MAbs	AMAN_Update_mouse_to_airplane/abstract_selectedAirplane_card/INV	PASS
+MAbs	AMAN_Update_mouse_to_airplane/abstract_selectedAirplane_card/WD	FAIL:no such sequent in .bpo
 MAbs	AMAN_Update_mouse_to_airplane/dragged_airplane_type/INV	PASS
 MAbs	AMAN_Update_mouse_to_airplane/current_mouse_selection/INV	FAIL:no such sequent in .bpo
 MAbs	AMAN_Update_mouse_to_airplane/airplane_Position/INV	PASS
 MAbs	AMAN_Update_mouse_to_airplane/airplane_Position_fin/INV	PASS
 MAbs	AMAN_Update_mouse_to_airplane/airplane_Position_card/INV	PASS
+MAbs	AMAN_Update_mouse_to_airplane/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs	AMAN_Update_mouse_to_airplane/mouse_pos_not_empty/INV	PASS
 MAbs	AMAN_Update_mouse_to_airplane/zoom_pos_not_empty/INV	PASS
 MAbs	AMAN_Update_mouse_to_airplane/block_pos_not_empty/INV	PASS
@@ -513,17 +679,20 @@ MAbs	AMAN_Update_mouse_stays/inv5,1/INV	FAIL:no such sequent in .bpo
 MAbs	AMAN_Update_mouse_stays/inv7,1/INV	PASS
 MAbs	AMAN_Update_mouse_stays/abstract_selectedAirplane_finite/INV	PASS
 MAbs	AMAN_Update_mouse_stays/abstract_selectedAirplane_card/INV	PASS
+MAbs	AMAN_Update_mouse_stays/abstract_selectedAirplane_card/WD	FAIL:no such sequent in .bpo
 MAbs	AMAN_Update_mouse_stays/dragged_airplane_type/INV	PASS
 MAbs	AMAN_Update_mouse_stays/airplane_Position/INV	PASS
 MAbs	AMAN_Timeout/inv5,1/INV	FAIL:no such sequent in .bpo
 MAbs	AMAN_Timeout/inv7,1/INV	PASS
 MAbs	AMAN_Timeout/abstract_selectedAirplane_finite/INV	PASS
 MAbs	AMAN_Timeout/abstract_selectedAirplane_card/INV	PASS
+MAbs	AMAN_Timeout/abstract_selectedAirplane_card/WD	FAIL:no such sequent in .bpo
 MAbs	AMAN_Timeout/dragged_airplane_type/INV	PASS
 MAbs	Move_Aircraft/is_mouse_pressed/INV	FAIL:no such sequent in .bpo
 MAbs	Move_Aircraft/dragged_airplane_type/INV	PASS
 MAbs	Move_Aircraft/dragged_airplane_finite/INV	PASS
 MAbs	Move_Aircraft/dragged_airplane_card/INV	PASS
+MAbs	Move_Aircraft/dragged_airplane_card/WD	FAIL:no such sequent in .bpo
 MAbs	Move_Aircraft/cannot_move_airplane_while_zooming/INV	PASS
 MAbs	Move_Aircraft/mouse_over_airplane_when_dragged/INV	PASS
 MAbs	Move_Aircraft/click_start_airplane/INV	PASS
@@ -538,6 +707,7 @@ MAbs	Release_Trigger_Hold_Button/inv4,1/INV	PASS
 MAbs	Release_Trigger_Hold_Button/inv7,1/INV	PASS
 MAbs	Release_Trigger_Hold_Button/abstract_selectedAirplane_finite/INV	PASS
 MAbs	Release_Trigger_Hold_Button/abstract_selectedAirplane_card/INV	PASS
+MAbs	Release_Trigger_Hold_Button/abstract_selectedAirplane_card/WD	FAIL:no such sequent in .bpo
 MAbs	Release_Trigger_Hold_Button/dragged_airplane_type/INV	PASS
 MAbs	Release_Trigger_Hold_Button/click_start_airplane/INV	PASS
 MAbs	Release_Trigger_Hold_Button/click_start_block/INV	PASS
@@ -550,6 +720,7 @@ MAbs	Click_Block_Time/is_mouse_pressed/INV	FAIL:no such sequent in .bpo
 MAbs	Click_Block_Time/ABS_blocked/INV	FAIL:no such sequent in .bpo
 MAbs	Click_Block_Time/is_clicked_block_fin/INV	PASS
 MAbs	Click_Block_Time/is_clicked_block_card/INV	PASS
+MAbs	Click_Block_Time/is_clicked_block_card/WD	FAIL:no such sequent in .bpo
 MAbs	Click_Block_Time/click_start_airplane/INV	PASS
 MAbs	Click_Block_Time/click_start_block/INV	PASS
 MAbs	Click_Block_Time/click_start_zoom/INV	PASS
@@ -559,6 +730,7 @@ MAbs	Release_Trigger_Block_Time/abstracT_blocks_fin_2/INV	PASS
 MAbs	Release_Trigger_Block_Time/ABS_blocked/INV	FAIL:no such sequent in .bpo
 MAbs	Release_Trigger_Block_Time/is_clicked_block_fin/INV	PASS
 MAbs	Release_Trigger_Block_Time/is_clicked_block_card/INV	PASS
+MAbs	Release_Trigger_Block_Time/is_clicked_block_card/WD	FAIL:no such sequent in .bpo
 MAbs	Release_Trigger_Block_Time/click_start_airplane/INV	PASS
 MAbs	Release_Trigger_Block_Time/click_start_block/INV	PASS
 MAbs	Release_Trigger_Block_Time/click_start_zoom/INV	PASS
@@ -566,6 +738,7 @@ MAbs	Release_Abort_Time_Button/is_mouse_pressed/INV	FAIL:no such sequent in .bpo
 MAbs	Release_Abort_Time_Button/ABS_blocked/INV	FAIL:no such sequent in .bpo
 MAbs	Release_Abort_Time_Button/is_clicked_block_fin/INV	PASS
 MAbs	Release_Abort_Time_Button/is_clicked_block_card/INV	PASS
+MAbs	Release_Abort_Time_Button/is_clicked_block_card/WD	FAIL:no such sequent in .bpo
 MAbs	Release_Abort_Time_Button/click_start_airplane/INV	PASS
 MAbs	Release_Abort_Time_Button/click_start_block/INV	PASS
 MAbs	Release_Abort_Time_Button/click_start_zoom/INV	PASS
@@ -575,6 +748,7 @@ MAbs	Release_Trigger_Deblock_Time/abstracT_blocks_fin_2/INV	PASS
 MAbs	Release_Trigger_Deblock_Time/ABS_blocked/INV	FAIL:no such sequent in .bpo
 MAbs	Release_Trigger_Deblock_Time/is_clicked_block_fin/INV	PASS
 MAbs	Release_Trigger_Deblock_Time/is_clicked_block_card/INV	PASS
+MAbs	Release_Trigger_Deblock_Time/is_clicked_block_card/WD	FAIL:no such sequent in .bpo
 MAbs	Release_Trigger_Deblock_Time/click_start_airplane/INV	PASS
 MAbs	Release_Trigger_Deblock_Time/click_start_block/INV	PASS
 MAbs	Release_Trigger_Deblock_Time/click_start_zoom/INV	PASS
@@ -583,10 +757,12 @@ MAbs	changeZoom/inv6,1/INV	PASS
 MAbs	changeZoom/inv7,1/INV	PASS
 MAbs	changeZoom/abstract_selectedAirplane_finite/INV	PASS
 MAbs	changeZoom/abstract_selectedAirplane_card/INV	PASS
+MAbs	changeZoom/abstract_selectedAirplane_card/WD	FAIL:no such sequent in .bpo
 MAbs	changeZoom/dragged_airplane_type/INV	PASS
 MAbs	changeZoom/dragged_zoom_level_type/INV	PASS
 MAbs	changeZoom/dragged_zoom_level_finite/INV	PASS
 MAbs	changeZoom/dragged_zoom_level_card/INV	PASS
+MAbs	changeZoom/dragged_zoom_level_card/WD	FAIL:no such sequent in .bpo
 MAbs	changeZoom/cannot_move_airplane_while_zooming/INV	PASS
 MAbs	changeZoom/click_start_airplane/INV	PASS
 MAbs	changeZoom/click_start_block/INV	PASS
@@ -595,9 +771,11 @@ MAbs	selectAirplane/is_mouse_pressed/INV	FAIL:no such sequent in .bpo
 MAbs	selectAirplane/inv7,1/INV	PASS
 MAbs	selectAirplane/abstract_selectedAirplane_finite/INV	PASS
 MAbs	selectAirplane/abstract_selectedAirplane_card/INV	PASS
+MAbs	selectAirplane/abstract_selectedAirplane_card/WD	FAIL:no such sequent in .bpo
 MAbs	selectAirplane/dragged_airplane_type/INV	PASS
 MAbs	selectAirplane/dragged_airplane_finite/INV	PASS
 MAbs	selectAirplane/dragged_airplane_card/INV	PASS
+MAbs	selectAirplane/dragged_airplane_card/WD	FAIL:no such sequent in .bpo
 MAbs	selectAirplane/cannot_move_airplane_while_zooming/INV	PASS
 MAbs	selectAirplane/mouse_over_airplane_when_dragged/INV	PASS
 MAbs	selectAirplane/click_start_airplane/INV	PASS
@@ -606,11 +784,13 @@ MAbs	selectAirplane/click_start_zoom/INV	PASS
 MAbs	deselectAirplane/inv7,1/INV	PASS
 MAbs	deselectAirplane/abstract_selectedAirplane_finite/INV	PASS
 MAbs	deselectAirplane/abstract_selectedAirplane_card/INV	PASS
+MAbs	deselectAirplane/abstract_selectedAirplane_card/WD	FAIL:no such sequent in .bpo
 MAbs	deselectAirplane/dragged_airplane_type/INV	PASS
 MAbs	resume_dragging_airplane/is_mouse_pressed/INV	FAIL:no such sequent in .bpo
 MAbs	resume_dragging_airplane/dragged_airplane_type/INV	PASS
 MAbs	resume_dragging_airplane/dragged_airplane_finite/INV	PASS
 MAbs	resume_dragging_airplane/dragged_airplane_card/INV	PASS
+MAbs	resume_dragging_airplane/dragged_airplane_card/WD	FAIL:no such sequent in .bpo
 MAbs	resume_dragging_airplane/cannot_move_airplane_while_zooming/INV	PASS
 MAbs	resume_dragging_airplane/mouse_over_airplane_when_dragged/INV	PASS
 MAbs	resume_dragging_airplane/click_start_airplane/INV	PASS
@@ -620,6 +800,7 @@ MAbs	stop_dragging_airplane/is_mouse_pressed/INV	FAIL:no such sequent in .bpo
 MAbs	stop_dragging_airplane/dragged_airplane_type/INV	PASS
 MAbs	stop_dragging_airplane/dragged_airplane_finite/INV	PASS
 MAbs	stop_dragging_airplane/dragged_airplane_card/INV	PASS
+MAbs	stop_dragging_airplane/dragged_airplane_card/WD	FAIL:no such sequent in .bpo
 MAbs	stop_dragging_airplane/cannot_move_airplane_while_zooming/INV	PASS
 MAbs	stop_dragging_airplane/mouse_over_airplane_when_dragged/INV	PASS
 MAbs	stop_dragging_airplane/click_start_airplane/INV	PASS
@@ -628,6 +809,7 @@ MAbs	stop_dragging_airplane/click_start_zoom/INV	PASS
 MAbs	drag_airplane/dragged_airplane_type/INV	PASS
 MAbs	drag_airplane/dragged_airplane_finite/INV	PASS
 MAbs	drag_airplane/dragged_airplane_card/INV	PASS
+MAbs	drag_airplane/dragged_airplane_card/WD	FAIL:no such sequent in .bpo
 MAbs	drag_airplane/cannot_move_airplane_while_zooming/INV	PASS
 MAbs	drag_airplane/mouse_over_airplane_when_dragged/INV	PASS
 MAbs	drag_airplane/click_start_airplane/INV	PASS
@@ -635,15 +817,22 @@ MAbs	start_dragging_zoom_slider/is_mouse_pressed/INV	FAIL:no such sequent in .bp
 MAbs	start_dragging_zoom_slider/dragged_zoom_level_type/INV	PASS
 MAbs	start_dragging_zoom_slider/dragged_zoom_level_finite/INV	PASS
 MAbs	start_dragging_zoom_slider/dragged_zoom_level_card/INV	PASS
+MAbs	start_dragging_zoom_slider/dragged_zoom_level_card/WD	FAIL:no such sequent in .bpo
 MAbs	start_dragging_zoom_slider/cannot_move_airplane_while_zooming/INV	PASS
 MAbs	start_dragging_zoom_slider/click_start_airplane/INV	PASS
 MAbs	start_dragging_zoom_slider/click_start_block/INV	PASS
 MAbs	start_dragging_zoom_slider/click_start_zoom/INV	PASS
+MAbs_helper	landing_sequence_2/WD	FAIL:missing 56 extra 0
+MAbs_helper	zoom_Position_card/WD	FAIL:missing 73 extra 0
+MAbs_helper	airplane_Position_card/WD	FAIL:missing 75 extra 0
+MAbs_helper	block_slot_position_card/WD	FAIL:missing 77 extra 0
+MAbs_helper	is_clicked_block_card/WD	FAIL:missing 79 extra 0
 MAbs_helper	Move_Aircraft/theorem/THM	FAIL:missing 6 extra 0
 MAbs_helper	Release_Trigger_Block_Time/theorem/THM	FAIL:missing 3 extra 0
 MAbs_helper	stop_dragging_airplane/theorem/THM	FAIL:missing 4 extra 0
 MAbs_helper	INITIALISATION/landing_sequence_1/INV	PASS
 MAbs_helper	INITIALISATION/landing_sequence_2/INV	PASS
+MAbs_helper	INITIALISATION/landing_sequence_2/WD	FAIL:no such sequent in .bpo
 MAbs_helper	INITIALISATION/landing_sequence_3/INV	PASS
 MAbs_helper	INITIALISATION/selected_airplane_glue/INV	PASS
 MAbs_helper	INITIALISATION/selected_airplane_glue_2/INV	PASS
@@ -661,12 +850,16 @@ MAbs_helper	INITIALISATION/zoom_pos_not_empty/INV	PASS
 MAbs_helper	INITIALISATION/block_pos_not_empty/INV	PASS
 MAbs_helper	INITIALISATION/zoom_Position_fin/INV	PASS
 MAbs_helper	INITIALISATION/zoom_Position_card/INV	PASS
+MAbs_helper	INITIALISATION/zoom_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	INITIALISATION/airplane_Position_fin/INV	PASS
 MAbs_helper	INITIALISATION/airplane_Position_card/INV	PASS
+MAbs_helper	INITIALISATION/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	INITIALISATION/block_slot_position_fin/INV	PASS
 MAbs_helper	INITIALISATION/block_slot_position_card/INV	PASS
+MAbs_helper	INITIALISATION/block_slot_position_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	INITIALISATION/is_clicked_block_fin/INV	PASS
 MAbs_helper	INITIALISATION/is_clicked_block_card/INV	PASS
+MAbs_helper	INITIALISATION/is_clicked_block_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	INITIALISATION/blockedTime/INV	PASS
 MAbs_helper	INITIALISATION/blockedTime_glue/INV	PASS
 MAbs_helper	INITIALISATION/act2,1/SIM	FAIL:missing 0 extra 64
@@ -686,10 +879,13 @@ MAbs_helper	Move_Mouse_Hold/zoom_pos_not_empty/INV	PASS
 MAbs_helper	Move_Mouse_Hold/block_pos_not_empty/INV	PASS
 MAbs_helper	Move_Mouse_Hold/zoom_Position_fin/INV	PASS
 MAbs_helper	Move_Mouse_Hold/zoom_Position_card/INV	PASS
+MAbs_helper	Move_Mouse_Hold/zoom_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Hold/airplane_Position_fin/INV	PASS
 MAbs_helper	Move_Mouse_Hold/airplane_Position_card/INV	PASS
+MAbs_helper	Move_Mouse_Hold/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Hold/block_slot_position_fin/INV	PASS
 MAbs_helper	Move_Mouse_Hold/block_slot_position_card/INV	PASS
+MAbs_helper	Move_Mouse_Hold/block_slot_position_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Hold/grd9,1/GRD	PASS
 MAbs_helper	Move_Mouse_Hold/act9,1/SIM	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Hold/act9,4/SIM	PASS
@@ -703,10 +899,13 @@ MAbs_helper	Move_Mouse_Zoom_Zooming/zoom_pos_not_empty/INV	PASS
 MAbs_helper	Move_Mouse_Zoom_Zooming/block_pos_not_empty/INV	PASS
 MAbs_helper	Move_Mouse_Zoom_Zooming/zoom_Position_fin/INV	PASS
 MAbs_helper	Move_Mouse_Zoom_Zooming/zoom_Position_card/INV	PASS
+MAbs_helper	Move_Mouse_Zoom_Zooming/zoom_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Zoom_Zooming/airplane_Position_fin/INV	PASS
 MAbs_helper	Move_Mouse_Zoom_Zooming/airplane_Position_card/INV	PASS
+MAbs_helper	Move_Mouse_Zoom_Zooming/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Zoom_Zooming/block_slot_position_fin/INV	PASS
 MAbs_helper	Move_Mouse_Zoom_Zooming/block_slot_position_card/INV	PASS
+MAbs_helper	Move_Mouse_Zoom_Zooming/block_slot_position_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Zoom_Zooming/target_zoom_type/GRD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Zoom_Zooming/have_dragged_zoom_level/GRD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Zoom_Zooming/different_zoom/GRD	FAIL:no such sequent in .bpo
@@ -723,10 +922,13 @@ MAbs_helper	Move_Mouse_Zoom_Not_Zooming/zoom_pos_not_empty/INV	PASS
 MAbs_helper	Move_Mouse_Zoom_Not_Zooming/block_pos_not_empty/INV	PASS
 MAbs_helper	Move_Mouse_Zoom_Not_Zooming/zoom_Position_fin/INV	PASS
 MAbs_helper	Move_Mouse_Zoom_Not_Zooming/zoom_Position_card/INV	PASS
+MAbs_helper	Move_Mouse_Zoom_Not_Zooming/zoom_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Zoom_Not_Zooming/airplane_Position_fin/INV	PASS
 MAbs_helper	Move_Mouse_Zoom_Not_Zooming/airplane_Position_card/INV	PASS
+MAbs_helper	Move_Mouse_Zoom_Not_Zooming/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Zoom_Not_Zooming/block_slot_position_fin/INV	PASS
 MAbs_helper	Move_Mouse_Zoom_Not_Zooming/block_slot_position_card/INV	PASS
+MAbs_helper	Move_Mouse_Zoom_Not_Zooming/block_slot_position_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Zoom_Not_Zooming/grd9,1/GRD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Zoom_Not_Zooming/grd9,2/GRD	PASS
 MAbs_helper	Move_Mouse_Zoom_Not_Zooming/act9,1/SIM	FAIL:no such sequent in .bpo
@@ -741,10 +943,13 @@ MAbs_helper	Move_Mouse_Block/zoom_pos_not_empty/INV	PASS
 MAbs_helper	Move_Mouse_Block/block_pos_not_empty/INV	PASS
 MAbs_helper	Move_Mouse_Block/zoom_Position_fin/INV	PASS
 MAbs_helper	Move_Mouse_Block/zoom_Position_card/INV	PASS
+MAbs_helper	Move_Mouse_Block/zoom_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Block/airplane_Position_fin/INV	PASS
 MAbs_helper	Move_Mouse_Block/airplane_Position_card/INV	PASS
+MAbs_helper	Move_Mouse_Block/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Block/block_slot_position_fin/INV	PASS
 MAbs_helper	Move_Mouse_Block/block_slot_position_card/INV	PASS
+MAbs_helper	Move_Mouse_Block/block_slot_position_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Block/grd9,1/GRD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Block/grd9,2/GRD	PASS
 MAbs_helper	Move_Mouse_Block/act9,1/SIM	FAIL:no such sequent in .bpo
@@ -759,10 +964,13 @@ MAbs_helper	Move_Mouse_Airplane/zoom_pos_not_empty/INV	PASS
 MAbs_helper	Move_Mouse_Airplane/block_pos_not_empty/INV	PASS
 MAbs_helper	Move_Mouse_Airplane/zoom_Position_fin/INV	PASS
 MAbs_helper	Move_Mouse_Airplane/zoom_Position_card/INV	PASS
+MAbs_helper	Move_Mouse_Airplane/zoom_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Airplane/airplane_Position_fin/INV	PASS
 MAbs_helper	Move_Mouse_Airplane/airplane_Position_card/INV	PASS
+MAbs_helper	Move_Mouse_Airplane/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Airplane/block_slot_position_fin/INV	PASS
 MAbs_helper	Move_Mouse_Airplane/block_slot_position_card/INV	PASS
+MAbs_helper	Move_Mouse_Airplane/block_slot_position_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Airplane/grd9,1/GRD	PASS
 MAbs_helper	Move_Mouse_Airplane/grd9,2/GRD	PASS
 MAbs_helper	Move_Mouse_Airplane/act9,1/SIM	FAIL:no such sequent in .bpo
@@ -777,15 +985,19 @@ MAbs_helper	Move_Mouse_Nothing/zoom_pos_not_empty/INV	PASS
 MAbs_helper	Move_Mouse_Nothing/block_pos_not_empty/INV	PASS
 MAbs_helper	Move_Mouse_Nothing/zoom_Position_fin/INV	PASS
 MAbs_helper	Move_Mouse_Nothing/zoom_Position_card/INV	PASS
+MAbs_helper	Move_Mouse_Nothing/zoom_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Nothing/airplane_Position_fin/INV	PASS
 MAbs_helper	Move_Mouse_Nothing/airplane_Position_card/INV	PASS
+MAbs_helper	Move_Mouse_Nothing/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Nothing/block_slot_position_fin/INV	PASS
 MAbs_helper	Move_Mouse_Nothing/block_slot_position_card/INV	PASS
+MAbs_helper	Move_Mouse_Nothing/block_slot_position_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Nothing/grd9,1/GRD	PASS
 MAbs_helper	Move_Mouse_Nothing/act9,1/SIM	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Nothing/act9,4/SIM	PASS
 MAbs_helper	AMAN_Update_mouse_to_nothing/landing_sequence_1/INV	FAIL:missing 0 extra 89
 MAbs_helper	AMAN_Update_mouse_to_nothing/landing_sequence_2/INV	FAIL:missing 0 extra 89
+MAbs_helper	AMAN_Update_mouse_to_nothing/landing_sequence_2/WD	FAIL:no such sequent in .bpo
 MAbs_helper	AMAN_Update_mouse_to_nothing/landing_sequence_3/INV	FAIL:missing 0 extra 89
 MAbs_helper	AMAN_Update_mouse_to_nothing/selected_airplane_glue/INV	FAIL:missing 0 extra 89
 MAbs_helper	AMAN_Update_mouse_to_nothing/selected_airplane_glue_2/INV	FAIL:missing 0 extra 89
@@ -798,6 +1010,7 @@ MAbs_helper	AMAN_Update_mouse_to_nothing/zoom_pos_not_empty/INV	FAIL:missing 0 e
 MAbs_helper	AMAN_Update_mouse_to_nothing/block_pos_not_empty/INV	FAIL:missing 0 extra 89
 MAbs_helper	AMAN_Update_mouse_to_nothing/airplane_Position_fin/INV	FAIL:missing 0 extra 89
 MAbs_helper	AMAN_Update_mouse_to_nothing/airplane_Position_card/INV	FAIL:missing 0 extra 89
+MAbs_helper	AMAN_Update_mouse_to_nothing/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	AMAN_Update_mouse_to_nothing/blockedTime/INV	FAIL:missing 0 extra 89
 MAbs_helper	AMAN_Update_mouse_to_nothing/blockedTime_glue/INV	FAIL:missing 0 extra 89
 MAbs_helper	AMAN_Update_mouse_to_nothing/abs_new_air/GRD	FAIL:no such sequent in .bpo
@@ -808,8 +1021,10 @@ MAbs_helper	AMAN_Update_mouse_to_nothing/mouse_not_pressed/GRD	FAIL:no such sequ
 MAbs_helper	AMAN_Update_mouse_to_nothing/act2,1/SIM	FAIL:missing 0 extra 89
 MAbs_helper	AMAN_Update_mouse_to_nothing/act5,1/SIM	FAIL:no such sequent in .bpo
 MAbs_helper	AMAN_Update_mouse_to_nothing/act9,1/SIM	FAIL:no such sequent in .bpo
+MAbs_helper	AMAN_Update_mouse_to_nothing/inv1,2/WD	PASS
 MAbs_helper	AMAN_Update_mouse_to_airplane/landing_sequence_1/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_airplane/landing_sequence_2/INV	PASS
+MAbs_helper	AMAN_Update_mouse_to_airplane/landing_sequence_2/WD	FAIL:no such sequent in .bpo
 MAbs_helper	AMAN_Update_mouse_to_airplane/landing_sequence_3/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_airplane/selected_airplane_glue/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_airplane/selected_airplane_glue_2/INV	PASS
@@ -822,6 +1037,7 @@ MAbs_helper	AMAN_Update_mouse_to_airplane/zoom_pos_not_empty/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_airplane/block_pos_not_empty/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_airplane/airplane_Position_fin/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_airplane/airplane_Position_card/INV	PASS
+MAbs_helper	AMAN_Update_mouse_to_airplane/airplane_Position_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	AMAN_Update_mouse_to_airplane/blockedTime/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_airplane/blockedTime_glue/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_airplane/abs_new_air/GRD	FAIL:no such sequent in .bpo
@@ -833,8 +1049,10 @@ MAbs_helper	AMAN_Update_mouse_to_airplane/mouse_not_pressed/GRD	FAIL:no such seq
 MAbs_helper	AMAN_Update_mouse_to_airplane/act2,1/SIM	PASS
 MAbs_helper	AMAN_Update_mouse_to_airplane/act5,1/SIM	FAIL:no such sequent in .bpo
 MAbs_helper	AMAN_Update_mouse_to_airplane/act9,1/SIM	FAIL:no such sequent in .bpo
+MAbs_helper	AMAN_Update_mouse_to_airplane/inv1,2/WD	FAIL:missing 83 extra 0
 MAbs_helper	AMAN_Update_mouse_stays/landing_sequence_1/INV	PASS
 MAbs_helper	AMAN_Update_mouse_stays/landing_sequence_2/INV	PASS
+MAbs_helper	AMAN_Update_mouse_stays/landing_sequence_2/WD	FAIL:no such sequent in .bpo
 MAbs_helper	AMAN_Update_mouse_stays/landing_sequence_3/INV	PASS
 MAbs_helper	AMAN_Update_mouse_stays/selected_airplane_glue/INV	PASS
 MAbs_helper	AMAN_Update_mouse_stays/selected_airplane_glue_2/INV	PASS
@@ -850,6 +1068,7 @@ MAbs_helper	AMAN_Update_mouse_stays/grdAbstractBlocked/GRD	FAIL:no such sequent 
 MAbs_helper	AMAN_Update_mouse_stays/mouse_not_pressed/GRD	FAIL:no such sequent in .bpo
 MAbs_helper	AMAN_Update_mouse_stays/act2,1/SIM	PASS
 MAbs_helper	AMAN_Update_mouse_stays/act5,1/SIM	FAIL:no such sequent in .bpo
+MAbs_helper	AMAN_Update_mouse_stays/inv1,2/WD	FAIL:missing 83 extra 0
 MAbs_helper	AMAN_Timeout/selected_airplane_glue/INV	PASS
 MAbs_helper	AMAN_Timeout/selected_airplane_glue_2/INV	PASS
 MAbs_helper	AMAN_Timeout/dragged_airplane/INV	PASS
@@ -857,6 +1076,7 @@ MAbs_helper	AMAN_Timeout/no_abstract_dragged_airplane/GRD	PASS
 MAbs_helper	AMAN_Timeout/act5,1/SIM	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Aircraft/landing_sequence_1/INV	PASS
 MAbs_helper	Move_Aircraft/landing_sequence_2/INV	PASS
+MAbs_helper	Move_Aircraft/landing_sequence_2/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Aircraft/landing_sequence_3/INV	PASS
 MAbs_helper	Move_Aircraft/selected_airplane_glue/INV	PASS
 MAbs_helper	Move_Aircraft/dragged_airplane/INV	PASS
@@ -867,6 +1087,10 @@ MAbs_helper	Move_Aircraft/mouse_over_airplane_when_dragged/INV	PASS
 MAbs_helper	Move_Aircraft/dragging_abstract_airplane/GRD	PASS
 MAbs_helper	Move_Aircraft/theorem/GRD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Aircraft/set_to_release/SIM	PASS
+MAbs_helper	Move_Aircraft/grd1,3/WD	FAIL:missing 83 extra 0
+MAbs_helper	Move_Aircraft/grd1,4/WD	FAIL:missing 84 extra 0
+MAbs_helper	Move_Aircraft/grd6,1/WD	FAIL:missing 86 extra 0
+MAbs_helper	Move_Aircraft/act1,1/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Click_Hold_Button/grd9,1/GRD	FAIL:no such sequent in .bpo
 MAbs_helper	Click_Hold_Button/mouse_not_pressed/GRD	FAIL:no such sequent in .bpo
 MAbs_helper	Click_Hold_Button/act9,1/SIM	FAIL:no such sequent in .bpo
@@ -887,6 +1111,7 @@ MAbs_helper	Click_Block_Time/is_clicked_block/INV	PASS
 MAbs_helper	Click_Block_Time/isClickedBlock_glue/INV	PASS
 MAbs_helper	Click_Block_Time/is_clicked_block_fin/INV	PASS
 MAbs_helper	Click_Block_Time/is_clicked_block_card/INV	PASS
+MAbs_helper	Click_Block_Time/is_clicked_block_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Click_Block_Time/grd9,1/GRD	FAIL:no such sequent in .bpo
 MAbs_helper	Click_Block_Time/no_mouse_click/GRD	FAIL:no such sequent in .bpo
 MAbs_helper	Click_Block_Time/set_mouse_click/SIM	PASS
@@ -894,6 +1119,7 @@ MAbs_helper	Release_Trigger_Block_Time/is_clicked_block/INV	PASS
 MAbs_helper	Release_Trigger_Block_Time/isClickedBlock_glue/INV	PASS
 MAbs_helper	Release_Trigger_Block_Time/is_clicked_block_fin/INV	PASS
 MAbs_helper	Release_Trigger_Block_Time/is_clicked_block_card/INV	PASS
+MAbs_helper	Release_Trigger_Block_Time/is_clicked_block_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Release_Trigger_Block_Time/blockedTime/INV	PASS
 MAbs_helper	Release_Trigger_Block_Time/blockedTime_glue/INV	PASS
 MAbs_helper	Release_Trigger_Block_Time/grd_abstract_eq/GRD	PASS
@@ -904,12 +1130,14 @@ MAbs_helper	Release_Abort_Time_Button/is_clicked_block/INV	PASS
 MAbs_helper	Release_Abort_Time_Button/isClickedBlock_glue/INV	PASS
 MAbs_helper	Release_Abort_Time_Button/is_clicked_block_fin/INV	PASS
 MAbs_helper	Release_Abort_Time_Button/is_clicked_block_card/INV	PASS
+MAbs_helper	Release_Abort_Time_Button/is_clicked_block_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Release_Abort_Time_Button/isClickedBlock_not_empty/GRD	PASS
 MAbs_helper	Release_Abort_Time_Button/clicked_pos/SIM	PASS
 MAbs_helper	Release_Trigger_Deblock_Time/is_clicked_block/INV	PASS
 MAbs_helper	Release_Trigger_Deblock_Time/isClickedBlock_glue/INV	PASS
 MAbs_helper	Release_Trigger_Deblock_Time/is_clicked_block_fin/INV	PASS
 MAbs_helper	Release_Trigger_Deblock_Time/is_clicked_block_card/INV	PASS
+MAbs_helper	Release_Trigger_Deblock_Time/is_clicked_block_card/WD	FAIL:no such sequent in .bpo
 MAbs_helper	Release_Trigger_Deblock_Time/blockedTime/INV	PASS
 MAbs_helper	Release_Trigger_Deblock_Time/blockedTime_glue/INV	PASS
 MAbs_helper	Release_Trigger_Deblock_Time/abstract_isClicked_mouse_pos/GRD	PASS
@@ -943,6 +1171,8 @@ MAbs_helper	selectAirplane/grd9,1/GRD	FAIL:no such sequent in .bpo
 MAbs_helper	selectAirplane/abstract_mouse/GRD	PASS
 MAbs_helper	selectAirplane/clicked_no_airplane/GRD	FAIL:no such sequent in .bpo
 MAbs_helper	selectAirplane/press_mouse/SIM	PASS
+MAbs_helper	selectAirplane/grd6,2/WD	FAIL:missing 83 extra 0
+MAbs_helper	selectAirplane/dragged_airplane/WD	FAIL:missing 89 extra 0
 MAbs_helper	deselectAirplane/selected_airplane_glue/INV	PASS
 MAbs_helper	deselectAirplane/selected_airplane_glue_2/INV	PASS
 MAbs_helper	deselectAirplane/dragged_airplane/INV	PASS
@@ -950,6 +1180,7 @@ MAbs_helper	deselectAirplane/grd6,1/GRD	PASS
 MAbs_helper	deselectAirplane/grd6,2/GRD	PASS
 MAbs_helper	deselectAirplane/no_abstract_dragged_airplane/GRD	PASS
 MAbs_helper	deselectAirplane/grd9,1/GRD	FAIL:no such sequent in .bpo
+MAbs_helper	deselectAirplane/grd6,3/WD	FAIL:missing 86 extra 0
 MAbs_helper	resume_dragging_airplane/dragged_airplane/INV	PASS
 MAbs_helper	resume_dragging_airplane/dragged_airplane_type_glue/INV	PASS
 MAbs_helper	resume_dragging_airplane/mouse_over_airplane_when_dragged/INV	PASS
@@ -960,6 +1191,7 @@ MAbs_helper	resume_dragging_airplane/grd9,1/GRD	FAIL:no such sequent in .bpo
 MAbs_helper	resume_dragging_airplane/grd_abstract_mousePositionAirplane/GRD	PASS
 MAbs_helper	resume_dragging_airplane/clicked_no_airplane/GRD	FAIL:no such sequent in .bpo
 MAbs_helper	resume_dragging_airplane/press_mouse/SIM	PASS
+MAbs_helper	resume_dragging_airplane/dragged_airplane/WD	FAIL:missing 88 extra 0
 MAbs_helper	stop_dragging_airplane/dragged_airplane/INV	PASS
 MAbs_helper	stop_dragging_airplane/dragged_airplane_type_glue/INV	PASS
 MAbs_helper	stop_dragging_airplane/mouse_over_airplane_when_dragged/INV	PASS
@@ -968,12 +1200,14 @@ MAbs_helper	stop_dragging_airplane/grd9,1/GRD	FAIL:no such sequent in .bpo
 MAbs_helper	stop_dragging_airplane/grd_abstrac_airplane/GRD	PASS
 MAbs_helper	stop_dragging_airplane/theorem/GRD	FAIL:no such sequent in .bpo
 MAbs_helper	stop_dragging_airplane/clicked_pos/SIM	PASS
+MAbs_helper	stop_dragging_airplane/dest_not_allowed/WD	FAIL:missing 85 extra 0
 MAbs_helper	drag_airplane/dragged_airplane/INV	PASS
 MAbs_helper	drag_airplane/dragged_airplane_type_glue/INV	PASS
 MAbs_helper	drag_airplane/mouse_over_airplane_when_dragged/INV	PASS
 MAbs_helper	drag_airplane/get_dragged_airplane/GRD	PASS
 MAbs_helper	drag_airplane/grd9,1/GRD	FAIL:no such sequent in .bpo
 MAbs_helper	drag_airplane/grd9,2/GRD	PASS
+MAbs_helper	drag_airplane/different_time/WD	FAIL:missing 84 extra 0
 MAbs_helper	start_dragging_zoom_slider/target_zoom_type/GRD	FAIL:no such sequent in .bpo
 MAbs_helper	start_dragging_zoom_slider/no_dragged_zoom_level/GRD	FAIL:no such sequent in .bpo
 MAbs_helper	start_dragging_zoom_slider/no_dragged_airplane_abstract/GRD	PASS
@@ -982,6 +1216,8 @@ MAbs_helper	start_dragging_zoom_slider/different_zoom/GRD	FAIL:no such sequent i
 MAbs_helper	start_dragging_zoom_slider/clicked_nothing/GRD	FAIL:no such sequent in .bpo
 MAbs_helper	start_dragging_zoom_slider/dragged_zoom_level/SIM	FAIL:no such sequent in .bpo
 MAbs_helper	start_dragging_zoom_slider/press_mouse/SIM	FAIL:no such sequent in .bpo
+MAbs_prob_mc_Ctx	axm_inst4,1/WD	FAIL:missing 14 extra 0
+MAbs_prob_mc_Ctx	abstract_blocks_card/WD	FAIL:missing 16 extra 0
 ENV_M-1	INITIALISATION/TRAIN_supertypeOf_train/INV	FAIL:no such sequent in .bpo
 ENV_M-1	INITIALISATION/assocMult_next_train/INV	PASS
 ENV_M-1	ENV_join_network/TRAIN_supertypeOf_train/INV	FAIL:no such sequent in .bpo
@@ -991,32 +1227,51 @@ ENV_M-1	ENV_leave_network/assocMult_next_train/INV	PASS
 ENV_M-1	ENV_train_split/TRAIN_supertypeOf_train/INV	FAIL:no such sequent in .bpo
 ENV_M-1	ENV_train_split/assocMult_next_train/INV	PASS
 Env_C0	axm12/THM	FAIL:missing 0 extra 1
+Env_C0	axm9/WD	FAIL:missing 12 extra 0
+Env_C0	axm10/WD	FAIL:missing 13 extra 0
+Env_C0	axm11/WD	FAIL:missing 14 extra 0
+Env_C0	axm12/WD	FAIL:missing 15 extra 0
+Env_C1	axm6/WD	FAIL:missing 28 extra 0
+Env_C1	axm9/WD	FAIL:missing 29 extra 0
+Env_M0	inv2/WD	FAIL:missing 22 extra 0
 Env_M0	INITIALISATION/TRAIN_supertypeOf_train/INV	FAIL:no such sequent in .bpo
 Env_M0	INITIALISATION/assocMult_occupiedBy/INV	PASS
 Env_M0	INITIALISATION/inv1/INV	PASS
 Env_M0	INITIALISATION/inv3/INV	PASS
 Env_M0	INITIALISATION/inv2/INV	PASS
+Env_M0	INITIALISATION/inv2/WD	FAIL:no such sequent in .bpo
 Env_M0	ENV_join_network/TRAIN_supertypeOf_train/INV	FAIL:no such sequent in .bpo
 Env_M0	ENV_join_network/assocMult_occupiedBy/INV	PASS
 Env_M0	ENV_join_network/inv1/INV	PASS
 Env_M0	ENV_join_network/inv3/INV	PASS
 Env_M0	ENV_join_network/inv2/INV	PASS
+Env_M0	ENV_join_network/inv2/WD	FAIL:no such sequent in .bpo
 Env_M0	ENV_leave_network/TRAIN_supertypeOf_train/INV	FAIL:no such sequent in .bpo
 Env_M0	ENV_leave_network/assocMult_occupiedBy/INV	FAIL:missing 0 extra 26
 Env_M0	ENV_leave_network/inv1/INV	FAIL:missing 0 extra 26
 Env_M0	ENV_leave_network/inv3/INV	FAIL:missing 0 extra 26
 Env_M0	ENV_leave_network/inv2/INV	FAIL:missing 0 extra 26
+Env_M0	ENV_leave_network/inv2/WD	FAIL:no such sequent in .bpo
 Env_M0	ENV_front_move_next/assocMult_occupiedBy/INV	PASS
 Env_M0	ENV_front_move_next/inv1/INV	PASS
 Env_M0	ENV_front_move_next/inv2/INV	PASS
+Env_M0	ENV_front_move_next/inv2/WD	FAIL:no such sequent in .bpo
+Env_M0	ENV_front_move_next/grdnext11/WD	FAIL:missing 28 extra 0
+Env_M0	ENV_front_move_next/grdnnn/WD	FAIL:missing 29 extra 0
+Env_M0	ENV_front_move_next/grdm/WD	FAIL:missing 30 extra 0
 Env_M0	ENV_rear_leave_section/assocMult_occupiedBy/INV	PASS
 Env_M0	ENV_rear_leave_section/inv1/INV	PASS
 Env_M0	ENV_rear_leave_section/inv2/INV	PASS
+Env_M0	ENV_rear_leave_section/inv2/WD	FAIL:no such sequent in .bpo
+Env_M0	ENV_rear_leave_section/cdm_guards5/WD	FAIL:missing 27 extra 0
 Env_M0	ENV_train_split/TRAIN_supertypeOf_train/INV	FAIL:no such sequent in .bpo
 Env_M0	ENV_train_split/assocMult_occupiedBy/INV	PASS
 Env_M0	ENV_train_split/inv1/INV	PASS
 Env_M0	ENV_train_split/inv3/INV	PASS
 Env_M0	ENV_train_split/inv2/INV	PASS
+Env_M0	ENV_train_split/inv2/WD	FAIL:no such sequent in .bpo
+Env_M0	ENV_train_split/grd15/WD	FAIL:missing 41 extra 0
+Env_M0	ENV_train_split/grd1next/WD	FAIL:missing 42 extra 0
 Env_M1	INITIALISATION/typeof_train/INV	FAIL:no such sequent in .bpo
 Env_M1	INITIALISATION/typeof_ghost/INV	PASS
 Env_M1	INITIALISATION/typeof_connected/INV	PASS
@@ -1025,6 +1280,10 @@ Env_M1	ENV_leave_network/typeof_train/INV	FAIL:no such sequent in .bpo
 Env_M1	ENV_leave_network/typeof_ghost/INV	PASS
 Env_M1	ENV_leave_network/typeof_connected/INV	PASS
 Env_M1	ENV_leave_network/distinct_states_in_connected_sm/INV	PASS
+Env_M1	ENV_front_move_next/grdnext11/WD	FAIL:no such sequent in .bpo
+Env_M1	ENV_front_move_next/grdnnn/WD	FAIL:no such sequent in .bpo
+Env_M1	ENV_front_move_next/grdm/WD	FAIL:no such sequent in .bpo
+Env_M1	ENV_rear_leave_section/cdm_guards5/WD	FAIL:no such sequent in .bpo
 Env_M1	ENV_connect_radio/typeof_ghost/INV	PASS
 Env_M1	ENV_connect_radio/typeof_connected/INV	PASS
 Env_M1	ENV_connect_radio/distinct_states_in_connected_sm/INV	PASS
@@ -1035,6 +1294,8 @@ Env_M1	ENV_train_split/typeof_train/INV	FAIL:no such sequent in .bpo
 Env_M1	ENV_train_split/typeof_ghost/INV	PASS
 Env_M1	ENV_train_split/typeof_connected/INV	PASS
 Env_M1	ENV_train_split/distinct_states_in_connected_sm/INV	PASS
+Env_M1	ENV_train_split/grd15/WD	FAIL:no such sequent in .bpo
+Env_M1	ENV_train_split/grd1next/WD	FAIL:no such sequent in .bpo
 Env_M1	ENV_join_network/typeof_train/INV	FAIL:no such sequent in .bpo
 Env_M1	ENV_join_network/typeof_ghost/INV	PASS
 Env_M1	ENV_join_network/typeof_connected/INV	PASS
@@ -1045,14 +1306,25 @@ Env_M2	INITIALISATION/inv1/INV	PASS
 Env_M2	ENV_leave_network/inv1/INV	PASS
 Env_M2	ENV_front_move_next/TTD_supertypeOf_occupiedTTD/INV	FAIL:no such sequent in .bpo
 Env_M2	ENV_front_move_next/inv1/INV	PASS
+Env_M2	ENV_front_move_next/grdnext11/WD	FAIL:no such sequent in .bpo
+Env_M2	ENV_front_move_next/grdnnn/WD	FAIL:no such sequent in .bpo
+Env_M2	ENV_front_move_next/grdm/WD	FAIL:no such sequent in .bpo
 Env_M2	ENV_rear_leave_section/inv1/INV	PASS
+Env_M2	ENV_rear_leave_section/cdm_guards5/WD	FAIL:no such sequent in .bpo
+Env_M2	ENV_rear_leave_section/grd3/WD	FAIL:missing 50 extra 0
 Env_M2	ENV_train_split/inv1/INV	PASS
+Env_M2	ENV_train_split/grd15/WD	FAIL:no such sequent in .bpo
+Env_M2	ENV_train_split/grd1next/WD	FAIL:no such sequent in .bpo
 Env_M2	ENV_join_network/TTD_supertypeOf_occupiedTTD/INV	FAIL:no such sequent in .bpo
 Env_M2	ENV_join_network/inv1/INV	PASS
 Env_M2	ENV_last_train_leave_ttd/TTD_supertypeOf_occupiedTTD/INV	FAIL:no such sequent in .bpo
 Env_M2	ENV_last_train_leave_ttd/inv1/INV	FAIL:missing 6 extra 0
+Env_M2	ENV_last_train_leave_ttd/grd3/WD	FAIL:missing 51 extra 0
 Env_M2	ENV_leave_network_and_free_ttd/TTD_supertypeOf_occupiedTTD/INV	FAIL:no such sequent in .bpo
 Env_M2	ENV_leave_network_and_free_ttd/inv1/INV	FAIL:missing 4 extra 0
+Env_M3	inv2/WD	FAIL:missing 50 extra 0
+Env_M3	inv3/WD	FAIL:missing 51 extra 0
+Env_M3	inv4/WD	FAIL:missing 52 extra 0
 Env_M3	INITIALISATION/typeof_noMission/INV	PASS
 Env_M3	INITIALISATION/typeof_inMission/INV	PASS
 Env_M3	INITIALISATION/distinct_states_in_train_statemachine1/INV	PASS
@@ -1060,32 +1332,59 @@ Env_M3	INITIALISATION/assocMult_ma/INV	PASS
 Env_M3	INITIALISATION/attribType_unsafe/INV	PASS
 Env_M3	INITIALISATION/inv1/INV	PASS
 Env_M3	INITIALISATION/inv2/INV	PASS
+Env_M3	INITIALISATION/inv2/WD	FAIL:no such sequent in .bpo
 Env_M3	INITIALISATION/inv3/INV	PASS
+Env_M3	INITIALISATION/inv3/WD	FAIL:no such sequent in .bpo
 Env_M3	INITIALISATION/inv4/INV	PASS
+Env_M3	INITIALISATION/inv4/WD	FAIL:no such sequent in .bpo
 Env_M3	ENV_leave_network/typeof_noMission/INV	PASS
 Env_M3	ENV_leave_network/typeof_inMission/INV	PASS
 Env_M3	ENV_leave_network/distinct_states_in_train_statemachine1/INV	PASS
 Env_M3	ENV_leave_network/inv2/INV	PASS
+Env_M3	ENV_leave_network/inv2/WD	FAIL:no such sequent in .bpo
 Env_M3	ENV_leave_network/inv3/INV	PASS
+Env_M3	ENV_leave_network/inv3/WD	FAIL:no such sequent in .bpo
 Env_M3	ENV_leave_network/inv4/INV	PASS
+Env_M3	ENV_leave_network/inv4/WD	FAIL:no such sequent in .bpo
 Env_M3	ENV_front_move_next/inv2/INV	PASS
+Env_M3	ENV_front_move_next/inv2/WD	FAIL:no such sequent in .bpo
 Env_M3	ENV_front_move_next/inv3/INV	PASS
+Env_M3	ENV_front_move_next/inv3/WD	FAIL:no such sequent in .bpo
 Env_M3	ENV_front_move_next/inv4/INV	PASS
+Env_M3	ENV_front_move_next/inv4/WD	FAIL:no such sequent in .bpo
+Env_M3	ENV_front_move_next/grdnext11/WD	FAIL:no such sequent in .bpo
+Env_M3	ENV_front_move_next/grdnnn/WD	FAIL:no such sequent in .bpo
+Env_M3	ENV_front_move_next/grdm/WD	FAIL:no such sequent in .bpo
 Env_M3	ENV_rear_leave_section/inv2/INV	PASS
+Env_M3	ENV_rear_leave_section/inv2/WD	FAIL:no such sequent in .bpo
 Env_M3	ENV_rear_leave_section/inv3/INV	PASS
+Env_M3	ENV_rear_leave_section/inv3/WD	FAIL:no such sequent in .bpo
 Env_M3	ENV_rear_leave_section/inv4/INV	PASS
+Env_M3	ENV_rear_leave_section/inv4/WD	FAIL:no such sequent in .bpo
+Env_M3	ENV_rear_leave_section/cdm_guards5/WD	FAIL:no such sequent in .bpo
+Env_M3	ENV_rear_leave_section/grd3/WD	FAIL:no such sequent in .bpo
 Env_M3	ENV_train_split/typeof_noMission/INV	PASS
 Env_M3	ENV_train_split/typeof_inMission/INV	PASS
 Env_M3	ENV_train_split/distinct_states_in_train_statemachine1/INV	PASS
 Env_M3	ENV_train_split/inv2/INV	PASS
+Env_M3	ENV_train_split/inv2/WD	FAIL:no such sequent in .bpo
 Env_M3	ENV_train_split/inv3/INV	PASS
+Env_M3	ENV_train_split/inv3/WD	FAIL:no such sequent in .bpo
 Env_M3	ENV_train_split/inv4/INV	PASS
+Env_M3	ENV_train_split/inv4/WD	FAIL:no such sequent in .bpo
+Env_M3	ENV_train_split/grd15/WD	FAIL:no such sequent in .bpo
+Env_M3	ENV_train_split/grd1next/WD	FAIL:no such sequent in .bpo
+Env_M3	ENV_train_split/grd16/WD	FAIL:missing 79 extra 0
 Env_M3	ENV_join_network/typeof_noMission/INV	PASS
 Env_M3	ENV_join_network/typeof_inMission/INV	PASS
 Env_M3	ENV_join_network/distinct_states_in_train_statemachine1/INV	PASS
 Env_M3	ENV_join_network/inv2/INV	PASS
+Env_M3	ENV_join_network/inv2/WD	FAIL:no such sequent in .bpo
 Env_M3	ENV_join_network/inv3/INV	PASS
+Env_M3	ENV_join_network/inv3/WD	FAIL:no such sequent in .bpo
 Env_M3	ENV_join_network/inv4/INV	PASS
+Env_M3	ENV_join_network/inv4/WD	FAIL:no such sequent in .bpo
+Env_M3	ENV_last_train_leave_ttd/grd3/WD	FAIL:no such sequent in .bpo
 Env_M3	ENV_leave_network_and_free_ttd/typeof_noMission/INV	FAIL:missing 4 extra 0
 Env_M3	ENV_leave_network_and_free_ttd/distinct_states_in_train_statemachine1/INV	FAIL:missing 4 extra 0
 Env_M3	ENV_start_of_mission/typeof_noMission/INV	PASS
@@ -1095,10 +1394,14 @@ Env_M3	ENV_start_of_mission/assocMult_ma/INV	PASS
 Env_M3	ENV_start_of_mission/attribType_unsafe/INV	PASS
 Env_M3	ENV_start_of_mission/inv1/INV	PASS
 Env_M3	ENV_start_of_mission/inv2/INV	PASS
+Env_M3	ENV_start_of_mission/inv2/WD	FAIL:no such sequent in .bpo
 Env_M3	ENV_start_of_mission/inv3/INV	FAIL:no such sequent in .bpo
+Env_M3	ENV_start_of_mission/inv3/WD	FAIL:no such sequent in .bpo
 Env_M3	ENV_start_of_mission/inv4/INV	FAIL:no such sequent in .bpo
+Env_M3	ENV_start_of_mission/inv4/WD	FAIL:no such sequent in .bpo
 Env_M3	ENV_start_of_mission/leave_ghost/SIM	FAIL:no such sequent in .bpo
 Env_M3	ENV_start_of_mission/enter_connected/SIM	FAIL:no such sequent in .bpo
+Env_M3	ENV_start_of_mission/act1/WD	FAIL:no such sequent in .bpo
 Env_M3	ENV_end_of_mission/typeof_noMission/INV	PASS
 Env_M3	ENV_end_of_mission/typeof_inMission/INV	PASS
 Env_M3	ENV_end_of_mission/distinct_states_in_train_statemachine1/INV	PASS
@@ -1106,78 +1409,167 @@ Env_M3	ENV_end_of_mission/assocMult_ma/INV	PASS
 Env_M3	ENV_end_of_mission/attribType_unsafe/INV	PASS
 Env_M3	ENV_end_of_mission/inv1/INV	PASS
 Env_M3	ENV_end_of_mission/inv2/INV	PASS
+Env_M3	ENV_end_of_mission/inv2/WD	FAIL:no such sequent in .bpo
 Env_M3	ENV_end_of_mission/leave_connected/SIM	FAIL:no such sequent in .bpo
 Env_M3	ENV_end_of_mission/enter_ghost/SIM	FAIL:no such sequent in .bpo
 Env_M3	RBC_extend_ma/assocMult_ma/INV	PASS
 Env_M3	RBC_extend_ma/inv2/INV	PASS
+Env_M3	RBC_extend_ma/inv2/WD	FAIL:no such sequent in .bpo
+Env_M3	RBC_extend_ma/grd3/WD	FAIL:missing 56 extra 0
 Env_M3	RBC_shrink_ma/assocMult_ma/INV	PASS
 Env_M3	RBC_shrink_ma/inv2/INV	PASS
+Env_M3	RBC_shrink_ma/inv2/WD	FAIL:no such sequent in .bpo
+Env_M3	RBC_shrink_ma/grd1/WD	FAIL:missing 54 extra 0
+Env_M3	RBC_shrink_ma/grd4/WD	FAIL:missing 57 extra 0
 Env_M3	set_as_safe/attribType_unsafe/INV	PASS
 Env_M3	set_as_safe/inv2/INV	PASS
+Env_M3	set_as_safe/inv2/WD	FAIL:no such sequent in .bpo
 Env_M3	set_as_safe/inv3/INV	FAIL:no such sequent in .bpo
+Env_M3	set_as_safe/inv3/WD	FAIL:no such sequent in .bpo
 Env_M3	set_as_safe/inv4/INV	FAIL:no such sequent in .bpo
+Env_M3	set_as_safe/inv4/WD	FAIL:no such sequent in .bpo
+Env_M3	set_as_safe/grd1/WD	FAIL:missing 54 extra 0
+Env_M3	set_as_safe/act1/WD	FAIL:no such sequent in .bpo
 Env_M3	set_as_unsafe/attribType_unsafe/INV	PASS
 Env_M3	set_as_unsafe/inv2/INV	PASS
+Env_M3	set_as_unsafe/inv2/WD	FAIL:no such sequent in .bpo
 Env_M3	set_as_unsafe/inv3/INV	FAIL:no such sequent in .bpo
+Env_M3	set_as_unsafe/inv3/WD	FAIL:no such sequent in .bpo
 Env_M3	set_as_unsafe/inv4/INV	FAIL:no such sequent in .bpo
+Env_M3	set_as_unsafe/inv4/WD	FAIL:no such sequent in .bpo
+Env_M3	set_as_unsafe/grd1/WD	FAIL:missing 54 extra 0
+Env_M3	set_as_unsafe/act1/WD	FAIL:no such sequent in .bpo
 Env_M3	RBC_trim_ma/assocMult_ma/INV	PASS
 Env_M3	RBC_trim_ma/inv2/INV	PASS
+Env_M3	RBC_trim_ma/inv2/WD	FAIL:no such sequent in .bpo
+Env_M3	RBC_trim_ma/grd3/WD	FAIL:missing 56 extra 0
+VBD_M4	inv1/WD	FAIL:missing 56 extra 0
+VBD_M4	inv2/WD	FAIL:missing 57 extra 0
 VBD_M4	INITIALISATION/assocMult_reportedPosition/INV	PASS
 VBD_M4	INITIALISATION/attribType_disconnectPropagationTimerExpired/INV	PASS
 VBD_M4	INITIALISATION/attribType_muteTimerExpired/INV	PASS
 VBD_M4	INITIALISATION/inv1/INV	PASS
+VBD_M4	INITIALISATION/inv1/WD	FAIL:no such sequent in .bpo
 VBD_M4	INITIALISATION/inv2/INV	PASS
+VBD_M4	INITIALISATION/inv2/WD	FAIL:no such sequent in .bpo
 VBD_M4	ENV_leave_network/inv1/INV	PASS
+VBD_M4	ENV_leave_network/inv1/WD	FAIL:no such sequent in .bpo
 VBD_M4	ENV_leave_network/inv2/INV	PASS
+VBD_M4	ENV_leave_network/inv2/WD	FAIL:no such sequent in .bpo
 VBD_M4	ENV_front_move_next/inv1/INV	PASS
+VBD_M4	ENV_front_move_next/inv1/WD	FAIL:no such sequent in .bpo
 VBD_M4	ENV_front_move_next/inv2/INV	PASS
+VBD_M4	ENV_front_move_next/inv2/WD	FAIL:no such sequent in .bpo
+VBD_M4	ENV_front_move_next/grdnext11/WD	FAIL:no such sequent in .bpo
+VBD_M4	ENV_front_move_next/grdnnn/WD	FAIL:no such sequent in .bpo
+VBD_M4	ENV_front_move_next/grdm/WD	FAIL:no such sequent in .bpo
+VBD_M4	ENV_front_move_next/grd4/WD	FAIL:missing 67 extra 0
 VBD_M4	ENV_rear_leave_section/inv1/INV	PASS
+VBD_M4	ENV_rear_leave_section/inv1/WD	FAIL:no such sequent in .bpo
 VBD_M4	ENV_rear_leave_section/inv2/INV	PASS
+VBD_M4	ENV_rear_leave_section/inv2/WD	FAIL:no such sequent in .bpo
+VBD_M4	ENV_rear_leave_section/cdm_guards5/WD	FAIL:no such sequent in .bpo
+VBD_M4	ENV_rear_leave_section/grd3/WD	FAIL:no such sequent in .bpo
+VBD_M4	ENV_rear_leave_section/grd4/WD	FAIL:missing 65 extra 0
 VBD_M4	VBD_mute_timer_expired/attribType_muteTimerExpired/INV	FAIL:missing 1 extra 0
 VBD_M4	VBD_mute_timer_expired/inv1/INV	FAIL:no such sequent in .bpo
+VBD_M4	VBD_mute_timer_expired/inv1/WD	FAIL:no such sequent in .bpo
 VBD_M4	VBD_mute_timer_expired/inv2/INV	FAIL:no such sequent in .bpo
+VBD_M4	VBD_mute_timer_expired/inv2/WD	FAIL:no such sequent in .bpo
+VBD_M4	VBD_mute_timer_expired/act1/WD	FAIL:no such sequent in .bpo
 VBD_M4	ENV_train_split/inv1/INV	PASS
+VBD_M4	ENV_train_split/inv1/WD	FAIL:no such sequent in .bpo
 VBD_M4	ENV_train_split/inv2/INV	PASS
+VBD_M4	ENV_train_split/inv2/WD	FAIL:no such sequent in .bpo
 VBD_M4	ENV_train_split/grd16/GRD	FAIL:no such sequent in .bpo
 VBD_M4	ENV_train_split/instanceUpdate_tr/SIM	FAIL:no such sequent in .bpo
 VBD_M4	ENV_train_split/act1/SIM	FAIL:no such sequent in .bpo
 VBD_M4	ENV_train_split/act2/SIM	FAIL:no such sequent in .bpo
 VBD_M4	ENV_train_split/cdm_actions6/SIM	FAIL:no such sequent in .bpo
 VBD_M4	ENV_train_split/enter_noMission/SIM	FAIL:no such sequent in .bpo
+VBD_M4	ENV_train_split/grd15/WD	FAIL:no such sequent in .bpo
+VBD_M4	ENV_train_split/grd16/WD	FAIL:missing 83 extra 0
+VBD_M4	ENV_train_split/grd17/WD	FAIL:missing 84 extra 0
+VBD_M4	ENV_train_split/grd18/WD	FAIL:missing 85 extra 0
+VBD_M4	ENV_train_split/grdnext/WD	FAIL:no such sequent in .bpo
 VBD_M4	ENV_join_network/inv1/INV	PASS
+VBD_M4	ENV_join_network/inv1/WD	FAIL:no such sequent in .bpo
 VBD_M4	ENV_join_network/inv2/INV	PASS
+VBD_M4	ENV_join_network/inv2/WD	FAIL:no such sequent in .bpo
+VBD_M4	ENV_last_train_leave_ttd/grd3/WD	FAIL:no such sequent in .bpo
 VBD_M4	ENV_start_of_mission/assocMult_reportedPosition/INV	PASS
 VBD_M4	ENV_start_of_mission/attribType_muteTimerExpired/INV	PASS
 VBD_M4	ENV_start_of_mission/inv1/INV	PASS
+VBD_M4	ENV_start_of_mission/inv1/WD	FAIL:no such sequent in .bpo
 VBD_M4	ENV_start_of_mission/inv2/INV	PASS
+VBD_M4	ENV_start_of_mission/inv2/WD	FAIL:no such sequent in .bpo
+VBD_M4	ENV_start_of_mission/act1/WD	FAIL:no such sequent in .bpo
+VBD_M4	ENV_start_of_mission/act4/WD	FAIL:no such sequent in .bpo
 VBD_M4	ENV_end_of_mission/assocMult_reportedPosition/INV	PASS
 VBD_M4	ENV_end_of_mission/attribType_muteTimerExpired/INV	PASS
 VBD_M4	ENV_end_of_mission/inv1/INV	PASS
+VBD_M4	ENV_end_of_mission/inv1/WD	FAIL:no such sequent in .bpo
 VBD_M4	ENV_end_of_mission/inv2/INV	PASS
+VBD_M4	ENV_end_of_mission/inv2/WD	FAIL:no such sequent in .bpo
+VBD_M4	RBC_extend_ma/grd3/WD	FAIL:no such sequent in .bpo
+VBD_M4	RBC_shrink_ma/grd1/WD	FAIL:no such sequent in .bpo
+VBD_M4	RBC_shrink_ma/grd4/WD	FAIL:no such sequent in .bpo
 VBD_M4	set_as_safe/inv1/INV	FAIL:no such sequent in .bpo
+VBD_M4	set_as_safe/inv1/WD	FAIL:no such sequent in .bpo
 VBD_M4	set_as_safe/inv2/INV	FAIL:no such sequent in .bpo
+VBD_M4	set_as_safe/inv2/WD	FAIL:no such sequent in .bpo
+VBD_M4	set_as_safe/grd1/WD	FAIL:no such sequent in .bpo
+VBD_M4	set_as_safe/act1/WD	FAIL:no such sequent in .bpo
 VBD_M4	set_as_unsafe/inv1/INV	FAIL:no such sequent in .bpo
+VBD_M4	set_as_unsafe/inv1/WD	FAIL:no such sequent in .bpo
 VBD_M4	set_as_unsafe/inv2/INV	FAIL:no such sequent in .bpo
+VBD_M4	set_as_unsafe/inv2/WD	FAIL:no such sequent in .bpo
+VBD_M4	set_as_unsafe/grd1/WD	FAIL:no such sequent in .bpo
+VBD_M4	set_as_unsafe/act1/WD	FAIL:no such sequent in .bpo
 VBD_M4	RBC_trim_ma/instanceType_tr/GRD	FAIL:no such sequent in .bpo
 VBD_M4	RBC_trim_ma/grd1/GRD	FAIL:no such sequent in .bpo
 VBD_M4	RBC_trim_ma/grd2/GRD	FAIL:no such sequent in .bpo
 VBD_M4	RBC_trim_ma/grd3/GRD	PASS
 VBD_M4	RBC_trim_ma/act1/SIM	FAIL:no such sequent in .bpo
+VBD_M4	RBC_trim_ma/grd3/WD	FAIL:missing 61 extra 0
 VBD_M4	VBD_receive_position_report/assocMult_reportedPosition/INV	PASS
 VBD_M4	VBD_receive_position_report/attribType_disconnectPropagationTimerExpired/INV	PASS
 VBD_M4	VBD_receive_position_report/attribType_muteTimerExpired/INV	PASS
 VBD_M4	VBD_receive_position_report/inv1/INV	PASS
+VBD_M4	VBD_receive_position_report/inv1/WD	FAIL:no such sequent in .bpo
 VBD_M4	VBD_receive_position_report/inv2/INV	PASS
+VBD_M4	VBD_receive_position_report/inv2/WD	FAIL:no such sequent in .bpo
+VBD_M4	VBD_receive_position_report/grd2/WD	FAIL:missing 61 extra 0
+VBD_M4	VBD_receive_position_report/grd5/WD	FAIL:missing 62 extra 0
+VBD_M4	VBD_receive_position_report/act2/WD	FAIL:no such sequent in .bpo
 VBD_M4	VBD_disconnect_propagation_timer_expired/attribType_disconnectPropagationTimerExpired/INV	PASS
+VBD_M4	VBD_disconnect_propagation_timer_expired/grd2/WD	FAIL:missing 60 extra 0
+VBD_M4	VBD_disconnect_propagation_timer_expired/act1/WD	FAIL:no such sequent in .bpo
 VBD_M5	INITIALISATION/typeof_trusted/INV	PASS
 VBD_M5	INITIALISATION/typeof_controlled/INV	PASS
 VBD_M5	INITIALISATION/VSS_supertypeOf_availableVSS/INV	FAIL:no such sequent in .bpo
 VBD_M5	INITIALISATION/distinct_states_in_inMission_ma_mode/INV	PASS
 VBD_M5	INITIALISATION/inv1/INV	PASS
+VBD_M5	ENV_front_move_next/grdnext11/WD	FAIL:no such sequent in .bpo
+VBD_M5	ENV_front_move_next/grdnnn/WD	FAIL:no such sequent in .bpo
+VBD_M5	ENV_front_move_next/grdm/WD	FAIL:no such sequent in .bpo
+VBD_M5	ENV_front_move_next/grd4/WD	FAIL:no such sequent in .bpo
+VBD_M5	ENV_rear_leave_section/cdm_guards5/WD	FAIL:no such sequent in .bpo
+VBD_M5	ENV_rear_leave_section/grd3/WD	FAIL:no such sequent in .bpo
+VBD_M5	ENV_rear_leave_section/grd4/WD	FAIL:no such sequent in .bpo
+VBD_M5	VBD_mute_timer_expired/act1/WD	FAIL:no such sequent in .bpo
+VBD_M5	ENV_train_split/grd15/WD	FAIL:no such sequent in .bpo
+VBD_M5	ENV_train_split/grd16/WD	FAIL:no such sequent in .bpo
+VBD_M5	ENV_train_split/grd17/WD	FAIL:no such sequent in .bpo
+VBD_M5	ENV_train_split/grd18/WD	FAIL:no such sequent in .bpo
+VBD_M5	ENV_train_split/grdnext/WD	FAIL:no such sequent in .bpo
+VBD_M5	ENV_last_train_leave_ttd/grd3/WD	FAIL:no such sequent in .bpo
 VBD_M5	ENV_start_of_mission/typeof_trusted/INV	PASS
 VBD_M5	ENV_start_of_mission/typeof_controlled/INV	PASS
 VBD_M5	ENV_start_of_mission/distinct_states_in_inMission_ma_mode/INV	PASS
 VBD_M5	ENV_start_of_mission/inv1/INV	PASS
+VBD_M5	ENV_start_of_mission/act1/WD	FAIL:no such sequent in .bpo
+VBD_M5	ENV_start_of_mission/act4/WD	FAIL:no such sequent in .bpo
 VBD_M5	ENV_end_of_mission/typeof_trusted/INV	PASS
 VBD_M5	ENV_end_of_mission/typeof_controlled/INV	PASS
 VBD_M5	ENV_end_of_mission/distinct_states_in_inMission_ma_mode/INV	PASS
@@ -1187,50 +1579,107 @@ VBD_M5	RBC_extend_fs_ma/typeof_controlled/INV	PASS
 VBD_M5	RBC_extend_fs_ma/distinct_states_in_inMission_ma_mode/INV	PASS
 VBD_M5	RBC_extend_fs_ma/inv1/INV	PASS
 VBD_M5	RBC_extend_fs_ma/act1/SIM	FAIL:no such sequent in .bpo
+VBD_M5	RBC_extend_fs_ma/grd3/WD	FAIL:missing 67 extra 0
 VBD_M5	RBC_extend_os_ma/typeof_trusted/INV	PASS
 VBD_M5	RBC_extend_os_ma/typeof_controlled/INV	PASS
 VBD_M5	RBC_extend_os_ma/distinct_states_in_inMission_ma_mode/INV	PASS
 VBD_M5	RBC_extend_os_ma/inv1/INV	PASS
 VBD_M5	RBC_extend_os_ma/act1/SIM	FAIL:no such sequent in .bpo
+VBD_M5	RBC_extend_os_ma/grd3/WD	FAIL:no such sequent in .bpo
 VBD_M5	RBC_shrink_ma/inv1/INV	PASS
+VBD_M5	RBC_shrink_ma/grd1/WD	FAIL:no such sequent in .bpo
+VBD_M5	RBC_shrink_ma/grd4/WD	FAIL:no such sequent in .bpo
+VBD_M5	set_as_safe/grd1/WD	FAIL:no such sequent in .bpo
+VBD_M5	set_as_safe/act1/WD	FAIL:no such sequent in .bpo
+VBD_M5	set_as_unsafe/grd1/WD	FAIL:no such sequent in .bpo
+VBD_M5	set_as_unsafe/act1/WD	FAIL:no such sequent in .bpo
 VBD_M5	RBC_trim_ma/inv1/INV	PASS
+VBD_M5	RBC_trim_ma/grd3/WD	FAIL:no such sequent in .bpo
+VBD_M5	VBD_receive_position_report/grd2/WD	FAIL:no such sequent in .bpo
+VBD_M5	VBD_receive_position_report/grd5/WD	FAIL:no such sequent in .bpo
+VBD_M5	VBD_receive_position_report/act2/WD	FAIL:no such sequent in .bpo
+VBD_M5	VBD_disconnect_propagation_timer_expired/grd2/WD	FAIL:no such sequent in .bpo
+VBD_M5	VBD_disconnect_propagation_timer_expired/act1/WD	FAIL:no such sequent in .bpo
 VBD_M5	VBD_add_available_vss/VSS_supertypeOf_availableVSS/INV	FAIL:no such sequent in .bpo
+VBD_M5	VBD_add_available_vss/grd1/WD	FAIL:missing 64 extra 0
 VBD_M5	VBD_remove_available_vss/VSS_supertypeOf_availableVSS/INV	FAIL:no such sequent in .bpo
+VBD_M5	VBD_remove_available_vss/grd1/WD	FAIL:missing 64 extra 0
 VBD_M6	INITIALISATION/typeof_nonIntegral/INV	PASS
 VBD_M6	INITIALISATION/typeof_integral/INV	PASS
 VBD_M6	INITIALISATION/distinct_states_in_connected_integrity/INV	PASS
+VBD_M6	ENV_front_move_next/grdnext11/WD	FAIL:no such sequent in .bpo
+VBD_M6	ENV_front_move_next/grdnnn/WD	FAIL:no such sequent in .bpo
+VBD_M6	ENV_front_move_next/grdm/WD	FAIL:no such sequent in .bpo
+VBD_M6	ENV_front_move_next/grd4/WD	FAIL:no such sequent in .bpo
+VBD_M6	ENV_rear_leave_section/cdm_guards5/WD	FAIL:no such sequent in .bpo
+VBD_M6	ENV_rear_leave_section/grd3/WD	FAIL:no such sequent in .bpo
+VBD_M6	ENV_rear_leave_section/grd4/WD	FAIL:no such sequent in .bpo
 VBD_M6	ENV_reconnect_radio/typeof_nonIntegral/INV	FAIL:missing 1 extra 0
 VBD_M6	ENV_reconnect_radio/distinct_states_in_connected_integrity/INV	FAIL:missing 1 extra 0
 VBD_M6	VBD_mute_timer_expired/typeof_nonIntegral/INV	FAIL:missing 1 extra 0
 VBD_M6	VBD_mute_timer_expired/typeof_integral/INV	FAIL:missing 1 extra 0
 VBD_M6	VBD_mute_timer_expired/distinct_states_in_connected_integrity/INV	FAIL:missing 1 extra 0
+VBD_M6	VBD_mute_timer_expired/act1/WD	FAIL:no such sequent in .bpo
+VBD_M6	ENV_train_split/grd15/WD	FAIL:no such sequent in .bpo
+VBD_M6	ENV_train_split/grd16/WD	FAIL:no such sequent in .bpo
+VBD_M6	ENV_train_split/grd17/WD	FAIL:no such sequent in .bpo
+VBD_M6	ENV_train_split/grd18/WD	FAIL:no such sequent in .bpo
+VBD_M6	ENV_train_split/grdnext/WD	FAIL:no such sequent in .bpo
+VBD_M6	ENV_last_train_leave_ttd/grd3/WD	FAIL:no such sequent in .bpo
 VBD_M6	ENV_start_of_mission/typeof_nonIntegral/INV	PASS
 VBD_M6	ENV_start_of_mission/typeof_integral/INV	PASS
 VBD_M6	ENV_start_of_mission/distinct_states_in_connected_integrity/INV	PASS
+VBD_M6	ENV_start_of_mission/act1/WD	FAIL:no such sequent in .bpo
+VBD_M6	ENV_start_of_mission/act4/WD	FAIL:no such sequent in .bpo
 VBD_M6	ENV_end_of_mission/typeof_nonIntegral/INV	PASS
 VBD_M6	ENV_end_of_mission/typeof_integral/INV	PASS
 VBD_M6	ENV_end_of_mission/distinct_states_in_connected_integrity/INV	PASS
+VBD_M6	RBC_extend_fs_ma/grd3/WD	FAIL:no such sequent in .bpo
+VBD_M6	RBC_extend_os_ma/grd3/WD	FAIL:no such sequent in .bpo
+VBD_M6	RBC_shrink_ma/grd1/WD	FAIL:no such sequent in .bpo
+VBD_M6	RBC_shrink_ma/grd4/WD	FAIL:no such sequent in .bpo
+VBD_M6	set_as_safe/grd1/WD	FAIL:no such sequent in .bpo
+VBD_M6	set_as_safe/act1/WD	FAIL:no such sequent in .bpo
+VBD_M6	set_as_unsafe/grd1/WD	FAIL:no such sequent in .bpo
+VBD_M6	set_as_unsafe/act1/WD	FAIL:no such sequent in .bpo
+VBD_M6	RBC_trim_ma/grd3/WD	FAIL:no such sequent in .bpo
 VBD_M6	VBD_receive_position_report_integrity_loss/typeof_nonIntegral/INV	PASS
 VBD_M6	VBD_receive_position_report_integrity_loss/typeof_integral/INV	PASS
 VBD_M6	VBD_receive_position_report_integrity_loss/distinct_states_in_connected_integrity/INV	PASS
 VBD_M6	VBD_receive_position_report_integrity_loss/act1/SIM	FAIL:no such sequent in .bpo
 VBD_M6	VBD_receive_position_report_integrity_loss/act2/SIM	FAIL:no such sequent in .bpo
 VBD_M6	VBD_receive_position_report_integrity_loss/act3/SIM	FAIL:no such sequent in .bpo
+VBD_M6	VBD_receive_position_report_integrity_loss/grd2/WD	FAIL:no such sequent in .bpo
+VBD_M6	VBD_receive_position_report_integrity_loss/grd5/WD	FAIL:no such sequent in .bpo
+VBD_M6	VBD_receive_position_report_integrity_loss/act2/WD	FAIL:no such sequent in .bpo
+VBD_M6	VBD_disconnect_propagation_timer_expired/grd2/WD	FAIL:no such sequent in .bpo
+VBD_M6	VBD_disconnect_propagation_timer_expired/act1/WD	FAIL:no such sequent in .bpo
+VBD_M6	VBD_add_available_vss/grd1/WD	FAIL:no such sequent in .bpo
+VBD_M6	VBD_remove_available_vss/grd1/WD	FAIL:no such sequent in .bpo
 VBD_M6	VBD_receive_position_report_integrity_confirmed/typeof_nonIntegral/INV	PASS
 VBD_M6	VBD_receive_position_report_integrity_confirmed/typeof_integral/INV	PASS
 VBD_M6	VBD_receive_position_report_integrity_confirmed/distinct_states_in_connected_integrity/INV	PASS
 VBD_M6	VBD_receive_position_report_integrity_confirmed/act1/SIM	FAIL:no such sequent in .bpo
 VBD_M6	VBD_receive_position_report_integrity_confirmed/act2/SIM	FAIL:no such sequent in .bpo
 VBD_M6	VBD_receive_position_report_integrity_confirmed/act3/SIM	FAIL:no such sequent in .bpo
+VBD_M6	VBD_receive_position_report_integrity_confirmed/grd2/WD	FAIL:no such sequent in .bpo
+VBD_M6	VBD_receive_position_report_integrity_confirmed/grd5/WD	FAIL:no such sequent in .bpo
+VBD_M6	VBD_receive_position_report_integrity_confirmed/act2/WD	FAIL:no such sequent in .bpo
 VBD_M6	VBD_receive_position_report_integrity_unavailable/typeof_nonIntegral/INV	FAIL:missing 0 extra 72
 VBD_M6	VBD_receive_position_report_integrity_unavailable/typeof_integral/INV	FAIL:missing 0 extra 72
 VBD_M6	VBD_receive_position_report_integrity_unavailable/distinct_states_in_connected_integrity/INV	FAIL:missing 0 extra 72
 VBD_M6	VBD_receive_position_report_integrity_unavailable/act1/SIM	FAIL:no such sequent in .bpo
 VBD_M6	VBD_receive_position_report_integrity_unavailable/act2/SIM	FAIL:no such sequent in .bpo
 VBD_M6	VBD_receive_position_report_integrity_unavailable/act3/SIM	FAIL:no such sequent in .bpo
+VBD_M6	VBD_receive_position_report_integrity_unavailable/grd2/WD	FAIL:no such sequent in .bpo
+VBD_M6	VBD_receive_position_report_integrity_unavailable/grd5/WD	FAIL:no such sequent in .bpo
+VBD_M6	VBD_receive_position_report_integrity_unavailable/act2/WD	FAIL:no such sequent in .bpo
 VBD_M6	VBD_receive_position_report_train_length_changed/typeof_nonIntegral/INV	PASS
 VBD_M6	VBD_receive_position_report_train_length_changed/typeof_integral/INV	PASS
 VBD_M6	VBD_receive_position_report_train_length_changed/distinct_states_in_connected_integrity/INV	PASS
 VBD_M6	VBD_receive_position_report_train_length_changed/act1/SIM	FAIL:no such sequent in .bpo
 VBD_M6	VBD_receive_position_report_train_length_changed/act2/SIM	FAIL:no such sequent in .bpo
 VBD_M6	VBD_receive_position_report_train_length_changed/act3/SIM	FAIL:no such sequent in .bpo
+VBD_M6	VBD_receive_position_report_train_length_changed/grd2/WD	FAIL:no such sequent in .bpo
+VBD_M6	VBD_receive_position_report_train_length_changed/grd5/WD	FAIL:no such sequent in .bpo
+VBD_M6	VBD_receive_position_report_train_length_changed/act2/WD	FAIL:no such sequent in .bpo
