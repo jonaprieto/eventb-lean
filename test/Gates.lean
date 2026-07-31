@@ -255,6 +255,61 @@ private def poHistogram (results : List PoResult) : List (String × Nat) :=
     []).mergeSort (fun left right =>
       if left.2 == right.2 then left.1 < right.1 else right.2 < left.2)
 
+
+/-- P3b gate. A PO name can match while the statement is nonsense, so once the generator
+derives goals they are compared against the `org.eventb.core.predicate` Rodin recorded on
+the same sequent. Modulo type ascriptions, which carry no logical content.
+
+Unlike every gate before it, this one is not reproducing a recorded answer from a
+recorded answer: the goal is derived from the `.bum` alone. -/
+private partial def goldGoals (e : XmlElem) : List (String × String) :=
+  let here :=
+    if e.tag == "org.eventb.core.poSequent" then
+      match e.attr? "name" with
+      | some n =>
+        -- The sequent's own predicates are the goal; the last one is the statement.
+        match (e.children.filter (fun c => c.tag == "org.eventb.core.poPredicate")
+                |>.filterMap (fun c => c.attr? "org.eventb.core.predicate")).getLast? with
+        | some g => [(n, g)]
+        | none => []
+      | none => []
+    else []
+  e.children.foldl (fun acc c => acc ++ goldGoals c) here
+
+private def readGoldGoals (path : System.FilePath) : IO (List (String × String)) := do
+  match parseXml (← IO.FS.readBinFile path) with
+  | .error _ => return []
+  | .ok xml => return goldGoals xml
+
+private structure GoalResult where
+  key    : String
+  status : String
+
+/-- Only obligations we generate a goal for are scored; the rest are not yet attempted
+and would otherwise drown the signal. -/
+private def checkGoals (project : Project) (file : String)
+    (gold : List (String × String)) : List GoalResult :=
+  (generate project file).filterMap fun o =>
+    o.goal.map fun g =>
+      let key := file ++ "\t" ++ o.name
+      match gold.find? (fun p => p.1 == o.name) with
+      | none => { key := key, status := "FAIL:no such sequent in .bpo" }
+      | some (_, gs) =>
+        match Formula.parse gs with
+        | .error _ => { key := key, status := "FAIL:gold goal unparsable" }
+        | .ok gt =>
+          if Formula.stripAscriptions gt == Formula.stripAscriptions g then
+            { key := key, status := "PASS" }
+          else
+            { key := key, status := "FAIL:differs" }
+
+private def goalHistogram (results : List GoalResult) : List (String × Nat) :=
+  (results.foldl
+    (fun counts r => if r.status.startsWith "FAIL:" then histogramAdd r.status counts
+                     else counts)
+    []).mergeSort (fun left right =>
+      if left.2 == right.2 then left.1 < right.1 else right.2 < left.2)
+
 private def nonemptyLines (source : String) : List String :=
   source.splitOn "\n" |>.filter (fun line => !line.isEmpty)
 
@@ -335,6 +390,13 @@ private def run (args : List String) : IO UInt32 := do
     let bpo := path.toString.dropRight 4 ++ ".bpo"
     let name := ((path.toString.splitOn "/").getLast!.splitOn ".").head!
     poResults := poResults ++ checkPOs project name (← readGoldPOs bpo)
+  let mut goalResults : List GoalResult := []
+  for path in files do
+    let bpo := path.toString.dropRight 4 ++ ".bpo"
+    let name := ((path.toString.splitOn "/").getLast!.splitOn ".").head!
+    goalResults := goalResults ++ checkGoals project name (← readGoldGoals bpo)
+  let goalPassed := goalResults.countP (fun r => r.status == "PASS")
+  let goalActual := goalResults.map (fun r => r.key ++ "\t" ++ r.status)
   let poPassed := poResults.countP (fun r => r.status == "PASS")
   let poActual := poResults.map (fun r => r.key ++ "\t" ++ r.status)
   let formulas := formulaResults results
@@ -347,6 +409,7 @@ private def run (args : List String) : IO UInt32 := do
   if typeResults.length != typeCount then
     IO.eprintln s!"type assertion count {typeResults.length}, expected {typeCount}"
   IO.println s!"P3 obligations: {poPassed}/{sequentCount}"
+  IO.println s!"P3b statements: {goalPassed}/{goalResults.length} derived"
   if !formulaCountOK then
     IO.eprintln s!"formula count {formulas.length}, expected {formulaCount}"
   if !inventoryOK then
@@ -360,6 +423,8 @@ private def run (args : List String) : IO UInt32 := do
       IO.println s!"{count}\t{reason}"
     for (reason, count) in poHistogram poResults do
       IO.println s!"{count}\t{reason}"
+    for (reason, count) in goalHistogram goalResults do
+      IO.println s!"{count}\t{reason}"
   if args.contains "--status" then
     writeStatus results formulas typeResults poResults inventory
   let parseOK := results.all (fun result => result.status == "PASS")
@@ -371,6 +436,7 @@ private def run (args : List String) : IO UInt32 := do
       writeBaseline "baseline/formula.tsv" formulaActual
       writeBaseline "baseline/typecheck.tsv" typeActual
       writeBaseline "baseline/pog.tsv" poActual
+      writeBaseline "baseline/statement.tsv" goalActual
     else
       IO.eprintln "refusing to bless a failed P0 gate"
       return 1
@@ -383,7 +449,9 @@ private def run (args : List String) : IO UInt32 := do
   let tbaselineOK ← baselineDiff (nonemptyLines tbaseline) typeActual
   let pbaseline ← try IO.FS.readFile "baseline/pog.tsv" catch _ => pure ""
   let pbaselineOK ← baselineDiff (nonemptyLines pbaseline) poActual
-  if !baselineOK || !fbaselineOK || !tbaselineOK || !pbaselineOK then
+  let gbaseline ← try IO.FS.readFile "baseline/statement.tsv" catch _ => pure ""
+  let gbaselineOK ← baselineDiff (nonemptyLines gbaseline) goalActual
+  if !baselineOK || !fbaselineOK || !tbaselineOK || !pbaselineOK || !gbaselineOK then
     return 1
   if parseOK && inventoryOK && formulaCountOK then
     return 0

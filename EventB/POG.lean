@@ -23,10 +23,12 @@ namespace EventB.POG
 
 open EventB EventB.Formula EventB.Typing
 
-/-- A generated obligation. `name` is Rodin's, and the gate compares nothing else yet. -/
+/-- A generated obligation. `goal` is `none` for the classes whose statement is not
+derived yet, so the name gate keeps working while the statement gate grows. -/
 structure Obligation where
   name : String
   kind : String
+  goal : Option Term := none
   deriving BEq, Repr, Inhabited
 
 private def childrenOf (e : Elem) (tag : String) : List Elem :=
@@ -57,6 +59,22 @@ private def freeOf (formula : String) : List String :=
   match Formula.parse formula with
   | .ok t => identifiers t
   | .error _ => []
+
+/-- The substitution an action performs. Only the deterministic form `v ≔ E` yields
+one: `v :∈ S` and `v :∣ P` choose a value, which Rodin states with a fresh variable
+rather than a replacement, and which this does not derive yet. -/
+private def substOf (action : Elem) : List (String × Term) :=
+  match attrOf action "assignment" with
+  | none => []
+  | some a =>
+    match Formula.parse a with
+    | .ok (.bin "≔" lhs rhs) =>
+        match Formula.flattenCommas lhs, Formula.flattenCommas rhs with
+        | [.id v], [e] => [(v, e)]
+        -- `v, w ≔ E, F` assigns componentwise.
+        | vs, es => (vs.zip es).filterMap fun (v, e) =>
+            match v with | .id n => some (n, e) | _ => none
+    | _ => []
 
 /-- The variables an action assigns. Rodin's three assignment forms all name their
 targets on the left: `v ≔ E`, `v :∈ S`, and `v, w :∣ P`. -/
@@ -192,8 +210,14 @@ def generate (p : Project) (name : String) : List Obligation := Id.run do
         if (attrOf inv "theorem").getD "false" != "true" then
           let free := freeOf ((attrOf inv "predicate").getD "")
           if assigned.any (fun v => free.contains v) then
+            -- The obligation is the invariant restated over the after-state, which is
+            -- exactly the invariant with the event's assignments substituted in.
+            let σ := actions.flatMap substOf
+            let goal := (Formula.parse ((attrOf inv "predicate").getD "")).toOption.map
+              (Formula.subst σ)
             out := out ++
-              [{ name := labelOf ev ++ "/" ++ labelOf inv ++ "/INV", kind := "INV" }]
+              [{ name := labelOf ev ++ "/" ++ labelOf inv ++ "/INV", kind := "INV",
+                 goal := goal }]
             -- The invariant is re-stated over the after-state, so if it was
             -- conditionally defined before, the substituted form needs its own WD.
             if wdRequired ((attrOf inv "predicate").getD "") then
