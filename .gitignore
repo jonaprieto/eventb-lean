@@ -12,3 +12,4 @@ STATUS.md
 spike/.lake/
 spike/Spike/Obligations.lean
 spike/pos.json
+__pycache__/
