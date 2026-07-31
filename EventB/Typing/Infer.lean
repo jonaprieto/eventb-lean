@@ -32,43 +32,83 @@ def fresh : M Ty := do
   set { s with subst := s.subst.push none }
   return .mvar s.subst.size
 
-/-- Follow the substitution to the outermost non-variable. -/
-partial def resolve (t : Ty) : M Ty := do
+/-- Follow the substitution to the outermost non-variable.
+
+Following a chain of metavariables terminates because every link points to a
+strictly lower index: `unify` always assigns the higher of two metavariables to the
+lower. That makes the index itself the decreasing measure, so this needs no fuel and,
+more usefully, the substitution cannot contain a cycle for it to fall into. -/
+def resolve (t : Ty) : M Ty := do
   match t with
   | .mvar n =>
     match (← get).subst[n]? with
-    | some (some u) => resolve u
+    | some (some (.mvar m)) => if m < n then resolve (.mvar m) else return .mvar m
+    | some (some u) => return u
     | _ => return t
   | _ => return t
+termination_by
+  match t with
+  | .mvar n => n
+  | _ => 0
+decreasing_by simp_all
 
-/-- Follow the substitution everywhere, for read-back. -/
-partial def zonk (t : Ty) : M Ty := do
-  match ← resolve t with
-  | .pow a => return .pow (← zonk a)
-  | .prod a b => return .prod (← zonk a) (← zonk b)
-  | t => return t
+/-- Total size of everything the substitution holds. The fully resolved form of any
+type is built from the argument plus what the substitution can splice into it, so this
+plus the argument's own size bounds the number of nodes the traversals below visit. -/
+def substWeight : M Nat := do
+  return ((← get).subst.foldl (fun acc e => acc + (e.map Ty.size).getD 1) 0)
 
-partial def occurs (n : Nat) (t : Ty) : M Bool := do
-  match ← resolve t with
-  | .mvar m => return m == n
-  | .pow a => occurs n a
-  | .prod a b => return (← occurs n a) || (← occurs n b)
-  | _ => return false
+/-- Follow the substitution everywhere, for read-back.
 
-partial def unify (a b : Ty) : M Unit := do
+Unlike `resolve`, this recurses on the *result* of a lookup, which can be larger than
+its argument, so there is no structural measure. `fuel` is the bound argued above; the
+public `zonk` seeds it, and running out would mean the substitution grew during the
+traversal, which it cannot. -/
+def zonkAux : Nat → Ty → M Ty
+  | 0, t => return t
+  | fuel + 1, t => do
+    match ← resolve t with
+    | .pow a => return .pow (← zonkAux fuel a)
+    | .prod a b => return .prod (← zonkAux fuel a) (← zonkAux fuel b)
+    | t => return t
+
+def zonk (t : Ty) : M Ty := do zonkAux ((← substWeight) + t.size + 1) t
+
+def occursAux : Nat → Nat → Ty → M Bool
+  | 0, _, _ => return false
+  | fuel + 1, n, t => do
+    match ← resolve t with
+    | .mvar m => return m == n
+    | .pow a => occursAux fuel n a
+    | .prod a b => return (← occursAux fuel n a) || (← occursAux fuel n b)
+    | _ => return false
+
+def occurs (n : Nat) (t : Ty) : M Bool := do
+  occursAux ((← substWeight) + t.size + 1) n t
+
+def unifyAux : Nat → Ty → Ty → M Unit
+  | 0, _, _ => return ()
+  | fuel + 1, a, b => do
   match ← resolve a, ← resolve b with
-  | .mvar n, .mvar m => if n == m then return () else assign n (.mvar m)
+  -- Always point the higher metavariable at the lower, which is what lets `resolve`
+  -- terminate on the index and rules out a cyclic substitution by construction.
+  | .mvar n, .mvar m =>
+      if n == m then return ()
+      else if n < m then assign m (.mvar n) else assign n (.mvar m)
   | .mvar n, t | t, .mvar n =>
       if ← occurs n t then throw s!"occurs check: ?{n} in {t.print}" else assign n t
   | .int, .int | .bool, .bool => return ()
   | .given x, .given y =>
       if x == y then return () else throw s!"cannot unify {x} with {y}"
-  | .pow x, .pow y => unify x y
-  | .prod x y, .prod u v => do unify x u; unify y v
+  | .pow x, .pow y => unifyAux fuel x y
+  | .prod x y, .prod u v => do unifyAux fuel x u; unifyAux fuel y v
   | x, y => throw s!"cannot unify {x.print} with {y.print}"
 where
   assign (n : Nat) (t : Ty) : M Unit := do
     modify fun s => { s with subst := s.subst.set! n (some t) }
+
+def unify (a b : Ty) : M Unit := do
+  unifyAux ((← substWeight) + a.size + b.size + 1) a b
 
 def lookup? (name : String) : M (Option Ty) := do
   return ((← get).env.find? (fun p => p.1 == name)).map (·.2)
