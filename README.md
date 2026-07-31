@@ -5,6 +5,14 @@ files, re-implements the static checker and the proof-obligation generator, and 
 obligations against a refinement semantics whose soundness is a theorem rather than a
 10,000-line Java program you have to trust.
 
+[![CI](https://github.com/jonaprieto/eventb-lean/actions/workflows/ci.yml/badge.svg)](https://github.com/jonaprieto/eventb-lean/actions/workflows/ci.yml)
+[![Lean](https://img.shields.io/badge/Lean-v4.28.0-blue)](lean-toolchain)
+[![reader](https://img.shields.io/badge/reader-38%2F38-brightgreen)](baseline/parse.tsv)
+[![formulas](https://img.shields.io/badge/formulas-1102%2F1102-brightgreen)](baseline/formula.tsv)
+[![types](https://img.shields.io/badge/types-940%2F940-brightgreen)](baseline/typecheck.tsv)
+[![obligations](https://img.shields.io/badge/obligations-1105%2F1133-yellow)](baseline/pog.tsv)
+[![statements](https://img.shields.io/badge/statements-856%2F1033-yellow)](baseline/statement.tsv)
+
 ```
 $ lake exe gates
 P0 reader: 38/38
@@ -26,6 +34,29 @@ files, so the corpus labels itself:
 
 Nothing in a `.bum` states a type. Matching the 940 in the `.bpo` means reproducing the
 derivation, not reading an answer off the file.
+
+## Two front ends
+
+Read Rodin's files, or write Event-B directly in Lean. Both elaborate to the same tree,
+so the typechecker, the generator and every gate are shared:
+
+```lean
+eventb_machine M where
+  sees Ctx
+  variables sched
+  invariant inv1 : "sched ⊆ AIRPLANES"
+  event Add where
+    any a
+    guard grd1 : "a ∈ AIRPLANES ∖ sched"
+    action act1 : "sched ≔ sched ∪ {a}"
+
+#eventb_pog M Ctx
+-- Add/inv1/INV
+--     ⊢ ((sched ∪ {a}) ⊆ AIRPLANES)
+```
+
+A formula that is not Event-B is a Lean elaboration error pointing at the literal. See
+`examples/Counter.lean`.
 
 ## The point
 
