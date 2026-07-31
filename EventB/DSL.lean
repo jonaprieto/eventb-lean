@@ -111,21 +111,20 @@ private def addSymbolRange (owner : String) (id : Syntax) : CommandElabM Unit :=
   Lean.addDeclarationRanges (symbolName owner id.getId.toString)
     { range := range, selectionRange := range }
 
-private def ownerModule? : List String → CommandElabM (Option Name)
-  | [] => pure none
-  | owner :: owners => do
-      try
-        if let some module ← findModuleOf? (Name.mkSimple owner) then
-          return some module
-      catch _ => pure ()
-      ownerModule? owners
-
 private def baseSymbol (symbol : String) : String :=
   if symbol.endsWith "'" then (symbol.dropEnd 1).copy else symbol
 
+private def currentModule : CommandElabM Name := do
+  let fileName ← getFileName
+  try
+    let path ← liftIO <| IO.FS.realPath (System.FilePath.mk fileName)
+    pure <| Name.str .anonymous ("external:" ++ System.Uri.pathToUri path)
+  catch _ =>
+    getMainModule
+
 private def symbolLocation? (owners : List String) (symbol : String) :
     CommandElabM (Option DeclarationLocation) := do
-  let module := (← ownerModule? owners).getD (← getMainModule)
+  let module ← currentModule
   let symbol := baseSymbol symbol
   for owner in owners do
     if let some ranges ← Lean.findDeclarationRanges? (symbolName owner symbol) then
