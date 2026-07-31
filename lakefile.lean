@@ -28,3 +28,7 @@ lean_exe «bench» where
 lean_exe «astdump» where
   root := `AstDump
   srcDir := "spike/tools"
+
+lean_exe «showpo» where
+  root := `ShowPO
+  srcDir := "spike/tools"

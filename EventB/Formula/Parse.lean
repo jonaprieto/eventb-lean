@@ -203,6 +203,13 @@ private def parsePostfix : Nat → Term → St → Except String (Term × St)
     let (arg, s) ← parseAt fuel { s with pos := s.pos + 1 } 0
     let s ← expect s "]"
     parsePostfix fuel (.img t arg) s
+  | some (.op "{") =>
+    -- `f{x ↦ y}` directly after a term is Rodin's spelling of functional override,
+    -- `f  {x ↦ y}`. A brace in prefix position is still a set literal; only
+    -- juxtaposition means override.
+    let (arg, s) ← parseAt fuel { s with pos := s.pos + 1 } 0
+    let s ← expect s "}"
+    parsePostfix fuel (.bin "" t (.set (flattenCommas arg))) s
   | some (.op "∼") => parsePostfix fuel (.post "∼" t) { s with pos := s.pos + 1 }
   | _ => .ok (t, s)
 termination_by fuel _ _ => fuel
@@ -272,6 +279,11 @@ private def sameTree (a b : String) : Bool :=
 #guard (parse "∀a1,a2 · a1 ∈ S ∧ a2 ∈ S ⇒ a1 = a2").isOk
 #guard (parse "{x · x ∈ S ∣ x + 1}").isOk
 #guard (parse "λx ↦ y · x ∈ ℤ ∧ y ∈ ℤ ∣ x + y").isOk
+
+-- Functional override written by juxtaposition, as Rodin writes it.
+#guard sameTree "f{a ↦ b}" "f  {a ↦ b}"
+-- A brace not directly after a term is still a set literal.
+#guard sameTree "S ∪ {a}" "S ∪ {a}"
 
 -- Rejections: an unbalanced bracket and a chained relational operator.
 #guard !(parse "f(x").isOk
