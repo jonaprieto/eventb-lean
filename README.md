@@ -92,6 +92,11 @@ formulas remain available for Event-B-only operators such as `∖`. Actions use 
 the unquoted spelling of Event-B's `≔`. A formula that is not Event-B is an elaboration
 error pointing at the formula. See `examples/Counter.lean`.
 
+The DSL also checks names against the component environment: context symbols, machine
+variables and event parameters (including primed after-state variables) are the only
+user identifiers visible in a formula. A misspelling such as `LIMITT` is therefore an
+elaboration error instead of an unresolved model symbol.
+
 The executable examples are grouped in four files: `Counter.lean` is the small
 introductory model; `BookBridge.lean`, `BookPrograms.lean`, and `BookSystems.lean`
 hold the book-derived models. Together they contain 17 contexts and 40 machines.
@@ -117,6 +122,11 @@ The first panels show the context and machine surface—symbols, axioms, invaria
 events, and refinement links. The last panel shows obligation counts, classes,
 hypotheses, and generated goals in expandable cards. `lake build Examples` compiles
 this demo; the widgets do not alter the CLI, POG output, proof status, or trust ledger.
+
+Unquoted identifiers in DSL formulas also support native Go to Definition: clicking
+`LIMIT` in `cars < LIMIT` jumps to `constants LIMIT`. Quoted formulas remain available
+for Event-B operators that Lean syntax cannot represent, but do not provide identifier
+navigation.
 
 
 Corpus-wide, `eventb diff` reports **1105 obligations matching Rodin, 28 only Rodin has,

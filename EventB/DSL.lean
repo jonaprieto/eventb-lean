@@ -10,6 +10,9 @@ Formulas are parsed at elaboration time by `Formula.parse`. The DSL accepts ordi
 term syntax for predicates, while quoted formulas remain available for Event-B operators
 that Lean does not parse. Actions may use Lean's `:=` spelling for Event-B's `≔`.
 
+Formula identifiers are scope-checked against the component closure, and unquoted
+references carry native Lean server locations for Go to Definition.
+
     eventb_context Ctx where
       sets AIRPLANES
       constants MAX
@@ -100,10 +103,88 @@ private def eventAttrs (label : String) (conv : Option String) : TSyntax `term :
 
 private def noKids : TSyntax `term := Unhygienic.run `(([] : List EventB.Elem))
 
+private def symbolName (owner symbol : String) : Name :=
+  Name.mkSimple ("EventB.DSL.symbol." ++ owner ++ "." ++ symbol)
+
+private def addSymbolRange (owner : String) (id : Syntax) : CommandElabM Unit := do
+  let some range ← getDeclarationRange? id | return
+  Lean.addDeclarationRanges (symbolName owner id.getId.toString)
+    { range := range, selectionRange := range }
+
+private def ownerModule? : List String → CommandElabM (Option Name)
+  | [] => pure none
+  | owner :: owners => do
+      try
+        if let some module ← findModuleOf? (Name.mkSimple owner) then
+          return some module
+      catch _ => pure ()
+      ownerModule? owners
+
+private def baseSymbol (symbol : String) : String :=
+  if symbol.endsWith "'" then (symbol.dropEnd 1).copy else symbol
+
+private def symbolLocation? (owners : List String) (symbol : String) :
+    CommandElabM (Option DeclarationLocation) := do
+  let module := (← ownerModule? owners).getD (← getMainModule)
+  let symbol := baseSymbol symbol
+  for owner in owners do
+    if let some ranges ← Lean.findDeclarationRanges? (symbolName owner symbol) then
+      return some { module, range := ranges.selectionRange }
+  return none
+
+private def formulaIdentifiersAux : Nat → Syntax → List Syntax
+  | 0, _ => []
+  | fuel + 1, stx =>
+    if stx.isIdent then [stx]
+    else stx.getArgs.toList.flatMap (formulaIdentifiersAux fuel)
+
+private def formulaIdentifiers (stx : Syntax) : List Syntax :=
+  -- Formula syntax is shallow; the bound keeps this metadata walk executable.
+  formulaIdentifiersAux 1024 stx
+
+private def freeFormulaIdentifiers (bound : List String) : Formula.Term → List String
+  | .id n => if bound.contains n then [] else [n]
+  | .num _ => []
+  | .bin _ a b => freeFormulaIdentifiers bound a ++ freeFormulaIdentifiers bound b
+  | .pre _ a | .post _ a => freeFormulaIdentifiers bound a
+  | .app f a | .img f a => freeFormulaIdentifiers bound f ++ freeFormulaIdentifiers bound a
+  | .set ts => ts.flatMap (freeFormulaIdentifiers bound)
+  | .bind _ pattern body =>
+      let bound' := Formula.patternNames pattern ++ bound
+      freeFormulaIdentifiers bound' pattern ++ freeFormulaIdentifiers bound' body
+
+private def builtinIdentifier (name : String) : Bool :=
+  ["ℤ", "ℕ", "ℕ1", "BOOL", "TRUE", "FALSE", "⊤", "⊥", "finite", "partition",
+    "card", "min", "max", "dom", "ran", "bool", "union", "inter", "succ", "pred",
+    "prj1", "prj2", "id"].contains name
+
+private def checkScope (owners : List String) (stx : Syntax) (term : Formula.Term) :
+    CommandElabM Unit := do
+  for name in (freeFormulaIdentifiers [] term).eraseDups do
+    if !builtinIdentifier name && (← symbolLocation? owners name).isNone then
+      throwErrorAt stx s!"unknown Event-B identifier `{name}`"
+
+private def addDefinitionInfo (id : Syntax) (location : DeclarationLocation) :
+    CommandElabM Unit := do
+  pushInfoLeaf <| .ofDelabTermInfo {
+    elaborator := `EventB.DSL
+    stx := id
+    lctx := {}
+    expectedType? := none
+    expr := mkConst ``True
+    location? := some location
+  }
+
+private def addFormulaInfos (owners : List String) (stx : Syntax) : CommandElabM Unit := do
+  for id in formulaIdentifiers stx do
+    if let some location ← symbolLocation? owners id.getId.toString then
+      addDefinitionInfo id location
+
 /-- Reject anything that is not an Event-B formula, at elaboration time. -/
-private def checkFormula (stx : Syntax) (s : String) : CommandElabM Unit := do
+private def checkFormula (owners : List String) (stx : Syntax) (s : String) :
+    CommandElabM Unit := do
   match Formula.parse s with
-  | .ok _ => pure ()
+  | .ok term => checkScope owners stx term
   | .error e => throwErrorAt stx s!"not an Event-B formula: {e}"
 
 private def formulaText (f : TSyntax `ebFormula) : String :=
@@ -124,7 +205,7 @@ private def mkElem (ctor : String) (attrs kids : TSyntax `term) : TSyntax `term 
 private def listOf (ts : Array (TSyntax `term)) : TSyntax `term :=
   Unhygienic.run `([$ts,*])
 
-private def eventParts (parts : Array (TSyntax `ebEventPart)) :
+private def eventParts (owners : List String) (parts : Array (TSyntax `ebEventPart)) :
     CommandElabM (Array (TSyntax `term) × Option String) := do
   let mut out := #[]
   let mut conv : Option String := none
@@ -140,30 +221,78 @@ private def eventParts (parts : Array (TSyntax `ebEventPart)) :
           out := out.push (mkElem "parameter" (identAttrs x.getId.toString) noKids)
     | `(ebEventPart| guard $l:ebLabelled) =>
         let (lab, f, stx, isThm) ← labelledOf l
-        checkFormula stx f
+        checkFormula owners stx f
         out := out.push (mkElem "guard"
           (labelledAttrs "org.eventb.core.predicate" lab f isThm) noKids)
     | `(ebEventPart| action $l:ebLabelled) =>
         let (lab, f, stx, isThm) ← labelledOf l
-        checkFormula stx f
+        checkFormula owners stx f
         out := out.push (mkElem "action"
           (labelledAttrs "org.eventb.core.assignment" lab f isThm) noKids)
     | `(ebEventPart| witness $l:ebLabelled) =>
         let (lab, f, stx, isThm) ← labelledOf l
-        checkFormula stx f
+        checkFormula owners stx f
         out := out.push (mkElem "witness"
           (labelledAttrs "org.eventb.core.predicate" lab f isThm) noKids)
     | `(ebEventPart| status $s:ident) => conv := some s.getId.toString
     | stx => throwErrorAt stx "unexpected event clause"
   return (out, conv)
 
-private def eventOf (stx : TSyntax `ebEvent) : CommandElabM (TSyntax `term) := do
+private def eventOf (owner : String) (owners : List String) (stx : TSyntax `ebEvent) :
+    CommandElabM (TSyntax `term) := do
   match stx with
   | `(ebEvent| event $n:ident where $ps:ebEventPart*) => do
-      let (kids, conv) ← eventParts ps
+      let eventOwner := owner ++ "." ++ n.getId.toString
+      for p in ps do
+        match p with
+        | `(ebEventPart| any $xs:ident*) =>
+            for x in xs do addSymbolRange eventOwner x.raw
+        | _ => pure ()
+      let (kids, conv) ← eventParts (eventOwner :: owners) ps
       let attrs := eventAttrs n.getId.toString conv
       return mkElem "event" attrs (listOf kids)
   | other => throwErrorAt other "expected an event"
+
+private def addEventInfos (owner : String) (owners : List String)
+    (stx : TSyntax `ebEvent) : CommandElabM Unit := do
+  match stx with
+  | `(ebEvent| event $n:ident where $ps:ebEventPart*) =>
+      let eventOwner := owner ++ "." ++ n.getId.toString
+      for p in ps do
+        match p with
+        | `(ebEventPart| guard $l:ebLabelled) =>
+            let (_, _, s, _) ← labelledOf l
+            addFormulaInfos (eventOwner :: owners) s
+        | `(ebEventPart| action $l:ebLabelled) =>
+            let (_, _, s, _) ← labelledOf l
+            addFormulaInfos (eventOwner :: owners) s
+        | `(ebEventPart| witness $l:ebLabelled) =>
+            let (_, _, s, _) ← labelledOf l
+            addFormulaInfos (eventOwner :: owners) s
+        | _ => pure ()
+  | other => throwErrorAt other "expected an event"
+
+private def addMachineInfos (owner : String) (owners : List String)
+    (parts : Array (TSyntax `ebMachinePart)) : CommandElabM Unit := do
+  for p in parts do
+    match p with
+    | `(ebMachinePart| invariant $l:ebLabelled) =>
+        let (_, _, s, _) ← labelledOf l
+        addFormulaInfos owners s
+    | `(ebMachinePart| variant $l:ebLabelled) =>
+        let (_, _, s, _) ← labelledOf l
+        addFormulaInfos owners s
+    | `(ebMachinePart| $e:ebEvent) => addEventInfos owner owners e
+    | _ => pure ()
+
+private def addContextInfos (owners : List String)
+    (parts : Array (TSyntax `ebContextPart)) : CommandElabM Unit := do
+  for p in parts do
+    match p with
+    | `(ebContextPart| axiom $l:ebLabelled) =>
+        let (_, _, s, _) ← labelledOf l
+        addFormulaInfos owners s
+    | _ => pure ()
 
 syntax (name := eventbMachine)
   "eventb_machine " ident "where " ebMachinePart* : command
@@ -180,6 +309,19 @@ private def define (name : Ident) (body : TSyntax `term) : CommandElabM Unit := 
 private def elabMachine : CommandElab := fun stx => do
   match stx with
   | `(eventb_machine $n:ident where $ps:ebMachinePart*) => do
+      let owner := n.getId.toString
+      let mut owners := [owner]
+      for p in ps do
+        match p with
+        | `(ebMachinePart| refines $r:ident) => owners := owners ++ [r.getId.toString]
+        | `(ebMachinePart| sees $ss:ident*) =>
+            for s in ss do owners := owners ++ [s.getId.toString]
+        | _ => pure ()
+      for p in ps do
+        match p with
+        | `(ebMachinePart| variables $xs:ident*) =>
+            for x in xs do addSymbolRange owner x.raw
+        | _ => pure ()
       let mut kids : Array (TSyntax `term) := #[]
       for p in ps do
         match p with
@@ -196,24 +338,40 @@ private def elabMachine : CommandElab := fun stx => do
                 (mkElem "variable" (identAttrs x.getId.toString) noKids)
         | `(ebMachinePart| invariant $l:ebLabelled) =>
             let (lab, f, s, isThm) ← labelledOf l
-            checkFormula s f
+            checkFormula owners s f
             kids := kids.push (mkElem "invariant"
               (labelledAttrs "org.eventb.core.predicate" lab f isThm) noKids)
         | `(ebMachinePart| variant $l:ebLabelled) =>
             let (lab, f, s, isThm) ← labelledOf l
-            checkFormula s f
+            checkFormula owners s f
             kids := kids.push (mkElem "variant"
               (labelledAttrs "org.eventb.core.expression" lab f isThm) noKids)
-        | `(ebMachinePart| $e:ebEvent) => kids := kids.push (← eventOf e)
+        | `(ebMachinePart| $e:ebEvent) =>
+            kids := kids.push (← eventOf owner owners e)
         | other => throwErrorAt other "unexpected machine clause"
       define n (mkElem "machineFile" (Unhygienic.run `(([] : List (String × String))))
         (listOf kids))
+      addMachineInfos owner owners ps
   | _ => throwUnsupportedSyntax
 
 @[command_elab eventbContext]
 private def elabContext : CommandElab := fun stx => do
   match stx with
   | `(eventb_context $n:ident where $ps:ebContextPart*) => do
+      let owner := n.getId.toString
+      let mut owners := [owner]
+      for p in ps do
+        match p with
+        | `(ebContextPart| extends $es:ident*) =>
+            for e in es do owners := owners ++ [e.getId.toString]
+        | _ => pure ()
+      for p in ps do
+        match p with
+        | `(ebContextPart| sets $xs:ident*) =>
+            for x in xs do addSymbolRange owner x.raw
+        | `(ebContextPart| constants $xs:ident*) =>
+            for x in xs do addSymbolRange owner x.raw
+        | _ => pure ()
       let mut kids : Array (TSyntax `term) := #[]
       for p in ps do
         match p with
@@ -230,12 +388,13 @@ private def elabContext : CommandElab := fun stx => do
               kids := kids.push (mkElem "constant" (identAttrs x.getId.toString) noKids)
         | `(ebContextPart| axiom $l:ebLabelled) =>
             let (lab, f, s, isThm) ← labelledOf l
-            checkFormula s f
+            checkFormula owners s f
             kids := kids.push (mkElem "axiom"
               (labelledAttrs "org.eventb.core.predicate" lab f isThm) noKids)
         | other => throwErrorAt other "unexpected context clause"
       define n (mkElem "contextFile" (Unhygienic.run `(([] : List (String × String))))
         (listOf kids))
+      addContextInfos owners ps
   | _ => throwUnsupportedSyntax
 
 /-- `#eventb_pog M Ctx ...` prints the obligations generated for the first named

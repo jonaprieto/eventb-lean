@@ -13,7 +13,7 @@ open EventB
 /-! Chapter 2, "Controlling cars on a bridge", Sections 2.4--2.7. -/
 
 eventb_context BridgeCtx where
-  constants d
+  constants d red green on off
   axiom axm0_1 : "d ∈ ℕ"
   axiom axm0_2 : "0 < d"
 
@@ -131,7 +131,7 @@ eventb_machine Bridge3 where
 
 eventb_context FileCtx where
   sets D
-  constants n f MAX
+  constants n f MAX working success failure
   axiom axm0_1 : "0 < n"
   axiom axm0_2 : "f ∈ 1‥n → D"
   axiom axm0_3 : "MAX ∈ ℕ"

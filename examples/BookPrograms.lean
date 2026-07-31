@@ -38,7 +38,7 @@ eventb_machine NotationMachine where
   event nondeterministic_relation where
     action act1 : "x :∣ x' = y' ∧ y' = x' + z"
   event witness_example where
-    any v
+    any i v
     guard grd1 : "v ∈ D"
     witness wit1 : "v = f(i)"
     action act1 : "y ≔ y + 1"
@@ -47,7 +47,7 @@ eventb_machine NotationMachine where
 
 eventb_context MathCtx where
   sets S V
-  constants r f n p
+  constants r f n p cl
   axiom axm0_1 : "r ∈ S ↔ S"
   axiom axm0_2 : "f ∈ V"
   axiom axm0_3 : "n ∈ V → V"
@@ -150,7 +150,7 @@ eventb_machine ArrayPrograms where
     action act1 : "a, b, i, j, k, r ≔ 1, n, 1, n, 0, 0"
   event minimum where
     guard grd1 : "i ≤ j"
-    action act1 : "r ≔ min({f(x) | x ∈ i‥j})"
+    action act1 : "r ≔ min({x · x ∈ i‥j ∣ f(x)})"
   event partition where
     guard grd1 : "i < j"
     any x
@@ -211,7 +211,7 @@ eventb_machine ListReverse1 where
 /-! Chapter 15.10: square root by defect, including two refinements. -/
 
 eventb_context RootCtx where
-  constants n
+  constants n f
   axiom axm0_1 : "n ∈ ℕ"
 
 eventb_machine SquareRoot0 where

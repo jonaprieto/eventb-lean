@@ -13,7 +13,7 @@ open EventB
 
 eventb_context PressCtx where
   sets STATUS
-  constants stopped working
+  constants stopped working engaged disengaged door_open door_closed
   axiom axm0_1 : "STATUS = {stopped, working}"
   axiom axm0_2 : "stopped ≠ working"
 
@@ -102,33 +102,34 @@ eventb_machine Press3 where
   variables motor_actuator motor_sensor clutch_actuator clutch_sensor door_actuator door_sensor
   invariant inv3_1 : "door_actuator ∈ STATUS"
   invariant inv3_2 : "door_sensor ∈ STATUS"
-  invariant inv3_3 : "clutch_sensor = engaged ⇒ door_sensor = closed"
-  invariant inv3_4 : "door_sensor = closed ⇒ motor_sensor = working"
+  invariant inv3_3 : "clutch_sensor = engaged ⇒ door_sensor = door_closed"
+  invariant inv3_4 : "door_sensor = door_closed ⇒ motor_sensor = working"
   event INITIALISATION where
-    action act1 : "door_actuator, door_sensor ≔ open, open"
+    action act1 : "door_actuator, door_sensor ≔ door_open, door_open"
   event treat_close_door where
-    guard grd1 : "door_actuator = open"
-    guard grd2 : "door_sensor = open"
+    guard grd1 : "door_actuator = door_open"
+    guard grd2 : "door_sensor = door_open"
     guard grd3 : "clutch_sensor = engaged"
-    action act1 : "door_actuator ≔ closed"
+    action act1 : "door_actuator ≔ door_closed"
   event treat_open_door where
-    guard grd1 : "door_actuator = closed"
-    guard grd2 : "door_sensor = closed"
+    guard grd1 : "door_actuator = door_closed"
+    guard grd2 : "door_sensor = door_closed"
     guard grd3 : "clutch_sensor = disengaged"
-    action act1 : "door_actuator ≔ open"
+    action act1 : "door_actuator ≔ door_open"
   event door_close where
-    guard grd1 : "door_sensor = open"
-    guard grd2 : "door_actuator = closed"
-    action act1 : "door_sensor ≔ closed"
+    guard grd1 : "door_sensor = door_open"
+    guard grd2 : "door_actuator = door_closed"
+    action act1 : "door_sensor ≔ door_closed"
   event door_open where
-    guard grd1 : "door_sensor = closed"
-    guard grd2 : "door_actuator = open"
-    action act1 : "door_sensor ≔ open"
+    guard grd1 : "door_sensor = door_closed"
+    guard grd2 : "door_actuator = door_open"
+    action act1 : "door_sensor ≔ door_open"
 
 /-! Chapter 7: Simpson's four-slot asynchronous mechanism (Sections 7.4--7.9). -/
 
 eventb_context SlotsCtx where
   sets D
+  constants env cir
   axiom axm0_1 : "D ≠ ∅"
 
 eventb_machine Slots0 where
@@ -396,6 +397,7 @@ eventb_machine Graph1 where
     guard grd1 : "m ≠ ∅"
     action act1 : "c ≔ c ∪ m"
   event solve_contention where
+    any x y
     guard grd1 : "c = {x ↦ y, y ↦ x}"
     action act1 : "c ≔ ∅"
 
