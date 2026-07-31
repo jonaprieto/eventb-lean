@@ -261,7 +261,46 @@ derives goals they are compared against the `org.eventb.core.predicate` Rodin re
 the same sequent. Modulo type ascriptions, which carry no logical content.
 
 Unlike every gate before it, this one is not reproducing a recorded answer from a
-recorded answer: the goal is derived from the `.bum` alone. -/
+recorded answer: the goal is derived from the `.bum` alone.
+
+Rodin keeps a sequent's hypotheses in a parent chain of predicate sets, so the whole
+chain has to be resolved before they can be compared. -/
+private partial def predicateSets (e : XmlElem) : List (String × Option String × List String) :=
+  let here :=
+    if e.tag == "org.eventb.core.poPredicateSet" then
+      [(((e.attr? "name").getD ""),
+        (e.attr? "org.eventb.core.parentSet").map (fun t => (t.splitOn "#").getLast!),
+        e.children.filter (fun c => c.tag == "org.eventb.core.poPredicate")
+          |>.filterMap (fun c => c.attr? "org.eventb.core.predicate"))]
+    else []
+  e.children.foldl (fun acc c => acc ++ predicateSets c) here
+
+private def chainHyps (sets : List (String × Option String × List String))
+    (start : Option String) : List String :=
+  go sets.length start []
+where
+  go : Nat → Option String → List String → List String
+    | 0, _, acc => acc
+    | _, none, acc => acc
+    | fuel + 1, some n, acc =>
+      match sets.find? (fun s => s.1 == n) with
+      | none => acc
+      | some (_, parent, preds) => go fuel parent (preds ++ acc)
+
+private partial def goldHyps (e : XmlElem)
+    (sets : List (String × Option String × List String)) : List (String × List String) :=
+  let here :=
+    if e.tag == "org.eventb.core.poSequent" then
+      match e.attr? "name" with
+      | some n =>
+        let inner := e.children.find? (fun c => c.tag == "org.eventb.core.poPredicateSet")
+        let parent := inner.bind (fun i =>
+          (i.attr? "org.eventb.core.parentSet").map (fun t => (t.splitOn "#").getLast!))
+        [(n, chainHyps sets parent)]
+      | none => []
+    else []
+  e.children.foldl (fun acc c => acc ++ goldHyps c sets) here
+
 private partial def goldGoals (e : XmlElem) : List (String × String) :=
   let here :=
     if e.tag == "org.eventb.core.poSequent" then
@@ -302,6 +341,30 @@ private def checkGoals (project : Project) (file : String)
             { key := key, status := "PASS" }
           else
             { key := key, status := "FAIL:differs" }
+
+private def readGoldHyps (path : System.FilePath) : IO (List (String × List String)) := do
+  match parseXml (← IO.FS.readBinFile path) with
+  | .error _ => return []
+  | .ok xml => return goldHyps xml (predicateSets xml)
+
+/-- Hypotheses are scored as sets: Rodin's order is an artefact of how it walks the
+predicate-set chain, and a generator that produces the same assumptions in a different
+order is not wrong. -/
+private def checkHyps (project : Project) (file : String)
+    (gold : List (String × List String)) : List GoalResult :=
+  (generate project file).filterMap fun o =>
+    if o.hyps.isEmpty then none else
+    let key := file ++ "\t" ++ o.name
+    match gold.find? (fun p => p.1 == o.name) with
+    | none => some { key := key, status := "FAIL:no such sequent in .bpo" }
+    | some (_, gs) =>
+      let want := gs.filterMap (fun t => (Formula.parse t).toOption.map Formula.stripAscriptions)
+      let ours := o.hyps.map Formula.stripAscriptions
+      let missing := want.filter (fun w => !ours.contains w)
+      let extra := ours.filter (fun h => !want.contains h)
+      if missing.isEmpty && extra.isEmpty then some { key := key, status := "PASS" }
+      else some { key := key,
+                  status := s!"FAIL:missing {missing.length} extra {extra.length}" }
 
 private def goalHistogram (results : List GoalResult) : List (String × Nat) :=
   (results.foldl
@@ -395,6 +458,13 @@ private def run (args : List String) : IO UInt32 := do
     let bpo := path.toString.dropRight 4 ++ ".bpo"
     let name := ((path.toString.splitOn "/").getLast!.splitOn ".").head!
     goalResults := goalResults ++ checkGoals project name (← readGoldGoals bpo)
+  let mut hypResults : List GoalResult := []
+  for path in files do
+    let bpo := path.toString.dropRight 4 ++ ".bpo"
+    let name := ((path.toString.splitOn "/").getLast!.splitOn ".").head!
+    hypResults := hypResults ++ checkHyps project name (← readGoldHyps bpo)
+  let hypPassed := hypResults.countP (fun r => r.status == "PASS")
+  let hypActual := hypResults.map (fun r => r.key ++ "\t" ++ r.status)
   let goalPassed := goalResults.countP (fun r => r.status == "PASS")
   let goalActual := goalResults.map (fun r => r.key ++ "\t" ++ r.status)
   let poPassed := poResults.countP (fun r => r.status == "PASS")
@@ -410,6 +480,7 @@ private def run (args : List String) : IO UInt32 := do
     IO.eprintln s!"type assertion count {typeResults.length}, expected {typeCount}"
   IO.println s!"P3 obligations: {poPassed}/{sequentCount}"
   IO.println s!"P3b statements: {goalPassed}/{goalResults.length} derived"
+  IO.println s!"P3b hypotheses: {hypPassed}/{hypResults.length} derived"
   if !formulaCountOK then
     IO.eprintln s!"formula count {formulas.length}, expected {formulaCount}"
   if !inventoryOK then
@@ -425,6 +496,8 @@ private def run (args : List String) : IO UInt32 := do
       IO.println s!"{count}\t{reason}"
     for (reason, count) in goalHistogram goalResults do
       IO.println s!"{count}\t{reason}"
+    for (reason, count) in goalHistogram hypResults do
+      IO.println s!"{count}\t{reason}"
   if args.contains "--status" then
     writeStatus results formulas typeResults poResults inventory
   let parseOK := results.all (fun result => result.status == "PASS")
@@ -437,6 +510,7 @@ private def run (args : List String) : IO UInt32 := do
       writeBaseline "baseline/typecheck.tsv" typeActual
       writeBaseline "baseline/pog.tsv" poActual
       writeBaseline "baseline/statement.tsv" goalActual
+      writeBaseline "baseline/hypothesis.tsv" hypActual
     else
       IO.eprintln "refusing to bless a failed P0 gate"
       return 1
@@ -451,7 +525,10 @@ private def run (args : List String) : IO UInt32 := do
   let pbaselineOK ← baselineDiff (nonemptyLines pbaseline) poActual
   let gbaseline ← try IO.FS.readFile "baseline/statement.tsv" catch _ => pure ""
   let gbaselineOK ← baselineDiff (nonemptyLines gbaseline) goalActual
-  if !baselineOK || !fbaselineOK || !tbaselineOK || !pbaselineOK || !gbaselineOK then
+  let hbaseline ← try IO.FS.readFile "baseline/hypothesis.tsv" catch _ => pure ""
+  let hbaselineOK ← baselineDiff (nonemptyLines hbaseline) hypActual
+  if !baselineOK || !fbaselineOK || !tbaselineOK || !pbaselineOK || !gbaselineOK
+      || !hbaselineOK then
     return 1
   if parseOK && inventoryOK && formulaCountOK then
     return 0
