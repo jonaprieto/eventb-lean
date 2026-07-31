@@ -1,0 +1,12 @@
+name = "spike"
+defaultTargets = ["Spike"]
+
+# The P4 discharge spike needs Mathlib for `Set` and the tactic ecosystem. It stays a
+# separate lake project, the way grip keeps `grip-props` apart, so the main library's
+# dependency closure remains batteries-only.
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+
+[[lean_lib]]
+name = "Spike"

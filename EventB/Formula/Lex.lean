@@ -60,6 +60,10 @@ def operators : List (String × String) :=
    -- Type constructors written as operators.
    ("ℙ1", "ℙ1"), ("POW1", "ℙ1"), ("ℙ", "ℙ"), ("POW", "ℙ"),
    ("ℕ1", "ℕ1"), ("NAT1", "ℕ1"), ("ℕ", "ℕ"), ("NAT", "ℕ"), ("ℤ", "ℤ"), ("INT", "ℤ"),
+   -- Type ascription on a bound variable, as in `∀x⦂ℤ·P`. It appears only in the
+   -- predicates Rodin writes into `.bpo` files, never in a `.bum`, which is why the
+   -- machine corpus does not exercise it.
+   ("⦂", "⦂"), ("::", "⦂"),
    -- Structure.
    ("(", "("), (")", ")"), ("{", "{"), ("}", "}"), ("[", "["), ("]", "]"),
    (",", ","), ("·", "·"), (".", "·"), ("∣", "∣"), ("|", "∣")]
