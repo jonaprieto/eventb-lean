@@ -125,6 +125,33 @@ def effectiveActions (p : Project) (machine : String) (ev : Elem) : List Elem :=
 def effectiveGuards (p : Project) (machine : String) (ev : Elem) : List Elem :=
   inheritedChildren p "guard" p.length machine ev
 
+/-- The substitution an event performs, including what the abstract machine still does
+to variables the concrete event does not touch.
+
+A gluing invariant mentions abstract variables, and those keep evolving under the
+abstract event even when the refinement never names them, so `scheduledAirplanes =
+dom(landing_sequence)` becomes `∅ = dom(∅)` under an INITIALISATION that only assigns
+`landing_sequence` here and leaves the other to the machine above. Concrete assignments
+win; `depth` bounds the walk by the component count, as elsewhere. -/
+def eventSubst (p : Project) : Nat → String → Elem → List (String × Term)
+  | 0, _, ev => (childrenOf ev "action").flatMap substOf
+  | depth + 1, machine, ev =>
+    let own := (childrenOf ev "action").flatMap substOf
+    let inherited :=
+      match lookupComponent p machine with
+      | none => []
+      | some m =>
+        ((childrenOf m.elem "refinesMachine").filterMap targetName).flatMap fun am =>
+          match lookupComponent p am with
+          | none => []
+          | some a =>
+            let target :=
+              ((childrenOf ev "refinesEvent").filterMap targetName).head?.getD (labelOf ev)
+            match (childrenOf a.elem "event").find? (fun e => labelOf e == target) with
+            | none => []
+            | some ae => eventSubst p depth am ae
+    own ++ inherited.filter (fun q => !own.any (fun o => o.1 == q.1))
+
 /-- Guards and actions of the abstract event a refined event refines. These are what GRD
 and SIM obligations are named after: the abstract label, not the concrete one. -/
 private def abstractEvent (p : Project) (machine : String) (ev : Elem) :
@@ -216,7 +243,7 @@ def generate (p : Project) (name : String) : List Obligation := Id.run do
           if assigned.any (fun v => free.contains v) then
             -- The obligation is the invariant restated over the after-state, which is
             -- exactly the invariant with the event's assignments substituted in.
-            let σ := actions.flatMap substOf
+            let σ := eventSubst p p.length name ev
             let goal := (Formula.parse ((attrOf inv "predicate").getD "")).toOption.map
               (Formula.subst σ)
             out := out ++
