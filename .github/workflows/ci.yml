@@ -50,6 +50,8 @@ jobs:
       - uses: leanprover/lean-action@v1
         with:
           build-args: "EventB gates"
+      - name: Compile book examples
+        run: lake build Examples
       - name: Corpus ratchet
         run: |
           # `if !` tests the exit status directly, so a regression fails the job

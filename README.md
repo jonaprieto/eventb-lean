@@ -26,6 +26,16 @@ P3b hypotheses: 906/1685 derived
 
 ## Using it
 
+From a checkout, this verifies the library, the executable book examples, the
+corpus ratchet, and the repository style:
+
+```sh
+$ lake build
+$ lake build Examples
+$ lake exe gates
+$ python3 scripts/style-check.py
+```
+
 Build the executable, then point it at a Rodin project directory. `check` lists the
 generated obligations; `diff` compares their names with Rodin's `.bpo` files:
 
@@ -79,6 +89,16 @@ eventb_machine M where
 
 A formula that is not Event-B is a Lean elaboration error pointing at the literal. See
 `examples/Counter.lean`.
+
+The executable examples are grouped in four files: `Counter.lean` is the small
+introductory model; `BookBridge.lean`, `BookPrograms.lean`, and `BookSystems.lean`
+hold the book-derived models. Together they contain 17 contexts and 40 machines.
+They are ordinary Lean sources, so `lake build Examples` checks them through the same
+DSL, parser, typechecker, and proof-obligation generator as Rodin files.
+
+The book export also contains proof trees, pseudocode, OCR fragments, and image-only
+blocks. Those are documentation, not executable Event-B inputs; the four files cover
+the model examples that can be represented and checked by this toolchain.
 
 
 Corpus-wide, `eventb diff` reports **1105 obligations matching Rodin, 28 only Rodin has,
