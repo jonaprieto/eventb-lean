@@ -9,15 +9,21 @@ package «eventb» where
 require grip from git
   "https://github.com/jonaprieto/grip" @ "eb29a2331729a7087eab54838557e7490e802a29"
 
+require "leanprover-community" / "proofwidgets" @ git "v0.0.87"
+
 @[default_target]
 lean_lib «EventB» where
   -- Build every module under EventB/, so no submodule can hide unbuilt.
   globs := #[.andSubmodules `EventB]
 
+lean_lib «EventBWidgets» where
+  globs := #[.one `Widgets]
+
 /-- The ratchet. `lake exe gates` diffs the corpus against `baseline/*.tsv`. -/
 lean_lib «Examples» where
   srcDir := "examples"
-  globs := #[.one `Counter, .one `BookBridge, .one `BookSystems, .one `BookPrograms]
+  globs := #[.one `Counter, .one `BookBridge, .one `BookSystems, .one `BookPrograms,
+    .one `WidgetDemo]
 
 lean_exe «gates» where
   root := `Gates
