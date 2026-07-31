@@ -37,6 +37,7 @@ open Lean Elab Command Term
 
 declare_syntax_cat ebLabelled
 syntax ident ":" str : ebLabelled
+syntax "theorem " ident ":" str : ebLabelled
 
 declare_syntax_cat ebEventPart
 syntax "any " ident+ : ebEventPart
@@ -63,9 +64,13 @@ syntax "constants " ident+ : ebContextPart
 syntax "axiom " ebLabelled : ebContextPart
 
 /-- Attribute list for a labelled child: `@[label] formula`. -/
-private def labelledAttrs (attr label formula : String) : TSyntax `term :=
-  Unhygienic.run
-    `([("org.eventb.core.label", $(quote label)), ($(quote attr), $(quote formula))])
+private def labelledAttrs (attr label formula : String) (isThm : Bool) : TSyntax `term :=
+  if isThm then
+    Unhygienic.run `([("org.eventb.core.label", $(quote label)),
+      ($(quote attr), $(quote formula)), ("org.eventb.core.theorem", "true")])
+  else
+    Unhygienic.run
+      `([("org.eventb.core.label", $(quote label)), ($(quote attr), $(quote formula))])
 
 private def identAttrs (name : String) : TSyntax `term :=
   Unhygienic.run `([("org.eventb.core.identifier", $(quote name))])
@@ -81,8 +86,10 @@ private def checkFormula (stx : Syntax) (s : String) : CommandElabM Unit := do
   | .ok _ => pure ()
   | .error e => throwErrorAt stx s!"not an Event-B formula: {e}"
 
-private def labelledOf : TSyntax `ebLabelled → CommandElabM (String × String × Syntax)
-  | `(ebLabelled| $l:ident : $f:str) => pure (l.getId.toString, f.getString, f)
+private def labelledOf : TSyntax `ebLabelled → CommandElabM (String × String × Syntax × Bool)
+  | `(ebLabelled| $l:ident : $f:str) => pure (l.getId.toString, f.getString, f, false)
+  | `(ebLabelled| theorem $l:ident : $f:str) =>
+      pure (l.getId.toString, f.getString, f, true)
   | stx => throwErrorAt stx "expected `label : \"formula\"`"
 
 private def mkElem (ctor : String) (attrs kids : TSyntax `term) : TSyntax `term :=
@@ -102,20 +109,20 @@ private def eventParts (parts : Array (TSyntax `ebEventPart)) :
         for x in xs do
           out := out.push (mkElem "parameter" (identAttrs x.getId.toString) noKids)
     | `(ebEventPart| guard $l:ebLabelled) =>
-        let (lab, f, stx) ← labelledOf l
+        let (lab, f, stx, isThm) ← labelledOf l
         checkFormula stx f
-        out := out.push (mkElem "guard" (labelledAttrs "org.eventb.core.predicate" lab f)
-          noKids)
+        out := out.push (mkElem "guard"
+          (labelledAttrs "org.eventb.core.predicate" lab f isThm) noKids)
     | `(ebEventPart| action $l:ebLabelled) =>
-        let (lab, f, stx) ← labelledOf l
+        let (lab, f, stx, isThm) ← labelledOf l
         checkFormula stx f
         out := out.push (mkElem "action"
-          (labelledAttrs "org.eventb.core.assignment" lab f) noKids)
+          (labelledAttrs "org.eventb.core.assignment" lab f isThm) noKids)
     | `(ebEventPart| witness $l:ebLabelled) =>
-        let (lab, f, stx) ← labelledOf l
+        let (lab, f, stx, isThm) ← labelledOf l
         checkFormula stx f
         out := out.push (mkElem "witness"
-          (labelledAttrs "org.eventb.core.predicate" lab f) noKids)
+          (labelledAttrs "org.eventb.core.predicate" lab f isThm) noKids)
     | stx => throwErrorAt stx "unexpected event clause"
   return out
 
@@ -158,10 +165,10 @@ private def elabMachine : CommandElab := fun stx => do
               kids := kids.push
                 (mkElem "variable" (identAttrs x.getId.toString) noKids)
         | `(ebMachinePart| invariant $l:ebLabelled) =>
-            let (lab, f, s) ← labelledOf l
+            let (lab, f, s, isThm) ← labelledOf l
             checkFormula s f
             kids := kids.push (mkElem "invariant"
-              (labelledAttrs "org.eventb.core.predicate" lab f) noKids)
+              (labelledAttrs "org.eventb.core.predicate" lab f isThm) noKids)
         | `(ebMachinePart| $e:ebEvent) => kids := kids.push (← eventOf e)
         | other => throwErrorAt other "unexpected machine clause"
       define n (mkElem "machineFile" (Unhygienic.run `(([] : List (String × String))))
@@ -187,10 +194,10 @@ private def elabContext : CommandElab := fun stx => do
             for x in xs do
               kids := kids.push (mkElem "constant" (identAttrs x.getId.toString) noKids)
         | `(ebContextPart| axiom $l:ebLabelled) =>
-            let (lab, f, s) ← labelledOf l
+            let (lab, f, s, isThm) ← labelledOf l
             checkFormula s f
             kids := kids.push (mkElem "axiom"
-              (labelledAttrs "org.eventb.core.predicate" lab f) noKids)
+              (labelledAttrs "org.eventb.core.predicate" lab f isThm) noKids)
         | other => throwErrorAt other "unexpected context clause"
       define n (mkElem "contextFile" (Unhygienic.run `(([] : List (String × String))))
         (listOf kids))
