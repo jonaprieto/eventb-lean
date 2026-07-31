@@ -56,11 +56,22 @@ BIN = {
     '∈': ' ∈ ', '∉': ' ∉ ', '⊆': ' ⊆ ', '⊂': ' ⊂ ',
     '∪': ' ∪ ', '∩': ' ∩ ', '∖': ' \\ ',
     '+': ' + ', '−': ' - ', '∗': ' * ',
+    'mod': ' % ',
 }
+# Rodin spells four operators with private-use codepoints, which no editor renders and
+# which copy-paste silently drops: U+E100..U+E102 are the surjective relation arrows and
+# U+E103 is override. They are written as escapes here because an earlier copy of this
+# table lost them to empty strings, which is also the bug that once hung the lexer.
+SREL = '\ue100'   # set of surjective relations
+TREL = '\ue101'   # set of total relations
+STREL = '\ue102'  # set of total surjective relations
+OVERRIDE = '\ue103'
+
 FUN2 = {
     '×': 'B.prod', '◁': 'B.domRes', '⩤': 'B.domSub', '▷': 'B.ranRes',
-    '⩥': 'B.ranSub', '': 'B.override', '‥': 'B.upto', '∘': 'B.comp',
-    '↔': 'B.rel', '⇸': 'B.pfun', '→': 'B.tfun', '⤔': 'B.pinj',
+    '⩥': 'B.ranSub', OVERRIDE: 'B.override', '‥': 'B.upto', '∘': 'B.comp',
+    '↔': 'B.rel', SREL: 'B.srel', TREL: 'B.trel', STREL: 'B.strel',
+    '⇸': 'B.pfun', '→': 'B.tfun', '⤔': 'B.pinj',
     '↣': 'B.tinj', '⤀': 'B.psurj', '↠': 'B.tsurj', '⤖': 'B.tbij',
 }
 
@@ -113,8 +124,16 @@ def tr(node):
             return f'(Set.Finite {tr(a)})'
         if f[0] == 'id' and f[1] == 'card':
             return f'((Set.ncard {tr(a)} : Int))'
-        if f[0] == 'id' and f[1] in ('min', 'max', 'bool', 'partition', 'union',
-                                     'inter', 'id', 'prj1', 'prj2', 'succ', 'pred'):
+        if f[0] == 'id' and f[1] == 'max':
+            return f'(B.max {tr(a)})'
+        if f[0] == 'id' and f[1] == 'min':
+            return f'(B.min {tr(a)})'
+        if f[0] == 'id' and f[1] == 'partition':
+            parts = comma_list(a)
+            return ('(B.partition ' + tr(parts[0]) + ' ['
+                    + ', '.join(tr(x) for x in parts[1:]) + '])')
+        if f[0] == 'id' and f[1] in ('bool', 'union', 'inter', 'id', 'prj1', 'prj2',
+                                     'succ', 'pred'):
             raise Unsupported('keyword ' + f[1])
         # Anything else in application position is a user function, and Event-B's `f(x)`
         # is a definite description over a set of pairs.
@@ -144,13 +163,51 @@ def tr(node):
             return '(∀ ' + ' '.join(binders) + ', ' + tr(body) + ')'
         if kind == '∃':
             return '(∃ ' + ' '.join(binders) + ', ' + tr(body) + ')'
+        if kind == 'λ':
+            # `λx·P ∣ E` is the set of pairs `x ↦ E` for those `x` satisfying `P`.
+            pred, expr = split_bar(body)
+            return ('{q | ∃ ' + ' '.join(binders) + ', ' + tr(pred)
+                    + ' ∧ q = (' + pattern_value(pat) + ', ' + tr(expr) + ')}')
+        if kind == '{':
+            # `{x·P ∣ E}` is the set of values of `E`; `{x·P}` the set of the `x`
+            # themselves, which is the same thing with `E` the pattern.
+            pred, expr = split_bar(body)
+            if expr is None:
+                return '{q | ∃ ' + ' '.join(binders) + ', ' + tr(pred) + \
+                       ' ∧ q = ' + pattern_value(pat) + '}'
+            return ('{q | ∃ ' + ' '.join(binders) + ', ' + tr(pred)
+                    + ' ∧ q = ' + tr(expr) + '}')
         raise Unsupported('binder ' + kind)
     raise Unsupported(k)
 
 
+def comma_list(node):
+    if node[0] == 'bin' and node[1] == ',':
+        return comma_list(node[2]) + comma_list(node[3])
+    return [node]
+
+
+def split_bar(body):
+    """`P ∣ E` -> (P, E); a body with no bar is all predicate."""
+    if body[0] == 'bin' and body[1] == '∣':
+        return body[2], body[3]
+    return body, None
+
+
+def pattern_value(pat):
+    """The tuple a binder pattern denotes, so `x ↦ y` becomes `(x, y)`."""
+    if pat[0] == 'bin' and pat[1] == '⦂':
+        return pattern_value(pat[2])
+    if pat[0] == 'bin' and pat[1] in ('↦', ','):
+        return '(' + pattern_value(pat[2]) + ', ' + pattern_value(pat[3]) + ')'
+    if pat[0] == 'id':
+        return pat[1]
+    raise Unsupported('pattern value')
+
+
 def pattern_binders(pat):
     """`x⦂T, y⦂U` -> ['(x : T)', '(y : U)']."""
-    if pat[0] == 'bin' and pat[1] == ',':
+    if pat[0] == 'bin' and pat[1] in (',', '↦'):
         return pattern_binders(pat[2]) + pattern_binders(pat[3])
     if pat[0] == 'bin' and pat[1] == '⦂':
         name, ty = pat[2], pat[3]

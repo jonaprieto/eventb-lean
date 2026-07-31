@@ -36,7 +36,13 @@ for p in pos:
         binders += [f"[Nonempty {c}]" for c in cs]
         # A carrier used as a value is `Set.univ`, so it gets no variable of its own.
         binders += [f"({n} : {lean_type(t)})" for n, t in p['idents'] if n not in cs]
-        hyps = [f"(h{j} : {tr(a)})" for j, a in enumerate(p.get('hyp_ast', []))]
+        # --no-hyps is a faithfulness control: with the hypotheses removed, a correctly
+        # translated obligation should mostly stop being provable. If the rate barely
+        # moves, the hypotheses were doing no work and the goals are near-trivial.
+        if '--no-hyps' in sys.argv:
+            hyps = []
+        else:
+            hyps = [f"(h{j} : {tr(a)})" for j, a in enumerate(p.get('hyp_ast', []))]
         goal = tr(p['goal_ast'])
         ok.append((p, binders + hyps, goal))
     except Unsupported as e:
