@@ -1,9 +1,10 @@
-import Counter
+import BookBridge
 import Widgets
 
 /-!
-The smallest editor demo: open this file in VS Code and inspect the Infoview panel
-created by `#eventb_pog_widget`.
+Open this file in VS Code and inspect the Infoview panel created by
+`#eventb_pog_widget`.  Bridge2 is a refinement from the book's bridge controller;
+the cards include invariant, guard-strengthening, and simulation obligations.
 -/
 
-#eventb_pog_widget project M
+#eventb_pog_widget bookProject Bridge2

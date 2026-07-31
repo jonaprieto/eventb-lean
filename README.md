@@ -106,12 +106,12 @@ For an interactive view in the Lean VS Code Infoview, open
 `examples/WidgetDemo.lean`. It uses the optional ProofWidgets front end:
 
 ```lean
-#eventb_pog_widget project M
+#eventb_pog_widget bookProject Bridge2
 ```
 
-The panel shows the obligation count, class, hypotheses, and generated goal in
-expandable cards. `lake build Examples` compiles this demo; the widget does not alter
-the CLI, POG output, proof status, or trust ledger.
+The panel shows the bridge refinement's obligation count, class, hypotheses, and
+generated goal in expandable cards. `lake build Examples` compiles this demo; the
+widget does not alter the CLI, POG output, proof status, or trust ledger.
 
 
 Corpus-wide, `eventb diff` reports **1105 obligations matching Rodin, 28 only Rodin has,

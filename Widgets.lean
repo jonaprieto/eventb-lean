@@ -10,7 +10,7 @@ import ProofWidgets.Component.HtmlDisplay
 
 namespace EventB.Widgets
 
-open Lean Elab Command
+open Lean Server Elab Command
 open EventB Formula POG ProofWidgets
 
 private def element (tag : String) (children : List Html) : Html :=
@@ -74,9 +74,16 @@ syntax (name := eventbPogWidget) "#eventb_pog_widget " ident ident : command
 @[command_elab eventbPogWidget]
 private def elabPogWidget : CommandElab := fun stx => do
   match stx with
-  | `(#eventb_pog_widget $project:ident $machine:ident) =>
-      elabCommand (← `(#html EventB.Widgets.renderProject $project
-        $(quote machine.getId.toString)))
+  | `(#eventb_pog_widget $project:ident $machine:ident) => do
+      let render ← `(EventB.Widgets.renderProject $project
+        $(quote machine.getId.toString))
+      let htmlX ← liftTermElabM <| ProofWidgets.HtmlCommand.evalCommandMHtml
+        <| ← ``(ProofWidgets.HtmlEval.eval $render)
+      let html ← htmlX
+      liftCoreM <| Widget.savePanelWidgetInfo
+        (hash HtmlDisplayPanel.javascript)
+        (return json% { html: $(← rpcEncode html) })
+        stx
   | _ => throwUnsupportedSyntax
 
 end EventB.Widgets
