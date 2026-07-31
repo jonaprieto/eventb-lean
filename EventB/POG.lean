@@ -260,7 +260,11 @@ def generate (p : Project) (name : String) : List Obligation := Id.run do
     -- A `theorem` invariant or axiom must follow from what precedes it.
     for a in childrenOf c.elem "axiom" ++ childrenOf c.elem "invariant" do
       if (attrOf a "theorem").getD "false" == "true" then
-        out := out ++ [{ name := labelOf a ++ "/THM", kind := "THM" }]
+        -- A theorem's goal is simply its own predicate: it claims to follow from what
+        -- precedes it, so nothing is substituted.
+        out := out ++ [{ name := labelOf a ++ "/THM", kind := "THM",
+                         goal := (Formula.parse ((attrOf a "predicate").getD "")).toOption,
+                         hyps := contextAxioms p name }]
     -- Well-definedness is named after the predicate alone in a context or an
     -- invariant, and under its event for a guard, action or witness.
     for a in childrenOf c.elem "axiom" ++ childrenOf c.elem "invariant" do
@@ -271,7 +275,9 @@ def generate (p : Project) (name : String) : List Obligation := Id.run do
       for g in childrenOf ev "guard" do
         if (attrOf g "theorem").getD "false" == "true" then
           out := out ++
-            [{ name := labelOf ev ++ "/" ++ labelOf g ++ "/THM", kind := "THM" }]
+            [{ name := labelOf ev ++ "/" ++ labelOf g ++ "/THM", kind := "THM",
+               goal := (Formula.parse ((attrOf g "predicate").getD "")).toOption,
+               hyps := contextHyps p name }]
     if !isMachine then return out
     let invariants := childrenOf c.elem "invariant"
     for ev in childrenOf c.elem "event" do
