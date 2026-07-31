@@ -137,18 +137,18 @@ def renderProject (project : Typing.Project) (machine : String) : Html :=
   let first := firstKind obligations
   let sections := kinds.filterMap fun kind =>
     kindSection kind (obligations.filter (·.kind == kind)) (first == some kind)
-  elementWith "section" [classes "pa2"] [
-    elementWith "header" [classes "mb2"] [
-      elementWith "h3" [classes "f3 b mv1"] [
-        text s!"Event-B obligations · {machine}"
-      ],
+  elementWith "details" [classes "mv2", ("open", .bool true)] [
+    elementWith "summary" [classes "pointer b"] [
+      text s!"Event-B proof obligations · {machine}"
+    ],
+    elementWith "section" [classes "pa2"] [
       elementWith "p" [classes "mv1 o-70"] [
         text "Proof-obligation explorer · expand a class, then an obligation"
-      ]
-    ],
-    summary obligations,
-    if sections.isEmpty then element "p" [text "No obligations generated."]
-    else element "div" sections
+      ],
+      summary obligations,
+      if sections.isEmpty then element "p" [text "No obligations generated."]
+      else element "div" sections
+    ]
   ]
 
 /-- Display generated obligations without changing the ordinary text POG command. -/
@@ -164,7 +164,7 @@ private def elabPogWidget : CommandElab := fun stx => do
         <| ← ``(ProofWidgets.HtmlEval.eval $render)
       let html ← htmlX
       liftCoreM <| Widget.savePanelWidgetInfo
-        (hash HtmlDisplayPanel.javascript)
+        (hash HtmlDisplay.javascript)
         (return json% { html: $(← rpcEncode html) })
         stx
   | _ => throwUnsupportedSyntax
