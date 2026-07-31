@@ -163,6 +163,7 @@ eventb_machine File1 where
     action act2 : "r ≔ 1"
     action act3 : "b ≔ FALSE"
   event receive where
+    status convergent
     guard grd1 : "r < n"
     action act1 : "h ≔ h ∪ {r ↦ f(r)}"
     action act2 : "r ≔ r + 1"
@@ -170,6 +171,7 @@ eventb_machine File1 where
     refines final
     guard grd1 : "r = n + 1"
     guard grd2 : "b = FALSE"
+    witness wit1 : "g = h"
     action act1 : "b ≔ TRUE"
 
 eventb_machine File2 where
