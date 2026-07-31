@@ -95,33 +95,45 @@ private def matchOperator (table : Array (List Char × String)) (cs : List Char)
 -- The table is threaded rather than referenced globally: Lean recomputes a nullary
 -- `def` at each use site, and re-sorting 130 aliases per token made the corpus scan
 -- take minutes instead of milliseconds.
-private partial def go (table : Array (List Char × String)) (acc : List Tok) :
-    List Char → Except String (List Tok)
-  | [] => .ok acc.reverse
-  | c :: cs =>
+-- Every branch below consumes at least one character, so the scan terminates; but the
+-- facts that make that true (an operator alias is never empty, an identifier always has
+-- a first character) live inside `matchOperator` and `takeWhile`, where the equation
+-- compiler cannot see them. `fuel` states the bound instead: seeded at the input length
+-- in `lex`, it can only run out if some branch consumed nothing, which is the bug that
+-- an empty alias in the operator table actually caused once.
+--
+-- This is the obligation grip discharges by construction: its graded parsers track in
+-- the type whether a parser can consume nothing, so `many (pure x)` fails to compile
+-- rather than hanging. A lexer built on grip would need no fuel here.
+private def go (table : Array (List Char × String)) (acc : List Tok) :
+    Nat → List Char → Except String (List Tok)
+  | _, [] => .ok acc.reverse
+  | 0, _ => .error "lexer made no progress"
+  | fuel + 1, c :: cs =>
     if c == ' ' || c == '\n' || c == '\t' || c == '\r' then
-      go table acc cs
+      go table acc fuel cs
     else if isIdentStart c then
       -- Keyword-shaped operators (`mod`, `NAT`, `UNION`) are checked first, so the ident
       -- branch only sees names.
       match matchOperator table (c :: cs) with
-      | some (canon, rest) => go table (.op canon :: acc) rest
+      | some (canon, rest) => go table (.op canon :: acc) fuel rest
       | none =>
         let name := (c :: cs).takeWhile isIdentRest
-        go table (.id (String.ofList name) :: acc) ((c :: cs).drop name.length)
+        go table (.id (String.ofList name) :: acc) fuel ((c :: cs).drop name.length)
     else if c.isDigit then
       let ds := (c :: cs).takeWhile Char.isDigit
       let n := ds.foldl (fun n d => n * 10 + (d.toNat - 48)) 0
-      go table (.num n :: acc) ((c :: cs).drop ds.length)
+      go table (.num n :: acc) fuel ((c :: cs).drop ds.length)
     else
       match matchOperator table (c :: cs) with
-      | some (canon, rest) => go table (.op canon :: acc) rest
+      | some (canon, rest) => go table (.op canon :: acc) fuel rest
       | none => .error s!"unexpected character {c}"
 
 /-- `mod` is the only word-shaped operator Rodin treats as infix; the rest of the word
 operators (`card`, `dom`, `bool`, ...) are ordinary identifiers applied to an argument,
 so the lexer leaves them alone. -/
 def lex (s : String) : Except String (List Tok) :=
-  go operatorTable [] s.toList
+  let cs := s.toList
+  go operatorTable [] cs.length cs
 
 end EventB.Formula
