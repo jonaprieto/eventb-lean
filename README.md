@@ -11,8 +11,8 @@ obligations against a refinement semantics whose soundness is a theorem rather t
 [![formulas](https://img.shields.io/badge/formulas-1102%2F1102-brightgreen)](baseline/formula.tsv)
 [![types](https://img.shields.io/badge/types-940%2F940-brightgreen)](baseline/typecheck.tsv)
 [![obligations](https://img.shields.io/badge/obligations-1105%2F1133-yellow)](baseline/pog.tsv)
-[![statements](https://img.shields.io/badge/statements-863%2F1033-yellow)](baseline/statement.tsv)
-[![hypotheses](https://img.shields.io/badge/hypotheses-839%2F1033-yellow)](baseline/hypothesis.tsv)
+[![statements](https://img.shields.io/badge/statements-1041%2F1685-yellow)](baseline/statement.tsv)
+[![hypotheses](https://img.shields.io/badge/hypotheses-906%2F1685-yellow)](baseline/hypothesis.tsv)
 
 ```
 $ lake exe gates
@@ -20,8 +20,8 @@ P0 reader: 38/38
 P1 formulas: 1102/1102
 P2 types: 940/940
 P3 obligations: 1105/1133
-P3b statements: 863/1033 derived
-P3b hypotheses: 839/1033 derived
+P3b statements: 1041/1685 derived
+P3b hypotheses: 906/1685 derived
 ```
 
 ## Why the numbers mean something
