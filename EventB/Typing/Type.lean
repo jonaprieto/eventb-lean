@@ -21,7 +21,7 @@ inductive Ty where
   | mvar : Nat → Ty
   deriving BEq, Repr, Inhabited
 
-partial def Ty.print : Ty → String
+def Ty.print : Ty → String
   | .given s => s
   | .int => "ℤ"
   | .bool => "BOOL"

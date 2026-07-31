@@ -40,23 +40,32 @@ last segment names the component. -/
 private def targetName (e : Elem) : Option String :=
   (attrOf e "target").map (fun t => (t.splitOn "/").getLast!)
 
-/-- Contexts and machines a component depends on, deepest first, without repeats. -/
-partial def closure (p : Project) (visited : List String) (name : String) :
+/-- Contexts and machines a component depends on, deepest first, without repeats.
+
+`visited` already stops repeats, so the recursion terminates on any well-formed project;
+`depth` states the bound the type system cannot see. It is the number of components, so
+a chain that reaches it has revisited one, meaning the dependency graph has a cycle. -/
+def closureAux (p : Project) : Nat → List String → String → List String × List String
+  | 0, visited, _ => (visited, [])
+  | depth + 1, visited, name =>
+    if visited.contains name then (visited, []) else
+      match lookupComponent p name with
+      | none => (name :: visited, [])
+      | some c =>
+        let deps :=
+          (childrenOf c.elem "extendsContext" ++ childrenOf c.elem "seesContext"
+            ++ childrenOf c.elem "refinesMachine").filterMap targetName
+        let (visited, ordered) :=
+          deps.foldl
+            (fun (acc : List String × List String) d =>
+              let (v, o) := closureAux p depth acc.1 d
+              (v, acc.2 ++ o))
+            (name :: visited, [])
+        (visited, ordered ++ [name])
+
+def closure (p : Project) (visited : List String) (name : String) :
     List String × List String :=
-  if visited.contains name then (visited, []) else
-    match lookupComponent p name with
-    | none => (name :: visited, [])
-    | some c =>
-      let deps :=
-        (childrenOf c.elem "extendsContext" ++ childrenOf c.elem "seesContext"
-          ++ childrenOf c.elem "refinesMachine").filterMap targetName
-      let (visited, ordered) :=
-        deps.foldl
-          (fun (acc : List String × List String) d =>
-            let (v, o) := closure p acc.1 d
-            (v, acc.2 ++ o))
-          (name :: visited, [])
-      (visited, ordered ++ [name])
+  closureAux p p.length visited name
 
 /-- Declare the identifiers a component introduces, then feed every predicate it states
 to the checker. Errors are collected rather than thrown: one unsupported guard should

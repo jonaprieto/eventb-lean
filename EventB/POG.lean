@@ -43,7 +43,7 @@ private def targetName (e : Elem) : Option String :=
 /-- Identifiers occurring in a formula. Binders are not subtracted: an invariant that
 quantifies over a name shadowing a variable would over-report, which the corpus does not
 contain, and over-reporting here only ever adds an obligation Rodin also has. -/
-partial def identifiers : Term → List String
+def identifiers : Term → List String
   | .id n => [n]
   | .num _ => []
   | .bin _ a b => identifiers a ++ identifiers b
@@ -73,40 +73,35 @@ private def assignedBy (action : Elem) : List String :=
     | .ok _ => []
 
 /-- An event marked `extended` inherits the parameters, guards and actions of the event
-it refines, so its effective actions are its own plus everything up the chain. -/
-partial def effectiveActions (p : Project) (machine : String) (ev : Elem) : List Elem :=
-  let own := childrenOf ev "action"
-  if (attrOf ev "extended").getD "false" != "true" then own else
-    match lookupComponent p machine with
-    | none => own
-    | some m =>
-      let abstract := (childrenOf m.elem "refinesMachine").filterMap targetName
-      let inherited := abstract.flatMap fun am =>
-        match lookupComponent p am with
-        | none => []
-        | some a =>
-          match (childrenOf a.elem "event").find? (fun e => labelOf e == labelOf ev) with
-          | none => []
-          | some ae => effectiveActions p am ae
-      inherited ++ own
+it refines, so its effective children are its own plus everything up the chain.
 
-/-- Guards of an extended event, its own plus everything inherited, mirroring
-`effectiveActions`. -/
-partial def effectiveGuards (p : Project) (machine : String) (ev : Elem) : List Elem :=
-  let own := childrenOf ev "guard"
-  if (attrOf ev "extended").getD "false" != "true" then own else
-    match lookupComponent p machine with
-    | none => own
-    | some m =>
-      let abstract := (childrenOf m.elem "refinesMachine").filterMap targetName
-      let inherited := abstract.flatMap fun am =>
-        match lookupComponent p am with
-        | none => []
-        | some a =>
-          match (childrenOf a.elem "event").find? (fun e => labelOf e == labelOf ev) with
+`depth` bounds the walk by the number of components: a refinement chain longer than that
+has revisited a machine, which means the model has a `refines` cycle and no fixed point
+exists. Well-formed projects never reach the bound, and reaching it returns what has
+been gathered so far rather than looping. -/
+def inheritedChildren (p : Project) (tag : String) : Nat → String → Elem → List Elem
+  | 0, _, ev => childrenOf ev tag
+  | depth + 1, machine, ev =>
+    let own := childrenOf ev tag
+    if (attrOf ev "extended").getD "false" != "true" then own else
+      match lookupComponent p machine with
+      | none => own
+      | some m =>
+        let abstract := (childrenOf m.elem "refinesMachine").filterMap targetName
+        let inherited := abstract.flatMap fun am =>
+          match lookupComponent p am with
           | none => []
-          | some ae => effectiveGuards p am ae
-      inherited ++ own
+          | some a =>
+            match (childrenOf a.elem "event").find? (fun e => labelOf e == labelOf ev) with
+            | none => []
+            | some ae => inheritedChildren p tag depth am ae
+        inherited ++ own
+
+def effectiveActions (p : Project) (machine : String) (ev : Elem) : List Elem :=
+  inheritedChildren p "action" p.length machine ev
+
+def effectiveGuards (p : Project) (machine : String) (ev : Elem) : List Elem :=
+  inheritedChildren p "guard" p.length machine ev
 
 /-- Guards and actions of the abstract event a refined event refines. These are what GRD
 and SIM obligations are named after: the abstract label, not the concrete one. -/
@@ -133,7 +128,9 @@ private def totalKeywords : List String :=
   ["dom", "ran", "bool", "prj1", "prj2", "id", "union", "succ", "pred", "finite",
    "partition"]
 
-partial def needsWD : Term → Bool
+mutual
+
+def needsWD : Term → Bool
   | .num _ | .id _ => false
   | .bin op a b => op == "÷" || op == "mod" || needsWD a || needsWD b
   | .pre op a => op == "⋂" || needsWD a
@@ -144,8 +141,17 @@ partial def needsWD : Term → Bool
         | _ => true
       head || needsWD f || needsWD a
   | .img r a => needsWD r || needsWD a
-  | .set ts => ts.any needsWD
+  | .set ts => needsWDAny ts
   | .bind _ p b => needsWD p || needsWD b
+
+/-- `List.any needsWD` would hide the recursive call inside a closure, where the
+equation compiler cannot see that it is applied to a subterm. Spelling the list
+traversal out keeps the whole thing structural. -/
+def needsWDAny : List Term → Bool
+  | [] => false
+  | t :: ts => needsWD t || needsWDAny ts
+
+end
 
 private def wdRequired (formula : String) : Bool :=
   match Formula.parse formula with
@@ -153,7 +159,7 @@ private def wdRequired (formula : String) : Bool :=
   | .error _ => false
 
 /-- Obligations for one machine or context. -/
-partial def generate (p : Project) (name : String) : List Obligation := Id.run do
+def generate (p : Project) (name : String) : List Obligation := Id.run do
   match lookupComponent p name with
   | none => return []
   | some c =>

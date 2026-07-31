@@ -106,10 +106,16 @@ private def arrows : List String :=
 private def domRestrict : List String := ["◁", "⩤"]
 private def ranRestrict : List String := ["▷", "⩥"]
 
+private theorem termSizePos (t : Term) : 1 ≤ sizeOf t := by
+  cases t <;> simp +arith [Term.id.sizeOf_spec, Term.num.sizeOf_spec,
+    Term.bin.sizeOf_spec, Term.pre.sizeOf_spec, Term.post.sizeOf_spec,
+    Term.app.sizeOf_spec, Term.img.sizeOf_spec, Term.set.sizeOf_spec,
+    Term.bind.sizeOf_spec]
+
 mutual
 
 /-- Predicates have no type; the judgement is that the formula is well-formed. -/
-partial def checkPred (t : Term) : M Unit := do
+def checkPred (t : Term) : M Unit := do
   match t with
   | .id "⊤" | .id "⊥" => return ()
   | .pre "¬" p => checkPred p
@@ -149,7 +155,7 @@ partial def checkPred (t : Term) : M Unit := do
   | .app (.id "finite") s => do let _ ← asSet (← inferExpr s)
   | .app (.id "partition") args => do
       -- `partition(S, A, B, ...)`: every argument is a set of the same type.
-      let ts ← (Formula.flattenCommas args).mapM inferExpr
+      let ts ← inferCommaList args
       match ts with
       | [] => throw "partition needs arguments"
       | t :: rest => do
@@ -161,15 +167,35 @@ partial def checkPred (t : Term) : M Unit := do
       throw s!"not a predicate: {name}"
   | t => throw s!"not a predicate: {Formula.print t}"
 
+termination_by sizeOf t
+decreasing_by
+  all_goals simp +arith [Term.id.sizeOf_spec, Term.bin.sizeOf_spec, Term.pre.sizeOf_spec,
+    Term.app.sizeOf_spec, Term.bind.sizeOf_spec]
+
+/-- The arguments of a comma-separated application, typed left to right. Walking the
+comma spine here rather than calling `flattenCommas` keeps the recursion structural:
+the results of `flattenCommas` are subterms, but nothing in its type says so. -/
+def inferCommaList : Term → M (List Ty)
+  | .bin "," a b => do return (← inferCommaList a) ++ (← inferCommaList b)
+  | t => do return [← inferExpr t]
+
+termination_by t => sizeOf t + 1
+decreasing_by
+  all_goals simp +arith [Term.bin.sizeOf_spec]
+
 /-- Bind every identifier in a binder pattern to a fresh type. -/
-partial def bindPattern (t : Term) : M Unit := do
+def bindPattern (t : Term) : M Unit := do
   match t with
   | .id n => do bind n (← fresh)
   | .bin "," a b | .bin "↦" a b => do bindPattern a; bindPattern b
   | t => throw s!"not a binder pattern: {Formula.print t}"
 
+termination_by sizeOf t
+decreasing_by
+  all_goals simp +arith [Term.bin.sizeOf_spec]
+
 /-- The type of a binder pattern, once its identifiers are bound. -/
-partial def patternType (t : Term) : M Ty := do
+def patternType (t : Term) : M Ty := do
   match t with
   | .id n =>
     match ← lookup? n with
@@ -178,7 +204,11 @@ partial def patternType (t : Term) : M Ty := do
   | .bin "↦" a b => return .prod (← patternType a) (← patternType b)
   | t => throw s!"not a binder pattern: {Formula.print t}"
 
-partial def inferExpr (t : Term) : M Ty := do
+termination_by sizeOf t
+decreasing_by
+  all_goals simp +arith [Term.bin.sizeOf_spec]
+
+def inferExpr (t : Term) : M Ty := do
   match t with
   | .num _ => return .int
   | .id n =>
@@ -193,7 +223,7 @@ partial def inferExpr (t : Term) : M Ty := do
   | .set [] => do return .pow (← fresh)
   | .set ts => do
       let ty ← fresh
-      ts.forM fun e => do unify (← inferExpr e) ty
+      ts.attach.forM fun e => do unify (← inferExpr e.1) ty
       return .pow ty
   | .pre "−" e => do unify (← inferExpr e) .int; return .int
   | .pre "ℙ" e | .pre "ℙ1" e => do return .pow (← inferExpr e)
@@ -213,9 +243,18 @@ partial def inferExpr (t : Term) : M Ty := do
   | .bin o a b => inferBin o a b
   | t => throw s!"not an expression: {Formula.print t}"
 
+termination_by sizeOf t
+decreasing_by
+  · simp_wf
+    have h := List.sizeOf_lt_of_mem e.property
+    omega
+  all_goals simp +arith [Term.pre.sizeOf_spec, Term.post.sizeOf_spec,
+    Term.img.sizeOf_spec, Term.app.sizeOf_spec, Term.bind.sizeOf_spec,
+    Term.bin.sizeOf_spec]
+
 /-- Function-shaped keywords are ordinary identifiers in the syntax tree, so their typing
 rules live here rather than in the lexer. -/
-partial def inferApp (f a : Term) : M Ty := do
+def inferApp (f a : Term) : M Ty := do
   match f with
   | .id "card" => do let _ ← asSet (← inferExpr a); return .int
   | .id "min" | .id "max" => do unify (← inferExpr a) (.pow .int); return .int
@@ -230,14 +269,18 @@ partial def inferApp (f a : Term) : M Ty := do
   | .id "prj1" => do let (x, _) ← asRelation (← inferExpr a); return .pow x
   | .id "prj2" => do let (_, y) ← asRelation (← inferExpr a); return .pow y
   | .id "id" => do let s ← asSet (← inferExpr a); return .pow (.prod s s)
-  | _ => do
+  | f' => do
       -- Ordinary function application: `f` is a relation and `a` an element of its
       -- domain, which is also how `f(a, b)` works, the argument being a pair.
-      let (x, y) ← asRelation (← inferExpr f)
+      let (x, y) ← asRelation (← inferExpr f')
       unify (← inferExpr a) x
       return y
 
-partial def inferBinder (k : String) (pat body : Term) : M Ty := do
+termination_by sizeOf f + sizeOf a
+decreasing_by
+  all_goals simp_all +arith [termSizePos, Term.id.sizeOf_spec]
+
+def inferBinder (k : String) (pat body : Term) : M Ty := do
   let saved := (← get).env
   bindPattern pat
   let result ← do
@@ -261,7 +304,11 @@ partial def inferBinder (k : String) (pat body : Term) : M Ty := do
   modify fun s => { s with env := saved }
   return result
 
-partial def inferBin (o : String) (a b : Term) : M Ty := do
+termination_by sizeOf pat + sizeOf body
+decreasing_by
+  all_goals simp +arith [termSizePos, Term.bin.sizeOf_spec]
+
+def inferBin (o : String) (a b : Term) : M Ty := do
   if o == "↦" then
     return .prod (← inferExpr a) (← inferExpr b)
   else if setBinary.contains o then do
@@ -319,6 +366,9 @@ partial def inferBin (o : String) (a b : Term) : M Ty := do
     throw s!"predicate operator {o} used as an expression"
   else
     throw s!"unknown operator {o}"
+termination_by sizeOf a + sizeOf b
+decreasing_by
+  all_goals simp +arith [termSizePos]
 
 end
 

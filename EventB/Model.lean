@@ -104,9 +104,28 @@ def Elem.children : Elem → List Elem
 def Elem.attr? (elem : Elem) (key : String) : Option String :=
   elem.attrs.find? (fun (name, _) => name == key) |>.map (·.2)
 
-private partial def countTag (wanted : String) (elem : Elem) : Nat :=
-  (if elem.tag == wanted then 1 else 0) +
-    elem.children.foldl (fun count child => count + countTag wanted child) 0
+/-- `Elem.children` is a 17-case match, so the equation compiler cannot see through it
+to know the sublist is smaller. Proving it once here lets every traversal below be a
+plain `def` with a `sizeOf` measure, instead of `partial`. -/
+theorem Elem.sizeOf_children (e : Elem) : sizeOf e.children < sizeOf e := by
+  cases e <;> simp +arith [Elem.children]
+
+-- `Elem` nests a `List Elem`, so every traversal needs its list case written out: a
+-- recursive call hidden inside a `foldl` or `mapM` closure is invisible to the
+-- equation compiler, and the definition would have to be `partial`.
+mutual
+
+private def countTag (wanted : String) (elem : Elem) : Nat :=
+  (if elem.tag == wanted then 1 else 0) + countTagList wanted elem.children
+termination_by sizeOf elem
+decreasing_by exact Elem.sizeOf_children elem
+
+private def countTagList (wanted : String) : List Elem → Nat
+  | [] => 0
+  | e :: es => countTag wanted e + countTagList wanted es
+termination_by es => sizeOf es
+
+end
 
 def Model.inventory (model : Model) : List (String × Nat) :=
   inventoryTags.map (fun tag => (tag, countTag ("org.eventb.core." ++ tag) model.root))
@@ -116,18 +135,36 @@ def Model.inventory (model : Model) : List (String × Nat) :=
 def formulaAttrs : List String :=
   ["org.eventb.core.predicate", "org.eventb.core.assignment", "org.eventb.core.expression"]
 
+mutual
+
 /-- Every formula in the model, in document order, tagged by the owning element's label
 so a P1 failure names the invariant or guard it came from. -/
-partial def Elem.formulas (elem : Elem) : List (String × String) :=
+def Elem.formulas (elem : Elem) : List (String × String) :=
   let label := (elem.attr? "org.eventb.core.label").getD (elem.tag.splitOn "." |>.getLast!)
   let here := formulaAttrs.filterMap (fun a => (elem.attr? a).map (fun f => (label, f)))
-  elem.children.foldl (fun acc c => acc ++ c.formulas) here
+  here ++ Elem.formulasList elem.children
+termination_by sizeOf elem
+decreasing_by exact Elem.sizeOf_children elem
+
+def Elem.formulasList : List Elem → List (String × String)
+  | [] => []
+  | e :: es => Elem.formulas e ++ Elem.formulasList es
+termination_by es => sizeOf es
+
+end
 
 def Model.formulas (model : Model) : List (String × String) :=
   model.root.formulas
 
-private partial def mapElem (elem : XmlElem) : Except String Elem := do
-  let children ← elem.children.mapM mapElem
+mutual
+
+private def mapElemList : List XmlElem → Except String (List Elem)
+  | [] => .ok []
+  | e :: es => do return (← mapElem e) :: (← mapElemList es)
+termination_by es => sizeOf es
+
+private def mapElem (elem : XmlElem) : Except String Elem := do
+  let children ← mapElemList elem.children
   match elem.tag with
   | "org.eventb.core.machineFile" => pure (.machineFile elem.attrs children)
   | "org.eventb.core.contextFile" => pure (.contextFile elem.attrs children)
@@ -150,6 +187,12 @@ private partial def mapElem (elem : XmlElem) : Except String Elem := do
         .error ("unknown Event-B core element: " ++ tag)
       else
         pure (.extension tag elem.attrs children)
+termination_by sizeOf elem
+decreasing_by
+  -- `XmlElem` is a structure, so its size is one more than the sum of its fields.
+  cases elem; simp +arith
+
+end
 
 def fromXml (xml : XmlElem) : Except String Model := do
   let root ← mapElem xml

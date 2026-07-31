@@ -76,7 +76,7 @@ private def isBinder (s : String) : Bool :=
   s == "∀" || s == "∃" || s == "λ" || s == "⋂" || s == "⋃"
 
 /-- `{a, b, c}` parses as nested commas; the set node wants the elements. -/
-partial def flattenCommas : Term → List Term
+def flattenCommas : Term → List Term
   | .bin "," a b => flattenCommas a ++ flattenCommas b
   | t => [t]
 
@@ -96,11 +96,23 @@ private def expect (s : St) (o : String) : Except String St :=
 mutual
 
 /-- Parse at the given minimum binding power. -/
-private partial def parseAt (s : St) (minPower : Nat) : Except String (Term × St) := do
-  let (lhs, s) ← parsePrefix s
-  loop lhs s
-where
-  loop (lhs : Term) (s : St) : Except String (Term × St) := do
+-- Every recursive call happens after at least one token has been consumed, so the
+-- parser terminates; but `St` carries the position in a field, and nothing in the type
+-- says the position advances. `fuel` states the bound: seeded at the token count, it
+-- can only run out if some branch consumed nothing. Same obligation as in `Lex`, and
+-- the same note applies: grip's graded parsers discharge it by construction.
+private def parseAt : Nat → St → Nat → Except String (Term × St)
+  | 0, _, _ => .error "parser made no progress"
+  | fuel + 1, s, minPower => do
+      let (lhs, s) ← parsePrefix fuel s
+      parseInfix fuel minPower lhs s
+termination_by fuel _ _ => fuel
+
+/-- The operator loop of `parseAt`, split out because it needs the decremented fuel and
+a `where` clause cannot see it. -/
+private def parseInfix : Nat → Nat → Term → St → Except String (Term × St)
+  | 0, _, lhs, s => .ok (lhs, s)
+  | fuel + 1, minPower, lhs, s => do
     match peek s with
     | some (.op o) =>
       match infixLevel o with
@@ -113,82 +125,90 @@ where
           let rightMin := match lvl.assoc with
             | some false => lvl.power
             | _ => lvl.power + 1
-          let (rhs, s) ← parseAt { s with pos := s.pos + 1 } rightMin
+          let (rhs, s) ← parseAt fuel { s with pos := s.pos + 1 } rightMin
           let node := Term.bin o lhs rhs
           if lvl.assoc.isNone then
             match peek s with
             | some (.op o') =>
               if (infixLevel o').any (fun l => l.power == lvl.power) then
                 .error s!"operator {o} is not associative"
-              else loop node s
-            | _ => loop node s
-          else loop node s
+              else parseInfix fuel minPower node s
+            | _ => parseInfix fuel minPower node s
+          else parseInfix fuel minPower node s
       | none => .ok (lhs, s)
     | _ => .ok (lhs, s)
+termination_by fuel _ _ _ => fuel
 
-private partial def parsePrefix (s : St) : Except String (Term × St) := do
+private def parsePrefix : Nat → St → Except String (Term × St)
+  | 0, _ => .error "parser made no progress"
+  | fuel + 1, s => do
   match peek s with
   | none => .error "unexpected end of formula"
-  | some (.num n) => parsePostfix (.num n) { s with pos := s.pos + 1 }
-  | some (.id name) => parsePostfix (.id name) { s with pos := s.pos + 1 }
+  | some (.num n) => parsePostfix fuel (.num n) { s with pos := s.pos + 1 }
+  | some (.id name) => parsePostfix fuel (.id name) { s with pos := s.pos + 1 }
   | some (.op o) =>
     let s := { s with pos := s.pos + 1 }
     if isBinder o then
       -- The pattern runs up to `·`; comma and `↦` inside it are ordinary operators, so
       -- `∀a1,a2·P` and `λx↦y·P∣E` need no special cases.
-      let (pat, s) ← parseAt s 5
+      let (pat, s) ← parseAt fuel s 5
       let s ← expect s "·"
-      let (body, s) ← parseAt s 0
+      let (body, s) ← parseAt fuel s 0
       .ok (.bind o pat body, s)
     else if o == "(" then
-      let (inner, s) ← parseAt s 0
+      let (inner, s) ← parseAt fuel s 0
       let s ← expect s ")"
-      parsePostfix inner s
+      parsePostfix fuel inner s
     else if o == "{" then
       match peek s with
-      | some (.op "}") => parsePostfix (.set []) { s with pos := s.pos + 1 }
+      | some (.op "}") => parsePostfix fuel (.set []) { s with pos := s.pos + 1 }
       | _ =>
-        let (inner, s) ← parseAt s 0
+        let (inner, s) ← parseAt fuel s 0
         match peek s with
         | some (.op "·") =>
-          let (body, s) ← parseAt { s with pos := s.pos + 1 } 0
+          let (body, s) ← parseAt fuel { s with pos := s.pos + 1 } 0
           let s ← expect s "}"
-          parsePostfix (.bind "{" inner body) s
+          parsePostfix fuel (.bind "{" inner body) s
         | _ =>
           let s ← expect s "}"
-          parsePostfix (.set (flattenCommas inner)) s
+          parsePostfix fuel (.set (flattenCommas inner)) s
     else if o == "∅" then
-      parsePostfix (.set []) s
+      parsePostfix fuel (.set []) s
     else if o == "⊤" || o == "⊥" then
-      parsePostfix (.id o) s
+      parsePostfix fuel (.id o) s
     else if o == "ℤ" || o == "ℕ" || o == "ℕ1" then
-      parsePostfix (.id o) s
+      parsePostfix fuel (.id o) s
     else
       match prefixPower o with
       | some p => do
-        let (arg, s) ← parseAt s p
-        parsePostfix (.pre o arg) s
+        let (arg, s) ← parseAt fuel s p
+        parsePostfix fuel (.pre o arg) s
       | none => .error s!"unexpected operator {o}"
+termination_by fuel _ => fuel
 
 /-- Application, image and inverse all bind tighter than any infix operator and chain
 freely: `f(x)(y)`, `r[s][t]`, `f∼(x)`. -/
-private partial def parsePostfix (t : Term) (s : St) : Except String (Term × St) := do
+private def parsePostfix : Nat → Term → St → Except String (Term × St)
+  | 0, t, s => .ok (t, s)
+  | fuel + 1, t, s => do
   match peek s with
   | some (.op "(") =>
-    let (arg, s) ← parseAt { s with pos := s.pos + 1 } 0
+    let (arg, s) ← parseAt fuel { s with pos := s.pos + 1 } 0
     let s ← expect s ")"
-    parsePostfix (.app t arg) s
+    parsePostfix fuel (.app t arg) s
   | some (.op "[") =>
-    let (arg, s) ← parseAt { s with pos := s.pos + 1 } 0
+    let (arg, s) ← parseAt fuel { s with pos := s.pos + 1 } 0
     let s ← expect s "]"
-    parsePostfix (.img t arg) s
-  | some (.op "∼") => parsePostfix (.post "∼" t) { s with pos := s.pos + 1 }
+    parsePostfix fuel (.img t arg) s
+  | some (.op "∼") => parsePostfix fuel (.post "∼" t) { s with pos := s.pos + 1 }
   | _ => .ok (t, s)
+termination_by fuel _ _ => fuel
 
 end
 
 def parseTokens (toks : List Tok) : Except String Term := do
-  let (t, s) ← parseAt ⟨toks.toArray, 0⟩ 0
+  let arr := toks.toArray
+  let (t, s) ← parseAt (arr.size + 1) ⟨arr, 0⟩ 0
   match peek s with
   | none => .ok t
   | some tok => .error s!"trailing input at {tok.render}"
@@ -199,7 +219,7 @@ def parse (source : String) : Except String Term := do
 /-- Fully parenthesised, so the printer states the tree rather than relying on the
 reader's memory of the precedence table. Round-tripping is what the P1 gate checks:
 `parse (print (parse s)) = parse s`. -/
-partial def print : Term → String
+def print : Term → String
   | .id s => s
   | .num n => toString n
   | .bin o a b => "(" ++ print a ++ " " ++ o ++ " " ++ print b ++ ")"

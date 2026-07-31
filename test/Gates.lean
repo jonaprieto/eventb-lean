@@ -129,11 +129,13 @@ the static checker. 940 distinct (file, identifier) pairs, 2019 assertions with 
 repeats Rodin writes across predicate sets. -/
 private def typeCount : Nat := 940
 
+mutual
+
 /-- Pull `<org.eventb.core.poIdentifier name=... type=.../>` out of a `.bpo`. The root is
 `poFile`, outside the machine/context element set, so this walks the raw XML tree rather
 than the Event-B model. The first spelling of each name wins; the corpus never types one
 name two ways within a file. -/
-private partial def rawIdentifiers (e : XmlElem) : List (String × String) :=
+private def rawIdentifiers (e : XmlElem) : List (String × String) :=
   let here :=
     if e.tag == "org.eventb.core.poIdentifier" then
       -- Rodin writes the identifier name as a plain `name` attribute, unnamespaced.
@@ -141,7 +143,16 @@ private partial def rawIdentifiers (e : XmlElem) : List (String × String) :=
       | some n, some t => [(n, t)]
       | _, _ => []
     else []
-  e.children.foldl (fun acc c => acc ++ rawIdentifiers c) here
+  here ++ rawIdentifiersList e.children
+termination_by sizeOf e
+decreasing_by cases e; simp +arith
+
+private def rawIdentifiersList : List XmlElem → List (String × String)
+  | [] => []
+  | e :: es => rawIdentifiers e ++ rawIdentifiersList es
+termination_by es => sizeOf es
+
+end
 
 private def dedupFirst : List (String × String) → List (String × String) →
     List (String × String)
@@ -196,10 +207,21 @@ a human. That is the P4 bar, and the number any prover backend is measured again
 private def rodinAuto : Nat := 1088
 private def rodinManual : Nat := 45
 
-private partial def poNames (e : XmlElem) : List String :=
+mutual
+
+private def poNames (e : XmlElem) : List String :=
   let here :=
     if e.tag == "org.eventb.core.poSequent" then (e.attr? "name").toList else []
-  e.children.foldl (fun acc c => acc ++ poNames c) here
+  here ++ poNamesList e.children
+termination_by sizeOf e
+decreasing_by cases e; simp +arith
+
+private def poNamesList : List XmlElem → List String
+  | [] => []
+  | e :: es => poNames e ++ poNamesList es
+termination_by es => sizeOf es
+
+end
 
 private def readGoldPOs (path : System.FilePath) : IO (List String) := do
   match parseXml (← IO.FS.readBinFile path) with
