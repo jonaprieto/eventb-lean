@@ -277,4 +277,70 @@ private def sameTree (a b : String) : Bool :=
 #guard !(parse "f(x").isOk
 #guard !(parse "a ∈ b ∈ c").isOk
 
+mutual
+
+/-- Simultaneous substitution. Simultaneous matters: an event assigning `a ≔ b` and
+`b ≔ a` swaps them, and substituting one at a time would not. -/
+def subst (σ : List (String × Term)) : Term → Term
+  | .id n => match σ.find? (fun p => p.1 == n) with
+             | some (_, t) => t
+             | none => .id n
+  | .num n => .num n
+  | .bin o a b => .bin o (subst σ a) (subst σ b)
+  | .pre o a => .pre o (subst σ a)
+  | .post o a => .post o (subst σ a)
+  | .app f a => .app (subst σ f) (subst σ a)
+  | .img r a => .img (subst σ r) (subst σ a)
+  | .set ts => .set (substList σ ts)
+  -- A binder's pattern rebinds its names, so the body is left alone: Event-B
+  -- obligations never substitute a variable a quantifier has captured.
+  | .bind k p b => .bind k p b
+
+def substList (σ : List (String × Term)) : List Term → List Term
+  | [] => []
+  | t :: ts => subst σ t :: substList σ ts
+
+end
+
+mutual
+
+/-- Drop the type ascriptions Rodin writes into `.bpo` predicates. They carry no logical
+content, and a generator has no reason to reproduce them, so comparisons are modulo
+ascription. -/
+def stripAscriptions : Term → Term
+  | .bin "⦂" a _ => stripAscriptions a
+  | .bin o a b => .bin o (stripAscriptions a) (stripAscriptions b)
+  | .pre o a => .pre o (stripAscriptions a)
+  | .post o a => .post o (stripAscriptions a)
+  | .app f a => .app (stripAscriptions f) (stripAscriptions a)
+  | .img r a => .img (stripAscriptions r) (stripAscriptions a)
+  | .set ts => .set (stripList ts)
+  | .bind k p b => .bind k (stripAscriptions p) (stripAscriptions b)
+  | t => t
+
+def stripList : List Term → List Term
+  | [] => []
+  | t :: ts => stripAscriptions t :: stripList ts
+
+end
+
+/-! Self-checks for substitution and ascription stripping. -/
+
+private def parse! (s : String) : Term := (parse s).toOption.getD (.id "?")
+
+-- The shape every INV obligation has: the invariant with assigned variables replaced.
+#guard subst [("held_airplanes", parse! "held_airplanes ∪ {airplane}")]
+    (parse! "held_airplanes ⊆ dom(landing_sequence)")
+  == parse! "held_airplanes ∪ {airplane} ⊆ dom(landing_sequence)"
+
+-- Simultaneous, not sequential: a swap must not collapse.
+#guard subst [("a", .id "b"), ("b", .id "a")] (parse! "a ∪ b") == parse! "b ∪ a"
+
+-- A name the event does not assign is untouched.
+#guard subst [("x", .id "y")] (parse! "z ∈ S") == parse! "z ∈ S"
+
+-- Ascriptions vanish, and nothing else does.
+#guard stripAscriptions (parse! "(∅ ⦂ ℙ(AIRPLANES)) ⊆ dom(f)") == parse! "∅ ⊆ dom(f)"
+#guard stripAscriptions (parse! "∀x⦂ℤ · x ∈ S") == parse! "∀x · x ∈ S"
+
 end EventB.Formula
