@@ -29,6 +29,8 @@ structure Obligation where
   name : String
   kind : String
   goal : Option Term := none
+  /-- Everything the goal may assume, in Rodin's order. -/
+  hyps : List Term := []
   deriving BEq, Repr, Inhabited
 
 private def childrenOf (e : Elem) (tag : String) : List Elem :=
@@ -222,6 +224,19 @@ retried. All three were plausible and all three made the gates worse:
   variable at all". 1002 -> 955.
 -/
 
+/-- The hypotheses available to any obligation of `name`: every axiom of every context
+in the dependency closure, then every invariant up the refinement chain, in declaration
+order. `closure` already computes that order for the typechecker, so the two cannot
+drift apart. -/
+def contextHyps (p : Project) (name : String) : List Term :=
+  let (_, order) := closure p [] name
+  order.flatMap fun dep =>
+    match lookupComponent p dep with
+    | none => []
+    | some c =>
+      (childrenOf c.elem "axiom" ++ childrenOf c.elem "invariant").filterMap fun a =>
+        (Formula.parse ((attrOf a "predicate").getD "")).toOption
+
 /-- Obligations for one machine or context. -/
 def generate (p : Project) (name : String) : List Obligation := Id.run do
   match lookupComponent p name with
@@ -246,6 +261,7 @@ def generate (p : Project) (name : String) : List Obligation := Id.run do
             [{ name := labelOf ev ++ "/" ++ labelOf g ++ "/THM", kind := "THM" }]
     if !isMachine then return out
     let invariants := childrenOf c.elem "invariant"
+    let base := contextHyps p name
     for ev in childrenOf c.elem "event" do
       let actions := effectiveActions p name ev
       let assigned := actions.flatMap assignedBy
@@ -261,9 +277,13 @@ def generate (p : Project) (name : String) : List Obligation := Id.run do
             let σ := eventSubst p p.length name ev
             let goal := (Formula.parse ((attrOf inv "predicate").getD "")).toOption.map
               (Formula.subst σ)
+            -- The event's guards hold when it fires, so they join the standing
+            -- hypotheses.
+            let guards := (effectiveGuards p name ev).filterMap fun g =>
+              (Formula.parse ((attrOf g "predicate").getD "")).toOption
             out := out ++
               [{ name := labelOf ev ++ "/" ++ labelOf inv ++ "/INV", kind := "INV",
-                 goal := goal }]
+                 goal := goal, hyps := base ++ guards }]
             -- The invariant is re-stated over the after-state, so if it was
             -- conditionally defined before, the substituted form needs its own WD.
             if wdRequired ((attrOf inv "predicate").getD "") then
