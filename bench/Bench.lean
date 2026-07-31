@@ -3,25 +3,17 @@ import EventB.Formula.Parse
 
 open EventB
 
+/-- Parse every predicate Rodin wrote into the `.bpo` files, extracted by
+`spike/extract.py`. These are the proof obligations themselves, not the model, and they
+use syntax a `.bum` never contains: type ascriptions on bound variables. -/
 def main : IO Unit := do
-  let mut forms : Array (String × String) := #[]
-  for proj in ← (System.FilePath.mk "corpus").readDir do
-    if ← proj.path.isDir then
-      for f in ← proj.path.readDir do
-        if f.path.toString.endsWith ".bum" || f.path.toString.endsWith ".buc" then
-          match ← readModel f.path with
-          | .ok m =>
-            for (l, s) in m.formulas do forms := forms.push (l, s)
-          | .error _ => pure ()
-  IO.println s!"formulas {forms.size}"
-  let t0 ← IO.monoMsNow
-  let mut lexed := 0
-  for (_, s) in forms do
-    match Formula.lex s with | .ok ts => lexed := lexed + ts.length | .error _ => pure ()
-  let t1 ← IO.monoMsNow
-  IO.println s!"lex {t1 - t0}ms  tokens {lexed}"
+  let text ← IO.FS.readFile "/tmp/allpo.txt"
+  let lines := text.splitOn "\n" |>.filter (fun l => !l.isEmpty)
   let mut ok := 0
-  for (_, s) in forms do
-    match Formula.parse s with | .ok _ => ok := ok + 1 | .error _ => pure ()
-  let t2 ← IO.monoMsNow
-  IO.println s!"parse {t2 - t1}ms  ok {ok}/{forms.size}"
+  let mut fails : List String := []
+  for l in lines do
+    match Formula.parse l with
+    | .ok _ => ok := ok + 1
+    | .error e => fails := (e ++ "  ||  " ++ l.take 70) :: fails
+  IO.println s!"PO predicates parsed {ok}/{lines.length}"
+  for f in (fails.take 6) do IO.println s!"  {f}"

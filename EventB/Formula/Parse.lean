@@ -58,6 +58,9 @@ private def infixLevel : String → Option Level
   | "∪" | "∩" | "∖" => some { power := 50 }
   | "◁" | "⩤" | "▷" | "⩥" | "" | "∘" | ";" | "⊗" | "∥" => some { power := 55 }
   | "↦" => some { power := 60 }
+  -- Binds tighter than `↦` and `,` so that `∀x⦂ℤ,y⦂ℤ·P` and `λx⦂ℤ ↦ y⦂ℤ·E` group the
+  -- ascription with its own variable.
+  | "⦂" => some { power := 75, assoc := none }
   | "‥" => some { power := 65, assoc := none }
   | "+" | "−" => some { power := 70 }
   | "∗" | "÷" | "mod" => some { power := 80 }
@@ -208,7 +211,11 @@ end
 
 def parseTokens (toks : List Tok) : Except String Term := do
   let arr := toks.toArray
-  let (t, s) ← parseAt (arr.size + 1) ⟨arr, 0⟩ 0
+  -- Consuming one token can descend `parseAt -> parsePrefix -> parsePostfix` and come
+  -- back through `parseInfix`, and each of those decrements, so the budget is a small
+  -- constant per token rather than one. Seeding it at the token count silently rejected
+  -- long predicates with "parser made no progress".
+  let (t, s) ← parseAt (4 * arr.size + 8) ⟨arr, 0⟩ 0
   match peek s with
   | none => .ok t
   | some tok => .error s!"trailing input at {tok.render}"
