@@ -327,9 +327,23 @@ def generate (p : Project) (name : String) : List Obligation := Id.run do
                  goal := goal, hyps := contextHyps p name ++
                    ((effectiveGuards p name ev).filterMap fun q =>
                      (Formula.parse ((attrOf q "predicate").getD "")).toOption) }]
+          -- Simulation: whatever the abstract action does to a variable, the concrete
+          -- event must do the same thing to it. The goal equates the two right-hand
+          -- sides, with the concrete event's witnesses substituted into the abstract one.
+          let concrete := actions.flatMap substOf
           for act in effectiveActions p am ae do
+            let goal := match substOf act with
+              | [(v, absRhs)] =>
+                  match concrete.find? (fun q => q.1 == v) with
+                  | some (_, conRhs) =>
+                      some (Term.bin "=" conRhs (Formula.subst witnesses absRhs))
+                  | none => none
+              | _ => none
             out := out ++
-              [{ name := labelOf ev ++ "/" ++ labelOf act ++ "/SIM", kind := "SIM" }]
+              [{ name := labelOf ev ++ "/" ++ labelOf act ++ "/SIM", kind := "SIM",
+                 goal := goal, hyps := contextHyps p name ++
+                   ((effectiveGuards p name ev).filterMap fun q =>
+                     (Formula.parse ((attrOf q "predicate").getD "")).toOption) }]
       for g in effectiveGuards p name ev do
         if wdRequired ((attrOf g "predicate").getD "") then
           out := out ++
