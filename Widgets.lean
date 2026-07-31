@@ -22,54 +22,51 @@ private def element (tag : String) (children : List Html) : Html :=
 
 private def text (value : String) : Html := .text value
 
-private def style (value : String) : String × Json := ("style", .str value)
+private def classes (value : String) : String × Json := ("className", .str value)
 
-private def badge (label color : String) : Html :=
-  elementWith "span" [style (s!"color:{color};font-size:.75em;font-weight:700;" ++
-    "letter-spacing:.03em;margin-left:.5rem;padding:.15rem .4rem;" ++
-    "border:1px solid {color};border-radius:999px;")] [text label]
+private def badge (label colorClass : String) : Html :=
+  elementWith "span" [classes s!"f7 b dib ml2 ph1 ba br-pill {colorClass}"] [text label]
 
 private def formula (value : Formula.Term) : Html :=
-  elementWith "pre" [style ("overflow-x:auto;margin:.35rem 0;padding:.5rem;" ++
-    "border-radius:4px;background:rgba(127,127,127,.12);")] [
+  elementWith "pre" [classes "overflow-auto mv2 pa2 ba br1"] [
       element "code" [text (Formula.print value)]
     ]
 
 private def hypothesisList (hyps : List Formula.Term) : Html :=
   if hyps.isEmpty then
-    elementWith "p" [style "opacity:.7;margin:.25rem 0;"] [text "none"]
+    elementWith "p" [classes "mv1 o-70"] [text "none"]
   else
-    elementWith "ul" [style "margin:.25rem 0;padding-left:1.25rem;"]
+    elementWith "ul" [classes "mv2 pl3"]
       (hyps.map fun hypothesis => element "li" [formula hypothesis])
 
 private def obligationBody (obligation : Obligation) : Html :=
-  elementWith "div" [style "padding:.25rem .75rem .75rem;"] [
-    elementWith "p" [style "margin:.35rem 0;opacity:.75;"] [
+  elementWith "div" [classes "pa2"] [
+    elementWith "p" [classes "mv1 o-70"] [
       text s!"{obligation.hyps.length} hypotheses"
     ],
-    elementWith "h4" [style "margin:.6rem 0 .2rem;font-size:.85em;"] [
+    elementWith "h4" [classes "mt2 mb1 f6"] [
       text "Hypotheses"
     ],
     hypothesisList obligation.hyps,
-    elementWith "h4" [style "margin:.6rem 0 .2rem;font-size:.85em;"] [text "Goal"],
+    elementWith "h4" [classes "mt2 mb1 f6"] [text "Goal"],
     match obligation.goal with
-    | some goal => elementWith "div" [style "border-left:3px solid #4da3ff;"] [
+    | some goal => elementWith "div" [classes "bl bw2 b--blue pl2"] [
         formula goal
       ]
-    | none => elementWith "p" [style "opacity:.7;margin:.25rem 0;"] [
+    | none => elementWith "p" [classes "mv1 o-70"] [
         text "No statement derived yet."
       ]
   ]
 
-private def kindColor : String → String
-  | "INV" => "#4da3ff"
-  | "GRD" => "#e5c07b"
-  | "SIM" => "#c678dd"
-  | "WD" => "#56b6c2"
-  | "THM" => "#98c379"
-  | "WFIS" => "#61afef"
-  | "WWD" => "#e06c75"
-  | _ => "#abb2bf"
+private def kindClass : String → String
+  | "INV" => "blue"
+  | "GRD" => "gold"
+  | "SIM" => "purple"
+  | "WD" => "teal"
+  | "THM" => "green"
+  | "WFIS" => "light-blue"
+  | "WWD" => "red"
+  | _ => "grey"
 
 private def kindTitle : String → String
   | "INV" => "Invariant preservation"
@@ -82,12 +79,11 @@ private def kindTitle : String → String
   | kind => kind
 
 private def obligationCard (obligation : Obligation) : Html :=
-  elementWith "details" [style ("margin:.35rem 0;border:1px solid rgba(127,127,127,.3);" ++
-    "border-left:3px solid {kindColor obligation.kind};border-radius:4px;")] [
-    elementWith "summary" [style "cursor:pointer;padding:.45rem .6rem;"] [
+  elementWith "details" [classes "mv1 ba br1"] [
+    elementWith "summary" [classes "pointer pa2"] [
       text obligation.name,
       badge (if obligation.goal.isSome then "derived" else "pending")
-        (if obligation.goal.isSome then "#98c379" else "#e06c75")
+        (if obligation.goal.isSome then "green" else "red")
     ],
     obligationBody obligation
   ]
@@ -100,20 +96,18 @@ private def countKind (kind : String) (obligations : List Obligation) : Nat :=
 private def countDerived (obligations : List Obligation) : Nat :=
   obligations.countP (·.goal.isSome)
 
-private def stat (label value color : String) : Html :=
-  elementWith "div" [style (s!"border-top:3px solid {color};padding:.5rem .65rem;" ++
-    "border-radius:4px;background:rgba(127,127,127,.1);")] [
-      elementWith "div" [style "font-size:1.35em;font-weight:700;"] [text value],
-      elementWith "div" [style "font-size:.75em;opacity:.75;"] [text label]
+private def stat (label value accent : String) : Html :=
+  elementWith "div" [classes "ba br2 pa2 mr2 mb2"] [
+      elementWith "div" [classes s!"f3 b {accent}"] [text value],
+      elementWith "div" [classes "f7 o-70"] [text label]
     ]
 
 private def summary (obligations : List Obligation) : Html :=
-  elementWith "div" [style ("display:grid;grid-template-columns:repeat(3,minmax(0,1fr));" ++
-    "gap:.5rem;margin:.75rem 0;")] [
-      stat "total obligations" (toString obligations.length) "#4da3ff",
-      stat "goals derived" (toString (countDerived obligations)) "#98c379",
+  elementWith "div" [classes "flex flex-wrap mv2"] [
+      stat "total obligations" (toString obligations.length) "blue",
+      stat "goals derived" (toString (countDerived obligations)) "green",
       stat "obligation classes"
-        (toString (kinds.countP (fun kind => countKind kind obligations > 0))) "#c678dd"
+        (toString (kinds.countP (fun kind => countKind kind obligations > 0))) "purple"
     ]
 
 private def openAttribute (isOpen : Bool) : List (String × Json) :=
@@ -125,13 +119,12 @@ private def kindSection (kind : String) (obligations : List Obligation) (isOpen 
     none
   else
     some <| elementWith "details"
-      (openAttribute isOpen ++ [style ("margin:.55rem 0;border:1px solid rgba(127,127,127,.3);" ++
-        "border-left:4px solid {kindColor kind};border-radius:5px;")]) [
-      elementWith "summary" [style "cursor:pointer;padding:.55rem .7rem;font-weight:600;"] [
-        badge kind (kindColor kind),
+      (openAttribute isOpen ++ [classes "mv2 ba br2"]) [
+      elementWith "summary" [classes "pointer pa2 b"] [
+        badge kind (kindClass kind),
         text s!"{kindTitle kind} · {obligations.length}"
       ],
-      elementWith "div" [style "padding:0 .35rem .35rem;"]
+      elementWith "div" [classes "pa1"]
         (obligations.map obligationCard)
     ]
 
@@ -144,12 +137,12 @@ def renderProject (project : Typing.Project) (machine : String) : Html :=
   let first := firstKind obligations
   let sections := kinds.filterMap fun kind =>
     kindSection kind (obligations.filter (·.kind == kind)) (first == some kind)
-  elementWith "section" [style "max-width:58rem;line-height:1.35;padding:.25rem .5rem;"] [
-    elementWith "header" [style "margin-bottom:.5rem;"] [
-      elementWith "h3" [style "margin:.35rem 0;font-size:1.35em;"] [
+  elementWith "section" [classes "pa2"] [
+    elementWith "header" [classes "mb2"] [
+      elementWith "h3" [classes "f3 b mv1"] [
         text s!"Event-B obligations · {machine}"
       ],
-      elementWith "p" [style "margin:.25rem 0;opacity:.75;"] [
+      elementWith "p" [classes "mv1 o-70"] [
         text "Proof-obligation explorer · expand a class, then an obligation"
       ]
     ],
