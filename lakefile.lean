@@ -15,6 +15,10 @@ lean_lib «EventB» where
   globs := #[.andSubmodules `EventB]
 
 /-- The ratchet. `lake exe gates` diffs the corpus against `baseline/*.tsv`. -/
+lean_lib «Examples» where
+  srcDir := "examples"
+  globs := #[.one `Counter]
+
 lean_exe «gates» where
   root := `Gates
   srcDir := "test"
