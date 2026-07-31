@@ -312,9 +312,21 @@ def generate (p : Project) (name : String) : List Obligation := Id.run do
       -- Refinement obligations are named after the abstract event's labels.
       if let some (am, ae) := abstractEvent p name ev then
         if (attrOf ev "extended").getD "false" != "true" then
+          -- Guard strengthening: the concrete event must be enabled only where the
+          -- abstract one is, so the goal is the abstract guard itself. A witness names
+          -- the value an abstract parameter takes, and is substituted in when present.
+          let witnesses := (childrenOf ev "witness").filterMap fun w =>
+            match Formula.parse ((attrOf w "predicate").getD "") with
+            | .ok (.bin "=" (.id v) e) => some (v, e)
+            | _ => none
           for g in childrenOf ae "guard" do
+            let goal := (Formula.parse ((attrOf g "predicate").getD "")).toOption.map
+              (Formula.subst witnesses)
             out := out ++
-              [{ name := labelOf ev ++ "/" ++ labelOf g ++ "/GRD", kind := "GRD" }]
+              [{ name := labelOf ev ++ "/" ++ labelOf g ++ "/GRD", kind := "GRD",
+                 goal := goal, hyps := contextHyps p name ++
+                   ((effectiveGuards p name ev).filterMap fun q =>
+                     (Formula.parse ((attrOf q "predicate").getD "")).toOption) }]
           for act in effectiveActions p am ae do
             out := out ++
               [{ name := labelOf ev ++ "/" ++ labelOf act ++ "/SIM", kind := "SIM" }]
