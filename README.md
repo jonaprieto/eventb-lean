@@ -100,6 +100,19 @@ The book export also contains proof trees, pseudocode, OCR fragments, and image-
 blocks. Those are documentation, not executable Event-B inputs; the four files cover
 the model examples that can be represented and checked by this toolchain.
 
+## Infoview proof obligations
+
+For an interactive view in the Lean VS Code Infoview, open
+`examples/WidgetDemo.lean`. It uses the optional ProofWidgets front end:
+
+```lean
+#eventb_pog_widget project M
+```
+
+The panel shows the obligation count, class, hypotheses, and generated goal in
+expandable cards. `lake build Examples` compiles this demo; the widget does not alter
+the CLI, POG output, proof status, or trust ledger.
+
 
 Corpus-wide, `eventb diff` reports **1105 obligations matching Rodin, 28 only Rodin has,
 649 only we have**. The 28 are refinement chains deeper than one level. The 649 are
