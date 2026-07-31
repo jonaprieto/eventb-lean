@@ -351,28 +351,10 @@ private def readGoldHyps (path : System.FilePath) : IO (List (String × List Str
   | .error _ => return []
   | .ok xml => return goldHyps xml (predicateSets xml)
 
-private def canonical : Term → Term
-  | .bin op a b => .bin op (canonical a) (canonical b)
-  | .pre op a => .pre op (canonical a)
-  | .post op a => .post op (canonical a)
-  | .app f a => .app (canonical f) (canonical a)
-  | .img r a => .img (canonical r) (canonical a)
-  | .set ts =>
-      match ts.map canonical with
-      | [.bin "∣" vars pred] =>
-          .bind "{" vars (.bin "∣" pred vars)
-      | ts => .set ts
-  | .bind kind pat body =>
-      let pat := canonical pat
-      let body := canonical body
-      if kind == "{" then
-        match pat with
-        | .bin "∣" vars pred => .bind kind vars (.bin "∣" pred body)
-        | _ => .bind kind pat body
-      else .bind kind pat body
-  | t => t
-
-private def comparable (t : Term) : Term := canonical (Formula.stripAscriptions t)
+/-- Ascriptions carry no logical content, so a generator has no reason to reproduce
+them. Nothing else is normalised: the gate's job is to notice a difference, and a
+comparison that rewrites both sides can only hide one. -/
+private def comparable (t : Term) : Term := Formula.stripAscriptions t
 
 /-- Hypotheses are scored as sets: Rodin's order is an artefact of how it walks the
 predicate-set chain, and a generator that produces the same assumptions in a different
