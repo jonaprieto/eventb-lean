@@ -277,6 +277,14 @@ private def sameTree (a b : String) : Bool :=
 #guard !(parse "f(x").isOk
 #guard !(parse "a ∈ b ∈ c").isOk
 
+/-- The names a binder pattern introduces. Substitution must skip exactly these and
+descend past everything else. -/
+def patternNames : Term → List String
+  | .id n => [n]
+  | .bin "⦂" a _ => patternNames a
+  | .bin _ a b => patternNames a ++ patternNames b
+  | _ => []
+
 mutual
 
 /-- Simultaneous substitution. Simultaneous matters: an event assigning `a ≔ b` and
@@ -292,9 +300,12 @@ def subst (σ : List (String × Term)) : Term → Term
   | .app f a => .app (subst σ f) (subst σ a)
   | .img r a => .img (subst σ r) (subst σ a)
   | .set ts => .set (substList σ ts)
-  -- A binder's pattern rebinds its names, so the body is left alone: Event-B
-  -- obligations never substitute a variable a quantifier has captured.
-  | .bind k p b => .bind k p b
+  -- A binder captures only the names in its own pattern. Machine variables are free
+  -- inside a quantified invariant and must be substituted there too, which is what
+  -- makes `∀a1,a2 · a1 ∈ dom(f) ⇒ ...` become `... dom(∅) ...` after `f ≔ ∅`.
+  | .bind k p b =>
+      let bound := patternNames p
+      .bind k p (subst (σ.filter (fun q => !bound.contains q.1)) b)
 
 def substList (σ : List (String × Term)) : List Term → List Term
   | [] => []
@@ -338,6 +349,13 @@ private def parse! (s : String) : Term := (parse s).toOption.getD (.id "?")
 
 -- A name the event does not assign is untouched.
 #guard subst [("x", .id "y")] (parse! "z ∈ S") == parse! "z ∈ S"
+
+-- Substitution reaches inside a quantifier: `a1` is bound, `f` is not.
+#guard subst [("f", .set [])] (parse! "∀a1 · a1 ∈ dom(f)")
+  == parse! "∀a1 · a1 ∈ dom(∅)"
+
+-- But a name the binder captures is shadowed, not replaced.
+#guard subst [("a1", .id "q")] (parse! "∀a1 · a1 ∈ S") == parse! "∀a1 · a1 ∈ S"
 
 -- Ascriptions vanish, and nothing else does.
 #guard stripAscriptions (parse! "(∅ ⦂ ℙ(AIRPLANES)) ⊆ dom(f)") == parse! "∅ ⊆ dom(f)"
