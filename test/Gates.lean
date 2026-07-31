@@ -353,7 +353,9 @@ order is not wrong. -/
 private def checkHyps (project : Project) (file : String)
     (gold : List (String × List String)) : List GoalResult :=
   (generate project file).filterMap fun o =>
-    if o.hyps.isEmpty then none else
+    -- Scored for every obligation with a derived goal. An empty hypothesis list is a
+    -- claim (INITIALISATION assumes nothing), not an absence of one.
+    if o.goal.isNone then none else
     let key := file ++ "\t" ++ o.name
     match gold.find? (fun p => p.1 == o.name) with
     | none => some { key := key, status := "FAIL:no such sequent in .bpo" }

@@ -222,6 +222,10 @@ retried. All three were plausible and all three made the gates worse:
   and inverted: Rodin generates SIM precisely when the label is restated.
 - Skip INV for typing-shaped invariants by the cruder test "right-hand side mentions no
   variable at all". 1002 -> 955.
+- Give INITIALISATION no hypotheses, on the reasoning that no invariant holds before the
+  machine starts. Semantically appealing and empirically false: Rodin's INITIALISATION
+  sequents carry 12 to 14 hypotheses, and only 3 of them carry none. Scored +3 by
+  accident while introducing a 30-case regression.
 -/
 
 /-- The hypotheses available to any obligation of `name`: every axiom of every context
