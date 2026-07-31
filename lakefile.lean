@@ -2,7 +2,6 @@ import Lake
 open Lake DSL
 
 package «eventb» where
-  -- Same discipline as grip: no auto-bound implicits anywhere.
   leanOptions := #[⟨`autoImplicit, false⟩, ⟨`relaxedAutoImplicit, false⟩]
 
 -- Pinned by SHA, not `main`: corpus gate numbers are only reproducible if the
