@@ -191,6 +191,11 @@ comparison in both directions: a missing obligation is unsoundness, and a spurio
 is work nobody has to do. 1133 sequents in the corpus. -/
 private def sequentCount : Nat := 1133
 
+/-- Rodin's own discharge record, from the `.bps` files: it closed all 1133, 1088 without
+a human. That is the P4 bar, and the number any prover backend is measured against. -/
+private def rodinAuto : Nat := 1088
+private def rodinManual : Nat := 45
+
 private partial def poNames (e : XmlElem) : List String :=
   let here :=
     if e.tag == "org.eventb.core.poSequent" then (e.attr? "name").toList else []
@@ -266,7 +271,17 @@ private def writeStatus (results : List FileResult) (formulas : List FormulaResu
         s!" | {typeCount} |\n" ++
       s!"| P3 POG | `.bpo` PO sequents reproduced | {ppass}/{sequentCount} |" ++
         s!" {sequentCount} |\n" ++
-      "| P4 provers | discharge rate vs Rodin `.bps` | not started | within 20pt |\n" ++
+      s!"| P4 provers | discharge rate vs Rodin `.bps` | 0/{sequentCount} |" ++
+        s!" within 20pt of {rodinAuto} |\n" ++
+      "\n## Trust ledger\n\nThe artifact Rodin cannot produce: for each obligation, " ++
+      "what is actually holding it\nup. Empty of proofs until P4, but the accounting " ++
+      "is in place, and the two soundness\ntheorems it will rest on are already " ++
+      "axiom-free (`Proved.sound`, `Refines.sound`,\nchecked in CI).\n\n" ++
+      "| status | count |\n| --- | --- |\n" ++
+      s!"| kernel-checked | 0 |\n| smt-trusted | 0 |\n| atelierb-trusted | 0 |\n" ++
+      s!"| unproved | {ppass} |\n\n" ++
+      s!"Rodin discharged all {rodinAuto + rodinManual} of its obligations: " ++
+      s!"{rodinAuto} automatically, {rodinManual} by hand.\n" ++
       "\n## Element census\n\nSummed over every corpus source file. A reader that " ++
       "silently dropped an element would\nshow up here as a shortfall, which a per-file " ++
       "PASS/FAIL cannot detect.\n\n| element | count |\n| --- | --- |\n" ++
