@@ -65,7 +65,17 @@ def gates():
         s = open(p, encoding="utf-8").read()
         types += len(re.findall(r'org\.eventb\.core\.type="', s))
         pos += s.count("<org.eventb.core.poSequent ")
-    return src, forms, types, pos, elems
+    # Rodin's own discharge record, the P4 bar: psManual="false" is what its provers
+    # closed without a human.
+    auto = manual = 0
+    for p in sorted(glob.glob(f"{ROOT}/corpus/*/*.bps")):
+        for a in re.findall(r"<org\.eventb\.core\.psStatus\b([^>]*)>",
+                            open(p, encoding="utf-8").read()):
+            if 'psManual="true"' in a:
+                manual += 1
+            else:
+                auto += 1
+    return src, forms, types, pos, elems, auto, manual
 
 
 def main():
@@ -82,11 +92,12 @@ def main():
     else:
         open(path, "w", encoding="utf-8").write(text)
 
-    src, forms, types, pos, elems = gates()
+    src, forms, types, pos, elems, auto, manual = gates()
     print(f"P0 source files   {len(src)}")
     print(f"P1 formulas       {forms}")
     print(f"P2 type assertions{types:>6}")
     print(f"P3 PO sequents    {pos}")
+    print(f"P4 Rodin baseline {auto} auto, {manual} manual, {auto + manual} discharged")
     print(
         "elements: "
         + "  ".join(f"{k.split('.')[-1]} {v}" for k, v in elems.most_common())

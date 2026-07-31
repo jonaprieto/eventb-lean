@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.psFile>
+<org.eventb.core.psStatus name="INITIALISATION/typeof_ghost/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="0" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="INITIALISATION/typeof_connected/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="0" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="INITIALISATION/distinct_states_in_connected_sm/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="0" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_leave_network/typeof_ghost/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="17" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_leave_network/typeof_connected/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="17" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_leave_network/distinct_states_in_connected_sm/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="17" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_connect_radio/typeof_ghost/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="17" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_connect_radio/typeof_connected/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="17" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_connect_radio/distinct_states_in_connected_sm/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="17" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_disconnect_radio/typeof_ghost/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="17" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_disconnect_radio/typeof_connected/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="17" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_disconnect_radio/distinct_states_in_connected_sm/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="17" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_train_split/typeof_ghost/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="17" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_train_split/typeof_connected/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="17" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_train_split/distinct_states_in_connected_sm/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="17" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_join_network/typeof_ghost/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="21" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_join_network/typeof_connected/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="21" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_join_network/distinct_states_in_connected_sm/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="21" org.eventb.core.psManual="false"/>
+</org.eventb.core.psFile>

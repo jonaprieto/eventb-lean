@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.psFile>
+<org.eventb.core.psStatus name="inv2/WD" org.eventb.core.confidence="1000" org.eventb.core.poStamp="22" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="INITIALISATION/assocMult_occupiedBy/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="20" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="INITIALISATION/inv1/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="20" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="INITIALISATION/inv3/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="20" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="INITIALISATION/inv2/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="22" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_join_network/assocMult_occupiedBy/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="26" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_join_network/inv1/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="26" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_join_network/inv3/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="26" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_join_network/inv2/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="26" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_leave_network/assocMult_occupiedBy/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="22" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_leave_network/inv1/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="22" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_leave_network/inv3/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="22" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_leave_network/inv2/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="22" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_front_move_next/grdnext11/WD" org.eventb.core.confidence="1000" org.eventb.core.poStamp="22" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_front_move_next/grdnnn/WD" org.eventb.core.confidence="1000" org.eventb.core.poStamp="24" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_front_move_next/grdm/WD" org.eventb.core.confidence="1000" org.eventb.core.poStamp="24" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_front_move_next/assocMult_occupiedBy/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="24" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_front_move_next/inv1/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="24" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_front_move_next/inv2/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="24" org.eventb.core.psManual="true"/>
+<org.eventb.core.psStatus name="ENV_rear_leave_section/cdm_guards5/WD" org.eventb.core.confidence="1000" org.eventb.core.poStamp="22" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_rear_leave_section/assocMult_occupiedBy/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="22" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_rear_leave_section/inv1/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="22" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_rear_leave_section/inv2/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="22" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_train_split/grd15/WD" org.eventb.core.confidence="1000" org.eventb.core.poStamp="22" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_train_split/grd1next/WD" org.eventb.core.confidence="1000" org.eventb.core.poStamp="22" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_train_split/assocMult_occupiedBy/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="22" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_train_split/inv1/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="22" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_train_split/inv3/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="22" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_train_split/inv2/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="22" org.eventb.core.psManual="false"/>
+</org.eventb.core.psFile>

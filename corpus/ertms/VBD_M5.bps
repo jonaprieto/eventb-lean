@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.psFile>
+<org.eventb.core.psStatus name="INITIALISATION/typeof_trusted/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="0" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="INITIALISATION/typeof_controlled/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="0" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="INITIALISATION/distinct_states_in_inMission_ma_mode/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="0" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="INITIALISATION/inv1/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="0" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_start_of_mission/typeof_trusted/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_start_of_mission/typeof_controlled/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_start_of_mission/distinct_states_in_inMission_ma_mode/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_start_of_mission/inv1/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_end_of_mission/typeof_trusted/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_end_of_mission/typeof_controlled/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_end_of_mission/distinct_states_in_inMission_ma_mode/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_end_of_mission/inv1/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="RBC_extend_fs_ma/grd3/WD" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="RBC_extend_fs_ma/typeof_trusted/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="RBC_extend_fs_ma/typeof_controlled/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="RBC_extend_fs_ma/distinct_states_in_inMission_ma_mode/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="RBC_extend_fs_ma/inv1/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="RBC_extend_fs_ma/grd1/GRD" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="RBC_extend_os_ma/typeof_trusted/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="RBC_extend_os_ma/typeof_controlled/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="RBC_extend_os_ma/distinct_states_in_inMission_ma_mode/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="RBC_extend_os_ma/inv1/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="RBC_shrink_ma/inv1/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="RBC_trim_ma/inv1/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="VBD_add_available_vss/grd1/WD" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="VBD_remove_available_vss/grd1/WD" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+</org.eventb.core.psFile>

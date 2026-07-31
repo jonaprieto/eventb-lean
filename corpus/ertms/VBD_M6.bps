@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<org.eventb.core.psFile>
+<org.eventb.core.psStatus name="INITIALISATION/typeof_nonIntegral/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="0" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="INITIALISATION/typeof_integral/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="0" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="INITIALISATION/distinct_states_in_connected_integrity/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="0" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_reconnect_radio/typeof_nonIntegral/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_reconnect_radio/typeof_integral/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_reconnect_radio/distinct_states_in_connected_integrity/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="VBD_mute_timer_expired/typeof_nonIntegral/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="VBD_mute_timer_expired/typeof_integral/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="VBD_mute_timer_expired/distinct_states_in_connected_integrity/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_start_of_mission/typeof_nonIntegral/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_start_of_mission/typeof_integral/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_start_of_mission/distinct_states_in_connected_integrity/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_end_of_mission/typeof_nonIntegral/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_end_of_mission/typeof_integral/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="ENV_end_of_mission/distinct_states_in_connected_integrity/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="VBD_receive_position_report_integrity_loss/typeof_nonIntegral/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="VBD_receive_position_report_integrity_loss/typeof_integral/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="VBD_receive_position_report_integrity_loss/distinct_states_in_connected_integrity/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="VBD_receive_position_report_integrity_confirmed/typeof_nonIntegral/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="VBD_receive_position_report_integrity_confirmed/typeof_integral/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="VBD_receive_position_report_integrity_confirmed/distinct_states_in_connected_integrity/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="VBD_receive_position_report_integrity_unavailable/typeof_nonIntegral/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="VBD_receive_position_report_integrity_unavailable/typeof_integral/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="VBD_receive_position_report_integrity_unavailable/distinct_states_in_connected_integrity/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="VBD_receive_position_report_train_length_changed/typeof_nonIntegral/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="VBD_receive_position_report_train_length_changed/typeof_integral/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+<org.eventb.core.psStatus name="VBD_receive_position_report_train_length_changed/distinct_states_in_connected_integrity/INV" org.eventb.core.confidence="1000" org.eventb.core.poStamp="16" org.eventb.core.psManual="false"/>
+</org.eventb.core.psFile>
