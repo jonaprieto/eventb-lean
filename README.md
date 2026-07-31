@@ -29,18 +29,19 @@ derivation, not reading an answer off the file.
 
 ## The point
 
-Rodin cannot tell you which of your proofs rest on what. This can: `STATUS.md` carries a
-trust ledger splitting every obligation into kernel-checked, SMT-trusted,
-external-prover-trusted, and unproved. For a certification argument that distinction is
-the whole conversation.
+Rodin cannot tell you which of your proofs rest on what. This can: `lake exe gates
+--status` writes a trust ledger splitting every obligation into kernel-checked,
+SMT-trusted, external-prover-trusted, and unproved. For a certification argument that
+distinction is the whole conversation.
 
 `Proved.sound` and `Refines.sound` in `EventB/Semantics.lean` are axiom-free, and CI
 fails if that ever stops being true.
 
 ## Layout
 
-`AGENTS.md` is the working agreement, `PLAN.md` the phase plan with measured gates, and
-`STATUS.md` is generated. Start with `AGENTS.md`.
+`EventB/` is the library, `test/Gates.lean` the ratchet that measures it against the
+corpus, and `baseline/*.tsv` the per-item record it diffs against. Working notes and the
+generated status report are kept out of the repo.
 
 Corpus: AMAN (hhu-stups) and ERTMS-HL3 (eventB-Soton), vendored and pinned by sha256 in
 `corpus/MANIFEST.tsv`. Both are third-party; check their licences before publishing.
