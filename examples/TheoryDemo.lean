@@ -16,6 +16,13 @@ eventb_theory Controls where
   predicate active : ℤ → BOOL
   expression clamp : ℤ → ℤ
 
+eventb_theory Algebra where
+  datatype Colour where red blue
+  definition zero : ℤ where 0
+  rewrite add_zero where "x + 0" => "x"
+  inference lt_identity where "x < y" => "x < y"
+  theorem zero_eq where "0 = 0"
+
 eventb_context TheoryCtx where
   uses Controls
   constants cars
@@ -37,7 +44,12 @@ def theoryProject : Typing.Project :=
   , { name := "TheoryMachine", elem := TheoryMachine, theories := ["Controls"] } ]
 
 def theoryEnv : Theory.Env :=
-  Theory.Env.mk [Controls, Bounds, Theory.core]
+  match Theory.register [Bounds, Controls, Algebra] with
+  | .ok env => env
+  | .error _ => Theory.empty
+
+#guard (Theory.declaration? theoryEnv ["Algebra"] "Colour").isSome
+#guard (Theory.declaration? theoryEnv ["Algebra"] "add_zero").isSome
 
 #guard (POG.generateIn theoryEnv theoryProject "TheoryMachine").isEmpty == false
 #guard (POG.generateIn theoryEnv theoryProject "TheoryMachine").all

@@ -324,12 +324,22 @@ syntax "predicate " ident : ebTheoryPart
 syntax "expression " ident ":" ident "→" ident : ebTheoryPart
 syntax "expression " ident : ebTheoryPart
 syntax "well_defined " ident : ebTheoryPart
+syntax "datatype " ident "where " ident+ : ebTheoryPart
+syntax "definition " ident ":" ident "where " ebFormula : ebTheoryPart
+syntax "rewrite " ident "where " str "=>" str : ebTheoryPart
+syntax "inference " ident "where " str "=>" str : ebTheoryPart
+syntax "theorem " ident "where " str : ebTheoryPart
 
 syntax (name := eventbTheory)
   "eventb_theory " ident "where " ebTheoryPart* : command
 
 private def theoryTy (stx : Syntax) : EventB.Typing.Ty :=
   (EventB.Typing.Ty.parse stx.getId.toString).getD (.given stx.getId.toString)
+
+private def theoryFormula (stx : Syntax) (source : String) : CommandElabM Formula.Term := do
+  match Formula.parse source with
+  | .ok term => pure term
+  | .error error => throwErrorAt stx s!"not an Event-B theory formula: {error}"
 
 private def mkTyTerm : EventB.Typing.Ty → TSyntax `term
   | .int => Unhygienic.run `(EventB.Typing.Ty.int)
@@ -384,20 +394,20 @@ private def mkConstructorTerm (constructor : Theory.Constructor) : TSyntax `term
   Unhygienic.run `(EventB.Theory.Constructor.mk $(quote constructor.name) $arguments)
 
 private def mkDeclarationTerm : Theory.Declaration → TSyntax `term
-  | .datatype datatype =>
-      let parameters := listOf (datatype.parameters.toArray.map quote)
-      let constructors := listOf (datatype.constructors.toArray.map mkConstructorTerm)
-      Unhygienic.run `(EventB.Theory.Declaration.datatype
-        (EventB.Theory.Datatype.mk $(quote datatype.name) $parameters $constructors))
-  | .definition definition =>
-      let parameters := listOf (definition.parameters.toArray.map mkTypedParameter)
-      let kind := match definition.kind with
+  | Theory.Declaration.dataType dataDecl =>
+      let parameters := listOf (dataDecl.parameters.toArray.map quote)
+      let constructors := listOf (dataDecl.constructors.toArray.map mkConstructorTerm)
+      Unhygienic.run `(EventB.Theory.Declaration.dataType
+        (EventB.Theory.Datatype.mk $(quote dataDecl.name) $parameters $constructors))
+  | Theory.Declaration.definitionDecl defDecl =>
+      let parameters := listOf (defDecl.parameters.toArray.map mkTypedParameter)
+      let kind := match defDecl.kind with
         | .definitional => Unhygienic.run `(EventB.Theory.DefinitionKind.definitional)
         | .axiomatic => Unhygienic.run `(EventB.Theory.DefinitionKind.axiomatic)
-      Unhygienic.run `(EventB.Theory.Declaration.definition
-        (EventB.Theory.Definition.mk $(quote definition.name) $parameters
-          $(mkTyTerm definition.result) $(mkFormulaTerm definition.body) $kind))
-  | .rule rule =>
+      Unhygienic.run `(EventB.Theory.Declaration.definitionDecl
+        (EventB.Theory.Definition.mk $(quote defDecl.name) $parameters
+          $(mkTyTerm defDecl.result) $(mkFormulaTerm defDecl.body) $kind))
+  | Theory.Declaration.ruleDecl rule =>
       let parameters := listOf (rule.parameters.toArray.map mkTypedParameter)
       let premises := listOf (rule.premises.toArray.map mkFormulaTerm)
       let lhs := match rule.lhs with
@@ -410,13 +420,19 @@ private def mkDeclarationTerm : Theory.Declaration → TSyntax `term
         | none => Unhygienic.run `(none)
         | some term => Unhygienic.run `(some $(mkFormulaTerm term))
       let kind := match rule.kind with
-        | .rewrite => Unhygienic.run `(EventB.Theory.DeclarationKind.rewrite)
-        | .inference => Unhygienic.run `(EventB.Theory.DeclarationKind.inference)
-        | .theorem => Unhygienic.run `(EventB.Theory.DeclarationKind.theorem)
-        | .datatype => Unhygienic.run `(EventB.Theory.DeclarationKind.datatype)
-        | .definition => Unhygienic.run `(EventB.Theory.DeclarationKind.definition)
-        | .axiom => Unhygienic.run `(EventB.Theory.DeclarationKind.axiom)
-      Unhygienic.run `(EventB.Theory.Declaration.rule
+        | Theory.DeclarationKind.rewrite =>
+            Unhygienic.run `(EventB.Theory.DeclarationKind.rewrite)
+        | Theory.DeclarationKind.inference =>
+            Unhygienic.run `(EventB.Theory.DeclarationKind.inference)
+        | Theory.DeclarationKind.theorem =>
+            Unhygienic.run `(EventB.Theory.DeclarationKind.theorem)
+        | Theory.DeclarationKind.datatype =>
+            Unhygienic.run `(EventB.Theory.DeclarationKind.datatype)
+        | Theory.DeclarationKind.definition =>
+            Unhygienic.run `(EventB.Theory.DeclarationKind.definition)
+        | Theory.DeclarationKind.axiom =>
+            Unhygienic.run `(EventB.Theory.DeclarationKind.axiom)
+      Unhygienic.run `(EventB.Theory.Declaration.ruleDecl
         (EventB.Theory.Rule.mk $(quote rule.name) $kind $parameters $premises
           $lhs $rhs $conclusion))
 
@@ -439,6 +455,7 @@ private def elabTheory : CommandElab := fun stx => do
   | `(eventb_theory $n:ident where $ps:ebTheoryPart*) => do
       let mut importNames : List String := []
       let mut symbols : List Symbol := []
+      let mut declarations : List Theory.Declaration := []
       for p in ps do
         match p with
         | `(ebTheoryPart| imports $xs:ident*) =>
@@ -479,9 +496,45 @@ private def elabTheory : CommandElab := fun stx => do
             addSymbolRange n.getId.toString x.raw
             symbols := symbols ++
               [theorySymbol x.getId.toString .expression none (some .wellDefined)]
+        | `(ebTheoryPart| datatype $x:ident where $cs:ident*) =>
+            addSymbolRange n.getId.toString x.raw
+            for c in cs do addSymbolRange n.getId.toString c.raw
+            let constructors := cs.toList.map fun c => Theory.Constructor.mk c.getId.toString []
+            declarations := declarations ++
+              [.dataType (Theory.Datatype.mk x.getId.toString [] constructors)]
+        | `(ebTheoryPart| definition $x:ident : $t:ident where $f:ebFormula) =>
+            addSymbolRange n.getId.toString x.raw
+            let body ← theoryFormula f.raw (formulaText f)
+            checkScope importNames [n.getId.toString] f.raw body
+            let result := theoryTy t
+            symbols := symbols ++
+              [theorySymbol x.getId.toString .expression (some result) (some .total)]
+            declarations := declarations ++
+              [.definitionDecl
+                (Theory.Definition.mk x.getId.toString [] result body .definitional)]
+        | `(ebTheoryPart| rewrite $x:ident where $lhs:str => $rhs:str) =>
+            addSymbolRange n.getId.toString x.raw
+            let left ← theoryFormula lhs.raw lhs.getString
+            let right ← theoryFormula rhs.raw rhs.getString
+            declarations := declarations ++
+              [.ruleDecl (Theory.Rule.mk x.getId.toString .rewrite [] [] (some left)
+                (some right) none)]
+        | `(ebTheoryPart| inference $x:ident where $premise:str => $conclusion:str) =>
+            addSymbolRange n.getId.toString x.raw
+            let premise ← theoryFormula premise.raw premise.getString
+            let conclusion ← theoryFormula conclusion.raw conclusion.getString
+            declarations := declarations ++
+              [.ruleDecl (Theory.Rule.mk x.getId.toString .inference [] [premise] none none
+                (some conclusion))]
+        | `(ebTheoryPart| theorem $x:ident where $formula:str) =>
+            addSymbolRange n.getId.toString x.raw
+            let conclusion ← theoryFormula formula.raw formula.getString
+            declarations := declarations ++
+              [.ruleDecl (Theory.Rule.mk x.getId.toString .theorem [] [] none none
+                (some conclusion))]
         | other => throwErrorAt other "unexpected theory clause"
       let spec : Theory.Spec :=
-        Theory.Spec.mk n.getId.toString importNames symbols []
+        Theory.Spec.mk n.getId.toString importNames symbols declarations
       match Theory.add (theoryEnvironment (← getEnv)) spec with
       | .error message => throwErrorAt n message
       | .ok _ =>

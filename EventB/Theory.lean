@@ -56,22 +56,22 @@ structure Rule where
   deriving BEq, Repr, Inhabited
 
 inductive Declaration where
-  | datatype (value : Datatype)
-  | definition (value : Definition)
-  | rule (value : Rule)
+  | dataType (value : Datatype)
+  | definitionDecl (value : Definition)
+  | ruleDecl (value : Rule)
   deriving BEq, Repr, Inhabited
 
 def Declaration.name : Declaration → String
-  | .datatype value => value.name
-  | .definition value => value.name
-  | .rule value => value.name
+  | .dataType value => value.name
+  | .definitionDecl value => value.name
+  | .ruleDecl value => value.name
 
 def Declaration.kind : Declaration → DeclarationKind
-  | .datatype _ => .datatype
-  | .definition value => match value.kind with
+  | .dataType _ => .datatype
+  | .definitionDecl value => match value.kind with
     | .definitional => .definition
     | .axiomatic => .axiom
-  | .rule value => value.kind
+  | .ruleDecl value => value.kind
 
 structure Spec where
   name : String
@@ -156,9 +156,9 @@ private def constructorNames (datatype : Datatype) : List String :=
 
 private def declarationParts (declaration : Declaration) : List String :=
   match declaration with
-  | .datatype datatype => datatype.name :: constructorNames datatype
-  | .definition definition => [definition.name]
-  | .rule rule => [rule.name]
+  | .dataType datatype => datatype.name :: constructorNames datatype
+  | .definitionDecl definition => [definition.name]
+  | .ruleDecl rule => [rule.name]
 
 private def declarationNamesAll (declarations : List Declaration) : List String :=
   declarations.flatMap declarationParts
@@ -167,17 +167,17 @@ private def duplicateName (names : List String) : Option String := firstDuplicat
 
 private def declarationError (declaration : Declaration) : Option String :=
   match declaration with
-  | .datatype datatype =>
+  | .dataType datatype =>
       if datatype.constructors.isEmpty then
         some s!"datatype `{datatype.name}` needs a constructor"
       else match duplicateName (datatype.parameters ++ constructorNames datatype) with
         | some name => some s!"declaration name `{name}` is repeated"
         | none => none
-  | .definition definition =>
+  | .definitionDecl definition =>
       match duplicateName (definition.parameters.map (·.1)) with
       | some name => some s!"definition parameter `{name}` is repeated"
       | none => none
-  | .rule rule =>
+  | .ruleDecl rule =>
       let shape := match rule.kind, rule.lhs, rule.rhs, rule.conclusion with
         | .rewrite, some _, some _, _ => none
         | .rewrite, _, _, _ => some "rewrite rules need both a left and right side"
@@ -302,7 +302,7 @@ private def imported : Env :=
 private def declarationEnv : Env :=
   match add empty
       { name := "Data", declarations :=
-        [.datatype (Datatype.mk "Colour" []
+        [.dataType (Datatype.mk "Colour" []
           [Constructor.mk "red" [], Constructor.mk "blue" []])] } with
   | .ok env => env
   | .error _ => empty
@@ -310,7 +310,7 @@ private def declarationEnv : Env :=
 #guard isDeclarationIn declarationEnv ["Data"] "Colour"
 #guard (declaration? declarationEnv ["Data"] "Colour").isSome
 #guard match add empty
-    { name := "EmptyData", declarations := [.datatype (Datatype.mk "EmptyData" [] [])] } with
+    { name := "EmptyData", declarations := [.dataType (Datatype.mk "EmptyData" [] [])] } with
   | .error _ => true
   | .ok _ => false
 
