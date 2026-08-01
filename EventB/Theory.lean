@@ -163,6 +163,11 @@ private def declarationParts (declaration : Declaration) : List String :=
 private def declarationNamesAll (declarations : List Declaration) : List String :=
   declarations.flatMap declarationParts
 
+private def isDefinitionName (declarations : List Declaration) (name : String) : Bool :=
+  declarations.any fun declaration => match declaration with
+    | .definitionDecl definition => definition.name == name
+    | _ => false
+
 private def duplicateName (names : List String) : Option String := firstDuplicate [] names
 
 private def declarationError (declaration : Declaration) : Option String :=
@@ -195,7 +200,9 @@ private def validate (env : Env) (theory : Spec) : List String :=
   let declarationNames := declarationNamesAll theory.declarations
   let duplicate := firstDuplicate [] names
   let duplicateDeclaration := duplicateName declarationNames
-  let symbolDeclarationConflict := names.find? (declarationNames.contains ·)
+  let symbolDeclarationConflict := theory.symbols.find? fun symbol =>
+    declarationNames.contains symbol.name &&
+      !(symbol.kind == .expression && isDefinitionName theory.declarations symbol.name)
   let reserved := theory.symbols.find? (fun symbol =>
     (coreSymbols.find? (·.name == symbol.name)).isSome)
   let reservedDeclaration := theory.declarations.find? (fun declaration =>
@@ -228,7 +235,7 @@ private def validate (env : Env) (theory : Spec) : List String :=
     | some name => errors ++ [s!"declaration `{name}` is declared more than once"]
     | none => errors
   let errors := match symbolDeclarationConflict with
-    | some name => errors ++ [s!"symbol and declaration `{name}` share a name"]
+    | some symbol => errors ++ [s!"symbol and declaration `{symbol.name}` share a name"]
     | none => errors
   let errors := match reserved with
     | some symbol => errors ++ [s!"symbol `{symbol.name}` is reserved by the core prelude"]

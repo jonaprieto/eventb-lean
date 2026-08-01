@@ -46,7 +46,7 @@ private def unsupported :=
   | .error _ => true
   | .ok _ => false
 
-private def baseSymbol : Symbol :=
+private def baseSymbol : EventB.Prelude.Symbol :=
   { name := "LIMIT", kind := .constant, type := some .int,
     description := "A base constant." }
 
