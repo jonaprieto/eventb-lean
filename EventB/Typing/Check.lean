@@ -132,7 +132,7 @@ where
       | .error e => return [s!"{e}"]
 
 /-- Infer every identifier type visible in `name`, as Rodin would record them. -/
-def inferComponent (p : Project) (name : String) :
+def inferComponentIn (theory : Theory.Env) (p : Project) (name : String) :
     Except String (List (String × Ty) × List String) := do
   let (_, order) := closure p [] name
   let run : StateT St (Except String) (List (String × Ty) × List String) := do
@@ -147,13 +147,21 @@ def inferComponent (p : Project) (name : String) :
       if out.all (fun q => q.1 != n) then
         out := out ++ [(n, ← zonk t)]
     return (out, errs)
-  return (← run.run' {})
+  return (← run.run' { theory })
+
+def inferComponent (p : Project) (name : String) :
+    Except String (List (String × Ty) × List String) :=
+  inferComponentIn Theory.empty p name
 
 /-- Infer one expression against an already-built component environment. -/
-def inferTerm (env : List (String × Ty)) (t : Term) : Except String Ty := do
-  let (ty, st) ← (inferExpr t).run { env := env }
+def inferTermIn (theory : Theory.Env) (env : List (String × Ty)) (t : Term) :
+    Except String Ty := do
+  let (ty, st) ← (inferExpr t).run { env, theory }
   let (ty, _) ← (zonk ty).run st
   return ty
+
+def inferTerm (env : List (String × Ty)) (t : Term) : Except String Ty :=
+  inferTermIn Theory.empty env t
 
 /-! Self-checks. The corpus pins the common cases; these pin the shapes it happens not
 to contain, and the printer conventions the `.bpo` comparison depends on. -/
@@ -196,5 +204,15 @@ private def inferOne (given : List (String × Ty)) (unknown : List String)
 #guard (Ty.parse "BOOL").map Ty.print == some "BOOL"
 -- A type error is a type error: an integer is not a set of trains.
 #guard inferOne [("S", .pow (.given "TRAIN")), ("n", .int)] [] "n = S" "n" == none
+
+private def demoTheory : Theory.Env :=
+  Theory.add Theory.empty
+    { name := "Demo", symbols :=
+      [{ name := "LIMIT", kind := .constant, type := some .int
+         description := "A demo theory constant." }] }
+
+#guard match inferTermIn demoTheory [] (.id "LIMIT") with
+  | .ok .int => true
+  | _ => false
 
 end EventB.Typing
