@@ -7,13 +7,14 @@ compatibility input/output only; no runtime Rodin dependency is allowed.
 
 - [x] Define the core Event-B prelude (`BOOL`, `TRUE`, `FALSE`, `ℤ`, `ℕ`, and
   core operators) in one registry.
-- [ ] Define `TheoryEnv` for the prelude, imported theories, and model scope.
+- [x] Define `Theory.Env` for the prelude and imported theories.
+- [ ] Connect `Theory.Env` to component model scopes.
 - [ ] Give every symbol a stable identity, type, documentation, and source range.
 - [ ] Specify conflict and shadowing rules against Event-B visibility semantics.
 
 ## Native theory authoring
 
-- [ ] Add native Lean syntax for theory declarations and theory imports.
+- [x] Add native Lean syntax for basic theory declarations and imports.
 - [ ] Support operators, predicates, datatypes, and axiomatic definitions.
 - [ ] Support typing and well-definedness rules.
 - [ ] Support rewrite rules, inference rules, and polymorphic theorems.
@@ -39,6 +40,7 @@ compatibility input/output only; no runtime Rodin dependency is allowed.
 - [ ] Add project/theory dependency loading and validation commands.
 - [ ] Add hover and Go-to-Definition for prelude and theory symbols.
 - [ ] Add theory/source/trust views to ProofWidgets.
+- [x] Add a native example covering an imported theory symbol.
 - [ ] Add native examples covering a Boolean theory and an imported operator.
 
 ## Compatibility and verification
@@ -53,7 +55,8 @@ compatibility input/output only; no runtime Rodin dependency is allowed.
 ## Commit milestones
 
 - [x] Core prelude and symbol registry.
-- [ ] Theory environment and native declarations.
+- [x] Theory registry and basic native declarations.
+- [ ] Model-scoped theory environment and complete native declarations.
 - [ ] Theory-aware parser, checker, WD, and POG.
 - [ ] Lean embedding and translation.
 - [ ] Native widgets and project tooling.

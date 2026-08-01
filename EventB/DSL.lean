@@ -35,6 +35,16 @@ import EventB.POG
 namespace EventB.DSL
 
 open Lean Elab Command Term
+open EventB.Prelude EventB.Typing
+
+initialize theoryExtension : SimplePersistentEnvExtension Theory.Spec (Array Theory.Spec) ←
+  registerSimplePersistentEnvExtension {
+    addEntryFn := Array.push
+    addImportedFn := Array.flatMap id
+  }
+
+private def theoryEnvironment (env : Environment) : Theory.Env :=
+  { theories := Theory.core :: (theoryExtension.getState env).toList }
 
 declare_syntax_cat ebLabelled
 declare_syntax_cat ebFormula
@@ -62,6 +72,7 @@ syntax "event " ident "where " ebEventPart* : ebEvent
 declare_syntax_cat ebMachinePart
 syntax "refines " ident : ebMachinePart
 syntax "sees " ident+ : ebMachinePart
+syntax "theories " ident+ : ebMachinePart
 syntax "variables " ident+ : ebMachinePart
 syntax "invariant " ebLabelled : ebMachinePart
 syntax "variant " ebLabelled : ebMachinePart
@@ -69,6 +80,7 @@ syntax ebEvent : ebMachinePart
 
 declare_syntax_cat ebContextPart
 syntax "extends " ident+ : ebContextPart
+syntax "theories " ident+ : ebContextPart
 syntax "sets " ident+ : ebContextPart
 syntax "constants " ident+ : ebContextPart
 syntax "axiom " ebLabelled : ebContextPart
@@ -152,10 +164,11 @@ private def freeFormulaIdentifiers (bound : List String) : Formula.Term → List
       let bound' := Formula.patternNames pattern ++ bound
       freeFormulaIdentifiers bound' pattern ++ freeFormulaIdentifiers bound' body
 
-private def checkScope (owners : List String) (stx : Syntax) (term : Formula.Term) :
+private def checkScope (theoryRoots owners : List String) (stx : Syntax) (term : Formula.Term) :
     CommandElabM Unit := do
+  let theory := theoryEnvironment (← getEnv)
   for name in (freeFormulaIdentifiers [] term).eraseDups do
-    if !Theory.isIdentifier Theory.empty name && (← symbolLocation? owners name).isNone then
+    if !Theory.isIdentifierIn theory theoryRoots name && (← symbolLocation? owners name).isNone then
       throwErrorAt stx s!"unknown Event-B identifier `{name}`"
 
 private def addDefinitionInfo (id : Syntax) (symbol : String) (location : DeclarationLocation) :
@@ -176,10 +189,10 @@ private def addFormulaInfos (owners : List String) (stx : Syntax) : CommandElabM
       addDefinitionInfo id id.getId.toString location
 
 /-- Reject anything that is not an Event-B formula, at elaboration time. -/
-private def checkFormula (owners : List String) (stx : Syntax) (s : String) :
+private def checkFormula (theoryRoots owners : List String) (stx : Syntax) (s : String) :
     CommandElabM Unit := do
   match Formula.parse s with
-  | .ok term => checkScope owners stx term
+  | .ok term => checkScope theoryRoots owners stx term
   | .error e => throwErrorAt stx s!"not an Event-B formula: {e}"
 
 private def formulaText (f : TSyntax `ebFormula) : String :=
@@ -200,7 +213,7 @@ private def mkElem (ctor : String) (attrs kids : TSyntax `term) : TSyntax `term 
 private def listOf (ts : Array (TSyntax `term)) : TSyntax `term :=
   Unhygienic.run `([$ts,*])
 
-private def eventParts (owners : List String) (parts : Array (TSyntax `ebEventPart)) :
+private def eventParts (theoryRoots owners : List String) (parts : Array (TSyntax `ebEventPart)) :
     CommandElabM (Array (TSyntax `term) × Option String) := do
   let mut out := #[]
   let mut conv : Option String := none
@@ -216,24 +229,24 @@ private def eventParts (owners : List String) (parts : Array (TSyntax `ebEventPa
           out := out.push (mkElem "parameter" (identAttrs x.getId.toString) noKids)
     | `(ebEventPart| guard $l:ebLabelled) =>
         let (lab, f, stx, isThm) ← labelledOf l
-        checkFormula owners stx f
+        checkFormula theoryRoots owners stx f
         out := out.push (mkElem "guard"
           (labelledAttrs "org.eventb.core.predicate" lab f isThm) noKids)
     | `(ebEventPart| action $l:ebLabelled) =>
         let (lab, f, stx, isThm) ← labelledOf l
-        checkFormula owners stx f
+        checkFormula theoryRoots owners stx f
         out := out.push (mkElem "action"
           (labelledAttrs "org.eventb.core.assignment" lab f isThm) noKids)
     | `(ebEventPart| witness $l:ebLabelled) =>
         let (lab, f, stx, isThm) ← labelledOf l
-        checkFormula owners stx f
+        checkFormula theoryRoots owners stx f
         out := out.push (mkElem "witness"
           (labelledAttrs "org.eventb.core.predicate" lab f isThm) noKids)
     | `(ebEventPart| status $s:ident) => conv := some s.getId.toString
     | stx => throwErrorAt stx "unexpected event clause"
   return (out, conv)
 
-private def eventOf (owner : String) (owners : List String) (stx : TSyntax `ebEvent) :
+private def eventOf (owner : String) (theoryRoots owners : List String) (stx : TSyntax `ebEvent) :
     CommandElabM (TSyntax `term) := do
   match stx with
   | `(ebEvent| event $n:ident where $ps:ebEventPart*) => do
@@ -243,7 +256,7 @@ private def eventOf (owner : String) (owners : List String) (stx : TSyntax `ebEv
         | `(ebEventPart| any $xs:ident*) =>
             for x in xs do addSymbolRange eventOwner x.raw
         | _ => pure ()
-      let (kids, conv) ← eventParts (eventOwner :: owners) ps
+      let (kids, conv) ← eventParts theoryRoots (eventOwner :: owners) ps
       let attrs := eventAttrs n.getId.toString conv
       return mkElem "event" attrs (listOf kids)
   | other => throwErrorAt other "expected an event"
@@ -295,6 +308,98 @@ syntax (name := eventbMachine)
 syntax (name := eventbContext)
   "eventb_context " ident "where " ebContextPart* : command
 
+declare_syntax_cat ebTheoryPart
+syntax "imports " ident+ : ebTheoryPart
+syntax "carrier " ident+ : ebTheoryPart
+syntax "constant " ident ":" ident : ebTheoryPart
+syntax "predicate " ident : ebTheoryPart
+syntax "expression " ident : ebTheoryPart
+syntax "well_defined " ident : ebTheoryPart
+
+syntax (name := eventbTheory)
+  "eventb_theory " ident "where " ebTheoryPart* : command
+
+private def theoryTy (stx : Syntax) : EventB.Typing.Ty :=
+  (EventB.Typing.Ty.parse stx.getId.toString).getD (.given stx.getId.toString)
+
+private def mkTyTerm : EventB.Typing.Ty → TSyntax `term
+  | .int => Unhygienic.run `(EventB.Typing.Ty.int)
+  | .bool => Unhygienic.run `(EventB.Typing.Ty.bool)
+  | .given name => Unhygienic.run `(EventB.Typing.Ty.given $(quote name))
+  | .mvar index => Unhygienic.run `(EventB.Typing.Ty.mvar $(quote index))
+  | .pow inner => Unhygienic.run `(EventB.Typing.Ty.pow $(mkTyTerm inner))
+  | .prod left right =>
+      Unhygienic.run `(EventB.Typing.Ty.prod $(mkTyTerm left) $(mkTyTerm right))
+
+private def mkSymbolKind (kind : SymbolKind) : TSyntax `term :=
+  match kind with
+  | .carrierSet => Unhygienic.run `(EventB.Prelude.SymbolKind.carrierSet)
+  | .constant => Unhygienic.run `(EventB.Prelude.SymbolKind.constant)
+  | .predicate => Unhygienic.run `(EventB.Prelude.SymbolKind.predicate)
+  | .expression => Unhygienic.run `(EventB.Prelude.SymbolKind.expression)
+
+private def mkApplication (application : Option ApplicationKind) : TSyntax `term :=
+  match application with
+  | none => Unhygienic.run `(none)
+  | some .total => Unhygienic.run `(some EventB.Prelude.ApplicationKind.total)
+  | some .wellDefined => Unhygienic.run `(some EventB.Prelude.ApplicationKind.wellDefined)
+
+private def mkSymbolTerm (symbol : Symbol) : TSyntax `term :=
+  let type := match symbol.type with
+    | none => Unhygienic.run `(none)
+    | some type => Unhygienic.run `(some $(mkTyTerm type))
+  Unhygienic.run `(EventB.Prelude.Symbol.mk $(quote symbol.name) $(mkSymbolKind symbol.kind)
+    $type $(quote symbol.description) $(mkApplication symbol.application))
+
+private def mkSpecTerm (spec : Theory.Spec) : TSyntax `term :=
+  let importNames := listOf (spec.imports.toArray.map quote)
+  let symbols := listOf (spec.symbols.toArray.map mkSymbolTerm)
+  Unhygienic.run `(EventB.Theory.Spec.mk $(quote spec.name) $importNames $symbols)
+
+private def theorySymbol (name : String) (kind : SymbolKind) (type : Option Ty)
+    (application : Option ApplicationKind) : Symbol :=
+  { name, kind, type, description := s!"Native Event-B theory symbol `{name}`.", application }
+
+private def defineTheory (name : Ident) (body : TSyntax `term) : CommandElabM Unit := do
+  elabCommand (← `(def $name : EventB.Theory.Spec := $body))
+
+@[command_elab eventbTheory]
+private def elabTheory : CommandElab := fun stx => do
+  match stx with
+  | `(eventb_theory $n:ident where $ps:ebTheoryPart*) => do
+      let mut importNames : List String := []
+      let mut symbols : List Symbol := []
+      for p in ps do
+        match p with
+        | `(ebTheoryPart| imports $xs:ident*) =>
+            importNames := importNames ++ xs.toList.map (·.getId.toString)
+        | `(ebTheoryPart| carrier $xs:ident*) =>
+            for x in xs do
+              let name := x.getId.toString
+              symbols := symbols ++
+                [theorySymbol name .carrierSet (some (.pow (.given name))) none]
+        | `(ebTheoryPart| constant $x:ident : $t:ident) =>
+            symbols := symbols ++
+              [theorySymbol x.getId.toString .constant (some (theoryTy t)) none]
+        | `(ebTheoryPart| predicate $x:ident) =>
+            symbols := symbols ++
+              [theorySymbol x.getId.toString .predicate none (some .total)]
+        | `(ebTheoryPart| expression $x:ident) =>
+            symbols := symbols ++
+              [theorySymbol x.getId.toString .expression none (some .total)]
+        | `(ebTheoryPart| well_defined $x:ident) =>
+            symbols := symbols ++
+              [theorySymbol x.getId.toString .expression none (some .wellDefined)]
+        | other => throwErrorAt other "unexpected theory clause"
+      let spec : Theory.Spec :=
+        Theory.Spec.mk n.getId.toString importNames symbols
+      match Theory.add (theoryEnvironment (← getEnv)) spec with
+      | .error message => throwErrorAt n message
+      | .ok _ =>
+          defineTheory n (mkSpecTerm spec)
+          modifyEnv (theoryExtension.addEntry · spec)
+  | _ => throwUnsupportedSyntax
+
 /-- Emit `def <name> : EventB.Elem := <tree>`, so the model is an ordinary Lean value
 that the generator and the typechecker consume unchanged. -/
 private def define (name : Ident) (body : TSyntax `term) : CommandElabM Unit := do
@@ -306,11 +411,14 @@ private def elabMachine : CommandElab := fun stx => do
   | `(eventb_machine $n:ident where $ps:ebMachinePart*) => do
       let owner := n.getId.toString
       let mut owners := [owner]
+      let mut theoryRoots : List String := []
       for p in ps do
         match p with
         | `(ebMachinePart| refines $r:ident) => owners := owners ++ [r.getId.toString]
         | `(ebMachinePart| sees $ss:ident*) =>
             for s in ss do owners := owners ++ [s.getId.toString]
+        | `(ebMachinePart| theories $ts:ident*) =>
+            theoryRoots := theoryRoots ++ ts.toList.map (·.getId.toString)
         | _ => pure ()
       for p in ps do
         match p with
@@ -327,22 +435,23 @@ private def elabMachine : CommandElab := fun stx => do
             for sc in ss do
               kids := kids.push
                 (mkElem "seesContext" (targetAttrs sc.getId.toString) noKids)
+        | `(ebMachinePart| theories $_:ident*) => pure ()
         | `(ebMachinePart| variables $xs:ident*) =>
             for x in xs do
               kids := kids.push
                 (mkElem "variable" (identAttrs x.getId.toString) noKids)
         | `(ebMachinePart| invariant $l:ebLabelled) =>
             let (lab, f, s, isThm) ← labelledOf l
-            checkFormula owners s f
+            checkFormula theoryRoots owners s f
             kids := kids.push (mkElem "invariant"
               (labelledAttrs "org.eventb.core.predicate" lab f isThm) noKids)
         | `(ebMachinePart| variant $l:ebLabelled) =>
             let (lab, f, s, isThm) ← labelledOf l
-            checkFormula owners s f
+            checkFormula theoryRoots owners s f
             kids := kids.push (mkElem "variant"
               (labelledAttrs "org.eventb.core.expression" lab f isThm) noKids)
         | `(ebMachinePart| $e:ebEvent) =>
-            kids := kids.push (← eventOf owner owners e)
+            kids := kids.push (← eventOf owner theoryRoots owners e)
         | other => throwErrorAt other "unexpected machine clause"
       define n (mkElem "machineFile" (Unhygienic.run `(([] : List (String × String))))
         (listOf kids))
@@ -355,10 +464,13 @@ private def elabContext : CommandElab := fun stx => do
   | `(eventb_context $n:ident where $ps:ebContextPart*) => do
       let owner := n.getId.toString
       let mut owners := [owner]
+      let mut theoryRoots : List String := []
       for p in ps do
         match p with
         | `(ebContextPart| extends $es:ident*) =>
             for e in es do owners := owners ++ [e.getId.toString]
+        | `(ebContextPart| theories $ts:ident*) =>
+            theoryRoots := theoryRoots ++ ts.toList.map (·.getId.toString)
         | _ => pure ()
       for p in ps do
         match p with
@@ -374,6 +486,7 @@ private def elabContext : CommandElab := fun stx => do
             for e in es do
               kids := kids.push
                 (mkElem "extendsContext" (targetAttrs e.getId.toString) noKids)
+        | `(ebContextPart| theories $_:ident*) => pure ()
         | `(ebContextPart| sets $xs:ident*) =>
             for x in xs do
               kids := kids.push
@@ -383,7 +496,7 @@ private def elabContext : CommandElab := fun stx => do
               kids := kids.push (mkElem "constant" (identAttrs x.getId.toString) noKids)
         | `(ebContextPart| axiom $l:ebLabelled) =>
             let (lab, f, s, isThm) ← labelledOf l
-            checkFormula owners s f
+            checkFormula theoryRoots owners s f
             kids := kids.push (mkElem "axiom"
               (labelledAttrs "org.eventb.core.predicate" lab f isThm) noKids)
         | other => throwErrorAt other "unexpected context clause"
