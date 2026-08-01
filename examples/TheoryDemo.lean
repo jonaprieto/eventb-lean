@@ -12,26 +12,30 @@ eventb_theory Bounds where
 
 eventb_theory Controls where
   imports Bounds
-  expression clamp
+  expression clamp : ℤ → ℤ
 
 eventb_context TheoryCtx where
-  uses Bounds
+  uses Controls
   constants cars
   axiom bounded : cars < LIMIT
 
 eventb_machine TheoryMachine where
   sees TheoryCtx
-  uses Bounds
+  uses Controls
   variables cars
   invariant inv1 : cars < LIMIT
+  invariant inv2 : clamp (cars) < LIMIT
   event INITIALISATION where
     action act1 : cars := 0
 
 def theoryProject : Typing.Project :=
-  [ { name := "TheoryCtx", elem := TheoryCtx, theories := ["Bounds"] }
-  , { name := "TheoryMachine", elem := TheoryMachine, theories := ["Bounds"] } ]
+  [ { name := "TheoryCtx", elem := TheoryCtx, theories := ["Controls"] }
+  , { name := "TheoryMachine", elem := TheoryMachine, theories := ["Controls"] } ]
 
 def theoryEnv : Theory.Env :=
   Theory.Env.mk [Controls, Bounds, Theory.core]
 
 #guard (POG.generateIn theoryEnv theoryProject "TheoryMachine").isEmpty == false
+#guard match Typing.inferComponentIn theoryEnv theoryProject "TheoryMachine" with
+  | .ok (_, errors) => errors.isEmpty
+  | .error _ => false

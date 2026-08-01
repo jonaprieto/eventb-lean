@@ -320,6 +320,7 @@ syntax "imports " ident+ : ebTheoryPart
 syntax "carrier " ident+ : ebTheoryPart
 syntax "constant " ident ":" ident : ebTheoryPart
 syntax "predicate " ident : ebTheoryPart
+syntax "expression " ident ":" ident "→" ident : ebTheoryPart
 syntax "expression " ident : ebTheoryPart
 syntax "well_defined " ident : ebTheoryPart
 
@@ -399,6 +400,12 @@ private def elabTheory : CommandElab := fun stx => do
         | `(ebTheoryPart| predicate $x:ident) =>
             symbols := symbols ++
               [theorySymbol x.getId.toString .predicate none (some .total)]
+        | `(ebTheoryPart| expression $x:ident : $a:ident → $b:ident) =>
+            let input := theoryTy a
+            let output := theoryTy b
+            symbols := symbols ++
+              [theorySymbol x.getId.toString .expression
+                (some (.pow (.prod input output))) (some .total)]
         | `(ebTheoryPart| expression $x:ident) =>
             symbols := symbols ++
               [theorySymbol x.getId.toString .expression none (some .total)]
