@@ -237,6 +237,7 @@ def renderComponent (project : Typing.Project) (name : String) : Html :=
     match component.elem with
     | .contextFile _ _ => modelPanel "context" name [
         infoLine "extends" (namesText (componentTargets component.elem "extendsContext")),
+        infoLine "native theories" (namesText component.theories),
         nameList "Carrier sets" (componentNames component.elem "carrierSet"),
         nameList "Constants" (componentNames component.elem "constant"),
         labelledFormulas component.elem "Axioms" "predicate"
@@ -244,6 +245,7 @@ def renderComponent (project : Typing.Project) (name : String) : Html :=
     | .machineFile _ _ => modelPanel "machine" name [
         infoLine "refines" (namesText (componentTargets component.elem "refinesMachine")),
         infoLine "sees" (namesText (componentTargets component.elem "seesContext")),
+        infoLine "native theories" (namesText component.theories),
         nameList "Variables" (componentNames component.elem "variable"),
         labelledFormulas component.elem "Invariants" "predicate",
         labelledFormulas component.elem "Variants" "expression",
