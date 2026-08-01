@@ -206,10 +206,12 @@ private def inferOne (given : List (String × Ty)) (unknown : List String)
 #guard inferOne [("S", .pow (.given "TRAIN")), ("n", .int)] [] "n = S" "n" == none
 
 private def demoTheory : Theory.Env :=
-  Theory.add Theory.empty
-    { name := "Demo", symbols :=
-      [{ name := "LIMIT", kind := .constant, type := some .int
-         description := "A demo theory constant." }] }
+  match Theory.add Theory.empty
+      { name := "Demo", symbols :=
+        [{ name := "LIMIT", kind := .constant, type := some .int
+           description := "A demo theory constant." }] } with
+  | .ok env => env
+  | .error _ => Theory.empty
 
 #guard match inferTermIn demoTheory [] (.id "LIMIT") with
   | .ok .int => true
