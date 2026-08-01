@@ -16,6 +16,7 @@ compatibility input/output only; no runtime Rodin dependency is allowed.
 
 - [x] Add native Lean syntax for basic theory declarations and imports.
 - [x] Type-check imported unary expression declarations against model formulas.
+- [x] Type-check imported predicates represented as relations into `BOOL`.
 - [ ] Support operators, predicates, datatypes, and axiomatic definitions.
 - [ ] Support typing and well-definedness rules.
 - [ ] Support rewrite rules, inference rules, and polymorphic theorems.

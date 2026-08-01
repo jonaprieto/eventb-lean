@@ -210,6 +210,8 @@ def checkPred (t : Term) : M Unit := do
       -- A bare identifier can be a BOOL-valued predicate only via `bool`, so anything
       -- else here is a use of an undeclared predicate.
       throw s!"not a predicate: {name}"
+  | .app f a => do
+      unify (← inferApp f a) .bool
   | t => throw s!"not a predicate: {Formula.print t}"
 
 termination_by sizeOf t

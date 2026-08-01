@@ -319,6 +319,7 @@ declare_syntax_cat ebTheoryPart
 syntax "imports " ident+ : ebTheoryPart
 syntax "carrier " ident+ : ebTheoryPart
 syntax "constant " ident ":" ident : ebTheoryPart
+syntax "predicate " ident ":" ident "→" ident : ebTheoryPart
 syntax "predicate " ident : ebTheoryPart
 syntax "expression " ident ":" ident "→" ident : ebTheoryPart
 syntax "expression " ident : ebTheoryPart
@@ -403,6 +404,13 @@ private def elabTheory : CommandElab := fun stx => do
             addSymbolRange n.getId.toString x.raw
             symbols := symbols ++
               [theorySymbol x.getId.toString .predicate none (some .total)]
+        | `(ebTheoryPart| predicate $x:ident : $a:ident → $b:ident) =>
+            addSymbolRange n.getId.toString x.raw
+            let input := theoryTy a
+            let output := theoryTy b
+            symbols := symbols ++
+              [theorySymbol x.getId.toString .predicate
+                (some (.pow (.prod input output))) (some .total)]
         | `(ebTheoryPart| expression $x:ident : $a:ident → $b:ident) =>
             addSymbolRange n.getId.toString x.raw
             let input := theoryTy a

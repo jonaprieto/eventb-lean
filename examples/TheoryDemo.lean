@@ -13,6 +13,7 @@ eventb_theory Bounds where
 eventb_theory Controls where
   imports Bounds
   constant OPEN : BOOL
+  predicate active : ℤ → BOOL
   expression clamp : ℤ → ℤ
 
 eventb_context TheoryCtx where
@@ -27,6 +28,7 @@ eventb_machine TheoryMachine where
   variables cars
   invariant inv1 : cars < LIMIT
   invariant inv2 : clamp (cars) < LIMIT
+  invariant inv3 : active (cars)
   event INITIALISATION where
     action act1 : cars := 0
 
