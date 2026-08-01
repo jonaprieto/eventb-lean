@@ -5,7 +5,7 @@ compatibility input/output only; no runtime Rodin dependency is allowed.
 
 ## Core language and environment
 
-- [ ] Define the core Event-B prelude (`BOOL`, `TRUE`, `FALSE`, `ℤ`, `ℕ`, and
+- [x] Define the core Event-B prelude (`BOOL`, `TRUE`, `FALSE`, `ℤ`, `ℕ`, and
   core operators) in one registry.
 - [ ] Define `TheoryEnv` for the prelude, imported theories, and model scope.
 - [ ] Give every symbol a stable identity, type, documentation, and source range.
@@ -52,7 +52,7 @@ compatibility input/output only; no runtime Rodin dependency is allowed.
 
 ## Commit milestones
 
-- [ ] Core prelude and symbol registry.
+- [x] Core prelude and symbol registry.
 - [ ] Theory environment and native declarations.
 - [ ] Theory-aware parser, checker, WD, and POG.
 - [ ] Lean embedding and translation.

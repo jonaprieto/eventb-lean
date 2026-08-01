@@ -11,6 +11,7 @@ reproducing the static checker rather than reading an answer off the file.
 -/
 
 import EventB.Formula.Parse
+import EventB.Theory
 import EventB.Typing.Type
 
 namespace EventB.Typing
@@ -252,11 +253,9 @@ def inferExpr (t : Term) : M Ty := do
   match t with
   | .num _ => return .int
   | .id n =>
-    match n with
-    | "ℤ" | "ℕ" | "ℕ1" => return .pow .int
-    | "BOOL" => return .pow .bool
-    | "TRUE" | "FALSE" => return .bool
-    | _ =>
+    match Theory.coreType? n with
+    | some ty => return ty
+    | none =>
       match ← lookup? n with
       | some ty => return ty
       | none => throw s!"unbound identifier {n}"

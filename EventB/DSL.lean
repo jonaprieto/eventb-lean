@@ -152,15 +152,10 @@ private def freeFormulaIdentifiers (bound : List String) : Formula.Term → List
       let bound' := Formula.patternNames pattern ++ bound
       freeFormulaIdentifiers bound' pattern ++ freeFormulaIdentifiers bound' body
 
-private def builtinIdentifier (name : String) : Bool :=
-  ["ℤ", "ℕ", "ℕ1", "BOOL", "TRUE", "FALSE", "⊤", "⊥", "finite", "partition",
-    "card", "min", "max", "dom", "ran", "bool", "union", "inter", "succ", "pred",
-    "prj1", "prj2", "id"].contains name
-
 private def checkScope (owners : List String) (stx : Syntax) (term : Formula.Term) :
     CommandElabM Unit := do
   for name in (freeFormulaIdentifiers [] term).eraseDups do
-    if !builtinIdentifier name && (← symbolLocation? owners name).isNone then
+    if !Theory.isCoreIdentifier name && (← symbolLocation? owners name).isNone then
       throwErrorAt stx s!"unknown Event-B identifier `{name}`"
 
 private def addDefinitionInfo (id : Syntax) (symbol : String) (location : DeclarationLocation) :
