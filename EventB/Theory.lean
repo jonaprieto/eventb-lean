@@ -195,6 +195,7 @@ private def validate (env : Env) (theory : Spec) : List String :=
   let declarationNames := declarationNamesAll theory.declarations
   let duplicate := firstDuplicate [] names
   let duplicateDeclaration := duplicateName declarationNames
+  let symbolDeclarationConflict := names.find? (declarationNames.contains ·)
   let reserved := theory.symbols.find? (fun symbol =>
     (coreSymbols.find? (·.name == symbol.name)).isSome)
   let reservedDeclaration := theory.declarations.find? (fun declaration =>
@@ -207,6 +208,10 @@ private def validate (env : Env) (theory : Spec) : List String :=
     importedSymbols.any (fun (_, imported) => imported.name == symbol.name))
   let importedDeclarations := declarationsIn env theory.imports
   let importedDeclarationNames := importedDeclarations.map (·.2.name)
+  let symbolShadowedDeclaration := theory.symbols.find?
+    (fun symbol => importedDeclarationNames.contains symbol.name)
+  let declarationShadowedSymbol := theory.declarations.find?
+    (fun declaration => importedSymbols.any (fun (_, symbol) => symbol.name == declaration.name))
   let shadowedDeclaration := theory.declarations.find? (fun declaration =>
     importedDeclarationNames.contains declaration.name)
   let declarationProblem := theory.declarations.findSome? declarationError
@@ -222,6 +227,9 @@ private def validate (env : Env) (theory : Spec) : List String :=
   let errors := match duplicateDeclaration with
     | some name => errors ++ [s!"declaration `{name}` is declared more than once"]
     | none => errors
+  let errors := match symbolDeclarationConflict with
+    | some name => errors ++ [s!"symbol and declaration `{name}` share a name"]
+    | none => errors
   let errors := match reserved with
     | some symbol => errors ++ [s!"symbol `{symbol.name}` is reserved by the core prelude"]
     | none => errors
@@ -234,6 +242,14 @@ private def validate (env : Env) (theory : Spec) : List String :=
     | none => errors
   let errors := match shadowed with
     | some symbol => errors ++ [s!"symbol `{symbol.name}` shadows an imported symbol"]
+    | none => errors
+  let errors := match symbolShadowedDeclaration with
+    | some symbol =>
+        errors ++ [s!"symbol `{symbol.name}` shadows an imported declaration"]
+    | none => errors
+  let errors := match declarationShadowedSymbol with
+    | some declaration =>
+        errors ++ [s!"declaration `{declaration.name}` shadows an imported symbol"]
     | none => errors
   let errors := match shadowedDeclaration with
     | some declaration =>
@@ -296,6 +312,13 @@ private def imported : Env :=
     ({ name := "Conflict", imports := ["Derived"]
        symbols :=
          [Symbol.mk "LIMIT" .constant (some .int) "A conflicting constant." none []] } : Spec) with
+  | .error _ => true
+  | .ok _ => false
+#guard match add empty
+    ({ name := "LocalConflict", symbols :=
+        [Symbol.mk "Thing" .constant (some .int) "A symbol." none []]
+       declarations := [.dataType { name := "Thing", constructors :=
+         [{ name := "ctor" }] }] } : Spec) with
   | .error _ => true
   | .ok _ => false
 
