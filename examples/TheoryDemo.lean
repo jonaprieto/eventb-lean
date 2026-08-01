@@ -15,13 +15,13 @@ eventb_theory Controls where
   expression clamp
 
 eventb_context TheoryCtx where
-  theories Bounds
+  uses Bounds
   constants cars
   axiom bounded : cars < LIMIT
 
 eventb_machine TheoryMachine where
   sees TheoryCtx
-  theories Bounds
+  uses Bounds
   variables cars
   invariant inv1 : cars < LIMIT
   event INITIALISATION where
@@ -30,4 +30,7 @@ eventb_machine TheoryMachine where
 def theoryProject : Typing.Project :=
   [{ name := "TheoryCtx", elem := TheoryCtx }, { name := "TheoryMachine", elem := TheoryMachine }]
 
-#guard (POG.generate theoryProject "TheoryMachine").isEmpty == false
+def theoryEnv : Theory.Env :=
+  Theory.Env.mk [Controls, Bounds, Theory.core]
+
+#guard (POG.generateIn theoryEnv theoryProject "TheoryMachine").isEmpty == false

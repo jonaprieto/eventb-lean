@@ -425,13 +425,13 @@ private def contextAxioms (p : Project) (name : String) : List Term :=
     | some c => (childrenOf c.elem "axiom").filterMap fun a =>
         (Formula.parse ((attrOf a "predicate").getD "")).toOption
 
-/-- Obligations for one machine or context. -/
-def generate (p : Project) (name : String) : List Obligation := Id.run do
+/-- Obligations for one machine or context under a native theory environment. -/
+def generateIn (theory : Theory.Env) (p : Project) (name : String) : List Obligation := Id.run do
   match lookupComponent p name with
   | none => return []
   | some c =>
     let isMachine := c.elem.tag == "org.eventb.core.machineFile"
-    let types := match inferComponent p name with
+    let types := match inferComponentIn theory p name with
       | .ok (env, _) => env
       | .error _ => []
     let mut out : List Obligation := []
@@ -541,5 +541,9 @@ def generate (p : Project) (name : String) : List Obligation := Id.run do
           out := out ++
             [{ name := labelOf ev ++ "/" ++ labelOf w ++ "/WWD", kind := "WWD" }]
     return out
+
+/-- Compatibility entry point for Rodin corpus projects without user theories. -/
+def generate (p : Project) (name : String) : List Obligation :=
+  generateIn Theory.empty p name
 
 end EventB.POG

@@ -72,7 +72,7 @@ syntax "event " ident "where " ebEventPart* : ebEvent
 declare_syntax_cat ebMachinePart
 syntax "refines " ident : ebMachinePart
 syntax "sees " ident+ : ebMachinePart
-syntax "theories " ident+ : ebMachinePart
+syntax "uses " ident+ : ebMachinePart
 syntax "variables " ident+ : ebMachinePart
 syntax "invariant " ebLabelled : ebMachinePart
 syntax "variant " ebLabelled : ebMachinePart
@@ -80,7 +80,7 @@ syntax ebEvent : ebMachinePart
 
 declare_syntax_cat ebContextPart
 syntax "extends " ident+ : ebContextPart
-syntax "theories " ident+ : ebContextPart
+syntax "uses " ident+ : ebContextPart
 syntax "sets " ident+ : ebContextPart
 syntax "constants " ident+ : ebContextPart
 syntax "axiom " ebLabelled : ebContextPart
@@ -425,7 +425,7 @@ private def elabMachine : CommandElab := fun stx => do
         | `(ebMachinePart| refines $r:ident) => owners := owners ++ [r.getId.toString]
         | `(ebMachinePart| sees $ss:ident*) =>
             for s in ss do owners := owners ++ [s.getId.toString]
-        | `(ebMachinePart| theories $ts:ident*) =>
+        | `(ebMachinePart| uses $ts:ident*) =>
             theoryRoots := theoryRoots ++ ts.toList.map (·.getId.toString)
         | _ => pure ()
       for p in ps do
@@ -443,7 +443,7 @@ private def elabMachine : CommandElab := fun stx => do
             for sc in ss do
               kids := kids.push
                 (mkElem "seesContext" (targetAttrs sc.getId.toString) noKids)
-        | `(ebMachinePart| theories $_:ident*) => pure ()
+        | `(ebMachinePart| uses $_:ident*) => pure ()
         | `(ebMachinePart| variables $xs:ident*) =>
             for x in xs do
               kids := kids.push
@@ -477,7 +477,7 @@ private def elabContext : CommandElab := fun stx => do
         match p with
         | `(ebContextPart| extends $es:ident*) =>
             for e in es do owners := owners ++ [e.getId.toString]
-        | `(ebContextPart| theories $ts:ident*) =>
+        | `(ebContextPart| uses $ts:ident*) =>
             theoryRoots := theoryRoots ++ ts.toList.map (·.getId.toString)
         | _ => pure ()
       for p in ps do
@@ -494,7 +494,7 @@ private def elabContext : CommandElab := fun stx => do
             for e in es do
               kids := kids.push
                 (mkElem "extendsContext" (targetAttrs e.getId.toString) noKids)
-        | `(ebContextPart| theories $_:ident*) => pure ()
+        | `(ebContextPart| uses $_:ident*) => pure ()
         | `(ebContextPart| sets $xs:ident*) =>
             for x in xs do
               kids := kids.push
