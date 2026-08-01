@@ -46,6 +46,7 @@ compatibility input/output only; no runtime Rodin dependency is allowed.
 - [x] Add a native scoped POG command for an explicit theory environment.
 - [x] Add source ranges for native theory symbols for hover/Go-to-Definition.
 - [x] Add native-theory and initial trust summaries to ProofWidgets.
+- [x] Render scoped native-theory obligations through an explicit widget command.
 - [ ] Add source locations and per-obligation trust evidence to ProofWidgets.
 - [x] Add a native example covering an imported theory symbol.
 - [x] Add native examples covering a Boolean theory and an imported operator.

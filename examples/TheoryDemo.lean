@@ -2,7 +2,7 @@
 Native Event-B theory authoring. The commands register symbols in the Lean environment,
 so later model formulas can use them without quoting or a Rodin workspace.
 -/
-import EventB.DSL
+import Widgets
 
 open EventB
 
@@ -47,3 +47,4 @@ def theoryEnv : Theory.Env :=
   | .error _ => false
 
 #eventb_pog_in theoryEnv TheoryMachine TheoryCtx
+#eventb_pog_widget_in theoryEnv theoryProject TheoryMachine

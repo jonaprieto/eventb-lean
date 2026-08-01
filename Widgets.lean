@@ -257,9 +257,9 @@ def renderComponent (project : Typing.Project) (name : String) : Html :=
       ]
     | _ => modelPanel "component" name [infoLine "error" "unsupported component kind"]
 
-/-- Render the obligations for a project component in the Lean Infoview. -/
-def renderProject (project : Typing.Project) (machine : String) : Html :=
-  let obligations := POG.generate project machine
+/-- Render obligations for a project component under an explicit theory environment. -/
+def renderProjectIn (theory : Theory.Env) (project : Typing.Project) (machine : String) : Html :=
+  let obligations := POG.generateIn theory project machine
   let ledger := Trust.Ledger.ofObligations obligations
   let first := firstKind obligations
   let sections := kinds.filterMap fun kind =>
@@ -279,8 +279,14 @@ def renderProject (project : Typing.Project) (machine : String) : Html :=
     ]
   ]
 
+/-- Compatibility widget for projects using only the core prelude. -/
+def renderProject (project : Typing.Project) (machine : String) : Html :=
+  renderProjectIn Theory.empty project machine
+
 /-- Display generated obligations without changing the ordinary text POG command. -/
 syntax (name := eventbPogWidget) "#eventb_pog_widget " ident ident : command
+syntax (name := eventbPogWidgetIn)
+  "#eventb_pog_widget_in " ident ppSpace ident ppSpace ident : command
 
 syntax (name := eventbModelWidget) "#eventb_model_widget " ident ident : command
 
@@ -289,6 +295,21 @@ private def elabPogWidget : CommandElab := fun stx => do
   match stx with
   | `(#eventb_pog_widget $project:ident $machine:ident) => do
       let render ← `(EventB.Widgets.renderProject $project
+        $(quote machine.getId.toString))
+      let htmlX ← liftTermElabM <| ProofWidgets.HtmlCommand.evalCommandMHtml
+        <| ← ``(ProofWidgets.HtmlEval.eval $render)
+      let html ← htmlX
+      liftCoreM <| Widget.savePanelWidgetInfo
+        (hash HtmlDisplay.javascript)
+        (return json% { html: $(← rpcEncode html) })
+        stx
+  | _ => throwUnsupportedSyntax
+
+@[command_elab eventbPogWidgetIn]
+private def elabPogWidgetIn : CommandElab := fun stx => do
+  match stx with
+  | `(#eventb_pog_widget_in $theory:ident $project:ident $machine:ident) => do
+      let render ← `(EventB.Widgets.renderProjectIn $theory $project
         $(quote machine.getId.toString))
       let htmlX ← liftTermElabM <| ProofWidgets.HtmlCommand.evalCommandMHtml
         <| ← ``(ProofWidgets.HtmlEval.eval $render)
