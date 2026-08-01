@@ -4,6 +4,7 @@ import EventB.Formula.Parse
 import EventB.Prelude
 import EventB.Theory
 import EventB.Theory.Validate
+import EventB.Theory.Rodin
 import EventB.Embedding
 import EventB.Formula.Translate
 import EventB.Typing.Infer
