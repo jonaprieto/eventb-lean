@@ -23,6 +23,8 @@ open EventB.Formula
 structure Component where
   name : String
   elem : Elem
+  /-- Native theories explicitly used by this component. -/
+  theories : List String := []
 
 abbrev Project := List Component
 
@@ -135,6 +137,8 @@ where
 def inferComponentIn (theory : Theory.Env) (p : Project) (name : String) :
     Except String (List (String × Ty) × List String) := do
   let (_, order) := closure p [] name
+  let roots := order.flatMap fun dep =>
+    (lookupComponent p dep).map (·.theories) |>.getD []
   let run : StateT St (Except String) (List (String × Ty) × List String) := do
     let mut errs : List String := []
     for dep in order do
@@ -147,18 +151,23 @@ def inferComponentIn (theory : Theory.Env) (p : Project) (name : String) :
       if out.all (fun q => q.1 != n) then
         out := out ++ [(n, ← zonk t)]
     return (out, errs)
-  return (← run.run' { theory })
+  return (← run.run' { theory, theoryRoots := roots })
 
 def inferComponent (p : Project) (name : String) :
     Except String (List (String × Ty) × List String) :=
   inferComponentIn Theory.empty p name
 
 /-- Infer one expression against an already-built component environment. -/
-def inferTermIn (theory : Theory.Env) (env : List (String × Ty)) (t : Term) :
-    Except String Ty := do
-  let (ty, st) ← (inferExpr t).run { env, theory }
+def inferTermAt (theory : Theory.Env) (roots : List String) (env : List (String × Ty))
+    (t : Term) : Except String Ty := do
+  let (ty, st) ← (inferExpr t).run { env, theory, theoryRoots := roots }
   let (ty, _) ← (zonk ty).run st
   return ty
+
+def inferTermIn (theory : Theory.Env) (env : List (String × Ty)) (t : Term) :
+    Except String Ty := do
+  let roots := theory.theories.map (·.name)
+  inferTermAt theory roots env t
 
 def inferTerm (env : List (String × Ty)) (t : Term) : Except String Ty :=
   inferTermIn Theory.empty env t
@@ -215,6 +224,9 @@ private def demoTheory : Theory.Env :=
 
 #guard match inferTermIn demoTheory [] (.id "LIMIT") with
   | .ok .int => true
+  | _ => false
+#guard match inferTermAt demoTheory [] [] (.id "LIMIT") with
+  | .error _ => true
   | _ => false
 
 end EventB.Typing

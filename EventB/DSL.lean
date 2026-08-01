@@ -213,6 +213,13 @@ private def mkElem (ctor : String) (attrs kids : TSyntax `term) : TSyntax `term 
 private def listOf (ts : Array (TSyntax `term)) : TSyntax `term :=
   Unhygienic.run `([$ts,*])
 
+private def rootsName (name : Ident) : Ident :=
+  mkIdent (Name.mkSimple (name.getId.toString ++ "_theories"))
+
+private def defineRoots (name : Ident) (roots : List String) : CommandElabM Unit := do
+  let rootTerms := listOf (roots.toArray.map quote)
+  elabCommand (← `(def $(rootsName name) : List String := $rootTerms))
+
 private def eventParts (theoryRoots owners : List String) (parts : Array (TSyntax `ebEventPart)) :
     CommandElabM (Array (TSyntax `term) × Option String) := do
   let mut out := #[]
@@ -463,6 +470,7 @@ private def elabMachine : CommandElab := fun stx => do
         | other => throwErrorAt other "unexpected machine clause"
       define n (mkElem "machineFile" (Unhygienic.run `(([] : List (String × String))))
         (listOf kids))
+      defineRoots n theoryRoots
       addMachineInfos owner owners ps
   | _ => throwUnsupportedSyntax
 
@@ -510,6 +518,7 @@ private def elabContext : CommandElab := fun stx => do
         | other => throwErrorAt other "unexpected context clause"
       define n (mkElem "contextFile" (Unhygienic.run `(([] : List (String × String))))
         (listOf kids))
+      defineRoots n theoryRoots
       addContextInfos owners ps
   | _ => throwUnsupportedSyntax
 
@@ -525,8 +534,8 @@ private def elabPog : CommandElab := fun stx => do
   | `(#eventb_pog $ns:ident*) => do
       let head := ns[0]!.getId.toString
       let entries : Array (TSyntax `term) ← ns.mapM fun n => do
-        `(({ name := $(quote n.getId.toString), elem := $(mkIdent n.getId) } :
-            EventB.Typing.Component))
+        `(EventB.Typing.Component.mk $(quote n.getId.toString) $(mkIdent n.getId)
+          $(rootsName n))
       elabCommand (← `(#eval show IO Unit from do
         let project : EventB.Typing.Project := [$entries,*]
         for o in EventB.POG.generate project $(quote head) do

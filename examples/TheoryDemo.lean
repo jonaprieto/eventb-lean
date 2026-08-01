@@ -28,7 +28,8 @@ eventb_machine TheoryMachine where
     action act1 : cars := 0
 
 def theoryProject : Typing.Project :=
-  [{ name := "TheoryCtx", elem := TheoryCtx }, { name := "TheoryMachine", elem := TheoryMachine }]
+  [ { name := "TheoryCtx", elem := TheoryCtx, theories := ["Bounds"] }
+  , { name := "TheoryMachine", elem := TheoryMachine, theories := ["Bounds"] } ]
 
 def theoryEnv : Theory.Env :=
   Theory.Env.mk [Controls, Bounds, Theory.core]

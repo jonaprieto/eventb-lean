@@ -24,6 +24,8 @@ structure St where
   env   : List (String × Ty) := []
   /-- The native prelude plus any user theories visible to this check. -/
   theory : Theory.Env := Theory.empty
+  /-- Theory names imported by the component being checked. -/
+  theoryRoots : List String := []
   /-- Event parameters, which leave `env` when their event ends but are still recorded
   in the `.bpo` and so must survive to read-back. -/
   params : List (String × Ty) := []
@@ -255,7 +257,7 @@ def inferExpr (t : Term) : M Ty := do
   match t with
   | .num _ => return .int
   | .id n =>
-    match Theory.type? (← get).theory n with
+    match Theory.typeIn? (← get).theory (← get).theoryRoots n with
     | some ty => return ty
     | none =>
       match ← lookup? n with
