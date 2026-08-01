@@ -38,6 +38,8 @@ def theoryEnv : Theory.Env :=
   Theory.Env.mk [Controls, Bounds, Theory.core]
 
 #guard (POG.generateIn theoryEnv theoryProject "TheoryMachine").isEmpty == false
+#guard (POG.generateIn theoryEnv theoryProject "TheoryMachine").all
+  (fun obligation => !obligation.name.endsWith "/inv2/WD")
 #guard match Typing.inferComponentIn theoryEnv theoryProject "TheoryMachine" with
   | .ok (_, errors) => errors.isEmpty
   | .error _ => false

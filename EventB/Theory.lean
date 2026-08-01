@@ -86,6 +86,20 @@ def lookupIn? (env : Env) (roots : List String) (name : String) : Option (String
     let symbol ← theory.symbols.find? (fun symbol => symbol.name == name)
     return (theory.name, symbol)
 
+def symbolsIn (env : Env) (roots : List String) : List (String × Symbol) :=
+  visibleTheoryNames env roots |>.flatMap fun theoryName =>
+    match lookupTheory? env theoryName with
+    | none => []
+    | some theory => theory.symbols.map (theory.name, ·)
+
+def namesWithApplication (env : Env) (roots : List String) (application : ApplicationKind) :
+    List String :=
+  (symbolsIn env roots).filterMap fun (_, symbol) =>
+    if symbol.application == some application then some symbol.name else none
+
+def definedness? (env : Env) (roots : List String) (name : String) : List Definedness :=
+  (lookupIn? env roots name).map (·.2.definedness) |>.getD []
+
 /-- Compatibility lookup for callers that have no component-specific scope yet. -/
 def lookup? (env : Env) (name : String) : Option (String × Symbol) :=
   lookupIn? env (env.theories.map (·.name)) name
@@ -106,6 +120,7 @@ def type? (env : Env) (name : String) : Option Typing.Ty :=
 #guard type? empty "TRUE" == some .bool
 #guard (lookupIn? empty [] "TRUE").isSome
 #guard (lookupIn? empty [] "notVisible").isNone
+#guard namesWithApplication empty [] .total |>.contains "bool"
 
 private def imported : Env :=
   match add empty

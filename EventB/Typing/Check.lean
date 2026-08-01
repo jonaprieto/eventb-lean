@@ -69,6 +69,11 @@ def closure (p : Project) (visited : List String) (name : String) :
     List String × List String :=
   closureAux p p.length visited name
 
+def componentTheoryRoots (p : Project) (name : String) : List String :=
+  let (_, order) := closure p [] name
+  order.flatMap fun dep =>
+    (lookupComponent p dep).map (·.theories) |>.getD []
+
 /-- Declare the identifiers a component introduces, then feed every predicate it states
 to the checker. Errors are collected rather than thrown: one unsupported guard should
 cost that guard's constraints, not the whole file's types. -/
@@ -137,8 +142,7 @@ where
 def inferComponentIn (theory : Theory.Env) (p : Project) (name : String) :
     Except String (List (String × Ty) × List String) := do
   let (_, order) := closure p [] name
-  let roots := order.flatMap fun dep =>
-    (lookupComponent p dep).map (·.theories) |>.getD []
+  let roots := componentTheoryRoots p name
   let run : StateT St (Except String) (List (String × Ty) × List String) := do
     let mut errs : List String := []
     for dep in order do

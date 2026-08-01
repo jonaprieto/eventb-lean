@@ -25,6 +25,7 @@ compatibility input/output only; no runtime Rodin dependency is allowed.
 
 - [ ] Make lexing, parsing, AST resolution, typing, WD, and pretty-printing
   theory-aware.
+- [x] Make scoped POG typing and WD classification consume theory metadata.
 - [ ] Make POG and prover backends consume resolved theory declarations.
 - [ ] Preserve unsupported constructs as explicit diagnostics, never silently
   treating them as ordinary identifiers.
