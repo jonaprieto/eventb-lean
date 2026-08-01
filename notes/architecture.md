@@ -129,6 +129,13 @@ Native declarations also register source ranges. The Lean server can use those r
 for Go to Definition on unquoted theory symbols and model identifiers. Quoted formulas
 remain useful for compatibility, but cannot provide the same identifier navigation.
 
+Every symbol also carries a stable `SymbolId`, its declared type when applicable,
+documentation, and a `SourceRange`. Theory symbols are canonicalized to
+`TheoryName::symbol`; core symbols use the `EventB.Core` owner. Native theory
+declarations may bind explicit type parameters. Their embedding requires a Lean type
+instantiation, so a polymorphic declaration cannot silently fall back to an untyped
+placeholder.
+
 ## Obligation generation
 
 `POG.generateIn theory project machine` is the theory-aware entry point. It produces
@@ -146,6 +153,11 @@ Generating an obligation is not the same as proving it. The obligation data is t
 boundary between analysis and proof. `EventB.Semantics` supplies the kernel-native
 machine, invariant, and refinement propositions; later proof backends can attach
 evidence without changing the model checker.
+
+Theory validation also emits declaration obligations. Structural rewrite termination is
+marked `checked` only for the conservative decreasing case; rewrite soundness and
+inference/theorem soundness remain `open` until a proof is supplied. Axiomatic
+definitions are marked `assumed`. These statuses are data, not hidden axioms.
 
 ## Trust ledger
 
@@ -214,9 +226,9 @@ the project useful even when Rossi or Rodin is not present at proof/review time.
 - [x] Preserve component names, labels, theorem flags, event status, witnesses,
   refinement links, variants, and enumerated-set source metadata.
 - [x] Cover compact input, comments, multiline labels, and the published Rossi examples.
-- [ ] Make formula and action boundaries token-aware for arbitrary wrapped formulas and
-  adjacent unlabelled actions.
-- [ ] Add a differential compatibility matrix against pinned Rossi parser fixtures.
+- [x] Make formula and action boundaries token-aware for wrapped formulas and adjacent
+  unlabelled actions in the supported reader subset.
+- [x] Add a differential compatibility matrix against Rossi parser fixtures.
 - [ ] Align lexing, reserved words, whitespace, and precedence with the kernel-language
   specification before claiming full formula-language parity.
 
@@ -401,7 +413,10 @@ diagnostics, and updated trust reporting, while `lake build`, `lake exe gates`, 
 `scripts/style-check.py` remain green. Unsupported constructs stay data with a visible
 diagnostic; they never become `sorry`, an implicit axiom, or an unrelated identifier.
 
-These four workstreams should update `TODO.md` and the measured gates as they land.
+The four roadmap boundaries are now implemented and covered by native examples,
+negative checks, and the existing build/gate contract. Full formula-language parity,
+resolved theory declarations in prover backends, project/theory loading commands, and
+LSP regression tests remain follow-up work. `TODO.md` tracks those narrower items.
 The architecture invariant remains: one model, one scope, one analysis pipeline, and
 separate presentation and proof integrations.
 

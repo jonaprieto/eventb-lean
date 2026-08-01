@@ -26,7 +26,7 @@ infrastructure.
   core operators) in one registry.
 - [x] Define `Theory.Env` for the prelude and imported theories.
 - [x] Connect `Theory.Env` to component model scopes.
-- [ ] Give every symbol a stable identity, type, documentation, and source range.
+- [x] Give every symbol a stable identity, type, documentation, and source range.
 - [x] Specify conflict and shadowing rules against Event-B visibility semantics.
 
 ## Rossi `.eventb` input
@@ -41,9 +41,9 @@ Language specification][kernel-lang] is the formula-language parity target.
 - [x] Preserve labels, theorem flags, statuses, witnesses, refinements, variants, and
   enumerated-set metadata.
 - [x] Exercise compact, multiline, commented, and published Rossi examples.
-- [ ] Add token-aware formula/action boundary handling for wrapped formulas and adjacent
+- [x] Add token-aware formula/action boundary handling for wrapped formulas and adjacent
   unlabelled actions.
-- [ ] Pin a differential fixture matrix against the Rossi parser and the kernel-language
+- [x] Pin a differential fixture matrix against the Rossi parser and the kernel-language
   lexical/precedence rules.
 
 [kernel-lang]: https://web-archive.southampton.ac.uk/deploy-eprints.ecs.soton.ac.uk/11/4/kernel_lang.pdf
@@ -56,8 +56,8 @@ Language specification][kernel-lang] is the formula-language parity target.
 - [x] Support operators, predicates, datatypes, and axiomatic definitions.
 - [x] Support typing and well-definedness rules.
 - [x] Support rewrite rules, inference rules, and theorems.
-- [ ] Support polymorphic theorem instantiation and type-variable declarations.
-- [ ] Validate theory soundness with generated proof obligations.
+- [x] Support polymorphic theorem instantiation and type-variable declarations.
+- [x] Validate theory soundness with generated proof obligations.
 
 ## Theory-aware toolchain
 
