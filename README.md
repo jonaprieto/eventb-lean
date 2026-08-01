@@ -126,10 +126,10 @@ For an interactive view in the Lean VS Code Infoview, open
 
 The first panels show the context and machine surface—symbols, axioms, invariants,
 events, and refinement links. The last panel shows obligation counts, classes,
-hypotheses, and generated goals in expandable cards. The demo passes its ledger
-explicitly; because it supplies no evidence, its obligations are visibly open rather
-than silently presented as proved. `lake build Examples` compiles this demo; widgets do
-not alter the CLI, POG output, proof status, or trust ledger.
+hypotheses, generated goals, and replayed evidence in expandable cards. The demo passes
+its ledger explicitly and replays all 11 obligations against Lean declarations during
+build. `lake build Examples` compiles this demo; widgets do not alter the CLI, POG
+output, proof status, or trust ledger.
 
 Unquoted identifiers in DSL formulas also support native Go to Definition: clicking
 `LIMIT` in `cars < LIMIT` jumps to `constants LIMIT`. Quoted formulas remain available

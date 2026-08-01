@@ -42,7 +42,9 @@ private def hypothesisList (hyps : List Formula.Term) : Html :=
 
 private def evidenceLabel : Trust.Evidence → String
   | .none => "none"
-  | .kernel declaration _ => s!"Lean declaration {declaration}"
+  | .kernel declaration axioms =>
+      if axioms.isEmpty then s!"Lean declaration {declaration}"
+      else s!"Lean declaration {declaration} (axioms: {String.intercalate ", " axioms})"
   | .smt solver version _ verifier => s!"{solver} {version}, verified by {verifier}"
   | .external tool version _ verifier => s!"{tool} {version}, verified by {verifier}"
   | .rodinImported source _ manual =>
