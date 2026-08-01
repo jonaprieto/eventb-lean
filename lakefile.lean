@@ -25,10 +25,14 @@ lean_lib «Examples» where
   globs := #[.one `Counter, .one `BookBridge, .one `BookSystems, .one `BookPrograms,
     .one `WidgetDemo, .one `TheoryDemo, .one `TranslateDemo, .one `TheoryValidateDemo,
     .one `RodinTheoryDemo, .one `TheoryEmbedDemo, .one `TrustRodinDemo,
-    .one `RossiDemo]
+    .one `RossiDemo, .one `RossiBoundaryDemo]
 
 lean_exe «gates» where
   root := `Gates
+  srcDir := "test"
+
+lean_exe «rossi-dump» where
+  root := `RossiDump
   srcDir := "test"
 
 lean_exe «bench» where

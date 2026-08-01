@@ -1,0 +1,14 @@
+MACHINE actions
+VARIABLES f x y
+EVENTS
+    EVENT tick
+    ANY z
+    WHERE
+        @g z ∈ ℕ
+    THEN
+        x := z +
+            1
+        y :: {z}
+        f(x) := z
+    END
+END

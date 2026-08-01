@@ -1,0 +1,13 @@
+CONTEXT names_ctx
+SETS events_of_partition end_to_end
+CONSTANTS k
+AXIOMS
+    @a k <= k
+END
+
+MACHINE names-machine
+SEES names_ctx
+VARIABLES value
+EVENTS
+    EVENT INITIALISATION THEN value := k END
+END

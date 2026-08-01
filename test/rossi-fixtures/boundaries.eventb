@@ -1,0 +1,29 @@
+CONTEXT boundary_ctx
+SETS S
+CONSTANTS x y
+AXIOMS
+    @a
+    x ∈ S
+        ∧ y ∈ S
+    @b y = y
+END
+
+MACHINE boundary_machine
+SEES boundary_ctx
+VARIABLES v w
+INVARIANTS
+    @inv v ∈ S
+EVENTS
+    EVENT INITIALISATION
+    THEN
+        v := x v := y
+    END
+
+    EVENT update
+    THEN
+        @set_v
+        v := v +
+            y
+        @set_w w := w + 1
+    END
+END
