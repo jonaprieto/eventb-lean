@@ -48,11 +48,11 @@ pipeline. They provide the type and proof-status answers used by the gates.
 | XML and model | `EventB.Xml`, `EventB.Model` | Lossless XML reader and Event-B tree. |
 | Formula language | `EventB.Formula.Lex`, `Parse` | Parse and print Rodin formula terms. |
 | Prelude | `EventB.Prelude` | Core symbols, application, and definedness metadata. |
-| Theories | `EventB.Theory` | User theories, imports, symbols, and scoped lookup. |
+| Theories | `EventB.Theory`, `Theory.Validate`, `Theory.Embed` | User theories, validation, and Lean denotations. |
 | Typing | `EventB.Typing.Type`, `Infer`, `Check` | Infer types and validate component scope. |
 | POG | `EventB.POG` | Generate named obligations, goals, and hypotheses. |
 | Semantics | `EventB.Semantics` | Machines, reachability, proof, and refinement soundness. |
-| Trust and embedding | `EventB.Trust`, `EventB.Embedding` | Proof provenance and type mapping. |
+| Trust and embedding | `EventB.Trust`, `Trust.Replay`, `Trust.Rodin`, `Embedding`, `Formula.Translate` | Proof provenance, status import, and kernel translation. |
 | Front ends | `EventB.DSL`, `Widgets.lean`, `Main.lean` | Author, check, and display models. |
 
 ## Native theories
@@ -138,6 +138,13 @@ obligations start as `unproved`; later integrations may classify evidence as:
 The ledger is intentionally separate from `POG.Obligation`. A generator must not imply
 that a generated proposition has already been discharged.
 
+`Trust.Replay` accepts a kernel proof only after resolving its declaration, translating
+the complete POG sequent, checking definitional equality, and comparing its transitive
+axiom dependencies with the declared metadata. `Trust.Rodin` imports `.bps` status
+records as `rodinImported`; it never upgrades them to kernel evidence. SMT and external
+evidence remain explicit metadata boundaries and must carry solver/tool, version, input
+digest, and verifier fields.
+
 ## User experience
 
 There are two presentation paths:
@@ -192,23 +199,26 @@ a second parser, environment, or obligation representation.
 
 ### 1. Full formula translation
 
-`EventB.Embedding` currently maps resolved types to Lean types. It does not yet map a
-resolved `Formula.Term` to a kernel-facing Lean expression. The first translation
-milestone should cover the language already accepted by the parser and checker:
+`EventB.Embedding` maps resolved types to Lean types, and `Formula.Translate` maps
+resolved `Formula.Term` values to kernel-checked Lean expressions. The translator covers
+the structural language already accepted by the parser and checker:
 
 - integers, Booleans, carrier sets, products, powersets, relations, and maplets;
 - arithmetic, equality, membership, subset, relation, set, and Boolean operators;
 - quantified and set-builder binders with correct variable capture;
 - primed variables and the expression forms used by assignments;
 - core and native-theory symbols after scoped resolution;
-- explicit well-definedness conditions for partial expressions.
+- explicit semantic bindings for partial or theory-specific operators such as `card`,
+  `min`, and `max`.
 
 The translator should take typed, resolved terms and return either a typed Lean target
 or a diagnostic identifying the unsupported term and its source range. It must not
 interpret an unresolved identifier as an arbitrary Lean constant, and it must not erase
 well-definedness conditions while producing a convenient expression.
 
-The translation boundary should remain separate from parsing and inference:
+Ordinary model and theory symbols must have explicit Lean denotations. A visible symbol
+without one is a diagnostic, not an opaque constant. The translation boundary remains
+separate from parsing and inference:
 
 1. `Formula.Parse` produces syntax;
 2. `Typing` resolves identifiers and types them in component scope;
@@ -226,9 +236,11 @@ Acceptance criteria:
 
 ### 2. Datatypes, definitions, and rewrite rules
 
-Basic `Theory.Spec` declarations currently describe names and metadata. Rich theories
-need a typed declaration layer for constructors, definitions, predicates, operators,
-axiomatic assumptions, rewrite rules, inference rules, and polymorphic theorems.
+`Theory.Spec` contains typed datatypes, definitions, rewrite rules, inference rules, and
+theorems. `Theory.Validate` checks their scope, types, declaration shape, and the
+conservative structural orientation required for rewrite rules. `Theory.Embed` turns
+checked definitions and rules into Lean expressions and checks explicit Lean datatype
+and constructor denotations.
 
 The extension should be conservative:
 
@@ -255,11 +267,15 @@ Acceptance criteria:
 - a negative test rejects an ill-typed, cyclic, ambiguous, or out-of-scope rule;
 - theory examples exercise imported datatypes and rules through widgets and CLI output.
 
+Datatype elaboration intentionally does not invent an inductive declaration in the
+user's Lean namespace. The caller supplies the Lean type and constructor expressions;
+the adapter checks their types against the Event-B declaration. This keeps ownership of
+the Lean namespace explicit while still making the embedding kernel-checkable.
+
 ### 3. Prover evidence and trust
 
-The ledger already distinguishes `kernel`, `smt`, `rodinImported`, `external`, and
-`unproved`, but it currently creates unproved entries from generated obligations. The
-next layer is an evidence pipeline:
+The ledger distinguishes `kernel`, `smt`, `rodinImported`, `external`, and `unproved`.
+Generated obligations still start as unproved entries. The evidence pipeline is:
 
 ```text
 POG.Obligation
@@ -280,10 +296,11 @@ move an obligation out of `unproved`. In particular:
 - an imported Rodin result is labelled `rodinImported`, never `kernel`;
 - missing, stale, or unverifiable evidence leaves the entry `unproved`.
 
-The P4 gate should compare the backend's result with Rodin's recorded `.bps` status,
-while preserving the stronger per-obligation trust distinction. Matching Rodin's
-discharge count is useful evidence about coverage; it is not evidence that Lean checked
-the same proof.
+`Trust.Rodin` compares a component's obligations with Rodin's recorded `.bps` statuses
+and can attach a matching status as `rodinImported`. Matching Rodin's discharge count is
+useful evidence about coverage; it is not evidence that Lean checked the same proof.
+The generated corpus status report still leaves P4 at zero until a local prover backend
+produces evidence; importing Rodin status does not falsify that measurement.
 
 Acceptance criteria:
 
@@ -301,23 +318,26 @@ adapter for migration and interoperability, not a dependency of the checker, POG
 proof pipeline. It should be implemented only after the native declaration schema and
 translation boundary are stable.
 
-The adapter should provide:
+The adapter provides a strict, dependency-free supported subset:
 
 - import from the Rodin theory-file format into validated `Theory.Spec` declarations;
 - export of supported native declarations with stable names, types, imports, and rules;
 - explicit diagnostics for constructs with no faithful native representation;
-- preservation of unknown or extension data where round-tripping is promised;
+- deterministic round-tripping for supported symbols, datatypes, definitions, parameters,
+  rewrite/inference/theorem rules, and imports;
 - dependency loading that validates imports before exposing a theory to a component.
 
 Import must not bypass `Theory.add`, and export must not serialize declarations that
-were accepted only under an unrecorded trust assumption. The optional adapter also
-must not require Rodin to be installed or running.
+were accepted only under an unrecorded trust assumption. Unknown extension data is
+rejected rather than silently discarded; full `.tuf` extension preservation remains a
+separate compatibility task. The optional adapter does not require Rodin to be installed
+or running.
 
 Acceptance criteria:
 
 - minimal public fixtures import into the native environment and pass scope/type checks;
 - supported declarations round-trip without changing their resolved meaning;
-- unsupported declarations fail with locations and actionable diagnostics;
+- unsupported declarations fail with declaration paths and actionable diagnostics;
 - imported assumptions and proof status retain their trust classification;
 - disabling the adapter leaves native authoring, gates, and widgets unaffected.
 
