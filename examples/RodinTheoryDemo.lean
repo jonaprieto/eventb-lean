@@ -18,8 +18,10 @@ private def source :=
     "<org.eventb.theory.core.rewriteRule identifier=\"add_zero\" " ++
     "lhs=\"x + 0\" rhs=\"x\"><org.eventb.theory.core.parameter " ++
     "identifier=\"x\" type=\"ℤ\"/></org.eventb.theory.core.rewriteRule>" ++
-    "<org.eventb.theory.core.theorem identifier=\"zero_eq\" " ++
-    "conclusion=\"0 = 0\"/>" ++
+    "<org.eventb.theory.core.theorem identifier=\"identity_eq\" " ++
+    "conclusion=\"x = x\"><org.eventb.theory.core.typeParameter " ++
+    "identifier=\"T\"/><org.eventb.theory.core.parameter " ++
+    "identifier=\"x\" type=\"T\"/></org.eventb.theory.core.theorem>" ++
     "</org.eventb.theory.core.theoryFile>"
 
 private def unsupported :=
@@ -30,14 +32,19 @@ private def unsupported :=
 #guard match Theory.Rodin.importSpec Theory.empty source with
   | .ok spec => spec.name == "Basic" &&
       spec.symbols.map (·.name) == ["LIMIT"] &&
-      spec.declarations.map Declaration.name == ["Colour", "zero", "add_zero", "zero_eq"]
+      spec.declarations.map Declaration.name ==
+        ["Colour", "zero", "add_zero", "identity_eq"]
   | .error _ => false
 
 #guard match Theory.Rodin.importSpec Theory.empty source with
   | .ok spec => match Theory.Rodin.exportSpec Theory.empty spec with
     | .ok output => match Theory.Rodin.importSpec Theory.empty output with
       | .ok roundTrip => roundTrip.name == spec.name &&
-          roundTrip.declarations.map Declaration.name == spec.declarations.map Declaration.name
+          roundTrip.declarations.map Declaration.name == spec.declarations.map Declaration.name &&
+          match roundTrip.declarations.getLast? with
+          | some (.ruleDecl rule) => rule.typeParameters == ["T"] &&
+              rule.parameters == [("x", .given "T")]
+          | _ => false
       | .error _ => false
     | .error _ => false
   | .error _ => false
@@ -48,7 +55,8 @@ private def unsupported :=
 
 private def baseSymbol : EventB.Prelude.Symbol :=
   { name := "LIMIT", kind := .constant, type := some .int,
-    description := "A base constant." }
+    description := "A base constant.", id := EventB.Prelude.SymbolId.unqualified "LIMIT",
+    source := EventB.SourceRange.synthetic }
 
 private def base : Spec :=
   { name := "Base", symbols := [baseSymbol] }

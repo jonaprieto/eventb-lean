@@ -43,6 +43,8 @@ structure Definition where
   result : Typing.Ty
   body : Formula.Term
   kind : DefinitionKind := .definitional
+  /-- Rigid type names used by this declaration, instantiated by the embedding context. -/
+  typeParameters : List String := []
   deriving BEq, Repr, Inhabited
 
 structure Rule where
@@ -53,6 +55,8 @@ structure Rule where
   lhs : Option Formula.Term := none
   rhs : Option Formula.Term := none
   conclusion : Option Formula.Term := none
+  /-- Rigid type names used by this rule, instantiated by the embedding context. -/
+  typeParameters : List String := []
   deriving BEq, Repr, Inhabited
 
 inductive Declaration where
@@ -73,6 +77,11 @@ def Declaration.kind : Declaration → DeclarationKind
     | .axiomatic => .axiom
   | .ruleDecl value => value.kind
 
+def Declaration.typeParameters : Declaration → List String
+  | .dataType value => value.parameters
+  | .definitionDecl value => value.typeParameters
+  | .ruleDecl value => value.typeParameters
+
 structure Spec where
   name : String
   imports : List String := []
@@ -89,6 +98,13 @@ def core : Spec :=
 
 def empty : Env :=
   { theories := [core] }
+
+def canonicalize (theory : Spec) : Spec :=
+  { theory with symbols := theory.symbols.map fun symbol =>
+      { symbol with id := SymbolId.qualified theory.name symbol.name } }
+
+def declarationId (theory : String) (declaration : Declaration) : SymbolId :=
+  SymbolId.qualified theory declaration.name
 
 def lookupTheory? (env : Env) (name : String) : Option Spec :=
   env.theories.find? (·.name == name)
@@ -170,18 +186,31 @@ private def isDefinitionName (declarations : List Declaration) (name : String) :
 
 private def duplicateName (names : List String) : Option String := firstDuplicate [] names
 
+private def typeParameterError (name : String) (parameters : List String) : Option String :=
+  if parameters.any (· == "") then
+    some s!"declaration `{name}` has an empty type parameter"
+  else match duplicateName parameters with
+    | some parameter => some s!"type parameter `{parameter}` is repeated"
+    | none => match coreSymbols.find? (fun symbol => parameters.contains symbol.name) with
+        | some symbol => some s!"type parameter `{symbol.name}` is reserved by the core prelude"
+        | none => none
+
 private def declarationError (declaration : Declaration) : Option String :=
   match declaration with
   | .dataType datatype =>
       if datatype.constructors.isEmpty then
         some s!"datatype `{datatype.name}` needs a constructor"
-      else match duplicateName (datatype.parameters ++ constructorNames datatype) with
-        | some name => some s!"declaration name `{name}` is repeated"
-        | none => none
+      else match typeParameterError datatype.name datatype.parameters with
+        | some error => some error
+        | none => match duplicateName (datatype.parameters ++ constructorNames datatype) with
+            | some name => some s!"declaration name `{name}` is repeated"
+            | none => none
   | .definitionDecl definition =>
-      match duplicateName (definition.parameters.map (·.1)) with
-      | some name => some s!"definition parameter `{name}` is repeated"
-      | none => none
+      match typeParameterError definition.name definition.typeParameters with
+      | some error => some error
+      | none => match duplicateName (definition.parameters.map (·.1)) with
+          | some name => some s!"definition parameter `{name}` is repeated"
+          | none => none
   | .ruleDecl rule =>
       let shape := match rule.kind, rule.lhs, rule.rhs, rule.conclusion with
         | .rewrite, some _, some _, _ => none
@@ -191,9 +220,11 @@ private def declarationError (declaration : Declaration) : Option String :=
         | .inference, _, _, _ => some "inference rules need a conclusion"
         | .theorem, _, _, _ => some "theorems need a conclusion"
         | _, _, _, _ => some "this declaration kind is not a rule"
-      shape.orElse fun () => match duplicateName (rule.parameters.map (·.1)) with
-        | some name => some s!"rule parameter `{name}` is repeated"
-        | none => none
+      shape.orElse fun () =>
+        (typeParameterError rule.name rule.typeParameters).orElse fun () =>
+          match duplicateName (rule.parameters.map (·.1)) with
+          | some name => some s!"rule parameter `{name}` is repeated"
+          | none => none
 
 private def validate (env : Env) (theory : Spec) : List String :=
   let names := theory.symbols.map (·.name)
@@ -270,6 +301,7 @@ private def validate (env : Env) (theory : Spec) : List String :=
   | none => errors
 
 def add (env : Env) (theory : Spec) : Except String Env :=
+  let theory := canonicalize theory
   match validate env theory with
   | error :: _ => .error error
   | [] => .ok { env with theories := theory :: env.theories }
@@ -318,12 +350,14 @@ private def imported : Env :=
 #guard match add imported
     ({ name := "Conflict", imports := ["Derived"]
        symbols :=
-         [Symbol.mk "LIMIT" .constant (some .int) "A conflicting constant." none []] } : Spec) with
+         [Symbol.mk "LIMIT" .constant (some .int) "A conflicting constant." none []
+            (SymbolId.unqualified "LIMIT") SourceRange.synthetic] } : Spec) with
   | .error _ => true
   | .ok _ => false
 #guard match add empty
     ({ name := "LocalConflict", symbols :=
-        [Symbol.mk "Thing" .constant (some .int) "A symbol." none []]
+        [Symbol.mk "Thing" .constant (some .int) "A symbol." none []
+          (SymbolId.unqualified "Thing") SourceRange.synthetic]
        declarations := [.dataType { name := "Thing", constructors :=
          [{ name := "ctor" }] }] } : Spec) with
   | .error _ => true

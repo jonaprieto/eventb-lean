@@ -25,6 +25,16 @@ private meta def checkDefinition : TermElabM Unit := do
   let expected ← mkArrow (mkConst ``Int) (mkConst ``Int)
   unless ← isDefEq actual expected do
     throwError "definition did not become an Int → Int Lean term"
+  let identity : Definition :=
+    { name := "identity", typeParameters := ["α"]
+      parameters := [("x", .given "α")], result := .given "α", body := .id "x" }
+  let context : KernelContext :=
+    { signature := { carriers := [("α", mkConst ``Int)] } }
+  let translated ← Embed.translateDefinition context identity
+  unless ← isDefEq (← inferType translated.value) expected do
+    throwError "polymorphic definition was not instantiated at Int"
+  unless !(← succeeds do let _ ← Embed.translateDefinition {} identity) do
+    throwError "a polymorphic definition was accepted without an instantiation"
 
 private meta def checkDatatype : TermElabM Unit := do
   let datatype : Datatype :=
@@ -53,6 +63,15 @@ private meta def checkRules : TermElabM Unit := do
     throwError "rewrite was not translated to a proposition"
   unless (← inferType inferenceValue.value).isSort do
     throwError "inference rule was not translated to a proposition"
+  let identity : Rule :=
+    { name := "identity_eq", kind := .theorem, typeParameters := ["α"]
+      parameters := [("x", .given "α")]
+      conclusion := some (.bin "=" (.id "x") (.id "x")) }
+  let context : KernelContext :=
+    { signature := { carriers := [("α", mkConst ``Int)] } }
+  let identityValue ← Embed.translateRule context identity
+  unless (← inferType identityValue.value).isSort do
+    throwError "polymorphic theorem was not translated to a proposition"
   let cyclic : Rule :=
     { name := "cyclic", kind := .rewrite, lhs := some (.id "x"), rhs := some (.id "x") }
   unless !(← succeeds do let _ ← Embed.translateRule {} cyclic) do

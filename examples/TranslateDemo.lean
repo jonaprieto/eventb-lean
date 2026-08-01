@@ -46,7 +46,8 @@ private meta def checkRejectsWrongBinding : TermElabM Unit := do
   let theory : Theory.Env :=
     { theories := [Theory.core,
         { name := "T", symbols :=
-            [{ name := "x", kind := .constant, type := some .int, description := "" }] }] }
+            [EventB.Prelude.Symbol.mk "x" .constant (some .int) "" none []
+              (EventB.Prelude.SymbolId.unqualified "x") EventB.SourceRange.synthetic] }] }
   let context : Embedding.KernelContext :=
     { theory, roots := ["T"], bindings :=
         [{ name := "x", ty := .bool, value := mkConst ``Bool.true }] }

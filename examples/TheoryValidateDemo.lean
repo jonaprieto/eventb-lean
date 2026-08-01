@@ -27,6 +27,17 @@ private def validTheorem : Declaration :=
     { name := "zero_eq", kind := .theorem
       conclusion := some (.bin "=" (.num 0) (.num 0)) }
 
+private def polymorphicTheorem : Declaration :=
+  .ruleDecl
+    { name := "identity_eq", kind := .theorem, typeParameters := ["α"]
+      parameters := [("x", .given "α")]
+      conclusion := some (.bin "=" (.id "x") (.id "x")) }
+
+private def unscopedType : Declaration :=
+  .definitionDecl
+    { name := "unscoped", parameters := [("x", .given "β")], result := .given "β"
+      body := .id "x" }
+
 private def nonDecreasingRewrite : Declaration :=
   .ruleDecl
     { name := "cycle", kind := .rewrite, parameters := [("x", .int)]
@@ -43,10 +54,18 @@ private def validRewrite : Declaration :=
 #guard !Report.isValid (validateDeclaration Theory.empty [] invalidDefinition)
 #guard Report.isValid (validateDeclaration Theory.empty [] validInference)
 #guard Report.isValid (validateDeclaration Theory.empty [] validTheorem)
+#guard Report.isValid (validateDeclaration Theory.empty [] polymorphicTheorem)
+#guard !Report.isValid (validateDeclaration Theory.empty [] unscopedType)
 #guard Report.isValid (validateDeclaration Theory.empty [] validRewrite)
 #guard !Report.isValid (validateDeclaration Theory.empty [] nonDecreasingRewrite)
 #guard (validateDeclaration Theory.empty [] nonDecreasingRewrite).issues.any
   (fun issue => issue.field == "orientation")
+#guard (validateDeclaration Theory.empty [] polymorphicTheorem).obligations.any
+  (fun obligation => obligation.kind == .theoremSoundness && obligation.status == .open)
+#guard (validateDeclaration Theory.empty [] validRewrite).obligations.any
+  (fun obligation => obligation.kind == .rewriteTermination && obligation.status == .checked)
+#guard (validateDeclaration Theory.empty [] nonDecreasingRewrite).obligations.any
+  (fun obligation => obligation.kind == .rewriteTermination && obligation.status == .open)
 
 private def duplicateSpec : Spec :=
   { name := "Duplicate"

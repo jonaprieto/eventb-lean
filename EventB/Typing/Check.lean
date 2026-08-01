@@ -18,6 +18,7 @@ import EventB.Typing.Infer
 namespace EventB.Typing
 
 open EventB.Formula
+open EventB.Prelude
 
 /-- One component, keyed by the file name Rodin uses to refer to it. -/
 structure Component where
@@ -222,7 +223,8 @@ private def demoTheory : Theory.Env :=
   match Theory.add Theory.empty
       { name := "Demo", symbols :=
         [{ name := "LIMIT", kind := .constant, type := some .int
-           description := "A demo theory constant." }] } with
+           description := "A demo theory constant.",
+           id := SymbolId.unqualified "LIMIT", source := SourceRange.synthetic }] } with
   | .ok env => env
   | .error _ => Theory.empty
 

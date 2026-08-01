@@ -67,7 +67,8 @@ private def parseSymbol (path : List String) (elem : XmlElem) : Except String Sy
     | some "wellDefined" => pure (some ApplicationKind.wellDefined)
     | some other => .error s!"{String.intercalate "/" path}: unsupported application `{other}`"
   let description := (attr elem ["description"]).getD "Imported Rodin theory symbol."
-  pure ({ name, kind, type, description, application } : Symbol)
+  pure (Symbol.mk name kind type description application [] (SymbolId.unqualified name)
+    (SourceRange.synthetic "Rodin theory"))
 
 private def parseConstructor (path : List String) (elem : XmlElem) :
     Except String Constructor := do
@@ -97,20 +98,27 @@ private def parseParameters (path : List String) (elem : XmlElem) :
     let type ← parseType (path ++ [child.tag]) child
     pure (name, type)
 
+private def parseTypeParameters (path : List String) (elem : XmlElem) :
+    Except String (List String) :=
+  elem.children.filter (·.tag == tag "typeParameter") |>.mapM fun child =>
+    required (path ++ [child.tag]) child ["identifier", "name"]
+
 private def parseDefinition (path : List String) (elem : XmlElem) :
     Except String Declaration := do
-  let _ ← checkChildren path elem [tag "parameter"]
+  let _ ← checkChildren path elem [tag "typeParameter", tag "parameter"]
   let name ← required path elem ["identifier", "name"]
+  let typeParameters ← parseTypeParameters path elem
   let parameters ← parseParameters path elem
   let result ← parseType path elem
   let body ← parseFormulaAttr path elem "formula"
   let kind := if attr elem ["kind"] == some "axiomatic" then .axiomatic else .definitional
-  pure (.definitionDecl { name, parameters, result, body, kind })
+  pure (.definitionDecl { name, typeParameters, parameters, result, body, kind })
 
 private def parseRule (path : List String) (elem : XmlElem) (kind : DeclarationKind) :
     Except String Declaration := do
-  let _ ← checkChildren path elem [tag "parameter", tag "premise"]
+  let _ ← checkChildren path elem [tag "typeParameter", tag "parameter", tag "premise"]
   let name ← required path elem ["identifier", "name"]
+  let typeParameters ← parseTypeParameters path elem
   let parameters ← parseParameters path elem
   let premises ← elem.children.filter (·.tag == tag "premise") |>.mapM fun child =>
     parseFormulaAttr (path ++ [child.tag]) child "formula"
@@ -123,7 +131,7 @@ private def parseRule (path : List String) (elem : XmlElem) (kind : DeclarationK
   let conclusion ← match kind with
     | .rewrite => pure none
     | _ => some <$> parseFormulaAttr path elem "conclusion"
-  pure (.ruleDecl { name, kind, parameters, premises, lhs, rhs, conclusion })
+  pure (.ruleDecl { name, kind, typeParameters, parameters, premises, lhs, rhs, conclusion })
 
 private def parseChild (path : List String) (elem : XmlElem) : Except String (Option String ×
     Option Symbol × Option Declaration) := do
@@ -153,7 +161,7 @@ private def parseRoot (root : XmlElem) : Except String Spec := do
   let imports := values.filterMap (·.1)
   let symbols := values.filterMap (fun value => value.2.1)
   let declarations := values.filterMap (fun value => value.2.2)
-  pure { name, imports, symbols, declarations }
+  pure (Theory.canonicalize { name, imports, symbols, declarations })
 
 def importSpec (env : Env) (source : String) : Except String Spec := do
   let root ← match parseXmlString source with
@@ -220,7 +228,11 @@ private def datatypeElem (datatype : Datatype) : XmlElem :=
   let parameters : List XmlElem := datatype.parameters.map fun parameter =>
     { tag := tag "typeParameter", attrs := [("identifier", parameter)], children := [] }
   { tag := tag "datatypeDefinition", attrs := [("identifier", datatype.name)],
-    children := parameters ++ datatype.constructors.map constructorElem }
+        children := parameters ++ datatype.constructors.map constructorElem }
+
+private def typeParameterElems (parameters : List String) : List XmlElem :=
+  parameters.map fun parameter =>
+    { tag := tag "typeParameter", attrs := [("identifier", parameter)], children := [] }
 
 private def parameterElem (parameter : String × Ty) : XmlElem :=
   { tag := tag "parameter", attrs := [("identifier", parameter.1), ("type", parameter.2.print)],
@@ -235,7 +247,8 @@ private def declarationElems : Declaration → List XmlElem
         | .axiomatic => "axiomatic"
       [{ tag := tag "definition", attrs := [("identifier", definition.name),
           ("type", definition.result.print), ("formula", Formula.print definition.body),
-          ("kind", kind)], children := definition.parameters.map parameterElem }]
+          ("kind", kind)], children :=
+          typeParameterElems definition.typeParameters ++ definition.parameters.map parameterElem }]
   | .ruleDecl rule =>
       let name : String := match rule.kind with
         | .rewrite => "rewriteRule"
@@ -247,7 +260,8 @@ private def declarationElems : Declaration → List XmlElem
         (rule.rhs.map (fun term => ("rhs", Formula.print term))).toList ++
         (rule.conclusion.map (fun term => ("conclusion", Formula.print term))).toList
       [XmlElem.mk (tag name) ruleAttrs
-        (rule.parameters.map parameterElem ++ rule.premises.map fun premise =>
+        (typeParameterElems rule.typeParameters ++ rule.parameters.map parameterElem ++
+          rule.premises.map fun premise =>
           XmlElem.mk (tag "premise") [("formula", Formula.print premise)] [])]
 
 def exportSpec (env : Env) (spec : Spec) : Except String String := do

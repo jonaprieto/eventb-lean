@@ -48,6 +48,16 @@ private def requireValid (env : Theory.Env) (roots : List String)
   unless report.isValid do
     throwError s!"invalid theory declaration: {reportText report}"
 
+private def checkTypeParameters (context : KernelContext) (parameters : List String) :
+    MetaM Unit := do
+  for parameter in parameters do
+    match context.signature.carriers.find? (·.1 == parameter) with
+    | none =>
+        throwError s!"polymorphic type parameter `{parameter}` has no Lean instantiation"
+    | some (_, value) =>
+        unless (← inferType value).isSort do
+          throwError s!"Lean instantiation for type parameter `{parameter}` is not a type"
+
 private def withParameters {α : Type} (context : KernelContext)
     (parameters : List (String × Ty))
     (continuation : KernelContext → List Expr → MetaM α) : MetaM α :=
@@ -77,6 +87,7 @@ private def checkedFunction (context : KernelContext) (parameters : List (String
 def translateDefinition (context : KernelContext) (definition : Definition) :
     MetaM KernelDefinition := do
   requireValid context.theory context.roots (.definitionDecl definition)
+  checkTypeParameters context definition.typeParameters
   withParameters context definition.parameters fun bodyContext parameters => do
     let body ← translateExpression bodyContext definition.body
     unless body.ty == definition.result do
@@ -95,6 +106,7 @@ private def constructorType (context : KernelContext) (arguments : List Ty) (res
 def checkDatatype (context : KernelContext) (datatype : Datatype) (value : Expr)
     (constructors : List (String × Expr)) : MetaM KernelDatatype := do
   requireValid context.theory context.roots (.dataType datatype)
+  checkTypeParameters context datatype.parameters
   unless (← inferType value).isSort do
     throwError s!"datatype `{datatype.name}` denotation is not a Lean type"
   let expectedNames := datatype.constructors.map (·.name)
@@ -117,6 +129,7 @@ private def implications : List Expr → Expr → MetaM Expr
 
 def translateRule (context : KernelContext) (rule : Rule) : MetaM KernelRule := do
   requireValid context.theory context.roots (.ruleDecl rule)
+  checkTypeParameters context rule.typeParameters
   withParameters context rule.parameters fun bodyContext parameters => do
     let proposition ← match rule.kind with
       | .rewrite => do

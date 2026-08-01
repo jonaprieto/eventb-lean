@@ -23,6 +23,10 @@ eventb_theory Algebra where
   inference lt_identity where "x < y" => "x < y"
   theorem zero_eq where "0 = 0"
 
+eventb_theory Generic where
+  datatype Box type_parameters α where box
+  theorem truth type_parameters α where "TRUE = TRUE"
+
 eventb_context TheoryCtx where
   uses Controls
   constants cars
@@ -44,12 +48,25 @@ def theoryProject : Typing.Project :=
   , { name := "TheoryMachine", elem := TheoryMachine, theories := ["Controls"] } ]
 
 def theoryEnv : Theory.Env :=
-  match Theory.register [Bounds, Controls, Algebra] with
+  match Theory.register [Bounds, Controls, Algebra, Generic] with
   | .ok env => env
   | .error _ => Theory.empty
 
 #guard (Theory.declaration? theoryEnv ["Algebra"] "Colour").isSome
 #guard (Theory.declaration? theoryEnv ["Algebra"] "add_zero").isSome
+private def genericDatatype : Bool :=
+  match Theory.declaration? theoryEnv ["Generic"] "Box" with
+  | some (_, declaration) =>
+      match declaration with
+      | EventB.Theory.Declaration.dataType value => value.parameters == ["α"]
+      | _ => false
+  | _ => false
+
+#guard genericDatatype
+#guard match Bounds.symbols.find? (·.name == "LIMIT") with
+  | some symbol => symbol.id == EventB.Prelude.SymbolId.qualified "Bounds" "LIMIT" &&
+      symbol.source.beginPos.line > 0 && !symbol.description.isEmpty
+  | none => false
 
 #guard (POG.generateIn theoryEnv theoryProject "TheoryMachine").isEmpty == false
 #guard (POG.generateIn theoryEnv theoryProject "TheoryMachine").all

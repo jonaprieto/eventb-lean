@@ -123,6 +123,17 @@ private def addSymbolRange (owner : String) (id : Syntax) : CommandElabM Unit :=
   Lean.addDeclarationRanges (symbolName owner id.getId.toString)
     { range := range, selectionRange := range }
 
+private def sourceRangeOf (stx : Syntax) : CommandElabM EventB.SourceRange := do
+  let file ← getFileName
+  match ← getDeclarationRange? stx with
+  | some range =>
+      let beginPos : EventB.Position :=
+        { line := range.pos.line, column := range.pos.column }
+      let finishPos : EventB.Position :=
+        { line := range.endPos.line, column := range.endPos.column }
+      return { file := file, beginPos, finishPos }
+  | none => return EventB.SourceRange.synthetic file
+
 private def baseSymbol (symbol : String) : String :=
   if symbol.endsWith "'" then (symbol.dropEnd 1).copy else symbol
 
@@ -325,10 +336,15 @@ syntax "expression " ident ":" ident "→" ident : ebTheoryPart
 syntax "expression " ident : ebTheoryPart
 syntax "well_defined " ident : ebTheoryPart
 syntax "datatype " ident "where " ident+ : ebTheoryPart
+syntax "datatype " ident " type_parameters " ident+ "where " ident+ : ebTheoryPart
 syntax "definition " ident ":" ident "where " ebFormula : ebTheoryPart
+syntax "definition " ident " type_parameters " ident+ ":" ident "where " ebFormula : ebTheoryPart
 syntax "rewrite " ident "where " str "=>" str : ebTheoryPart
+syntax "rewrite " ident " type_parameters " ident+ "where " str "=>" str : ebTheoryPart
 syntax "inference " ident "where " str "=>" str : ebTheoryPart
+syntax "inference " ident " type_parameters " ident+ "where " str "=>" str : ebTheoryPart
 syntax "theorem " ident "where " str : ebTheoryPart
+syntax "theorem " ident " type_parameters " ident+ "where " str : ebTheoryPart
 
 syntax (name := eventbTheory)
   "eventb_theory " ident "where " ebTheoryPart* : command
@@ -375,8 +391,15 @@ private def mkSymbolTerm (symbol : Symbol) : TSyntax `term :=
     | none => Unhygienic.run `(none)
     | some type => Unhygienic.run `(some $(mkTyTerm type))
   let definedness := listOf (symbol.definedness.toArray.map mkDefinedness)
+  let id := Unhygienic.run `(EventB.Prelude.SymbolId.mk $(quote symbol.id.owner)
+    $(quote symbol.id.name))
+  let source := Unhygienic.run `(EventB.SourceRange.mk $(quote symbol.source.file)
+    (EventB.Position.mk $(quote symbol.source.beginPos.line)
+      $(quote symbol.source.beginPos.column))
+    (EventB.Position.mk $(quote symbol.source.finishPos.line)
+      $(quote symbol.source.finishPos.column)))
   Unhygienic.run `(EventB.Prelude.Symbol.mk $(quote symbol.name) $(mkSymbolKind symbol.kind)
-    $type $(quote symbol.description) $(mkApplication symbol.application) $definedness)
+    $type $(quote symbol.description) $(mkApplication symbol.application) $definedness $id $source)
 
 private def mkFormulaTerm (term : Formula.Term) : TSyntax `term :=
   let source := Formula.print term
@@ -406,7 +429,8 @@ private def mkDeclarationTerm : Theory.Declaration → TSyntax `term
         | .axiomatic => Unhygienic.run `(EventB.Theory.DefinitionKind.axiomatic)
       Unhygienic.run `(EventB.Theory.Declaration.definitionDecl
         (EventB.Theory.Definition.mk $(quote defDecl.name) $parameters
-          $(mkTyTerm defDecl.result) $(mkFormulaTerm defDecl.body) $kind))
+          $(mkTyTerm defDecl.result) $(mkFormulaTerm defDecl.body) $kind
+          $(listOf (defDecl.typeParameters.toArray.map quote))))
   | Theory.Declaration.ruleDecl rule =>
       let parameters := listOf (rule.parameters.toArray.map mkTypedParameter)
       let premises := listOf (rule.premises.toArray.map mkFormulaTerm)
@@ -434,7 +458,7 @@ private def mkDeclarationTerm : Theory.Declaration → TSyntax `term
             Unhygienic.run `(EventB.Theory.DeclarationKind.axiom)
       Unhygienic.run `(EventB.Theory.Declaration.ruleDecl
         (EventB.Theory.Rule.mk $(quote rule.name) $kind $parameters $premises
-          $lhs $rhs $conclusion))
+          $lhs $rhs $conclusion $(listOf (rule.typeParameters.toArray.map quote))))
 
 private def mkSpecTerm (spec : Theory.Spec) : TSyntax `term :=
   let importNames := listOf (spec.imports.toArray.map quote)
@@ -444,7 +468,11 @@ private def mkSpecTerm (spec : Theory.Spec) : TSyntax `term :=
 
 private def theorySymbol (name : String) (kind : SymbolKind) (type : Option Ty)
     (application : Option ApplicationKind) : Symbol :=
-  { name, kind, type, description := s!"Native Event-B theory symbol `{name}`.", application }
+  { name, kind, type, description := s!"Native Event-B theory symbol `{name}`.", application,
+    id := SymbolId.unqualified name, source := EventB.SourceRange.synthetic }
+
+private def symbolAt (stx : Syntax) (symbol : Symbol) : CommandElabM Symbol := do
+  return { symbol with source := ← sourceRangeOf stx }
 
 private def defineTheory (name : Ident) (body : TSyntax `term) : CommandElabM Unit := do
   elabCommand (← `(def $name : EventB.Theory.Spec := $body))
@@ -464,77 +492,134 @@ private def elabTheory : CommandElab := fun stx => do
             for x in xs do
               addSymbolRange n.getId.toString x.raw
               let name := x.getId.toString
+              let symbol ← symbolAt x.raw
+                (theorySymbol name .carrierSet (some (.pow (.given name))) none)
               symbols := symbols ++
-                [theorySymbol name .carrierSet (some (.pow (.given name))) none]
+                [symbol]
         | `(ebTheoryPart| constant $x:ident : $t:ident) =>
             addSymbolRange n.getId.toString x.raw
+            let symbol ← symbolAt x.raw
+              (theorySymbol x.getId.toString .constant (some (theoryTy t)) none)
             symbols := symbols ++
-              [theorySymbol x.getId.toString .constant (some (theoryTy t)) none]
+              [symbol]
         | `(ebTheoryPart| predicate $x:ident) =>
             addSymbolRange n.getId.toString x.raw
+            let symbol ← symbolAt x.raw
+              (theorySymbol x.getId.toString .predicate none (some .total))
             symbols := symbols ++
-              [theorySymbol x.getId.toString .predicate none (some .total)]
+              [symbol]
         | `(ebTheoryPart| predicate $x:ident : $a:ident → $b:ident) =>
             addSymbolRange n.getId.toString x.raw
             let input := theoryTy a
             let output := theoryTy b
+            let symbol ← symbolAt x.raw
+              (theorySymbol x.getId.toString .predicate
+                (some (.pow (.prod input output))) (some .total))
             symbols := symbols ++
-              [theorySymbol x.getId.toString .predicate
-                (some (.pow (.prod input output))) (some .total)]
+              [symbol]
         | `(ebTheoryPart| expression $x:ident : $a:ident → $b:ident) =>
             addSymbolRange n.getId.toString x.raw
             let input := theoryTy a
             let output := theoryTy b
+            let symbol ← symbolAt x.raw
+              (theorySymbol x.getId.toString .expression
+                (some (.pow (.prod input output))) (some .total))
             symbols := symbols ++
-              [theorySymbol x.getId.toString .expression
-                (some (.pow (.prod input output))) (some .total)]
+              [symbol]
         | `(ebTheoryPart| expression $x:ident) =>
             addSymbolRange n.getId.toString x.raw
+            let symbol ← symbolAt x.raw
+              (theorySymbol x.getId.toString .expression none (some .total))
             symbols := symbols ++
-              [theorySymbol x.getId.toString .expression none (some .total)]
+              [symbol]
         | `(ebTheoryPart| well_defined $x:ident) =>
             addSymbolRange n.getId.toString x.raw
+            let symbol ← symbolAt x.raw
+              (theorySymbol x.getId.toString .expression none (some .wellDefined))
             symbols := symbols ++
-              [theorySymbol x.getId.toString .expression none (some .wellDefined)]
+              [symbol]
+        | `(ebTheoryPart| datatype $x:ident type_parameters $ts:ident* where $cs:ident*) =>
+            addSymbolRange n.getId.toString x.raw
+            for c in cs do addSymbolRange n.getId.toString c.raw
+            let constructors := cs.toList.map fun c => Theory.Constructor.mk c.getId.toString []
+            declarations := declarations ++
+              [.dataType (Theory.Datatype.mk x.getId.toString
+                (ts.toList.map (·.getId.toString)) constructors)]
         | `(ebTheoryPart| datatype $x:ident where $cs:ident*) =>
             addSymbolRange n.getId.toString x.raw
             for c in cs do addSymbolRange n.getId.toString c.raw
             let constructors := cs.toList.map fun c => Theory.Constructor.mk c.getId.toString []
             declarations := declarations ++
               [.dataType (Theory.Datatype.mk x.getId.toString [] constructors)]
+        | `(ebTheoryPart| definition $x:ident type_parameters $ts:ident* : $t:ident
+            where $f:ebFormula) =>
+            addSymbolRange n.getId.toString x.raw
+            let body ← theoryFormula f.raw (formulaText f)
+            checkScope importNames [n.getId.toString] f.raw body
+            let result := theoryTy t
+            let symbol ← symbolAt x.raw
+              (theorySymbol x.getId.toString .expression (some result) (some .total))
+            symbols := symbols ++ [symbol]
+            declarations := declarations ++
+              [.definitionDecl
+                (Theory.Definition.mk x.getId.toString [] result body .definitional
+                  (ts.toList.map (·.getId.toString)))]
         | `(ebTheoryPart| definition $x:ident : $t:ident where $f:ebFormula) =>
             addSymbolRange n.getId.toString x.raw
             let body ← theoryFormula f.raw (formulaText f)
             checkScope importNames [n.getId.toString] f.raw body
             let result := theoryTy t
+            let symbol ← symbolAt x.raw
+              (theorySymbol x.getId.toString .expression (some result) (some .total))
             symbols := symbols ++
-              [theorySymbol x.getId.toString .expression (some result) (some .total)]
+              [symbol]
             declarations := declarations ++
               [.definitionDecl
-                (Theory.Definition.mk x.getId.toString [] result body .definitional)]
+                (Theory.Definition.mk x.getId.toString [] result body .definitional [])]
+        | `(ebTheoryPart| rewrite $x:ident type_parameters $ts:ident* where $lhs:str => $rhs:str) =>
+            addSymbolRange n.getId.toString x.raw
+            let left ← theoryFormula lhs.raw lhs.getString
+            let right ← theoryFormula rhs.raw rhs.getString
+            declarations := declarations ++
+              [.ruleDecl (Theory.Rule.mk x.getId.toString .rewrite [] [] (some left)
+                (some right) none (ts.toList.map (·.getId.toString)))]
         | `(ebTheoryPart| rewrite $x:ident where $lhs:str => $rhs:str) =>
             addSymbolRange n.getId.toString x.raw
             let left ← theoryFormula lhs.raw lhs.getString
             let right ← theoryFormula rhs.raw rhs.getString
             declarations := declarations ++
               [.ruleDecl (Theory.Rule.mk x.getId.toString .rewrite [] [] (some left)
-                (some right) none)]
+                (some right) none [])]
+        | `(ebTheoryPart| inference $x:ident type_parameters $ts:ident*
+            where $premise:str => $conclusion:str) =>
+            addSymbolRange n.getId.toString x.raw
+            let premise ← theoryFormula premise.raw premise.getString
+            let conclusion ← theoryFormula conclusion.raw conclusion.getString
+            declarations := declarations ++
+              [.ruleDecl (Theory.Rule.mk x.getId.toString .inference [] [premise] none none
+                (some conclusion) (ts.toList.map (·.getId.toString)))]
         | `(ebTheoryPart| inference $x:ident where $premise:str => $conclusion:str) =>
             addSymbolRange n.getId.toString x.raw
             let premise ← theoryFormula premise.raw premise.getString
             let conclusion ← theoryFormula conclusion.raw conclusion.getString
             declarations := declarations ++
               [.ruleDecl (Theory.Rule.mk x.getId.toString .inference [] [premise] none none
-                (some conclusion))]
+                (some conclusion) [])]
+        | `(ebTheoryPart| theorem $x:ident type_parameters $ts:ident* where $formula:str) =>
+            addSymbolRange n.getId.toString x.raw
+            let conclusion ← theoryFormula formula.raw formula.getString
+            declarations := declarations ++
+              [.ruleDecl (Theory.Rule.mk x.getId.toString .theorem [] [] none none
+                (some conclusion) (ts.toList.map (·.getId.toString)))]
         | `(ebTheoryPart| theorem $x:ident where $formula:str) =>
             addSymbolRange n.getId.toString x.raw
             let conclusion ← theoryFormula formula.raw formula.getString
             declarations := declarations ++
               [.ruleDecl (Theory.Rule.mk x.getId.toString .theorem [] [] none none
-                (some conclusion))]
+                (some conclusion) [])]
         | other => throwErrorAt other "unexpected theory clause"
-      let spec : Theory.Spec :=
-        Theory.Spec.mk n.getId.toString importNames symbols declarations
+      let spec : Theory.Spec := Theory.canonicalize
+        (Theory.Spec.mk n.getId.toString importNames symbols declarations)
       match Theory.add (theoryEnvironment (← getEnv)) spec with
       | .error message => throwErrorAt n message
       | .ok _ =>
