@@ -24,7 +24,8 @@ lean_lib «Examples» where
   srcDir := "examples"
   globs := #[.one `Counter, .one `BookBridge, .one `BookSystems, .one `BookPrograms,
     .one `WidgetDemo, .one `TheoryDemo, .one `TranslateDemo, .one `TheoryValidateDemo,
-    .one `RodinTheoryDemo, .one `TheoryEmbedDemo, .one `TrustRodinDemo]
+    .one `RodinTheoryDemo, .one `TheoryEmbedDemo, .one `TrustRodinDemo,
+    .one `RossiDemo]
 
 lean_exe «gates» where
   root := `Gates
