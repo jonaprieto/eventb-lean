@@ -23,7 +23,7 @@ lean_lib «EventBWidgets» where
 lean_lib «Examples» where
   srcDir := "examples"
   globs := #[.one `Counter, .one `BookBridge, .one `BookSystems, .one `BookPrograms,
-    .one `WidgetDemo, .one `TheoryDemo]
+    .one `WidgetDemo, .one `TheoryDemo, .one `TranslateDemo]
 
 lean_exe «gates» where
   root := `Gates

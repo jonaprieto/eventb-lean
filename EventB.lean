@@ -4,6 +4,7 @@ import EventB.Formula.Parse
 import EventB.Prelude
 import EventB.Theory
 import EventB.Embedding
+import EventB.Formula.Translate
 import EventB.Typing.Infer
 import EventB.Typing.Check
 import EventB.POG
