@@ -29,6 +29,25 @@ infrastructure.
 - [ ] Give every symbol a stable identity, type, documentation, and source range.
 - [x] Specify conflict and shadowing rules against Event-B visibility semantics.
 
+## Rossi `.eventb` input
+
+Rossi remains the modern text/LSP authoring workflow. `eventb-lean` reads that format
+as an independent Lean reference implementation: it lowers text into the shared model,
+then runs the existing scope checker, POG, and trust ledger. The [Event-B Mathematical
+Language specification][kernel-lang] is the formula-language parity target.
+
+- [x] Read one or more Rossi contexts/machines from a `.eventb` file.
+- [x] Load Rossi files and mixed Rossi/Rodin source directories in the CLI.
+- [x] Preserve labels, theorem flags, statuses, witnesses, refinements, variants, and
+  enumerated-set metadata.
+- [x] Exercise compact, multiline, commented, and published Rossi examples.
+- [ ] Add token-aware formula/action boundary handling for wrapped formulas and adjacent
+  unlabelled actions.
+- [ ] Pin a differential fixture matrix against the Rossi parser and the kernel-language
+  lexical/precedence rules.
+
+[kernel-lang]: https://web-archive.southampton.ac.uk/deploy-eprints.ecs.soton.ac.uk/11/4/kernel_lang.pdf
+
 ## R2. Datatypes and theory rules
 
 - [x] Add native Lean syntax for basic theory declarations and imports.

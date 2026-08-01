@@ -6,14 +6,16 @@ its images. Those files are local research inputs and are not distribution artif
 
 ## Purpose and boundary
 
-`eventb-lean` is a native Lean 4 Event-B environment with two input paths:
+`eventb-lean` is a native Lean 4 Event-B environment with three input paths:
 
 - Rodin model files are read for compatibility and corpus-based validation.
+- Rossi `.eventb` text files are read for compatibility with the modern text workflow.
 - Event-B models and theories can be authored directly in Lean.
 
-Both paths produce the same internal model representation. The typechecker and proof
+All paths produce the same internal model representation. The typechecker and proof
 obligation generator therefore do not care where a model came from. Rodin is an input
-format and a source of comparison data, not a runtime dependency.
+format and a source of comparison data, while Rossi is an authoring/LSP workflow;
+neither is a runtime dependency.
 
 The project has three intentionally separate concerns:
 
@@ -26,8 +28,10 @@ The project has three intentionally separate concerns:
 ```mermaid
 flowchart LR
   R["Rodin files<br/>.bum / .buc / .bpo / .bps"] --> X["Xml + Model"]
+  Q["Rossi text<br/>.eventb"] --> Y["Rossi + Model"]
   N["Native Lean DSL<br/>theory / context / machine"] --> A["Model + Theory.Env"]
   X --> F["Formula.Lex + Parse"]
+  Y --> F
   A --> F
   P["Prelude + Theory.Env<br/>imports and scope"] --> T["Typing.Infer + Check"]
   F --> T
@@ -41,11 +45,30 @@ flowchart LR
 The `.bpo` and `.bps` files are comparison data rather than inputs to the native
 pipeline. They provide the type and proof-status answers used by the gates.
 
+### Rossi text boundary
+
+`EventB.Rossi` accepts one or more `CONTEXT`/`MACHINE` components per `.eventb` file,
+including compact and multiline input, comments, component references, labels,
+theorems, variants, event statuses, witnesses, refinements, and Rossi's ASCII formula
+aliases. A directory may contain `.eventb` files alongside Rodin `.bum`/`.buc` files;
+the CLI resolves component references by declared component name, not filename stem.
+
+The structural reader lowers into `Elem` and leaves formula strings for the shared
+lexer/parser. It reports malformed structure with source line numbers and only joins
+lines inside a recognized structural section. The remaining compatibility work is
+token-aware formula/action boundary handling and a differential matrix against the
+Rossi implementation. The mathematical token and precedence target is the
+[Event-B Mathematical Language specification][kernel-lang]; Rossi's project grammar
+remains the authority for `.eventb` component structure.
+
+[kernel-lang]: https://web-archive.southampton.ac.uk/deploy-eprints.ecs.soton.ac.uk/11/4/kernel_lang.pdf
+
 ## Layers
 
 | Layer | Main modules | Responsibility |
 | --- | --- | --- |
 | XML and model | `EventB.Xml`, `EventB.Model` | Lossless XML reader and Event-B tree. |
+| Rossi text | `EventB.Rossi` | Plain-text `.eventb` reader lowered to the Event-B tree. |
 | Formula language | `EventB.Formula.Lex`, `Parse` | Parse and print Rodin formula terms. |
 | Prelude | `EventB.Prelude` | Core symbols, application, and definedness metadata. |
 | Theories | `EventB.Theory`, `Theory.Validate`, `Theory.Embed` | User theories, validation, and Lean denotations. |
@@ -178,6 +201,24 @@ The gates compare the implementation against the pinned corpus and ratchet files
 
 Every focused commit is expected to leave these checks green. `STATUS.md` is generated;
 `PLAN.md` records measured progress and the next bounded work item.
+
+## Rossi compatibility and project input
+
+This is an input compatibility layer, not a second general-purpose Event-B editor.
+Rossi owns the modern text/LSP authoring workflow; `eventb-lean` independently checks
+the resulting model, reconstructs obligations, and records what is trusted. This keeps
+the project useful even when Rossi or Rodin is not present at proof/review time.
+
+- [x] Read Rossi `.eventb` components into the shared `Elem` representation.
+- [x] Load a `.eventb` file or a directory of `.eventb`/Rodin source files in the CLI.
+- [x] Preserve component names, labels, theorem flags, event status, witnesses,
+  refinement links, variants, and enumerated-set source metadata.
+- [x] Cover compact input, comments, multiline labels, and the published Rossi examples.
+- [ ] Make formula and action boundaries token-aware for arbitrary wrapped formulas and
+  adjacent unlabelled actions.
+- [ ] Add a differential compatibility matrix against pinned Rossi parser fixtures.
+- [ ] Align lexing, reserved words, whitespace, and precedence with the kernel-language
+  specification before claiming full formula-language parity.
 
 ## Remaining roadmap
 
