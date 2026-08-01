@@ -8,7 +8,7 @@ compatibility input/output only; no runtime Rodin dependency is allowed.
 - [x] Define the core Event-B prelude (`BOOL`, `TRUE`, `FALSE`, `ℤ`, `ℕ`, and
   core operators) in one registry.
 - [x] Define `Theory.Env` for the prelude and imported theories.
-- [ ] Connect `Theory.Env` to component model scopes.
+- [x] Connect `Theory.Env` to component model scopes.
 - [ ] Give every symbol a stable identity, type, documentation, and source range.
 - [ ] Specify conflict and shadowing rules against Event-B visibility semantics.
 
@@ -41,11 +41,11 @@ compatibility input/output only; no runtime Rodin dependency is allowed.
 ## Native UX and project tooling
 
 - [ ] Add project/theory dependency loading and validation commands.
-- [ ] Add hover and Go-to-Definition for prelude and theory symbols.
+- [x] Add source ranges for native theory symbols for hover/Go-to-Definition.
 - [x] Add native-theory and initial trust summaries to ProofWidgets.
 - [ ] Add source locations and per-obligation trust evidence to ProofWidgets.
 - [x] Add a native example covering an imported theory symbol.
-- [ ] Add native examples covering a Boolean theory and an imported operator.
+- [x] Add native examples covering a Boolean theory and an imported operator.
 
 ## Compatibility and verification
 
@@ -60,7 +60,8 @@ compatibility input/output only; no runtime Rodin dependency is allowed.
 
 - [x] Core prelude and symbol registry.
 - [x] Theory registry and basic native declarations.
-- [ ] Model-scoped theory environment and complete native declarations.
+- [x] Model-scoped theory environment.
+- [ ] Complete native declarations.
 - [ ] Theory-aware parser, checker, WD, and POG.
 - [ ] Lean embedding and translation.
 - [ ] Native widgets and project tooling.

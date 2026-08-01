@@ -391,25 +391,31 @@ private def elabTheory : CommandElab := fun stx => do
             importNames := importNames ++ xs.toList.map (·.getId.toString)
         | `(ebTheoryPart| carrier $xs:ident*) =>
             for x in xs do
+              addSymbolRange n.getId.toString x.raw
               let name := x.getId.toString
               symbols := symbols ++
                 [theorySymbol name .carrierSet (some (.pow (.given name))) none]
         | `(ebTheoryPart| constant $x:ident : $t:ident) =>
+            addSymbolRange n.getId.toString x.raw
             symbols := symbols ++
               [theorySymbol x.getId.toString .constant (some (theoryTy t)) none]
         | `(ebTheoryPart| predicate $x:ident) =>
+            addSymbolRange n.getId.toString x.raw
             symbols := symbols ++
               [theorySymbol x.getId.toString .predicate none (some .total)]
         | `(ebTheoryPart| expression $x:ident : $a:ident → $b:ident) =>
+            addSymbolRange n.getId.toString x.raw
             let input := theoryTy a
             let output := theoryTy b
             symbols := symbols ++
               [theorySymbol x.getId.toString .expression
                 (some (.pow (.prod input output))) (some .total)]
         | `(ebTheoryPart| expression $x:ident) =>
+            addSymbolRange n.getId.toString x.raw
             symbols := symbols ++
               [theorySymbol x.getId.toString .expression none (some .total)]
         | `(ebTheoryPart| well_defined $x:ident) =>
+            addSymbolRange n.getId.toString x.raw
             symbols := symbols ++
               [theorySymbol x.getId.toString .expression none (some .wellDefined)]
         | other => throwErrorAt other "unexpected theory clause"
@@ -478,7 +484,7 @@ private def elabMachine : CommandElab := fun stx => do
       define n (mkElem "machineFile" (Unhygienic.run `(([] : List (String × String))))
         (listOf kids))
       defineRoots n theoryRoots
-      addMachineInfos owner owners ps
+      addMachineInfos owner (owners ++ theoryRoots) ps
   | _ => throwUnsupportedSyntax
 
 @[command_elab eventbContext]
@@ -526,7 +532,7 @@ private def elabContext : CommandElab := fun stx => do
       define n (mkElem "contextFile" (Unhygienic.run `(([] : List (String × String))))
         (listOf kids))
       defineRoots n theoryRoots
-      addContextInfos owners ps
+      addContextInfos (owners ++ theoryRoots) ps
   | _ => throwUnsupportedSyntax
 
 /-- `#eventb_pog M Ctx ...` prints the obligations generated for the first named

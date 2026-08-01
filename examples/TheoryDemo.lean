@@ -12,12 +12,14 @@ eventb_theory Bounds where
 
 eventb_theory Controls where
   imports Bounds
+  constant OPEN : BOOL
   expression clamp : ℤ → ℤ
 
 eventb_context TheoryCtx where
   uses Controls
   constants cars
   axiom bounded : cars < LIMIT
+  axiom open_value : OPEN = TRUE
 
 eventb_machine TheoryMachine where
   sees TheoryCtx
