@@ -31,6 +31,7 @@ compatibility input/output only; no runtime Rodin dependency is allowed.
 
 ## Lean embedding and translation
 
+- [x] Map resolved Event-B types, sets, products, and theory carriers to Lean types.
 - [ ] Embed resolved Event-B types, expressions, predicates, and theories in Lean.
 - [ ] Translate definitions and datatypes to kernel-checkable Lean declarations.
 - [ ] Represent axiomatic assumptions without hiding them as trusted theorems.

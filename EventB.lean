@@ -3,6 +3,7 @@ import EventB.Model
 import EventB.Formula.Parse
 import EventB.Prelude
 import EventB.Theory
+import EventB.Embedding
 import EventB.Typing.Infer
 import EventB.Typing.Check
 import EventB.POG
