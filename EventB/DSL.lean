@@ -548,6 +548,7 @@ component, resolving the rest as its project. The point of the DSL is that this 
 same generator the corpus goes through, so what it prints here is what a `.bum` would
 get. -/
 syntax (name := eventbPog) "#eventb_pog " ident+ : command
+syntax (name := eventbPogIn) "#eventb_pog_in " ident ppSpace ident+ : command
 
 @[command_elab eventbPog]
 private def elabPog : CommandElab := fun stx => do
@@ -560,6 +561,23 @@ private def elabPog : CommandElab := fun stx => do
       elabCommand (← `(#eval show IO Unit from do
         let project : EventB.Typing.Project := [$entries,*]
         for o in EventB.POG.generate project $(quote head) do
+          IO.println s!"{o.name}"
+          match o.goal with
+          | some g => IO.println s!"    ⊢ {EventB.Formula.print g}"
+          | none => pure ()))
+  | _ => throwUnsupportedSyntax
+
+@[command_elab eventbPogIn]
+private def elabPogIn : CommandElab := fun stx => do
+  match stx with
+  | `(#eventb_pog_in $theory:ident $ns:ident*) => do
+      let head := ns[0]!.getId.toString
+      let entries : Array (TSyntax `term) ← ns.mapM fun n => do
+        `(EventB.Typing.Component.mk $(quote n.getId.toString) $(mkIdent n.getId)
+          $(rootsName n))
+      elabCommand (← `(#eval show IO Unit from do
+        let project : EventB.Typing.Project := [$entries,*]
+        for o in EventB.POG.generateIn $(mkIdent theory.getId) project $(quote head) do
           IO.println s!"{o.name}"
           match o.goal with
           | some g => IO.println s!"    ⊢ {EventB.Formula.print g}"

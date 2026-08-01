@@ -43,6 +43,7 @@ compatibility input/output only; no runtime Rodin dependency is allowed.
 ## Native UX and project tooling
 
 - [ ] Add project/theory dependency loading and validation commands.
+- [x] Add a native scoped POG command for an explicit theory environment.
 - [x] Add source ranges for native theory symbols for hover/Go-to-Definition.
 - [x] Add native-theory and initial trust summaries to ProofWidgets.
 - [ ] Add source locations and per-obligation trust evidence to ProofWidgets.

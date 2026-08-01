@@ -45,3 +45,5 @@ def theoryEnv : Theory.Env :=
 #guard match Typing.inferComponentIn theoryEnv theoryProject "TheoryMachine" with
   | .ok (_, errors) => errors.isEmpty
   | .error _ => false
+
+#eventb_pog_in theoryEnv TheoryMachine TheoryCtx
