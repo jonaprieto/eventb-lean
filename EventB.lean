@@ -3,6 +3,7 @@ import EventB.Model
 import EventB.Formula.Parse
 import EventB.Prelude
 import EventB.Theory
+import EventB.Theory.Validate
 import EventB.Embedding
 import EventB.Formula.Translate
 import EventB.Typing.Infer
