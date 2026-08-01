@@ -677,6 +677,11 @@ private def translateExpr : Nat → KernelContext → Formula.Term → MetaM Ker
           let one := mkApp (mkConst ``Int.ofNat) (mkNatLit 1)
           let functionName := if function == .id "succ" then ``Int.add else ``Int.sub
           checked context .int (← mkAppM functionName #[argument.value, one])
+      | .id "bool" =>
+          let predicate ← translatePred fuel context argument
+          let decidable := mkApp (mkConst ``Classical.propDecidable) predicate
+          let value := mkApp (mkApp (mkConst ``decide) predicate) decidable
+          checked context .bool value
       | .id name =>
           match context.lookupFunction name with
           | none =>

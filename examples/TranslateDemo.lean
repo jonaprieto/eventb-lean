@@ -86,6 +86,7 @@ meta def elabTranslateChecks : CommandElab := fun stx =>
       checkIntegerExpression "1 + 2"
       checkIntegerExpression "2 ^ 3"
       checkPredicate "1 < 2"
+      checkPredicate "bool(1 < 2) = TRUE"
       checkPredicate "1 ∈ ℕ"
       checkPredicate "1 ∈ ℕ ∧ 2 ∉ ℕ1"
       checkPredicate "1 ∈ {1, 2}"
