@@ -81,7 +81,8 @@ def compare (obligations : List POG.Obligation) (statuses : List Status) : Compa
 def attach (ledger : Ledger) (obligation : POG.Obligation) (source : String)
     (status : Status) : Except String Ledger :=
   if status.discharged then
-    ledger.attach obligation (.rodinImported source (s!"eventb-v1-{String.hash source}") status.manual)
+    let evidence := .rodinImported source (s!"eventb-v1-{String.hash source}") status.manual
+    ledger.attach obligation evidence
   else
     pure ledger
 

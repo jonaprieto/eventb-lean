@@ -95,6 +95,8 @@ private def constructorType (context : KernelContext) (arguments : List Ty) (res
 def checkDatatype (context : KernelContext) (datatype : Datatype) (value : Expr)
     (constructors : List (String × Expr)) : MetaM KernelDatatype := do
   requireValid context.theory context.roots (.dataType datatype)
+  unless (← inferType value).isSort do
+    throwError s!"datatype `{datatype.name}` denotation is not a Lean type"
   let expectedNames := datatype.constructors.map (·.name)
   let actualNames := constructors.map (·.1)
   unless expectedNames == actualNames do

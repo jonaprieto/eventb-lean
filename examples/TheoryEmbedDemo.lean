@@ -33,6 +33,10 @@ private meta def checkDatatype : TermElabM Unit := do
     [("red", mkConst ``Colour.red), ("blue", mkConst ``Colour.blue)]
   unless translated.constructors.length == 2 do
     throwError "datatype constructor denotations were not retained"
+  unless !(← succeeds do
+      let _ ← Embed.checkDatatype {} datatype (mkConst ``Bool.true)
+        [("red", mkConst ``Colour.red), ("blue", mkConst ``Colour.blue)]) do
+    throwError "a proposition value was accepted as a datatype type"
 
 private meta def checkRules : TermElabM Unit := do
   let rewrite : Rule :=
