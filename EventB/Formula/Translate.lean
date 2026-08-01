@@ -61,7 +61,7 @@ private def KernelContext.lookupPredicate (context : KernelContext) (name : Stri
 private def KernelSignature.carrier? (signature : KernelSignature) (name : String) :
     Option Expr := signature.carriers.find? (·.1 == name) |>.map (·.2)
 
-private def typeExpr (context : KernelContext) : Ty → MetaM Expr
+def leanType (context : KernelContext) : Ty → MetaM Expr
   | .given name =>
       match context.signature.carrier? name with
       | some type => pure type
@@ -69,13 +69,15 @@ private def typeExpr (context : KernelContext) : Ty → MetaM Expr
   | .int => pure (mkConst ``Int)
   | .bool => pure (mkConst ``Bool)
   | .pow type => do
-      mkArrow (← typeExpr context type) propType
+      mkArrow (← leanType context type) propType
   | .prod left right => do
-      mkAppM ``Prod #[← typeExpr context left, ← typeExpr context right]
+      mkAppM ``Prod #[← leanType context left, ← leanType context right]
   | .mvar index => throwError s!"unresolved Event-B type metavariable `?{index}`"
 
+private abbrev typeExpr := leanType
+
 private def checked (context : KernelContext) (ty : Ty) (value : Expr) : MetaM KernelTerm := do
-  let expected ← typeExpr context ty
+  let expected ← leanType context ty
   let actual ← inferType value
   unless ← isDefEq actual expected do
     throwError s!"translated term has type {actual}, expected {expected} for {ty.print}"
@@ -155,8 +157,8 @@ private def validateFunction (context : KernelContext) (function : KernelFunctio
     unless expected == declared do
       throwError s!"semantic function `{function.name}` has Event-B type {declared.print}, " ++
         s!"but the visible theory declares {expected.print}"
-  let argumentType ← typeExpr context function.argument
-  let resultType ← typeExpr context function.result
+  let argumentType ← leanType context function.argument
+  let resultType ← leanType context function.result
   let actual ← inferType function.value
   unless ← isDefEq actual (← mkArrow argumentType resultType) do
     throwError s!"semantic function `{function.name}` has Lean type {actual}, " ++
@@ -169,7 +171,7 @@ private def validatePredicate (context : KernelContext) (predicate : KernelPredi
     unless expected == declared do
       throwError s!"semantic predicate `{predicate.name}` has Event-B type " ++
         s!"{declared.print}, but the visible theory declares {expected.print}"
-  let argumentType ← typeExpr context predicate.argument
+  let argumentType ← leanType context predicate.argument
   let actual ← inferType predicate.value
   unless ← isDefEq actual (← mkArrow argumentType propType) do
     throwError s!"semantic predicate `{predicate.name}` has Lean type {actual}, " ++
@@ -202,7 +204,7 @@ private def withPattern {α : Type} (context : KernelContext) (pattern : Formula
         | none => match context.lookup name with
           | some binding => pure binding.ty
           | none => throwError s!"binder `{name}` needs an explicit type"
-      withLocalDeclD (Name.mkSimple name) (← typeExpr context ty) fun localVar => do
+      withLocalDeclD (Name.mkSimple name) (← leanType context ty) fun localVar => do
         let context := { context with bindings :=
           { name, ty, value := localVar } :: context.bindings }
         body context [localVar] localVar ty
@@ -511,7 +513,7 @@ private def translateComprehension : Nat → KernelContext → Formula.Term → 
           | some (.pow type) => do let _ ← sameType type value.ty; pure type
           | some type => throwError s!"set comprehension expects a set, found {type.print}"
           | none => pure value.ty
-        withLocalDeclD `value (← typeExpr context resultType) fun result => do
+        withLocalDeclD `value (← leanType context resultType) fun result => do
           let equality ← mkEq result value.value
           let body ← mkExistsLocals locals (← mkAnd predicate equality)
           let set ← mkLambdaFVars #[result] body
@@ -545,7 +547,7 @@ private def translateLambda : Nat → KernelContext → Formula.Term → Formula
         | some (.pow type) => let _ ← sameType type relationType
         | some type => throwError s!"lambda expects a relation type, found {type.print}"
         | none => pure ()
-        let relationLeanType ← typeExpr context relationType
+        let relationLeanType ← leanType context relationType
         withLocalDeclD `pair relationLeanType fun pair => do
           let pairValue ← if relationBody then
             mkPair patternValue value.value

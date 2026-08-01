@@ -1,0 +1,138 @@
+/-
+Kernel-facing theory declarations.
+
+Native theory validation remains syntax-level.  This module turns checked
+definitions and rules into Lean expressions, while datatypes receive explicit
+Lean type and constructor denotations.  No declaration is silently promoted to
+an axiom: axiomatic definitions keep their kind in the returned descriptor.
+-/
+
+import EventB.Formula.Translate
+import EventB.Theory.Validate
+
+namespace EventB.Theory.Embed
+
+open Lean Meta
+open EventB EventB.Embedding EventB.Formula EventB.Prelude EventB.Typing
+
+structure KernelDefinition where
+  name : String
+  kind : DefinitionKind
+  result : Ty
+  value : Expr
+  deriving Repr
+
+structure KernelConstructor where
+  name : String
+  value : Expr
+  deriving Repr
+
+structure KernelDatatype where
+  name : String
+  value : Expr
+  constructors : List KernelConstructor
+  deriving Repr
+
+structure KernelRule where
+  name : String
+  kind : DeclarationKind
+  value : Expr
+  deriving Repr
+
+private def reportText (report : Validate.Report) : String :=
+  String.intercalate "; " (report.errors.map (·.message))
+
+private def requireValid (env : Theory.Env) (roots : List String)
+    (declaration : Declaration) : MetaM Unit := do
+  let report := Validate.validateDeclaration env roots declaration
+  unless report.isValid do
+    throwError s!"invalid theory declaration: {reportText report}"
+
+private def withParameters {α : Type} (context : KernelContext)
+    (parameters : List (String × Ty))
+    (continuation : KernelContext → List Expr → MetaM α) : MetaM α :=
+  match parameters with
+  | [] => continuation context []
+  | (name, ty) :: rest => do
+      withLocalDeclD (Name.mkSimple name) (← leanType context ty) fun value => do
+        let context := { context with bindings :=
+          { name, ty, value } :: context.bindings }
+        withParameters context rest fun context values =>
+          continuation context (value :: values)
+
+private def functionType (context : KernelContext) (parameters : List (String × Ty))
+    (result : Ty) : MetaM Expr := do
+  let result ← leanType context result
+  parameters.foldrM (fun (_, ty) result => do
+    let type ← leanType context ty
+    mkArrow type result) result
+
+private def checkedFunction (context : KernelContext) (parameters : List (String × Ty))
+    (result : Ty) (value : Expr) : MetaM Unit := do
+  let expected ← functionType context parameters result
+  let actual ← inferType value
+  unless ← isDefEq actual expected do
+    throwError s!"translated declaration has type {actual}, expected {expected}"
+
+def translateDefinition (context : KernelContext) (definition : Definition) :
+    MetaM KernelDefinition := do
+  requireValid context.theory context.roots (.definitionDecl definition)
+  withParameters context definition.parameters fun bodyContext parameters => do
+    let body ← translateExpression bodyContext definition.body
+    unless body.ty == definition.result do
+      throwError s!"definition `{definition.name}` has body type {body.ty.print}, " ++
+        s!"expected {definition.result.print}"
+    let value ← mkLambdaFVars parameters.toArray body.value
+    checkedFunction context definition.parameters definition.result value
+    pure { name := definition.name, kind := definition.kind, result := definition.result, value }
+
+private def constructorType (context : KernelContext) (arguments : List Ty) (result : Expr) :
+    MetaM Expr := do
+  arguments.foldrM (fun type result => do
+    let type ← leanType context type
+    mkArrow type result) result
+
+def checkDatatype (context : KernelContext) (datatype : Datatype) (value : Expr)
+    (constructors : List (String × Expr)) : MetaM KernelDatatype := do
+  requireValid context.theory context.roots (.dataType datatype)
+  let expectedNames := datatype.constructors.map (·.name)
+  let actualNames := constructors.map (·.1)
+  unless expectedNames == actualNames do
+    throwError s!"datatype `{datatype.name}` constructors do not match the declaration"
+  let checked ← datatype.constructors.zip constructors |>.mapM fun pair => do
+    let (declaration, (name, constructor)) := pair
+    let expected ← constructorType context declaration.arguments value
+    let actual ← inferType constructor
+    unless ← isDefEq actual expected do
+      throwError s!"constructor `{name}` has type {actual}, expected {expected}"
+    pure { name, value := constructor }
+  pure { name := datatype.name, value, constructors := checked }
+
+private def implications : List Expr → Expr → MetaM Expr
+  | [], conclusion => pure conclusion
+  | premise :: premises, conclusion => do
+      mkArrow premise (← implications premises conclusion)
+
+def translateRule (context : KernelContext) (rule : Rule) : MetaM KernelRule := do
+  requireValid context.theory context.roots (.ruleDecl rule)
+  withParameters context rule.parameters fun bodyContext parameters => do
+    let proposition ← match rule.kind with
+      | .rewrite => do
+          let lhs ← translateExpression bodyContext rule.lhs.get!
+          let rhs ← translateExpression bodyContext rule.rhs.get!
+          unless lhs.ty == rhs.ty do
+            throwError s!"rewrite `{rule.name}` changes type from {lhs.ty.print} " ++
+              s!"to {rhs.ty.print}"
+          mkAppM ``Eq #[lhs.value, rhs.value]
+      | .inference | .theorem => do
+          let premises ← rule.premises.mapM (translatePredicate bodyContext)
+          let conclusion ← translatePredicate bodyContext rule.conclusion.get!
+          implications premises conclusion
+      | _ => throwError s!"unsupported theory rule `{rule.name}`"
+    let value ← mkForallFVars parameters.toArray proposition
+    let actual ← inferType value
+    unless ← isDefEq actual (mkSort .zero) do
+      throwError s!"translated rule `{rule.name}` is not a proposition"
+    pure { name := rule.name, kind := rule.kind, value }
+
+end EventB.Theory.Embed

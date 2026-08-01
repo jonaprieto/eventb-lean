@@ -46,9 +46,12 @@ private def unsupported :=
   | .error _ => true
   | .ok _ => false
 
+private def baseSymbol : Symbol :=
+  { name := "LIMIT", kind := .constant, type := some .int,
+    description := "A base constant." }
+
 private def base : Spec :=
-  { name := "Base"
-    symbols := [{ name := "LIMIT", kind := .constant, type := some .int, description := "A base constant." }] }
+  { name := "Base", symbols := [baseSymbol] }
 
 #guard match Theory.add Theory.empty base with
   | .ok env => match Theory.Rodin.importSpec env
