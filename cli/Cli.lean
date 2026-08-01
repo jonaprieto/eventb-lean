@@ -1,4 +1,5 @@
 import EventB.POG
+import EventB.Rossi
 
 namespace EventB.Cli
 
@@ -9,6 +10,9 @@ open EventB.Typing
 
 private def isSource (path : System.FilePath) : Bool :=
   path.toString.endsWith ".bum" || path.toString.endsWith ".buc"
+
+private def isRossi (path : System.FilePath) : Bool :=
+  path.toString.endsWith ".eventb"
 
 private def isBpo (path : System.FilePath) : Bool :=
   path.toString.endsWith ".bpo"
@@ -23,6 +27,15 @@ private def sourceFiles (dir : System.FilePath) : IO (List System.FilePath) := d
       paths := entry.path :: paths
   return paths.mergeSort (fun left right => left.toString < right.toString)
 
+private partial def rossiFiles (dir : System.FilePath) : IO (List System.FilePath) := do
+  let mut paths : List System.FilePath := []
+  for entry in ← dir.readDir do
+    if ← entry.path.isDir then
+      paths := (← rossiFiles entry.path) ++ paths
+    else if isRossi entry.path then
+      paths := entry.path :: paths
+  return paths.mergeSort (fun left right => left.toString < right.toString)
+
 private def bpoFiles (dir : System.FilePath) : IO (List System.FilePath) := do
   let mut paths : List System.FilePath := []
   for entry in ← dir.readDir do
@@ -34,6 +47,9 @@ private structure Source where
   path : System.FilePath
   name : String
   model : Model
+
+private def projectComponent (source : Source) : Component :=
+  { name := source.name, elem := source.model.root }
 
 private structure ProjectData where
   project : Project
@@ -62,18 +78,41 @@ private def readSource (path : System.FilePath) : IO (Except String Source) := d
   catch err =>
     return .error s!"{path}: could not be read: {err}"
 
-private def loadProject (dir : System.FilePath) : IO ProjectData := do
-  let paths ← sourceFiles dir
+private def readRossi (path : System.FilePath) : IO (Except String (List Source)) := do
+  match ← Rossi.read path with
+  | .error reason => return .error s!"{path}: invalid Rossi Event-B file: {reason}"
+  | .ok components =>
+      return .ok (components.map fun component =>
+        { path := path, name := component.name, model := component.model })
+
+private def loadProject (path : System.FilePath) : IO ProjectData := do
   let mut sources : List Source := []
   let mut errors : List String := []
-  for path in paths do
-    match ← readSource path with
-    | .ok source => sources := source :: sources
+  if ← path.isDir then
+    for sourcePath in ← sourceFiles path do
+      match ← readSource sourcePath with
+      | .ok source => sources := source :: sources
+      | .error reason => errors := reason :: errors
+    for sourcePath in ← rossiFiles path do
+      match ← readRossi sourcePath with
+      | .ok parsed => sources := parsed.reverse ++ sources
+      | .error reason => errors := reason :: errors
+  else if isRossi path then
+    match ← readRossi path with
+    | .ok parsed => sources := parsed.reverse
     | .error reason => errors := reason :: errors
+  else
+    errors := s!"{path}: expected a project directory or .eventb file" :: errors
   let orderedSources := sources.reverse
-  let project := orderedSources.map fun source =>
-    { name := source.name, elem := source.model.root }
-  return { project := project, sources := orderedSources, errors := errors.reverse }
+  let mut uniqueSources : List Source := []
+  let mut duplicateErrors : List String := []
+  for source in orderedSources do
+    if uniqueSources.any (fun existing => existing.name == source.name) then
+      duplicateErrors := s!"{source.path}: duplicate component `{source.name}`" :: duplicateErrors
+    else
+      uniqueSources := uniqueSources ++ [source]
+  let project : Project := uniqueSources.map projectComponent
+  return ProjectData.mk project uniqueSources (errors.reverse ++ duplicateErrors.reverse)
 
 private def formulaErrorLabel (model : Model) (error : String) : Option String :=
   model.formulas.find? (fun pair =>
@@ -171,19 +210,19 @@ private def parseCheckOptions : List String → CheckArgs → Except String (Opt
   | option :: _, _ => .error s!"unexpected argument {option}"
 
 private def parseCheck : List String → Except String (Option CheckArgs)
-  | [] => .error "check needs <project-dir>"
+  | [] => .error "check needs <project-dir-or-.eventb>"
   | "--help" :: _ => .ok none
   | "-h" :: _ => .ok none
   | dir :: rest =>
-      if dir.startsWith "--" then .error "check needs <project-dir>"
+      if dir.startsWith "--" then .error "check needs <project-dir-or-.eventb>"
       else parseCheckOptions rest { dir := dir }
 
 private def parseSummary : List String → Except String (Option (System.FilePath × Bool))
-  | [] => .error "summary needs <project-dir>"
+  | [] => .error "summary needs <project-dir-or-.eventb>"
   | "--help" :: _ => .ok none
   | "-h" :: _ => .ok none
   | dir :: rest =>
-      if dir.startsWith "--" then .error "summary needs <project-dir>"
+      if dir.startsWith "--" then .error "summary needs <project-dir-or-.eventb>"
       else go dir rest false
 where
   go : System.FilePath → List String → Bool →
@@ -195,24 +234,25 @@ where
     | _, option :: _, _ => .error s!"unexpected argument {option}"
 
 private def help : String :=
-  "eventb: inspect Rodin Event-B projects\n\n" ++
+  "eventb: inspect Event-B projects (Rodin XML or Rossi text)\n\n" ++
   "Usage: eventb <command> [arguments]\n\n" ++
   "Commands:\n" ++
-  "  check <project-dir> [--json] [--kind INV,WD,...] [--machine NAME]\n" ++
-  "  po <project-dir> <PO-NAME>\n" ++
-  "  summary <project-dir> [--json]\n" ++
+  "  check <project-dir-or-.eventb> [--json] [--kind INV,WD,...] [--machine NAME]\n" ++
+  "  po <project-dir-or-.eventb> <PO-NAME>\n" ++
+  "  summary <project-dir-or-.eventb> [--json]\n" ++
   "  diff <project-dir>\n"
 
 private def checkHelp : String :=
-  "Usage: eventb check <project-dir> [--json] [--kind INV,WD,...] [--machine NAME]\n\n" ++
+  "Usage: eventb check <project-dir-or-.eventb> [--json] " ++
+  "[--kind INV,WD,...] [--machine NAME]\n\n" ++
   "Typecheck the project and list generated obligations."
 
 private def poHelp : String :=
-  "Usage: eventb po <project-dir> <PO-NAME>\n\n" ++
+  "Usage: eventb po <project-dir-or-.eventb> <PO-NAME>\n\n" ++
   "Print hypotheses and the generated statement for one obligation."
 
 private def summaryHelp : String :=
-  "Usage: eventb summary <project-dir> [--json]\n\n" ++
+  "Usage: eventb summary <project-dir-or-.eventb> [--json]\n\n" ++
   "Count obligations by class and component."
 
 private def diffHelp : String :=
@@ -250,7 +290,9 @@ private def filteredObligations (args : CheckArgs) (rs : List Report) :
 private def runCheck (args : CheckArgs) : IO UInt32 := do
   let data ← loadProject args.dir
   if data.sources.isEmpty then
-    IO.eprintln s!"eventb check: {args.dir} contains no .bum or .buc files"
+    for error in data.errors do
+      IO.eprintln s!"eventb: error: {error}"
+    IO.eprintln s!"eventb check: {args.dir} contains no .bum, .buc, or .eventb files"
     return 1
   let rs := reports data
   printCheckDiagnostics args data rs
@@ -289,7 +331,9 @@ private def jsonCounts (counts : List (String × Nat)) : String :=
 private def runSummary (dir : System.FilePath) (json : Bool) : IO UInt32 := do
   let data ← loadProject dir
   if data.sources.isEmpty then
-    IO.eprintln s!"eventb summary: {dir} contains no .bum or .buc files"
+    for error in data.errors do
+      IO.eprintln s!"eventb: error: {error}"
+    IO.eprintln s!"eventb summary: {dir} contains no .bum, .buc, or .eventb files"
     return 1
   let rs := reports data
   for error in fatalErrors data rs do
@@ -327,7 +371,9 @@ private def findObligation : List Report → String → Option (String × Obliga
 private def runPo (dir : System.FilePath) (name : String) : IO UInt32 := do
   let data ← loadProject dir
   if data.sources.isEmpty then
-    IO.eprintln s!"eventb po: {dir} contains no .bum or .buc files"
+    for error in data.errors do
+      IO.eprintln s!"eventb: error: {error}"
+    IO.eprintln s!"eventb po: {dir} contains no .bum, .buc, or .eventb files"
     return 1
   let rs := reports data
   for error in fatalErrors data rs do
