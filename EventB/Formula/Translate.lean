@@ -184,6 +184,70 @@ private def sameType (left right : Ty) : MetaM Unit := do
   unless left == right do
     throwError s!"incompatible translated types {left.print} and {right.print}"
 
+private def eventBType : Formula.Term → MetaM Ty
+  | .id "ℤ" | .id "ℕ" | .id "ℕ1" => pure .int
+  | .id "BOOL" => pure .bool
+  | .id name => pure (.given name)
+  | .pre "ℙ" type | .pre "ℙ1" type => return .pow (← eventBType type)
+  | .bin "×" left right => return .prod (← eventBType left) (← eventBType right)
+  | term => throwError s!"unsupported binder type `{Formula.print term}`"
+
+private def withPattern {α : Type} (context : KernelContext) (pattern : Formula.Term)
+    (expected : Option Ty)
+    (body : KernelContext → List Expr → Expr → Ty → MetaM α) : MetaM α := do
+  match pattern with
+  | .id name =>
+      let ty ← match expected with
+        | some ty => pure ty
+        | none => match context.lookup name with
+          | some binding => pure binding.ty
+          | none => throwError s!"binder `{name}` needs an explicit type"
+      withLocalDeclD (Name.mkSimple name) (← typeExpr context ty) fun localVar => do
+        let context := { context with bindings :=
+          { name, ty, value := localVar } :: context.bindings }
+        body context [localVar] localVar ty
+  | .bin "⦂" (.id name) typeTerm => do
+      let ty ← eventBType typeTerm
+      match expected with
+      | some expected => let _ ← sameType ty expected
+      | none => pure ()
+      withPattern context (.id name) (some ty) body
+  | .bin "↦" left right => do
+      let (leftExpected, rightExpected) ← match expected with
+        | some (.prod left right) => pure (some left, some right)
+        | some expected => throwError s!"maplet binder needs a product, found {expected.print}"
+        | none => pure (none, none)
+      withPattern context left leftExpected fun context leftLocals leftValue leftType =>
+        withPattern context right rightExpected fun context rightLocals rightValue rightType => do
+          let value ← mkPair leftValue rightValue
+          body context (leftLocals ++ rightLocals) value (.prod leftType rightType)
+  | .bin "," left right =>
+      withPattern context left none fun context leftLocals leftValue leftType =>
+        withPattern context right none fun context rightLocals rightValue rightType => do
+          let value ← mkPair leftValue rightValue
+          body context (leftLocals ++ rightLocals) value (.prod leftType rightType)
+  | term => throwError s!"unsupported binder pattern `{Formula.print term}`"
+
+private def mkExistsLocals : List Expr → Expr → MetaM Expr
+  | [], body => pure body
+  | localVar :: locals, body => do
+      let body ← mkExistsLocals locals body
+      mkAppM ``Exists #[← mkLambdaFVars #[localVar] body]
+
+private def mkForallLocals : List Expr → Expr → MetaM Expr
+  | [], body => pure body
+  | localVar :: locals, body => do
+      let body ← mkForallLocals locals body
+      mkForallFVars #[localVar] body
+
+private def isLambda : Formula.Term → Bool
+  | .bind "λ" _ _ => true
+  | _ => false
+
+private def elementType? : Option Ty → Option Ty
+  | some (.pow type) => some type
+  | _ => none
+
 private def relationTypes (term : KernelTerm) : MetaM (Ty × Ty) :=
   match term.ty with
   | .pow (.prod left right) => pure (left, right)
@@ -432,6 +496,80 @@ private def translateExprList : Nat → KernelContext → List Formula.Term →
       let rest ← translateExprList fuel context terms
       pure (value :: rest)
 
+private def translateComprehension : Nat → KernelContext → Formula.Term → Formula.Term →
+    Option Ty → MetaM KernelTerm
+  | fuel, context, pattern, body, expected => do
+      withPattern context pattern none fun bodyContext locals patternValue patternType => do
+        let (predicateTerm, valueTerm) := match body with
+          | .bin "∣" predicate value => (predicate, some value)
+          | _ => (.id "⊤", none)
+        let predicate ← translatePred fuel bodyContext predicateTerm
+        let value ← match valueTerm with
+          | some value => translateExprExpected fuel bodyContext (elementType? expected) value
+          | none => pure { ty := patternType, value := patternValue }
+        let resultType ← match expected with
+          | some (.pow type) => do let _ ← sameType type value.ty; pure type
+          | some type => throwError s!"set comprehension expects a set, found {type.print}"
+          | none => pure value.ty
+        withLocalDeclD `value (← typeExpr context resultType) fun result => do
+          let equality ← mkEq result value.value
+          let body ← mkExistsLocals locals (← mkAnd predicate equality)
+          let set ← mkLambdaFVars #[result] body
+          checked context (.pow resultType) set
+
+private def translateLambda : Nat → KernelContext → Formula.Term → Formula.Term → Option Ty →
+    MetaM KernelTerm
+  | fuel, context, pattern, body, expected => do
+      let (inputExpected, outputExpected) ← match expected with
+        | some (.pow (.prod input output)) => pure (some input, some output)
+        | some type => throwError s!"lambda expects a relation type, found {type.print}"
+        | none => pure (none, none)
+      withPattern context pattern inputExpected
+          fun bodyContext locals patternValue patternType => do
+        let relationBody := match body with
+          | .bin "∣" _ _ => true
+          | _ => false
+        let (predicate, value, relationType) ← match body with
+          | .bin "∣" predicateTerm valueTerm => do
+              let predicate ← translatePred fuel bodyContext predicateTerm
+              let value ← translateExprExpected fuel bodyContext outputExpected valueTerm
+              let relationType := .prod patternType value.ty
+              pure (predicate, value, relationType)
+          | _ => do
+              let elementExpected := expected.bind fun type => match type with
+                | .pow element => some element
+                | _ => none
+              let value ← translateExprExpected fuel bodyContext elementExpected body
+              pure (mkConst ``True, value, value.ty)
+        match expected with
+        | some (.pow type) => let _ ← sameType type relationType
+        | some type => throwError s!"lambda expects a relation type, found {type.print}"
+        | none => pure ()
+        let relationLeanType ← typeExpr context relationType
+        withLocalDeclD `pair relationLeanType fun pair => do
+          let pairValue ← if relationBody then
+            mkPair patternValue value.value
+          else pure value.value
+          let equality ← mkEq pair pairValue
+          let body ← mkExistsLocals locals (← mkAnd predicate equality)
+          let relation ← mkLambdaFVars #[pair] body
+          checked context (.pow relationType) relation
+
+private def translateEquality : Nat → KernelContext → Formula.Term → Formula.Term → Bool →
+    MetaM Expr
+  | fuel, context, leftTerm, rightTerm, negated => do
+      let (left, right) ← if leftTerm == .set [] || isLambda leftTerm then
+        let right ← translateExpr fuel context rightTerm
+        let left ← translateExprExpected fuel context (some right.ty) leftTerm
+        pure (left, right)
+      else
+        let left ← translateExpr fuel context leftTerm
+        let right ← translateExprExpected fuel context (some left.ty) rightTerm
+        pure (left, right)
+      let _ ← sameType left.ty right.ty
+      let equality ← mkEq left.value right.value
+      if negated then mkNot equality else pure equality
+
 private def translateExprExpected : Nat → KernelContext → Option Ty → Formula.Term →
     MetaM KernelTerm
   | 0, _, _, _ => throwError "formula translation recursion limit reached"
@@ -439,6 +577,10 @@ private def translateExprExpected : Nat → KernelContext → Option Ty → Form
       let value ← withLocalDeclD `x (← typeExpr context type) fun x =>
         mkLambdaFVars #[x] (mkConst ``False)
       checked context (.pow type) value
+  | fuel + 1, context, expected, .bind "{" pattern body =>
+      translateComprehension fuel context pattern body expected
+  | fuel + 1, context, expected, .bind "λ" pattern body =>
+      translateLambda fuel context pattern body expected
   | fuel + 1, context, _, term => translateExpr fuel context term
 
 private def translateExpr : Nat → KernelContext → Formula.Term → MetaM KernelTerm
@@ -543,11 +685,8 @@ private def translateExpr : Nat → KernelContext → Formula.Term → MetaM Ker
               validateFunction context semantic
               checked context semantic.result (mkApp semantic.value argument.value)
       | _ => throwError "function application needs a semantic function binding"
-  | _ + 1, _, .bind "{" pattern (.bin "∣" _ _) => do
-      match pattern with
-      | .id name =>
-          throwError s!"set comprehension binder `{name}` needs an explicit type"
-      | _ => throwError "only simple set-comprehension binders are translated"
+  | fuel + 1, context, .bind "{" pattern body =>
+      translateComprehension fuel context pattern body none
   | _ + 1, _, .bind kind _ _ => throwError s!"binder `{kind}` is not an expression here"
   | fuel + 1, context, .bin "↦" left right => do
       let left ← translateExpr fuel context left
@@ -685,32 +824,10 @@ private def translatePred : Nat → KernelContext → Formula.Term → MetaM Exp
       mkImp (← translatePred fuel context left) (← translatePred fuel context right)
   | fuel + 1, context, .bin "⇔" left right => do
       mkAppM ``Iff #[← translatePred fuel context left, ← translatePred fuel context right]
-  | fuel + 1, context, .bin "=" leftTerm rightTerm => do
-      let left ← translateExpr fuel context leftTerm
-      let right ← if rightTerm == .set [] then
-        let (type, _) ← asSet left
-        translateExprExpected fuel context (some (.pow type)) rightTerm
-      else
-        translateExpr fuel context rightTerm
-      let left ← if leftTerm == .set [] then
-        let (type, _) ← asSet right
-        translateExprExpected fuel context (some (.pow type)) leftTerm
-      else pure left
-      let _ ← sameType left.ty right.ty
-      mkEq left.value right.value
-  | fuel + 1, context, .bin "≠" leftTerm rightTerm => do
-      let left ← translateExpr fuel context leftTerm
-      let right ← if rightTerm == .set [] then
-        let (type, _) ← asSet left
-        translateExprExpected fuel context (some (.pow type)) rightTerm
-      else
-        translateExpr fuel context rightTerm
-      let left ← if leftTerm == .set [] then
-        let (type, _) ← asSet right
-        translateExprExpected fuel context (some (.pow type)) leftTerm
-      else pure left
-      let _ ← sameType left.ty right.ty
-      mkNot (← mkEq left.value right.value)
+  | fuel + 1, context, .bin "=" leftTerm rightTerm =>
+      translateEquality fuel context leftTerm rightTerm false
+  | fuel + 1, context, .bin "≠" leftTerm rightTerm =>
+      translateEquality fuel context leftTerm rightTerm true
   | fuel + 1, context, .bin op left right => do
       match op with
       | "<" | "≤" | ">" | "≥" =>
@@ -768,20 +885,9 @@ private def translatePred : Nat → KernelContext → Formula.Term → MetaM Exp
   | fuel + 1, context, .bind kind pattern body => do
       unless kind == "∀" || kind == "∃" do
         throwError s!"unsupported Event-B binder `{kind}`"
-      match pattern with
-      | .bin "⦂" (.id name) typeTerm => do
-          let eventBType ← match typeTerm with
-            | .id "ℤ" => pure .int
-            | .id "BOOL" => pure .bool
-            | .id carrier => pure (.given carrier)
-            | _ => throwError "unsupported quantified binder type"
-          let typeExpr ← typeExpr context eventBType
-          withLocalDeclD (Name.mkSimple name) typeExpr fun localVar => do
-            let body ← translatePred fuel { context with bindings :=
-              { name, ty := eventBType, value := localVar } :: context.bindings } body
-            if kind == "∀" then mkForallFVars #[localVar] body
-            else mkAppM ``Exists #[← mkLambdaFVars #[localVar] body]
-      | _ => throwError "quantifiers need a typed simple binder"
+      withPattern context pattern none fun bodyContext locals _ _ => do
+        let body ← translatePred fuel bodyContext body
+        if kind == "∀" then mkForallLocals locals body else mkExistsLocals locals body
   | _ + 1, _, .app _ _ => throwError "predicate application needs a semantic predicate binding"
   | _ + 1, _, term => throwError s!"unsupported Event-B predicate `{Formula.print term}`"
 

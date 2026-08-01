@@ -67,6 +67,16 @@ private meta def checkSemanticFunction : TermElabM Unit := do
   let term ← parseFormula "card(∅) = 0"
   let _ ← Embedding.translatePredicate context term
 
+private meta def checkLambda : TermElabM Unit := do
+  let relationType ← mkArrow (← mkAppM ``Prod #[mkConst ``Int, mkConst ``Int]) (mkSort .zero)
+  withLocalDeclD `relation relationType fun relation => do
+    let context : Embedding.KernelContext :=
+      { bindings :=
+          [{ name := "r", ty := .pow (.prod .int .int), value := relation }] }
+    for source in ["r = λx⦂ℤ·x ↦ x", "r = λx·x ↦ x"] do
+      let term ← parseFormula source
+      let _ ← Embedding.translatePredicate context term
+
 syntax (name := eventbTranslateChecks) "#eventb_translate_checks" : command
 
 @[command_elab eventbTranslateChecks]
@@ -89,9 +99,12 @@ meta def elabTranslateChecks : CommandElab := fun stx =>
       checkPredicate "∀x⦂ℤ·x = x"
       checkPredicate "(1 ↦ 2) ∈ ℕ × ℕ"
       checkPredicate "{1 ↦ 2} ∈ (ℕ → ℕ)"
+      checkPredicate "{1} ∈ ℙ1(ℕ)"
+      checkPredicate "{x⦂ℤ · x < 3 ∣ x} = {0, 1, 2}"
       checkRejectsUnknown "missing = 0"
       checkRejectsWrongBinding
       checkSemanticFunction
+      checkLambda
   | _ => throwUnsupportedSyntax
 
 #eventb_translate_checks
