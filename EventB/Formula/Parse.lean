@@ -269,6 +269,8 @@ private def sameTree (a b : String) : Bool :=
 
 -- Longest match: `<<:` is one operator, not `<` then `<:`.
 #guard sameTree "a <<: b" "a ⊂ b"
+#guard sameTree "x <= 1" "x ≤ 1"
+#guard sameTree "S \\ T" "S ∖ T"
 -- A word alias must not eat the head of an identifier.
 #guard (parse "order = 1").isOk
 #guard (parse "modulus = 1").isOk
