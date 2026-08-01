@@ -120,14 +120,16 @@ For an interactive view in the Lean VS Code Infoview, open
 ```lean
 #eventb_model_widget widgetProject WidgetCtx
 #eventb_model_widget widgetProject BridgeController
-#eventb_pog_widget widgetProject BridgeController
+#eventb_pog_widget_with_ledger widgetProject BridgeController widgetLedger
 #eventb_pog_widget_in theoryEnv theoryProject TheoryMachine
 ```
 
 The first panels show the context and machine surface—symbols, axioms, invariants,
 events, and refinement links. The last panel shows obligation counts, classes,
-hypotheses, and generated goals in expandable cards. `lake build Examples` compiles
-this demo; the widgets do not alter the CLI, POG output, proof status, or trust ledger.
+hypotheses, and generated goals in expandable cards. The demo passes its ledger
+explicitly; because it supplies no evidence, its obligations are visibly open rather
+than silently presented as proved. `lake build Examples` compiles this demo; widgets do
+not alter the CLI, POG output, proof status, or trust ledger.
 
 Unquoted identifiers in DSL formulas also support native Go to Definition: clicking
 `LIMIT` in `cars < LIMIT` jumps to `constants LIMIT`. Quoted formulas remain available

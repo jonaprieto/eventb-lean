@@ -93,8 +93,14 @@ private def kindTitle : String → String
   | "WWD" => "Witness well-definedness"
   | kind => kind
 
-private def obligationCard (obligation : Obligation) : Html :=
-  let entry := (Trust.Ledger.ofObligations [obligation]).entries.head!
+private def fallbackEntry (obligation : Obligation) : Trust.Entry :=
+  (Trust.Ledger.ofObligations [obligation]).entries.head!
+
+private def entryFor (ledger : Trust.Ledger) (obligation : Obligation) : Trust.Entry :=
+  (ledger.entry? obligation.component obligation.name).getD (fallbackEntry obligation)
+
+private def obligationCard (ledger : Trust.Ledger) (obligation : Obligation) : Html :=
+  let entry := entryFor ledger obligation
   elementWith "details" [classes "mv1 ba br1"] [
     elementWith "summary" [classes "pointer pa2"] [
       text obligation.name,
@@ -119,18 +125,20 @@ private def stat (label value accent : String) : Html :=
       elementWith "div" [classes "f7 o-70"] [text label]
     ]
 
-private def summary (obligations : List Obligation) : Html :=
+private def summary (obligations : List Obligation) (ledger : Trust.Ledger) : Html :=
   elementWith "div" [classes "flex flex-wrap mv2"] [
       stat "total obligations" (toString obligations.length) "blue",
       stat "goals derived" (toString (countDerived obligations)) "green",
       stat "obligation classes"
-        (toString (kinds.countP (fun kind => countKind kind obligations > 0))) "purple"
+        (toString (kinds.countP (fun kind => countKind kind obligations > 0))) "purple",
+      stat "open / unproved" (toString (ledger.count .unproved)) "red"
     ]
 
 private def openAttribute (isOpen : Bool) : List (String × Json) :=
   if isOpen then [("open", .bool true)] else []
 
-private def kindSection (kind : String) (obligations : List Obligation) (isOpen : Bool) :
+private def kindSection (kind : String) (obligations : List Obligation)
+    (ledger : Trust.Ledger) (isOpen : Bool) :
     Option Html :=
   if obligations.isEmpty then
     none
@@ -142,7 +150,7 @@ private def kindSection (kind : String) (obligations : List Obligation) (isOpen 
         text s!"{kindTitle kind} · {obligations.length}"
       ],
       elementWith "div" [classes "pa1"]
-        (obligations.map obligationCard)
+        (obligations.map (obligationCard ledger))
     ]
 
 private def firstKind (obligations : List Obligation) : Option String :=
@@ -274,12 +282,22 @@ def renderComponent (project : Typing.Project) (name : String) : Html :=
     | _ => modelPanel "component" name [infoLine "error" "unsupported component kind"]
 
 /-- Render obligations for a project component under an explicit theory environment. -/
-def renderProjectIn (theory : Theory.Env) (project : Typing.Project) (machine : String) : Html :=
+private def scopedLedger (ledger : Trust.Ledger) (obligations : List Obligation) : Trust.Ledger :=
+  { entries := obligations.map fun obligation => entryFor ledger obligation }
+
+/-- Render obligations with evidence supplied by the caller.
+
+The default widget has no proof backend and therefore supplies an empty ledger. Keeping
+the ledger explicit here prevents cards from silently discarding imported or replayed
+evidence when a front end does have it.
+-/
+def renderProjectInWithLedger (theory : Theory.Env) (project : Typing.Project)
+    (machine : String) (ledger : Trust.Ledger) : Html :=
   let obligations := POG.generateIn theory project machine
-  let ledger := Trust.Ledger.ofObligations obligations
+  let ledger := scopedLedger ledger obligations
   let first := firstKind obligations
   let sections := kinds.filterMap fun kind =>
-    kindSection kind (obligations.filter (·.kind == kind)) (first == some kind)
+    kindSection kind (obligations.filter (·.kind == kind)) ledger (first == some kind)
   elementWith "details" [classes "mv2", ("open", .bool true)] [
     elementWith "summary" [classes "pointer b"] [
       text s!"Event-B proof obligations · {machine}"
@@ -289,11 +307,21 @@ def renderProjectIn (theory : Theory.Env) (project : Typing.Project) (machine : 
       text "Proof-obligation explorer · expand a class, then an obligation"
       ],
       infoLine "trust" ledger.summary,
-      summary obligations,
+      if ledger.count .unproved == 0 then element "p" [] else
+        infoLine "open" s!"{ledger.count .unproved} obligation(s) have no accepted evidence",
+      summary obligations ledger,
       if sections.isEmpty then element "p" [text "No obligations generated."]
       else element "div" sections
     ]
   ]
+
+def renderProjectIn (theory : Theory.Env) (project : Typing.Project) (machine : String) : Html :=
+  renderProjectInWithLedger theory project machine
+    (Trust.Ledger.ofObligations (POG.generateIn theory project machine))
+
+def renderProjectWithLedger (project : Typing.Project) (machine : String)
+    (ledger : Trust.Ledger) : Html :=
+  renderProjectInWithLedger Theory.empty project machine ledger
 
 /-- Compatibility widget for projects using only the core prelude. -/
 def renderProject (project : Typing.Project) (machine : String) : Html :=
@@ -303,6 +331,8 @@ def renderProject (project : Typing.Project) (machine : String) : Html :=
 syntax (name := eventbPogWidget) "#eventb_pog_widget " ident ident : command
 syntax (name := eventbPogWidgetIn)
   "#eventb_pog_widget_in " ident ppSpace ident ppSpace ident : command
+syntax (name := eventbPogWidgetWithLedger)
+  "#eventb_pog_widget_with_ledger " ident ppSpace ident ppSpace ident : command
 
 syntax (name := eventbModelWidget) "#eventb_model_widget " ident ident : command
 
@@ -327,6 +357,21 @@ private def elabPogWidgetIn : CommandElab := fun stx => do
   | `(#eventb_pog_widget_in $theory:ident $project:ident $machine:ident) => do
       let render ← `(EventB.Widgets.renderProjectIn $theory $project
         $(quote machine.getId.toString))
+      let htmlX ← liftTermElabM <| ProofWidgets.HtmlCommand.evalCommandMHtml
+        <| ← ``(ProofWidgets.HtmlEval.eval $render)
+      let html ← htmlX
+      liftCoreM <| Widget.savePanelWidgetInfo
+        (hash HtmlDisplay.javascript)
+        (return json% { html: $(← rpcEncode html) })
+        stx
+  | _ => throwUnsupportedSyntax
+
+@[command_elab eventbPogWidgetWithLedger]
+private def elabPogWidgetWithLedger : CommandElab := fun stx => do
+  match stx with
+  | `(#eventb_pog_widget_with_ledger $project:ident $machine:ident $ledger:ident) => do
+      let render ← `(EventB.Widgets.renderProjectWithLedger $project
+        $(quote machine.getId.toString) $ledger)
       let htmlX ← liftTermElabM <| ProofWidgets.HtmlCommand.evalCommandMHtml
         <| ← ``(ProofWidgets.HtmlEval.eval $render)
       let html ← htmlX

@@ -7,7 +7,9 @@ open EventB
 A self-contained Infoview demo: a small bridge controller and one refinement.
 
 Open this file in VS Code, restart the Lean server after changing widget code, and
-inspect the expandable obligation dashboard produced by the final command.
+inspect the expandable obligation dashboard produced by the final command. The
+ledger is intentionally empty: this example demonstrates generated obligations,
+not a prover backend.
 -/
 
 eventb_context WidgetCtx where
@@ -47,13 +49,13 @@ eventb_machine BridgeController where
 
   event enter where
     refines enter
-    guard grd1 : gate = FALSE
+    guard grd1 : gate = FALSE ∧ cars + 1 < LIMIT
     action act1 : cars := cars + 1
     action act2 : gate := TRUE
 
   event leave where
     refines leave
-    guard grd1 : gate = TRUE
+    guard grd1 : gate = TRUE ∧ 0 < cars
     action act1 : cars := cars - 1
     action act2 : gate := FALSE
 
@@ -62,8 +64,11 @@ def widgetProject : Typing.Project :=
   , { name := "BridgeBase", elem := BridgeBase }
   , { name := "BridgeController", elem := BridgeController } ]
 
+def widgetLedger : Trust.Ledger :=
+  Trust.Ledger.ofObligations (POG.generate widgetProject "BridgeController")
+
 #guard (POG.generate widgetProject "BridgeController").isEmpty == false
 
 #eventb_model_widget widgetProject WidgetCtx
 #eventb_model_widget widgetProject BridgeController
-#eventb_pog_widget widgetProject BridgeController
+#eventb_pog_widget_with_ledger widgetProject BridgeController widgetLedger
