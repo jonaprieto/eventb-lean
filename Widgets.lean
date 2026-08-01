@@ -40,10 +40,24 @@ private def hypothesisList (hyps : List Formula.Term) : Html :=
     elementWith "ul" [classes "mv2 pl3"]
       (hyps.map fun hypothesis => element "li" [formula hypothesis])
 
-private def obligationBody (obligation : Obligation) : Html :=
+private def evidenceLabel : Trust.Evidence → String
+  | .none => "none"
+  | .kernel declaration _ => s!"Lean declaration {declaration}"
+  | .smt solver version _ verifier => s!"{solver} {version}, verified by {verifier}"
+  | .external tool version _ verifier => s!"{tool} {version}, verified by {verifier}"
+  | .rodinImported source _ manual =>
+      s!"Rodin import {source} ({if manual then "manual" else "automatic"})"
+
+private def obligationBody (obligation : Obligation) (entry : Trust.Entry) : Html :=
   elementWith "div" [classes "pa2"] [
     elementWith "p" [classes "mv1 o-70"] [
-      text s!"{obligation.hyps.length} hypotheses"
+      text s!"{obligation.hyps.length} hypotheses · {entry.mode.label}"
+    ],
+    elementWith "p" [classes "mv1 o-70"] [
+      text s!"Evidence: {evidenceLabel entry.evidence}"
+    ],
+    elementWith "p" [classes "mv1 o-70 code overflow-auto"] [
+      text s!"Fingerprint: {entry.fingerprint}"
     ],
     elementWith "h4" [classes "mt2 mb1 f6"] [
       text "Hypotheses"
@@ -80,13 +94,15 @@ private def kindTitle : String → String
   | kind => kind
 
 private def obligationCard (obligation : Obligation) : Html :=
+  let entry := (Trust.Ledger.ofObligations [obligation]).entries.head!
   elementWith "details" [classes "mv1 ba br1"] [
     elementWith "summary" [classes "pointer pa2"] [
       text obligation.name,
       badge (if obligation.goal.isSome then "derived" else "pending")
-        (if obligation.goal.isSome then "green" else "red")
+        (if obligation.goal.isSome then "green" else "red"),
+      badge entry.mode.label (if entry.mode == .unproved then "red" else "green")
     ],
-    obligationBody obligation
+    obligationBody obligation entry
   ]
 
 private def kinds : List String := ["INV", "WD", "GRD", "SIM", "THM", "WFIS", "WWD"]
