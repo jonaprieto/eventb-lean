@@ -138,6 +138,13 @@ private structure Labelled where
   formula : String
   isTheorem : Bool := false
 
+private def stripTheorem (source : String) : Bool × String :=
+  match firstWord? source with
+  | some (word, rest) =>
+      let isTheorem := lower word == "theorem"
+      (isTheorem, if isTheorem then rest else source)
+  | none => (false, source)
+
 private def leadingLabel? (s : String) : Option (String × String) :=
   let s := trim s
   if !s.startsWith "@" then none
@@ -151,18 +158,12 @@ private def leadingLabel? (s : String) : Option (String × String) :=
 
 private def labelled (_generated : String) (source : String) : Except String Labelled := do
   let source := trim source
-  let (theoremBefore, source) :=
-    match firstWord? source with
-    | some (word, rest) => (lower word == "theorem", if lower word == "theorem" then rest else source)
-    | none => (false, source)
+  let (theoremBefore, source) := stripTheorem source
   let (label, source) :=
     match leadingLabel? source with
     | some (label, rest) => (some label, rest)
     | none => (none, source)
-  let (theoremAfter, source) :=
-    match firstWord? source with
-    | some (word, rest) => (lower word == "theorem", if lower word == "theorem" then rest else source)
-    | none => (false, source)
+  let (theoremAfter, source) := stripTheorem source
   if source.isEmpty then .error "expected a formula"
   else .ok { label, formula := source, isTheorem := theoremBefore || theoremAfter }
 
@@ -191,6 +192,16 @@ private def skipBlank : List Line → List Line
   | line :: rest => if line.text.isEmpty then skipBlank rest else line :: rest
 
 private def isOneOf (value : String) (values : List String) : Bool := values.contains value
+
+private def contextStops : List String :=
+  ["extends", "sets", "constants", "axioms", "theorems", "end"]
+
+private def machineStops : List String :=
+  ["refines", "sees", "variables", "invariants", "theorems", "variant", "events",
+   "end"]
+
+private def eventStops : List String :=
+  ["any", "where", "when", "with", "witness", "then", "begin", "end"]
 
 private def predicateBoundary (stops : List String) (line : Line) : Bool :=
   match head? line.text with
@@ -335,10 +346,11 @@ where
     | members, "}" :: rest => .ok (members, rest)
     | members, token :: rest => takeSetMembers (members ++ [token]) rest
 
-private def setElements (line : Line) (rest : List Line) : Except String (List Elem × List Line) := do
+private def setElements (line : Line) (rest : List Line) :
+    Except String (List Elem × List Line) := do
   let (text, remaining) := sectionData line rest
   let (continuations, remaining) := collectText (remaining.length + 2)
-    ["extends", "sets", "constants", "axioms", "theorems", "end"] remaining
+    contextStops remaining
   let declarations ← parseSetDecls (text.length + 1)
     (setTokens (String.intercalate " " (text :: continuations)))
   if declarations.isEmpty then .error (lineError line "expected one or more sets")
@@ -360,33 +372,30 @@ private def parseContextBody : Nat → List Elem → List Line →
           match head? line.text with
           | some "end" => .ok (.contextFile [] children, rest)
           | some "extends" => do
-              let (ns, remaining) ← names
-                ["extends", "sets", "constants", "axioms", "theorems", "end"] line rest
+              let (ns, remaining) ← names contextStops line rest
               parseContextBody fuel (children ++ ns.map fun n =>
                 .extendsContext (targetAttrs n) []) remaining
           | some "sets" => do
               let (sets, remaining) ← setElements line rest
               parseContextBody fuel (children ++ sets) remaining
           | some "constants" => do
-              let (ns, remaining) ← names
-                ["extends", "sets", "constants", "axioms", "theorems", "end"] line rest
+              let (ns, remaining) ← names contextStops line rest
               parseContextBody fuel (children ++ ns.map fun n =>
                 .constant (identAttrs n) []) remaining
           | some "axioms" => do
               let source := if (tail line.text).isEmpty then rest else
                 ({ number := line.number, text := tail line.text } :: rest)
-              let (items, remaining) ← parsePredicates .axiom
-                ["extends", "sets", "constants", "axioms", "theorems", "end"] fuel 1 source
+              let (items, remaining) ← parsePredicates .axiom contextStops fuel 1 source
               parseContextBody fuel (children ++ items) remaining
           | some "theorems" => do
               let source := if (tail line.text).isEmpty then rest else
                 ({ number := line.number, text := tail line.text } :: rest)
-              let (items, remaining) ← parsePredicates .theoremAxiom
-                ["extends", "sets", "constants", "axioms", "theorems", "end"] fuel 1 source
+              let (items, remaining) ← parsePredicates .theoremAxiom contextStops fuel 1 source
               parseContextBody fuel (children ++ items) remaining
           | _ => .error (lineError line "unexpected context clause")
 
-private def parseContext (line : Line) (rest : List Line) : Except String (Component × List Line) := do
+private def parseContext (line : Line) (rest : List Line) :
+    Except String (Component × List Line) := do
   let (name, headerTail) ← match firstWord? (tail line.text) with
     | some pair => pure pair
     | none => .error (lineError line "CONTEXT needs a component name")
@@ -442,8 +451,7 @@ private def parseEventBody : Nat → String → Option String → List Elem → 
                 ({ number := line.number, text := afterStatus } :: rest)
               parseEventBody fuel name value children source
           | some "refines" => do
-              let (target, remaining) ← names
-                ["any", "where", "when", "with", "witness", "then", "begin", "end"] line rest
+              let (target, remaining) ← names eventStops line rest
               match target with
               | [target] =>
                   let child : Elem := .refinesEvent (targetAttrs target) []
@@ -451,8 +459,7 @@ private def parseEventBody : Nat → String → Option String → List Elem → 
               | _ => .error (lineError line
                   s!"REFINES expects one event name, got {String.intercalate "," target}")
           | some "extends" => do
-              let (target, remaining) ← names
-                ["any", "where", "when", "with", "witness", "then", "begin", "end"] line rest
+              let (target, remaining) ← names eventStops line rest
               match target with
               | [target] =>
                   let child : Elem := .refinesEvent (targetAttrs target ++
@@ -468,14 +475,12 @@ private def parseEventBody : Nat → String → Option String → List Elem → 
           | some "where" | some "when" => do
               let source := if (tail line.text).isEmpty then rest else
                 ({ number := line.number, text := tail line.text } :: rest)
-              let (items, remaining) ← parsePredicates .guard
-                ["where", "when", "with", "witness", "then", "begin", "end"] fuel 1 source
+              let (items, remaining) ← parsePredicates .guard eventStops fuel 1 source
               parseEventBody fuel name status (children ++ items) remaining
           | some "with" | some "witness" => do
               let source := if (tail line.text).isEmpty then rest else
                 ({ number := line.number, text := tail line.text } :: rest)
-              let (items, remaining) ← parsePredicates .witness
-                ["where", "when", "with", "witness", "then", "begin", "end"] fuel 1 source
+              let (items, remaining) ← parsePredicates .witness eventStops fuel 1 source
               parseEventBody fuel name status (children ++ items) remaining
           | some "then" | some "begin" => do
               let source := if (tail line.text).isEmpty then rest else
@@ -525,39 +530,29 @@ private def parseMachineBody : Nat → List Elem → List Line →
           match head? line.text with
           | some "end" => .ok (.machineFile [] children, rest)
           | some "refines" => do
-              let (target, remaining) ← names
-                ["refines", "sees", "variables", "invariants", "theorems", "variant", "events", "end"]
-                line rest
+              let (target, remaining) ← names machineStops line rest
               match target with
               | [target] =>
                   let child : Elem := .refinesMachine (targetAttrs target) []
                   parseMachineBody fuel (children ++ [child]) remaining
               | _ => .error (lineError line "REFINES expects one machine name")
           | some "sees" => do
-              let (ns, remaining) ← names
-                ["refines", "sees", "variables", "invariants", "theorems", "variant", "events", "end"]
-                line rest
+              let (ns, remaining) ← names machineStops line rest
               parseMachineBody fuel (children ++ ns.map fun n =>
                 .seesContext (targetAttrs n) []) remaining
           | some "variables" => do
-              let (ns, remaining) ← names
-                ["refines", "sees", "variables", "invariants", "theorems", "variant", "events", "end"]
-                line rest
+              let (ns, remaining) ← names machineStops line rest
               parseMachineBody fuel (children ++ ns.map fun n =>
                 .variable (identAttrs n) []) remaining
           | some "invariants" => do
               let source := if (tail line.text).isEmpty then rest else
                 ({ number := line.number, text := tail line.text } :: rest)
-              let (items, remaining) ← parsePredicates .invariant
-                ["refines", "sees", "variables", "invariants", "theorems", "variant", "events", "end"]
-                fuel 1 source
+              let (items, remaining) ← parsePredicates .invariant machineStops fuel 1 source
               parseMachineBody fuel (children ++ items) remaining
           | some "theorems" => do
               let source := if (tail line.text).isEmpty then rest else
                 ({ number := line.number, text := tail line.text } :: rest)
-              let (items, remaining) ← parsePredicates .theoremInvariant
-                ["refines", "sees", "variables", "invariants", "theorems", "variant", "events", "end"]
-                fuel 1 source
+              let (items, remaining) ← parsePredicates .theoremInvariant machineStops fuel 1 source
               parseMachineBody fuel (children ++ items) remaining
           | some "variant" => do
               let (text, remaining) := sectionData line rest
@@ -570,7 +565,8 @@ private def parseMachineBody : Nat → List Elem → List Line →
               parseMachineBody fuel (children ++ events) remaining
           | _ => .error (lineError line "unexpected machine clause")
 
-private def parseMachine (line : Line) (rest : List Line) : Except String (Component × List Line) := do
+private def parseMachine (line : Line) (rest : List Line) :
+    Except String (Component × List Line) := do
   let (name, headerTail) ← match firstWord? (tail line.text) with
     | some pair => pure pair
     | none => .error (lineError line "MACHINE needs a component name")

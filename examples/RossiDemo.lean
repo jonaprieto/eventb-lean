@@ -22,6 +22,10 @@ private def source : String :=
 private def childrenWith (tag : String) (elem : Elem) : List Elem :=
   elem.children.filter (fun child => child.tag == "org.eventb.core." ++ tag)
 
+private def compactMachine : String :=
+  "MACHINE M VARIABLES x INVARIANTS @i x ∈ ℕ EVENTS " ++
+  "EVENT INITIALISATION THEN x := 0 END END"
+
 #guard match Rossi.parse source with
   | .ok [context, machine] =>
       context.name == "counter_ctx" && machine.name == "counter" &&
@@ -30,7 +34,7 @@ private def childrenWith (tag : String) (elem : Elem) : List Elem :=
       (childrenWith "event" machine.model.root).length == 2
   | _ => false
 
-#guard match Rossi.parse "MACHINE M VARIABLES x INVARIANTS @i x ∈ ℕ EVENTS EVENT INITIALISATION THEN x := 0 END END" with
+#guard match Rossi.parse compactMachine with
   | .ok [component] =>
       component.name == "M" &&
         (childrenWith "variable" component.model.root).length == 1
@@ -41,8 +45,10 @@ private def childrenWith (tag : String) (elem : Elem) : List Elem :=
   | _ => false
 
 private def sourceWithRefinement : String :=
-  "context C\nsets\n  S = {a, b}\nconstants\n  k\naxioms\n  @a1\n  k ∈ S\ntheorems\n  theorem @t1 k = k\nend\n" ++
-  "machine M\nvariables x\nevents\nconvergent event M\nrefines Old\nany p q\nwhere @g p ∈ S\n" ++
+  "context C\nsets\n  S = {a, b}\nconstants\n  k\n" ++
+  "axioms\n  @a1\n  k ∈ S\ntheorems\n  theorem @t1 k = k\nend\n" ++
+  "machine M\nvariables x\nevents\nconvergent event M\nrefines Old\n" ++
+  "any p q\nwhere @g p ∈ S\n" ++
   "with @w p' = p\nbegin\n  x := x + 1\nend\nend\n"
 
 #guard match Rossi.parse sourceWithRefinement with
