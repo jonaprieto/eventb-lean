@@ -35,34 +35,6 @@ private def firstDuplicate (seen : List String) : List String → Option String
   | name :: names =>
     if seen.contains name then some name else firstDuplicate (name :: seen) names
 
-private def validate (env : Env) (theory : Spec) : List String :=
-  let names := theory.symbols.map (·.name)
-  let duplicate := firstDuplicate [] names
-  let reserved := theory.symbols.find? (fun symbol =>
-    (coreSymbols.find? (·.name == symbol.name)).isSome)
-  let imported := theory.imports.find? (fun name =>
-    name != core.name && (lookupTheory? env name).isNone)
-  let duplicateTheory := (lookupTheory? env theory.name).isSome
-  let errors := []
-  let errors := if theory.name == core.name then
-    errors ++ [s!"theory `{theory.name}` is reserved"] else errors
-  let errors := if duplicateTheory then
-    errors ++ [s!"theory `{theory.name}` is already registered"] else errors
-  let errors := match duplicate with
-    | some name => errors ++ [s!"symbol `{name}` is declared more than once"]
-    | none => errors
-  let errors := match reserved with
-    | some symbol => errors ++ [s!"symbol `{symbol.name}` is reserved by the core prelude"]
-    | none => errors
-  match imported with
-  | some name => errors ++ [s!"theory `{name}` is not registered"]
-  | none => errors
-
-def add (env : Env) (theory : Spec) : Except String Env :=
-  match validate env theory with
-  | error :: _ => .error error
-  | [] => .ok { env with theories := theory :: env.theories }
-
 private def closureAux (env : Env) : Nat → List String → String → List String
   | 0, seen, _ => seen
   | fuel + 1, seen, name =>
@@ -100,6 +72,44 @@ def namesWithApplication (env : Env) (roots : List String) (application : Applic
 def definedness? (env : Env) (roots : List String) (name : String) : List Definedness :=
   (lookupIn? env roots name).map (·.2.definedness) |>.getD []
 
+private def validate (env : Env) (theory : Spec) : List String :=
+  let names := theory.symbols.map (·.name)
+  let duplicate := firstDuplicate [] names
+  let reserved := theory.symbols.find? (fun symbol =>
+    (coreSymbols.find? (·.name == symbol.name)).isSome)
+  let imported := theory.imports.find? (fun name =>
+    name != core.name && (lookupTheory? env name).isNone)
+  let importedSymbols := symbolsIn env theory.imports
+  let importedDuplicate := firstDuplicate [] (importedSymbols.map (·.2.name))
+  let shadowed := theory.symbols.find? (fun symbol =>
+    importedSymbols.any (fun (_, imported) => imported.name == symbol.name))
+  let duplicateTheory := (lookupTheory? env theory.name).isSome
+  let errors := []
+  let errors := if theory.name == core.name then
+    errors ++ [s!"theory `{theory.name}` is reserved"] else errors
+  let errors := if duplicateTheory then
+    errors ++ [s!"theory `{theory.name}` is already registered"] else errors
+  let errors := match duplicate with
+    | some name => errors ++ [s!"symbol `{name}` is declared more than once"]
+    | none => errors
+  let errors := match reserved with
+    | some symbol => errors ++ [s!"symbol `{symbol.name}` is reserved by the core prelude"]
+    | none => errors
+  let errors := match importedDuplicate with
+    | some name => errors ++ [s!"imported symbol `{name}` is ambiguous"]
+    | none => errors
+  let errors := match shadowed with
+    | some symbol => errors ++ [s!"symbol `{symbol.name}` shadows an imported symbol"]
+    | none => errors
+  match imported with
+  | some name => errors ++ [s!"theory `{name}` is not registered"]
+  | none => errors
+
+def add (env : Env) (theory : Spec) : Except String Env :=
+  match validate env theory with
+  | error :: _ => .error error
+  | [] => .ok { env with theories := theory :: env.theories }
+
 /-- Compatibility lookup for callers that have no component-specific scope yet. -/
 def lookup? (env : Env) (name : String) : Option (String × Symbol) :=
   lookupIn? env (env.theories.map (·.name)) name
@@ -136,6 +146,11 @@ private def imported : Env :=
 #guard typeIn? imported ["Derived"] "LIMIT" == some .int
 #guard typeIn? imported [] "LIMIT" == none
 #guard match add empty { name := "Bad", symbols := coreSymbols } with
+  | .error _ => true
+  | .ok _ => false
+#guard match add imported
+    (Spec.mk "Conflict" ["Derived"]
+      [Symbol.mk "LIMIT" .constant (some .int) "A conflicting constant." none []]) with
   | .error _ => true
   | .ok _ => false
 

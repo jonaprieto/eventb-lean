@@ -10,7 +10,7 @@ compatibility input/output only; no runtime Rodin dependency is allowed.
 - [x] Define `Theory.Env` for the prelude and imported theories.
 - [x] Connect `Theory.Env` to component model scopes.
 - [ ] Give every symbol a stable identity, type, documentation, and source range.
-- [ ] Specify conflict and shadowing rules against Event-B visibility semantics.
+- [x] Specify conflict and shadowing rules against Event-B visibility semantics.
 
 ## Native theory authoring
 
