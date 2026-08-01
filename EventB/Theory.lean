@@ -1,92 +1,49 @@
 /-
-The built-in Event-B mathematical prelude.
+The native Event-B theory environment.
 
-This is the first layer of the native theory environment. It is implicit in every
-Event-B project; user theories will be layered on top of it rather than adding more
-special cases to the parser, checker, or proof-obligation generator.
+The core prelude is always present. User theories will add symbols and imports here;
+model components remain a separate layer in the environment.
 -/
 
-import EventB.Typing.Type
+import EventB.Prelude
 
 namespace EventB.Theory
 
-open EventB.Typing
+open EventB.Prelude
 
-inductive SymbolKind where
-  | carrierSet
-  | constant
-  | predicate
-  | expression
-  deriving BEq, Repr, Inhabited
-
-inductive ApplicationKind where
-  | total
-  | wellDefined
-  deriving BEq, Repr, Inhabited
-
-structure Symbol where
+structure Spec where
   name : String
-  kind : SymbolKind
-  type : Option Ty
-  description : String
-  application : Option ApplicationKind := none
+  imports : List String := []
+  symbols : List Symbol := []
   deriving Repr, Inhabited
 
-private def carrier (name description : String) : Symbol :=
-  { name, kind := .carrierSet, type := some (.pow .int), description }
+structure Env where
+  theories : List Spec := []
+  deriving Repr, Inhabited
 
-private def constant (name description : String) (type : Ty) : Symbol :=
-  { name, kind := .constant, type := some type, description }
+def core : Spec :=
+  { name := "EventB.Core", symbols := coreSymbols }
 
-private def predicate (name description : String) (application : ApplicationKind) : Symbol :=
-  { name, kind := .predicate, type := none, description, application := some application }
+def empty : Env :=
+  { theories := [core] }
 
-private def expression (name description : String) (application : ApplicationKind) : Symbol :=
-  { name, kind := .expression, type := none, description, application := some application }
+def add (env : Env) (theory : Spec) : Env :=
+  { env with theories := theory :: env.theories }
 
-def coreSymbols : List Symbol :=
-  [ carrier "ℤ" "The set of all integers."
-  , carrier "ℕ" "The set of natural numbers."
-  , carrier "ℕ1" "The set of positive natural numbers."
-  , { name := "BOOL", kind := .carrierSet, type := some (.pow .bool)
-      description := "The predefined Boolean carrier set." }
-  , constant "TRUE" "The Boolean true value." .bool
-  , constant "FALSE" "The Boolean false value." .bool
-  , { name := "⊤", kind := .predicate, type := none
-      description := "The always-true predicate." }
-  , { name := "⊥", kind := .predicate, type := none
-      description := "The always-false predicate." }
-  , predicate "finite" "The predicate that an expression denotes a finite set." .total
-  , predicate "partition" "The predicate that sets form a partition." .total
-  , expression "card" "The cardinality of a finite set." .wellDefined
-  , expression "min" "The minimum of a non-empty bounded integer set." .wellDefined
-  , expression "max" "The maximum of a non-empty bounded integer set." .wellDefined
-  , expression "dom" "The domain of a relation." .total
-  , expression "ran" "The range of a relation." .total
-  , expression "bool" "The Boolean value of a predicate." .total
-  , expression "union" "The union of a set of sets." .total
-  , expression "inter" "The intersection of a non-empty set of sets." .wellDefined
-  , expression "succ" "The successor of an integer." .total
-  , expression "pred" "The predecessor of an integer." .total
-  , expression "prj1" "The first projection of a relation." .total
-  , expression "prj2" "The second projection of a relation." .total
-  , expression "id" "The identity relation on a set." .total
-  ]
+def lookupTheory? (env : Env) (name : String) : Option Spec :=
+  env.theories.find? (·.name == name)
 
-def lookupCore? (name : String) : Option Symbol :=
-  coreSymbols.find? (·.name == name)
+def lookup? (env : Env) (name : String) : Option (String × Symbol) :=
+  env.theories.findSome? fun theory =>
+    theory.symbols.find? (fun symbol => symbol.name == name) |>.map (theory.name, ·)
 
-def isCoreIdentifier (name : String) : Bool :=
-  (lookupCore? name).isSome
+def isIdentifier (env : Env) (name : String) : Bool :=
+  (lookup? env name).isSome
 
-def coreType? (name : String) : Option Ty :=
-  (lookupCore? name).bind (·.type)
+def type? (env : Env) (name : String) : Option Typing.Ty :=
+  (lookup? env name).bind (·.2.type)
 
-def coreApplication? (name : String) : Option ApplicationKind :=
-  (lookupCore? name).bind (·.application)
-
-#guard (lookupCore? "BOOL").isSome
-#guard coreType? "TRUE" == some .bool
-#guard coreApplication? "card" == some .wellDefined
+#guard (lookup? empty "BOOL").isSome
+#guard type? empty "TRUE" == some .bool
 
 end EventB.Theory

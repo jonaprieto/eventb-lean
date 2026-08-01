@@ -155,7 +155,7 @@ private def freeFormulaIdentifiers (bound : List String) : Formula.Term → List
 private def checkScope (owners : List String) (stx : Syntax) (term : Formula.Term) :
     CommandElabM Unit := do
   for name in (freeFormulaIdentifiers [] term).eraseDups do
-    if !Theory.isCoreIdentifier name && (← symbolLocation? owners name).isNone then
+    if !Theory.isIdentifier Theory.empty name && (← symbolLocation? owners name).isNone then
       throwErrorAt stx s!"unknown Event-B identifier `{name}`"
 
 private def addDefinitionInfo (id : Syntax) (symbol : String) (location : DeclarationLocation) :

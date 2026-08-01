@@ -253,7 +253,7 @@ def inferExpr (t : Term) : M Ty := do
   match t with
   | .num _ => return .int
   | .id n =>
-    match Theory.coreType? n with
+    match Theory.type? Theory.empty n with
     | some ty => return ty
     | none =>
       match ← lookup? n with

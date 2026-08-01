@@ -171,14 +171,14 @@ that is empty or unbounded. `card` and `inter` need their argument finite and no
 respectively. A formula containing none of these is well defined by construction and
 Rodin emits no `WD`. -/
 private def wdKeywords : List String :=
-  EventB.Theory.coreSymbols.filterMap fun symbol =>
+  EventB.Prelude.coreSymbols.filterMap fun symbol =>
     if symbol.application == some .wellDefined then some symbol.name else none
 
 /-- Keywords that are total, so applying them adds no condition of its own. Everything
 else in application position is a user function, and `f(x)` is defined only where `f` is
 functional and `x` is in its domain. -/
 private def totalKeywords : List String :=
-  EventB.Theory.coreSymbols.filterMap fun symbol =>
+  EventB.Prelude.coreSymbols.filterMap fun symbol =>
     if symbol.application == some .total then some symbol.name else none
 
 private def wdTop : Term := .id "⊤"
