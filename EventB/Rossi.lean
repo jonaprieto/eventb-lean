@@ -6,6 +6,7 @@
   until P1/P2, just as they do in `Model.parseModel`.
 -/
 
+import EventB.Formula.Parse
 import EventB.Model
 
 namespace EventB.Rossi
@@ -208,12 +209,61 @@ private def predicateBoundary (stops : List String) (line : Line) : Bool :=
   | some head => isOneOf head stops
   | none => false
 
-private def predicateLine (kind : PredicateKind) (index : Nat) (line : Line)
+private def formulaBody (source : String) : String :=
+  let (_, source) := stripTheorem source
+  match leadingLabel? source with
+  | some (_, rest) => rest
+  | none => source
+
+private def startsWithFormulaOperator (source : String) : Bool :=
+  match Formula.lex source with
+  | .ok (tok :: _) => match tok with
+      | .op _ => true
+      | _ => false
+  | _ => false
+
+private def formulaComplete (source : String) : Bool :=
+  match Formula.parse source with
+  | .ok _ => true
+  | .error _ => false
+
+private def collectPredicateText (stops : List String) (line : Line) (rest : List Line) :
+    String × List Line :=
+  let initial := line.text
+  let initialBody := formulaBody initial
+  let (initial, rest) := if initialBody.isEmpty then
+      match skipBlank rest with
+      | next :: remaining =>
+          if predicateBoundary stops next || next.text.startsWith "@" then
+            (initial, rest)
+          else
+            (initial ++ " " ++ next.text, remaining)
+      | [] => (initial, [])
+    else
+      (initial, rest)
+  go (rest.length + 1) initial rest
+where
+  go : Nat → String → List Line → String × List Line
+    | 0, text, source => (text, source)
+    | fuel + 1, text, source =>
+        match skipBlank source with
+        | [] => (text, [])
+        | next :: remaining =>
+            if predicateBoundary stops next || next.text.startsWith "@" then
+              (text, source)
+            else if !formulaComplete (formulaBody text) ||
+                startsWithFormulaOperator next.text then
+              go fuel (text ++ " " ++ next.text) remaining
+            else
+              (text, source)
+
+private def predicateLine (kind : PredicateKind) (stops : List String) (index : Nat) (line : Line)
     (rest : List Line) : Except String (Elem × List Line) := do
   if lower line.text == "theorem" then
     match skipBlank rest with
     | next :: remaining =>
-        let parsed ← labelled ("thm" ++ toString index) ("theorem " ++ next.text)
+        let (text, remaining) := collectPredicateText stops next remaining
+        let parsed ← labelled ("thm" ++ toString index) ("theorem " ++ text)
         let actualKind := match kind with
           | .axiom => .theoremAxiom
           | .invariant => .theoremInvariant
@@ -222,11 +272,12 @@ private def predicateLine (kind : PredicateKind) (index : Nat) (line : Line)
           parsed.formula, remaining)
     | [] => .error (lineError line "theorem is not followed by a formula")
   else
+  let (text, remaining) := collectPredicateText stops line rest
   match labelled (match kind with
     | .axiom | .theoremAxiom => "axm" ++ toString index
     | .invariant | .theoremInvariant => "inv" ++ toString index
     | .guard => "grd" ++ toString index
-    | .witness => "wit" ++ toString index) line.text with
+    | .witness => "wit" ++ toString index) text with
   | .ok parsed =>
       let actualKind := match kind, parsed.isTheorem with
         | .axiom, true => .theoremAxiom
@@ -236,9 +287,9 @@ private def predicateLine (kind : PredicateKind) (index : Nat) (line : Line)
         | .axiom | .theoremAxiom => "axm" ++ toString index
         | .invariant | .theoremInvariant => "inv" ++ toString index
         | .guard => "grd" ++ toString index
-        | .witness => "wit" ++ toString index)) parsed.formula, rest)
+        | .witness => "wit" ++ toString index)) parsed.formula, remaining)
   | .error _ =>
-      match labelOnly? line.text, skipBlank rest with
+      match labelOnly? text, skipBlank remaining with
       | some label, next :: remaining =>
           if predicateBoundary ["end", "extends", "sets", "constants", "axioms", "theorems",
               "refines", "sees", "variables", "invariants", "variant", "events"] next then
@@ -259,9 +310,127 @@ private def parsePredicates (kind : PredicateKind) (stops : List String) : Nat �
           if predicateBoundary stops line then
             .ok ([], source)
           else do
-            let (elem, remaining) ← predicateLine kind index line rest
+            let (elem, remaining) ← predicateLine kind stops index line rest
             let (more, remaining) ← parsePredicates kind stops fuel (index + 1) remaining
             return (elem :: more, remaining)
+
+private def assignmentLength? : List Char → Option Nat
+  | '≔' :: _ => some 1
+  | ':' :: '=' :: _ => some 2
+  | ':' :: '∈' :: _ => some 2
+  | ':' :: ':' :: _ => some 2
+  | ':' :: '|' :: _ => some 2
+  | ':' :: '∣' :: _ => some 2
+  | _ => none
+
+private def topLevelAssignments (source : String) : List Nat :=
+  go source.length source.toList 0 0
+where
+  go : Nat → List Char → Nat → Nat → List Nat
+    | 0, _, _, _ => []
+    | _, [], _, _ => []
+    | fuel + 1, '(' :: rest, depth, position =>
+        go fuel rest (depth + 1) (position + 1)
+    | fuel + 1, '[' :: rest, depth, position =>
+        go fuel rest (depth + 1) (position + 1)
+    | fuel + 1, '{' :: rest, depth, position =>
+        go fuel rest (depth + 1) (position + 1)
+    | fuel + 1, ')' :: rest, depth + 1, position =>
+        go fuel rest depth (position + 1)
+    | fuel + 1, ']' :: rest, depth + 1, position =>
+        go fuel rest depth (position + 1)
+    | fuel + 1, '}' :: rest, depth + 1, position =>
+        go fuel rest depth (position + 1)
+    | fuel + 1, chars, 0, position =>
+        match assignmentLength? chars with
+        | some length => position :: go fuel (chars.drop length) 0
+            (position + length)
+        | none => match chars with
+            | [] => []
+            | _ :: rest => go fuel rest 0 (position + 1)
+    | fuel + 1, _ :: rest, depth, position => go fuel rest depth (position + 1)
+
+private def charAt? : List Char → Nat → Option Char
+  | [], _ => none
+  | c :: _, 0 => some c
+  | _ :: rest, position + 1 => charAt? rest position
+
+private def actionStart (source : String) (marker : Nat) : Nat :=
+  let chars := source.toList
+  go chars marker false
+where
+  go : List Char → Nat → Bool → Nat
+    | _, 0, _ => 0
+    | chars, position + 1, seen =>
+        match charAt? chars position with
+        | none => 0
+        | some c =>
+            if Char.isWhitespace c then
+              let beforeComma := match charAt? chars (position - 1) with
+                | some previous => previous == ','
+                | none => false
+              if seen && !beforeComma then position + 1 else go chars position seen
+            else if Char.isAlphanum c || c == '_' || c == '\'' || c == ',' ||
+                c == '(' || c == ')' || c == '[' || c == ']' then
+              go chars position true
+            else
+              position + 1
+
+private def splitAtPositions (source : String) (starts : List Nat) : List String :=
+  go source.toList 0 starts
+where
+  go : List Char → Nat → List Nat → List String
+    | chars, start, [] =>
+        let text := String.ofList (chars.drop start)
+        if text.isEmpty then [] else [text]
+    | chars, start, next :: rest =>
+        let text := String.ofList (chars.drop start |>.take (next - start))
+        let more := go chars next rest
+        if text.isEmpty then more else text :: more
+
+private def splitActionText (source : String) : List String :=
+  match topLevelAssignments source with
+  | [] => [source]
+  | first :: rest =>
+      let firstStart := actionStart source first
+      let starts := 0 :: rest.map (actionStart source)
+      let starts := if (head? source == some "skip") then
+          0 :: firstStart :: rest.map (actionStart source)
+        else starts
+      splitAtPositions source starts
+
+private def actionBody (source : String) : String :=
+  match topLevelAssignments source with
+  | marker :: _ =>
+      let chars := source.toList.drop marker
+      match assignmentLength? chars with
+      | some length => String.ofList (chars.drop length |>.dropWhile whitespace)
+      | none => ""
+  | [] => ""
+
+private def actionComplete (source : String) : Bool :=
+  let body := match leadingLabel? source with
+    | some (_, rest) => rest
+    | none => source
+  if lower body == "skip" then true
+  else if topLevelAssignments body |>.isEmpty then false
+  else formulaComplete (actionBody body)
+
+private def collectActionText (line : Line) (rest : List Line) : String × List Line :=
+  go (rest.length + 1) line.text rest
+where
+  go : Nat → String → List Line → String × List Line
+    | 0, text, source => (text, source)
+    | fuel + 1, text, source =>
+        match skipBlank source with
+        | [] => (text, [])
+        | next :: remaining =>
+            if head? next.text == some "end" || next.text.startsWith "@" then
+              (text, source)
+            else if !actionComplete text || startsWithFormulaOperator next.text then
+              go fuel (text ++ " " ++ next.text) remaining
+            else
+              (text, source)
 
 private def parseActions : Nat → Nat → List Line → Except String (List Elem × List Line)
   | 0, _, _ => .error "Rossi parser ran out of fuel"
@@ -272,10 +441,15 @@ private def parseActions : Nat → Nat → List Line → Except String (List Ele
       | line :: rest =>
           if head? line.text == some "end" then .ok ([], source)
           else do
-            let parsed ← labelled ("act" ++ toString index) line.text
-            let label := parsed.label.getD ("act" ++ toString index)
-            let (more, remaining) ← parseActions fuel (index + 1) rest
-            return (.action (assignmentAttrs label parsed.formula) [] :: more, remaining)
+            let (text, remaining) := collectActionText line rest
+            let chunks := splitActionText text
+            let numbered := chunks.mapIdx (fun offset chunk => (index + offset, chunk))
+            let actions ← numbered.mapM fun (actionIndex, chunk) => do
+              let parsed ← labelled ("act" ++ toString actionIndex) chunk
+              let label := parsed.label.getD ("act" ++ toString actionIndex)
+              pure (Elem.action (assignmentAttrs label parsed.formula) [])
+            let (more, remaining) ← parseActions fuel (index + chunks.length) remaining
+            return (actions ++ more, remaining)
 
 private def sectionData (line : Line) (rest : List Line) : String × List Line :=
   if !(tail line.text).isEmpty then (tail line.text, rest)
@@ -552,7 +726,8 @@ private def parseMachineBody : Nat → List Elem → List Line →
           | some "theorems" => do
               let source := if (tail line.text).isEmpty then rest else
                 ({ number := line.number, text := tail line.text } :: rest)
-              let (items, remaining) ← parsePredicates .theoremInvariant machineStops fuel 1 source
+              let (items, remaining) ←
+                parsePredicates .theoremInvariant machineStops fuel 1 source
               parseMachineBody fuel (children ++ items) remaining
           | some "variant" => do
               let (text, remaining) := sectionData line rest
