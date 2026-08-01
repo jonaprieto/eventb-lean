@@ -9,26 +9,30 @@ namespace EventB.TranslateDemo
 open Lean Elab Command Meta
 open EventB
 
-private def parseFormula (source : String) : TermElabM Formula.Term := do
+#guard match Formula.parse "{1 ↦ 2}" with
+  | .ok (.set [.bin "↦" (.num 1) (.num 2)]) => true
+  | _ => false
+
+private meta def parseFormula (source : String) : TermElabM Formula.Term := do
   match Formula.parse source with
   | .ok term => pure term
   | .error reason => throwError s!"formula `{source}` did not parse: {reason}"
 
-private def checkPredicate (source : String) : TermElabM Unit := do
+private meta def checkPredicate (source : String) : TermElabM Unit := do
   let term ← parseFormula source
   let value ← Embedding.translatePredicate {} term
   let type ← inferType value
   unless ← isDefEq type (mkSort .zero) do
     throwError s!"translated predicate has type {type}"
 
-private def checkIntegerExpression (source : String) : TermElabM Unit := do
+private meta def checkIntegerExpression (source : String) : TermElabM Unit := do
   let term ← parseFormula source
   let value ← Embedding.translateExpression {} term
   let type ← inferType value.value
   unless ← isDefEq type (mkConst ``Int) do
     throwError s!"translated expression has type {type}, expected Int"
 
-private def checkRejectsUnknown (source : String) : TermElabM Unit := do
+private meta def checkRejectsUnknown (source : String) : TermElabM Unit := do
   let term ← parseFormula source
   let failed ← try
     let _ ← Embedding.translatePredicate {} term
@@ -37,14 +41,58 @@ private def checkRejectsUnknown (source : String) : TermElabM Unit := do
   unless failed do
     throwError s!"translation unexpectedly accepted `{source}`"
 
-elab "#eventb_translate_checks" : command => liftTermElabM do
-  checkIntegerExpression "1 + 2"
-  checkPredicate "1 < 2"
-  checkPredicate "1 ∈ ℕ"
-  checkPredicate "1 ∈ ℕ ∧ 2 ∉ ℕ1"
-  checkPredicate "∀x⦂ℤ·x = x"
-  checkPredicate "(1 ↦ 2) ∈ ℕ × ℕ"
-  checkRejectsUnknown "missing = 0"
+private meta def checkRejectsWrongBinding : TermElabM Unit := do
+  let term ← parseFormula "x = x"
+  let theory : Theory.Env :=
+    { theories := [Theory.core,
+        { name := "T", symbols :=
+            [{ name := "x", kind := .constant, type := some .int, description := "" }] }] }
+  let context : Embedding.KernelContext :=
+    { theory, roots := ["T"], bindings :=
+        [{ name := "x", ty := .bool, value := mkConst ``Bool.true }] }
+  let failed ← try
+    let _ ← Embedding.translatePredicate context term
+    pure false
+  catch _ => pure true
+  unless failed do
+    throwError "translation accepted a binding with the wrong Event-B type"
+
+private meta def checkSemanticFunction : TermElabM Unit := do
+  let setType ← mkArrow (mkConst ``Int) (mkSort .zero)
+  let value ← withLocalDeclD `set setType fun set => do
+    mkLambdaFVars #[set] (mkApp (mkConst ``Int.ofNat) (mkNatLit 0))
+  let context : Embedding.KernelContext :=
+    { functions :=
+        [{ name := "card", argument := .pow .int, result := .int, value }] }
+  let term ← parseFormula "card(∅) = 0"
+  let _ ← Embedding.translatePredicate context term
+
+syntax (name := eventbTranslateChecks) "#eventb_translate_checks" : command
+
+@[command_elab eventbTranslateChecks]
+meta def elabTranslateChecks : CommandElab := fun stx =>
+  match stx with
+  | `(command| #eventb_translate_checks) => liftTermElabM do
+      checkIntegerExpression "1 + 2"
+      checkIntegerExpression "2 ^ 3"
+      checkPredicate "1 < 2"
+      checkPredicate "1 ∈ ℕ"
+      checkPredicate "1 ∈ ℕ ∧ 2 ∉ ℕ1"
+      checkPredicate "1 ∈ {1, 2}"
+      checkPredicate "∅ ⊆ ℕ"
+      checkPredicate "1 ∈ dom({1 ↦ 2})"
+      checkPredicate "2 ∈ ran({1 ↦ 2})"
+      checkPredicate "1 ∈ dom(ℕ ◁ {1 ↦ 2})"
+      checkPredicate "1 ∈ dom({1 ↦ 2} ; {2 ↦ 3})"
+      checkPredicate "1 ∈ dom({1 ↦ 2}  {1 ↦ 3})"
+      checkPredicate "1 ∈ dom({1 ↦ 2} ⊗ {1 ↦ 3})"
+      checkPredicate "∀x⦂ℤ·x = x"
+      checkPredicate "(1 ↦ 2) ∈ ℕ × ℕ"
+      checkPredicate "{1 ↦ 2} ∈ (ℕ → ℕ)"
+      checkRejectsUnknown "missing = 0"
+      checkRejectsWrongBinding
+      checkSemanticFunction
+  | _ => throwUnsupportedSyntax
 
 #eventb_translate_checks
 
