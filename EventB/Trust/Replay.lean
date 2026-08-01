@@ -47,6 +47,19 @@ private def proofTerm (declaration : String) : MetaM Expr := do
     throwError s!"proof declaration `{declaration}` has an inconsistent type"
   pure proof
 
+private def specializeProof (proof : Expr) : List KernelBinding → MetaM Expr
+  | [] => pure proof
+  | binding :: bindings => do
+      let proofType ← whnf (← inferType proof)
+      match proofType with
+      | .forallE _ expected _ _ =>
+          let actual ← inferType binding.value
+          unless ← isDefEq actual expected do
+            throwError s!"proof `{binding.name}` has type {actual}, expected {expected}"
+          specializeProof (mkApp proof binding.value) bindings
+      | _ =>
+          throwError s!"proof declaration has no parameter for `{binding.name}`"
+
 private def declarationDependencies (info : ConstantInfo) : Array Name :=
   match info with
   | .defnInfo value => value.value.getUsedConstants
@@ -86,6 +99,7 @@ private def replayKernel (context : Embedding.KernelContext)
     (obligation : POG.Obligation) (evidence : Evidence) : MetaM Report := do
   let (declaration, declaredAxioms) ← expectedAxioms evidence
   let proof ← proofTerm declaration
+  let proof ← specializeProof proof context.bindings
   let expected ← statement context obligation
   let proofType ← inferType proof
   unless ← isDefEq proofType expected do
@@ -126,6 +140,10 @@ theorem propextTrue : True := by
   have h : True = True := propext Iff.rfl
   exact Eq.mp h True.intro
 
+def testInt : Int := 0
+
+theorem reflexive (value : Int) : value = value := rfl
+
 end TestFixtures
 
 private def replayObligation : POG.Obligation :=
@@ -145,6 +163,14 @@ private meta def checkReplay : TermElabM Unit := do
   let evidence := Evidence.kernel "True.intro" []
   unless ← succeeds (validate context replayObligation evidence) do
     throwError "valid kernel evidence did not replay"
+  let specializedContext : Embedding.KernelContext :=
+    { bindings := [{ name := "value", ty := .int, value := mkConst ``TestFixtures.testInt }] }
+  let specializedObligation : POG.Obligation :=
+    { component := "Replay", name := "value/reflexive/THM", kind := "THM"
+      goal := some (.bin "=" (.id "value") (.id "value")) }
+  unless ← succeeds (validate specializedContext specializedObligation
+      (.kernel "EventB.Trust.Replay.TestFixtures.reflexive" [])) do
+    throwError "universally quantified kernel evidence did not replay"
   unless !(← succeeds (validate context replayObligation
       (.kernel "True.intro" ["propext"]))) do
     throwError "forged axiom metadata was accepted"
