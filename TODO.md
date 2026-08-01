@@ -33,13 +33,15 @@ compatibility input/output only; no runtime Rodin dependency is allowed.
 - [ ] Embed resolved Event-B types, expressions, predicates, and theories in Lean.
 - [ ] Translate definitions and datatypes to kernel-checkable Lean declarations.
 - [ ] Represent axiomatic assumptions without hiding them as trusted theorems.
+- [x] Provide a typed trust ledger that defaults generated obligations to `unproved`.
 - [ ] Record kernel, SMT, Rodin-imported, and external trust in the ledger.
 
 ## Native UX and project tooling
 
 - [ ] Add project/theory dependency loading and validation commands.
 - [ ] Add hover and Go-to-Definition for prelude and theory symbols.
-- [ ] Add theory/source/trust views to ProofWidgets.
+- [x] Add native-theory and initial trust summaries to ProofWidgets.
+- [ ] Add source locations and per-obligation trust evidence to ProofWidgets.
 - [x] Add a native example covering an imported theory symbol.
 - [ ] Add native examples covering a Boolean theory and an imported operator.
 

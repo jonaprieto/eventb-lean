@@ -6,6 +6,7 @@ the editor UI. The widget only renders data already produced by `EventB.POG.gene
 -/
 
 import EventB.DSL
+import EventB.Trust
 import ProofWidgets.Component.HtmlDisplay
 
 namespace EventB.Widgets
@@ -215,10 +216,12 @@ private def eventList (elem : Elem) : Html :=
 
 private def obligationStats (project : Typing.Project) (name : String) : Html :=
   let obligations := POG.generate project name
+  let ledger := Trust.Ledger.ofObligations obligations
   elementWith "div" [classes "flex flex-wrap mv2"] [
     stat "proof obligations" (toString obligations.length) "blue",
     stat "goals derived" (toString (countDerived obligations)) "green",
-    stat "classes" (toString (kinds.countP (fun kind => countKind kind obligations > 0))) "purple"
+    stat "classes" (toString (kinds.countP (fun kind => countKind kind obligations > 0))) "purple",
+    stat "trust ledger" ledger.summary "orange"
   ]
 
 private def modelPanel (kind name : String) (body : List Html) : Html :=
@@ -257,6 +260,7 @@ def renderComponent (project : Typing.Project) (name : String) : Html :=
 /-- Render the obligations for a project component in the Lean Infoview. -/
 def renderProject (project : Typing.Project) (machine : String) : Html :=
   let obligations := POG.generate project machine
+  let ledger := Trust.Ledger.ofObligations obligations
   let first := firstKind obligations
   let sections := kinds.filterMap fun kind =>
     kindSection kind (obligations.filter (·.kind == kind)) (first == some kind)
@@ -266,8 +270,9 @@ def renderProject (project : Typing.Project) (machine : String) : Html :=
     ],
     elementWith "section" [classes "pa2"] [
       elementWith "p" [classes "mv1 o-70"] [
-        text "Proof-obligation explorer · expand a class, then an obligation"
+      text "Proof-obligation explorer · expand a class, then an obligation"
       ],
+      infoLine "trust" ledger.summary,
       summary obligations,
       if sections.isEmpty then element "p" [text "No obligations generated."]
       else element "div" sections

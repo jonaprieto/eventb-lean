@@ -6,4 +6,5 @@ import EventB.Theory
 import EventB.Typing.Infer
 import EventB.Typing.Check
 import EventB.POG
+import EventB.Trust
 import EventB.DSL
