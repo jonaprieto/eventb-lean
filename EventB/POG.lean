@@ -26,12 +26,23 @@ open EventB EventB.Formula EventB.Typing EventB.Prelude
 /-- A generated obligation. `goal` is `none` for the classes whose statement is not
 derived yet, so the name gate keeps working while the statement gate grows. -/
 structure Obligation where
+  component : String := ""
   name : String
   kind : String
+  theoryRoots : List String := []
   goal : Option Term := none
   /-- Everything the goal may assume, in Rodin's order. -/
   hyps : List Term := []
   deriving BEq, Repr, Inhabited
+
+def Obligation.canonical (obligation : Obligation) : String :=
+  String.intercalate "\n"
+    ["component=" ++ obligation.component
+    , "name=" ++ obligation.name
+    , "kind=" ++ obligation.kind
+    , "theories=" ++ String.intercalate "," obligation.theoryRoots
+    , "hyps=" ++ String.intercalate "\n" (obligation.hyps.map Formula.print)
+    , "goal=" ++ (obligation.goal.map Formula.print |>.getD "<pending>")]
 
 private def childrenOf (e : Elem) (tag : String) : List Elem :=
   e.children.filter (fun c => c.tag == "org.eventb.core." ++ tag)
@@ -437,6 +448,8 @@ def generateIn (theory : Theory.Env) (p : Project) (name : String) : List Obliga
   | some c =>
     let isMachine := c.elem.tag == "org.eventb.core.machineFile"
     let roots := componentTheoryRoots p name
+    let finalize := fun obligations : List Obligation => obligations.map fun obligation =>
+      { obligation with component := name, theoryRoots := roots }
     let total := totalKeywords theory roots
     let types := match inferComponentIn theory p name with
       | .ok (env, _) => env
@@ -465,7 +478,7 @@ def generateIn (theory : Theory.Env) (p : Project) (name : String) : List Obliga
             [{ name := labelOf ev ++ "/" ++ labelOf g ++ "/THM", kind := "THM",
                goal := (Formula.parse ((attrOf g "predicate").getD "")).toOption,
                hyps := contextHyps p name }]
-    if !isMachine then return out
+    if !isMachine then return finalize out
     let invariants := childrenOf c.elem "invariant"
     for ev in childrenOf c.elem "event" do
       let base := if labelOf ev == "INITIALISATION" then contextAxioms p name
@@ -550,7 +563,7 @@ def generateIn (theory : Theory.Env) (p : Project) (name : String) : List Obliga
         if wdRequired total ((attrOf w "predicate").getD "") then
           out := out ++
             [{ name := labelOf ev ++ "/" ++ labelOf w ++ "/WWD", kind := "WWD" }]
-    return out
+    return finalize out
 
 /-- Compatibility entry point for Rodin corpus projects without user theories. -/
 def generate (p : Project) (name : String) : List Obligation :=
