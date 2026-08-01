@@ -368,10 +368,63 @@ private def mkSymbolTerm (symbol : Symbol) : TSyntax `term :=
   Unhygienic.run `(EventB.Prelude.Symbol.mk $(quote symbol.name) $(mkSymbolKind symbol.kind)
     $type $(quote symbol.description) $(mkApplication symbol.application) $definedness)
 
+private def mkFormulaTerm (term : Formula.Term) : TSyntax `term :=
+  let source := Formula.print term
+  Unhygienic.run `(match EventB.Formula.parse $(quote source) with
+    | .ok value => value
+    | .error _ => EventB.Formula.Term.id "")
+
+private def mkTypedParameter (parameter : String × EventB.Typing.Ty) : TSyntax `term :=
+  let name := parameter.1
+  let type := parameter.2
+  Unhygienic.run `(($(quote name), $(mkTyTerm type)))
+
+private def mkConstructorTerm (constructor : Theory.Constructor) : TSyntax `term :=
+  let arguments := listOf (constructor.arguments.toArray.map mkTyTerm)
+  Unhygienic.run `(EventB.Theory.Constructor.mk $(quote constructor.name) $arguments)
+
+private def mkDeclarationTerm : Theory.Declaration → TSyntax `term
+  | .datatype datatype =>
+      let parameters := listOf (datatype.parameters.toArray.map quote)
+      let constructors := listOf (datatype.constructors.toArray.map mkConstructorTerm)
+      Unhygienic.run `(EventB.Theory.Declaration.datatype
+        (EventB.Theory.Datatype.mk $(quote datatype.name) $parameters $constructors))
+  | .definition definition =>
+      let parameters := listOf (definition.parameters.toArray.map mkTypedParameter)
+      let kind := match definition.kind with
+        | .definitional => Unhygienic.run `(EventB.Theory.DefinitionKind.definitional)
+        | .axiomatic => Unhygienic.run `(EventB.Theory.DefinitionKind.axiomatic)
+      Unhygienic.run `(EventB.Theory.Declaration.definition
+        (EventB.Theory.Definition.mk $(quote definition.name) $parameters
+          $(mkTyTerm definition.result) $(mkFormulaTerm definition.body) $kind))
+  | .rule rule =>
+      let parameters := listOf (rule.parameters.toArray.map mkTypedParameter)
+      let premises := listOf (rule.premises.toArray.map mkFormulaTerm)
+      let lhs := match rule.lhs with
+        | none => Unhygienic.run `(none)
+        | some term => Unhygienic.run `(some $(mkFormulaTerm term))
+      let rhs := match rule.rhs with
+        | none => Unhygienic.run `(none)
+        | some term => Unhygienic.run `(some $(mkFormulaTerm term))
+      let conclusion := match rule.conclusion with
+        | none => Unhygienic.run `(none)
+        | some term => Unhygienic.run `(some $(mkFormulaTerm term))
+      let kind := match rule.kind with
+        | .rewrite => Unhygienic.run `(EventB.Theory.DeclarationKind.rewrite)
+        | .inference => Unhygienic.run `(EventB.Theory.DeclarationKind.inference)
+        | .theorem => Unhygienic.run `(EventB.Theory.DeclarationKind.theorem)
+        | .datatype => Unhygienic.run `(EventB.Theory.DeclarationKind.datatype)
+        | .definition => Unhygienic.run `(EventB.Theory.DeclarationKind.definition)
+        | .axiom => Unhygienic.run `(EventB.Theory.DeclarationKind.axiom)
+      Unhygienic.run `(EventB.Theory.Declaration.rule
+        (EventB.Theory.Rule.mk $(quote rule.name) $kind $parameters $premises
+          $lhs $rhs $conclusion))
+
 private def mkSpecTerm (spec : Theory.Spec) : TSyntax `term :=
   let importNames := listOf (spec.imports.toArray.map quote)
   let symbols := listOf (spec.symbols.toArray.map mkSymbolTerm)
-  Unhygienic.run `(EventB.Theory.Spec.mk $(quote spec.name) $importNames $symbols)
+  let declarations := listOf (spec.declarations.toArray.map mkDeclarationTerm)
+  Unhygienic.run `(EventB.Theory.Spec.mk $(quote spec.name) $importNames $symbols $declarations)
 
 private def theorySymbol (name : String) (kind : SymbolKind) (type : Option Ty)
     (application : Option ApplicationKind) : Symbol :=
@@ -428,7 +481,7 @@ private def elabTheory : CommandElab := fun stx => do
               [theorySymbol x.getId.toString .expression none (some .wellDefined)]
         | other => throwErrorAt other "unexpected theory clause"
       let spec : Theory.Spec :=
-        Theory.Spec.mk n.getId.toString importNames symbols
+        Theory.Spec.mk n.getId.toString importNames symbols []
       match Theory.add (theoryEnvironment (← getEnv)) spec with
       | .error message => throwErrorAt n message
       | .ok _ =>
