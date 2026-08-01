@@ -172,18 +172,177 @@ The gates compare the implementation against the pinned corpus and ratchet files
 Every focused commit is expected to leave these checks green. `STATUS.md` is generated;
 `PLAN.md` records measured progress and the next bounded work item.
 
-## Current extension boundary
+## Remaining roadmap
 
-The architecture is ready for, but does not claim to complete, the following layers:
+The current implementation has the syntax, scoped environment, typechecker, POG, trust
+ledger, and type-level Lean embedding. The next work is deliberately four workstreams:
 
-- translation of resolved Event-B formulas into executable or theorem-level Lean terms;
-- richer theory declarations such as datatypes, rewrite rules, and polymorphic theorems;
-- proof backends and evidence import with auditable trust modes;
-- optional Rodin theory-file compatibility;
-- richer language-server diagnostics and navigation.
+```mermaid
+flowchart LR
+  C["Current contract<br/>Theory.Env + typed Term + Obligation"] --> F["1. Formula translation"]
+  C --> D["2. Datatypes and rewrite rules"]
+  D --> F
+  F --> E["3. Prover evidence"]
+  D --> E
+  D --> R["4. Optional Rodin theory I/O"]
+```
 
-These extensions should consume the existing `Theory.Env`, typed `Term` values, and
-`POG.Obligation` records. They should not create a parallel model or scope system.
+Every workstream must consume the existing model and scope contracts. None may create
+a second parser, environment, or obligation representation.
+
+### 1. Full formula translation
+
+`EventB.Embedding` currently maps resolved types to Lean types. It does not yet map a
+resolved `Formula.Term` to a kernel-facing Lean expression. The first translation
+milestone should cover the language already accepted by the parser and checker:
+
+- integers, Booleans, carrier sets, products, powersets, relations, and maplets;
+- arithmetic, equality, membership, subset, relation, set, and Boolean operators;
+- quantified and set-builder binders with correct variable capture;
+- primed variables and the expression forms used by assignments;
+- core and native-theory symbols after scoped resolution;
+- explicit well-definedness conditions for partial expressions.
+
+The translator should take typed, resolved terms and return either a typed Lean target
+or a diagnostic identifying the unsupported term and its source range. It must not
+interpret an unresolved identifier as an arbitrary Lean constant, and it must not erase
+well-definedness conditions while producing a convenient expression.
+
+The translation boundary should remain separate from parsing and inference:
+
+1. `Formula.Parse` produces syntax;
+2. `Typing` resolves identifiers and types them in component scope;
+3. `Embedding` translates the resolved term;
+4. `Semantics` and proof backends consume the translated proposition.
+
+Acceptance criteria:
+
+- translated terms have the same type as the `Typing` result;
+- representative native models produce kernel-checkable Lean propositions;
+- generated POs can expose a translated goal and translated hypotheses;
+- binders, primed variables, partial operators, and unsupported syntax have negative
+  tests;
+- all existing corpus gates remain unchanged and green.
+
+### 2. Datatypes, definitions, and rewrite rules
+
+Basic `Theory.Spec` declarations currently describe names and metadata. Rich theories
+need a typed declaration layer for constructors, definitions, predicates, operators,
+axiomatic assumptions, rewrite rules, inference rules, and polymorphic theorems.
+
+The extension should be conservative:
+
+- datatypes have explicit constructors, argument types, and a scoped identity;
+- definitions record their defining term rather than silently becoming axioms;
+- rewrite rules have typed left and right sides and an explicit orientation;
+- inference and theorem rules declare premises, conclusion, type variables, and scope;
+- axiomatic assumptions remain visible in the trust ledger and never become kernel
+  theorems merely because they were imported;
+- imported declarations use the same duplicate, ambiguity, and shadowing checks as
+  current symbols.
+
+Rewriting is a proof transformation, not a string replacement. The implementation
+must either check a terminating orientation or require a proof/certificate for the
+rule system it applies. A rule that cannot be justified is reported as an assumption,
+not applied as if it were definitional equality.
+
+Acceptance criteria:
+
+- native declarations elaborate to the same scoped `Theory.Env` used by models;
+- constructor and rule applications are type-checked before POG or translation;
+- definitions and rules generate any required well-definedness or soundness goals;
+- polymorphic instantiation is explicit enough to audit in an obligation;
+- a negative test rejects an ill-typed, cyclic, ambiguous, or out-of-scope rule;
+- theory examples exercise imported datatypes and rules through widgets and CLI output.
+
+### 3. Prover evidence and trust
+
+The ledger already distinguishes `kernel`, `smt`, `rodinImported`, `external`, and
+`unproved`, but it currently creates unproved entries from generated obligations. The
+next layer is an evidence pipeline:
+
+```text
+POG.Obligation
+    -> canonical statement and fingerprint
+    -> prover backend
+    -> evidence verifier or replay step
+    -> Trust.Entry with mode, evidence, and tool metadata
+    -> CLI and ProofWidgets
+```
+
+Evidence must be tied to a canonical obligation statement, the relevant theory/model
+environment, and the prover configuration. A stale or forged result must not silently
+move an obligation out of `unproved`. In particular:
+
+- a Lean proof term is accepted only after kernel replay;
+- an SMT result records its solver, version, input digest, and trust mode;
+- an external proof records the verifier and evidence location;
+- an imported Rodin result is labelled `rodinImported`, never `kernel`;
+- missing, stale, or unverifiable evidence leaves the entry `unproved`.
+
+The P4 gate should compare the backend's result with Rodin's recorded `.bps` status,
+while preserving the stronger per-obligation trust distinction. Matching Rodin's
+discharge count is useful evidence about coverage; it is not evidence that Lean checked
+the same proof.
+
+Acceptance criteria:
+
+- every accepted result has a stable obligation fingerprint and explicit mode;
+- evidence can be replayed or rejected in a clean build;
+- changing the obligation, model, theory, or prover input invalidates the evidence;
+- the widget shows the obligation's mode and evidence status without conflating them;
+- negative tests prove that unverifiable and mislabelled evidence is rejected;
+- P4 records discharge results without weakening P0 through P3b.
+
+### 4. Optional Rodin theory I/O
+
+Native theory authoring remains the source of truth. Rodin theory import/export is an
+adapter for migration and interoperability, not a dependency of the checker, POG, or
+proof pipeline. It should be implemented only after the native declaration schema and
+translation boundary are stable.
+
+The adapter should provide:
+
+- import from the Rodin theory-file format into validated `Theory.Spec` declarations;
+- export of supported native declarations with stable names, types, imports, and rules;
+- explicit diagnostics for constructs with no faithful native representation;
+- preservation of unknown or extension data where round-tripping is promised;
+- dependency loading that validates imports before exposing a theory to a component.
+
+Import must not bypass `Theory.add`, and export must not serialize declarations that
+were accepted only under an unrecorded trust assumption. The optional adapter also
+must not require Rodin to be installed or running.
+
+Acceptance criteria:
+
+- minimal public fixtures import into the native environment and pass scope/type checks;
+- supported declarations round-trip without changing their resolved meaning;
+- unsupported declarations fail with locations and actionable diagnostics;
+- imported assumptions and proof status retain their trust classification;
+- disabling the adapter leaves native authoring, gates, and widgets unaffected.
+
+### Execution order and definition of done
+
+The practical order is:
+
+1. stabilize resolved symbol identities, source ranges, and typed term contracts;
+2. complete translation for the current Event-B language;
+3. extend theories with datatypes, definitions, and justified rules;
+4. attach replayable prover evidence to generated obligations;
+5. add Rodin theory I/O as an optional compatibility package.
+
+Evidence work can begin with the current POG records, but its feature-complete form
+depends on canonical translated goals. Rodin I/O intentionally comes last so its file
+format cannot dictate the native theory design.
+
+Each milestone is complete only when it has native examples, negative tests, explicit
+diagnostics, and updated trust reporting, while `lake build`, `lake exe gates`, and
+`scripts/style-check.py` remain green. Unsupported constructs stay data with a visible
+diagnostic; they never become `sorry`, an implicit axiom, or an unrelated identifier.
+
+These four workstreams should update `TODO.md` and the measured gates as they land.
+The architecture invariant remains: one model, one scope, one analysis pipeline, and
+separate presentation and proof integrations.
 
 ## Tracing one symbol
 
