@@ -344,12 +344,20 @@ private def mkApplication (application : Option ApplicationKind) : TSyntax `term
   | some .total => Unhygienic.run `(some EventB.Prelude.ApplicationKind.total)
   | some .wellDefined => Unhygienic.run `(some EventB.Prelude.ApplicationKind.wellDefined)
 
+private def mkDefinedness (rule : Definedness) : TSyntax `term :=
+  match rule with
+  | .finite => Unhygienic.run `(EventB.Prelude.Definedness.finite)
+  | .nonempty => Unhygienic.run `(EventB.Prelude.Definedness.nonempty)
+  | .lowerBound => Unhygienic.run `(EventB.Prelude.Definedness.lowerBound)
+  | .upperBound => Unhygienic.run `(EventB.Prelude.Definedness.upperBound)
+
 private def mkSymbolTerm (symbol : Symbol) : TSyntax `term :=
   let type := match symbol.type with
     | none => Unhygienic.run `(none)
     | some type => Unhygienic.run `(some $(mkTyTerm type))
+  let definedness := listOf (symbol.definedness.toArray.map mkDefinedness)
   Unhygienic.run `(EventB.Prelude.Symbol.mk $(quote symbol.name) $(mkSymbolKind symbol.kind)
-    $type $(quote symbol.description) $(mkApplication symbol.application))
+    $type $(quote symbol.description) $(mkApplication symbol.application) $definedness)
 
 private def mkSpecTerm (spec : Theory.Spec) : TSyntax `term :=
   let importNames := listOf (spec.imports.toArray.map quote)

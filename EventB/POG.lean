@@ -21,7 +21,7 @@ import EventB.Typing.Check
 
 namespace EventB.POG
 
-open EventB EventB.Formula EventB.Typing
+open EventB EventB.Formula EventB.Typing EventB.Prelude
 
 /-- A generated obligation. `goal` is `none` for the classes whose statement is not
 derived yet, so the name gate keeps working while the statement gate grows. -/
@@ -165,15 +165,6 @@ private def abstractEvent (p : Project) (machine : String) (ev : Elem) :
   let ae ← (childrenOf a.elem "event").find? (fun e => labelOf e == target)
   return (am, ae)
 
-/-- Constructs whose meaning is conditional, and so carry a well-definedness obligation:
-applying a function outside its domain, dividing by zero, or taking `min`/`max` of a set
-that is empty or unbounded. `card` and `inter` need their argument finite and non-empty
-respectively. A formula containing none of these is well defined by construction and
-Rodin emits no `WD`. -/
-private def wdKeywords : List String :=
-  EventB.Prelude.coreSymbols.filterMap fun symbol =>
-    if symbol.application == some .wellDefined then some symbol.name else none
-
 /-- Keywords that are total, so applying them adds no condition of its own. Everything
 else in application position is a user function, and `f(x)` is defined only where `f` is
 functional and `x` is in its domain. -/
@@ -244,6 +235,19 @@ private def wdBound (isMax : Bool) (s : Term) : Term :=
   let order := if isMax then .bin "≥" b x else .bin "≤" b x
   .bind "∃" b (.bind "∀" x (.bin "⇒" (.bin "∈" x s) order))
 
+private def wdRule (rule : Definedness) (s : Term) : Term :=
+  match rule with
+  | .finite => .app (.id "finite") s
+  | .nonempty => wdNonempty s
+  | .lowerBound => wdBound false s
+  | .upperBound => wdBound true s
+
+private def wdRules (rules : List Definedness) (s : Term) : Term :=
+  rules.foldl (fun acc rule => wdAnd acc (wdRule rule s)) wdTop
+
+private def definednessFor (name : String) : List Definedness :=
+  (EventB.Prelude.lookup? name).map (·.definedness) |>.getD []
+
 private def wdPattern : Term → Term
   | .bin "↦" a b => .bin "," (wdPattern a) (wdPattern b)
   | .bin "," a b => .bin "," (wdPattern a) (wdPattern b)
@@ -301,15 +305,9 @@ private def wdTermAux : Nat → List (String × Ty) → Term → Option Term
   | fuel + 1, env, .app f a => do
       let wa ← wdTermAux fuel env a
       match f with
-      | .id "card" =>
-          return wdAnd wa (.app (.id "finite") a)
-      | .id "min" =>
-          return wdAnd (wdAnd wa (wdNonempty a)) (wdBound false a)
-      | .id "max" =>
-          return wdAnd (wdAnd wa (wdNonempty a)) (wdBound true a)
-      | .id "inter" =>
-          return wdAnd wa (wdNonempty a)
       | .id n =>
+          let rules := definednessFor n
+          if !rules.isEmpty then return wdAnd wa (wdRules rules a)
           if totalKeywords.contains n then return wa
           else
             let wf ← wdTermAux fuel env f

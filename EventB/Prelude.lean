@@ -23,12 +23,20 @@ inductive ApplicationKind where
   | wellDefined
   deriving BEq, Repr, Inhabited
 
+inductive Definedness where
+  | finite
+  | nonempty
+  | lowerBound
+  | upperBound
+  deriving BEq, Repr, Inhabited
+
 structure Symbol where
   name : String
   kind : SymbolKind
   type : Option Ty
   description : String
   application : Option ApplicationKind := none
+  definedness : List Definedness := []
   deriving Repr, Inhabited
 
 private def carrier (name description : String) : Symbol :=
@@ -40,8 +48,10 @@ private def constant (name description : String) (type : Ty) : Symbol :=
 private def predicate (name description : String) (application : ApplicationKind) : Symbol :=
   { name, kind := .predicate, type := none, description, application := some application }
 
-private def expression (name description : String) (application : ApplicationKind) : Symbol :=
-  { name, kind := .expression, type := none, description, application := some application }
+private def expression (name description : String) (application : ApplicationKind)
+    (definedness : List Definedness := []) : Symbol :=
+  { name, kind := .expression, type := none, description, application := some application,
+    definedness }
 
 def coreSymbols : List Symbol :=
   [ carrier "ℤ" "The set of all integers."
@@ -57,14 +67,17 @@ def coreSymbols : List Symbol :=
       description := "The always-false predicate." }
   , predicate "finite" "The predicate that an expression denotes a finite set." .total
   , predicate "partition" "The predicate that sets form a partition." .total
-  , expression "card" "The cardinality of a finite set." .wellDefined
+  , expression "card" "The cardinality of a finite set." .wellDefined [.finite]
   , expression "min" "The minimum of a non-empty bounded integer set." .wellDefined
+      [.nonempty, .lowerBound]
   , expression "max" "The maximum of a non-empty bounded integer set." .wellDefined
+      [.nonempty, .upperBound]
   , expression "dom" "The domain of a relation." .total
   , expression "ran" "The range of a relation." .total
   , expression "bool" "The Boolean value of a predicate." .total
   , expression "union" "The union of a set of sets." .total
   , expression "inter" "The intersection of a non-empty set of sets." .wellDefined
+      [.nonempty]
   , expression "succ" "The successor of an integer." .total
   , expression "pred" "The predecessor of an integer." .total
   , expression "prj1" "The first projection of a relation." .total
