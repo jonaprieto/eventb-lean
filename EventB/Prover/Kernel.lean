@@ -45,7 +45,8 @@ private def reflexiveProof (goal : Expr) : MetaM (Option Expr) := do
       if ← isDefEq left right then some <$> mkAppM ``Eq.refl #[left] else pure none
   | _ => pure none
 
-private def ruleProof (pairs : List (Expr × Expr)) (goal : Expr) : MetaM (Option (Rule × Expr)) := do
+private def ruleProof (pairs : List (Expr × Expr)) (goal : Expr) :
+    MetaM (Option (Rule × Expr)) := do
   for pair in pairs do
     if ← isDefEq pair.1 goal then
       return some (.exactHypothesis, ← lambda (pairs.map (·.2)) pair.2)

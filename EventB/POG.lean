@@ -35,11 +35,12 @@ structure Obligation where
   hyps : List Term := []
   deriving BEq, Repr, Inhabited
 
+def formulaLanguageVersion : String := "eventb-formula-v1"
+
 def Obligation.canonical (obligation : Obligation) : String :=
   String.intercalate "\n"
-    ["component=" ++ obligation.component
-    , "name=" ++ obligation.name
-    , "kind=" ++ obligation.kind
+    ["scope=" ++ obligation.component
+    , "formula-language=" ++ formulaLanguageVersion
     , "theories=" ++ String.intercalate "," obligation.theoryRoots
     , "hyps=" ++ String.intercalate "\n" (obligation.hyps.map Formula.print)
     , "goal=" ++ (obligation.goal.map Formula.print |>.getD "<pending>")]

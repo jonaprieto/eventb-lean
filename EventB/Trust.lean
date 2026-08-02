@@ -112,6 +112,13 @@ private def sampleObligation : POG.Obligation :=
 
 private def sampleLedger : Ledger := Ledger.ofObligations [sampleObligation]
 
+private def renamedSample : POG.Obligation :=
+  { sampleObligation with name := "display-only", kind := "INV" }
+
+#guard sampleObligation.canonical == renamedSample.canonical
+#guard sampleObligation.canonical !=
+  { sampleObligation with goal := some (.id "⊥") }.canonical
+
 #guard match sampleLedger.attach sampleObligation (.kernel "Sample.inv1") with
   | .ok ledger => ledger.count .kernel == 1
   | .error _ => false
