@@ -110,9 +110,8 @@ elaboration error instead of an unresolved model symbol.
 The executable examples are ordinary Lean sources. The core model files are the
 introductory `Counter.lean` and the three book-derived files `BookBridge.lean`,
 `BookPrograms.lean`, and `BookSystems.lean`; the remaining files cover widgets, theories,
-translation, trust,
-Rossi input, LSP ranges, and the local prover. Together they contain 20 contexts and
-43 machines. `lake build Examples` checks them through the same DSL, parser,
+translation, trust, Rossi input, LSP ranges, and the local prover. Together they contain
+20 contexts and 43 machines. `lake build Examples` checks them through the same DSL,
 typechecker, and proof-obligation generator as Rodin files.
 
 The book export also contains proof trees, pseudocode, OCR fragments, and image-only
