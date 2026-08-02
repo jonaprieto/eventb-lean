@@ -386,6 +386,12 @@ private def countKinds (obligations : List Obligation) : List (String × Nat) :=
 private def derivedCount (obligations : List Obligation) : Nat :=
   obligations.countP (·.goal.isSome)
 
+private def notDerivedCount (obligations : List Obligation) : Nat :=
+  obligations.countP (·.goal.isNone)
+
+private def notDerivedKinds (obligations : List Obligation) : List (String × Nat) :=
+  countKinds (obligations.filter (·.goal.isNone))
+
 private def jsonCounts (counts : List (String × Nat)) : String :=
   "{" ++ String.intercalate "," (counts.map fun (name, count) =>
     jsonString name ++ ":" ++ toString count) ++ "}"
@@ -410,12 +416,17 @@ private def runSummary (dir : System.FilePath) (json : Bool) : IO UInt32 := do
     IO.println ("{\"obligations\":" ++ toString obligations.length ++
       ",\"derived\":" ++ toString (derivedCount obligations) ++
       ",\"by_class\":" ++ jsonCounts counts ++
+      ",\"not_derived\":" ++ toString (notDerivedCount obligations) ++
+      ",\"not_derived_by_class\":" ++ jsonCounts (notDerivedKinds obligations) ++
       ",\"by_machine\":{" ++ String.intercalate "," machines ++ "}}")
   else
     IO.println s!"obligations: {obligations.length}"
     IO.println s!"derived statements: {derivedCount obligations}"
     IO.println "by class:"
     for (kind, count) in counts do
+      IO.println s!"  {kind}: {count}"
+    IO.println "not derived by class:"
+    for (kind, count) in notDerivedKinds obligations do
       IO.println s!"  {kind}: {count}"
     IO.println "by machine:"
     for report in rs do

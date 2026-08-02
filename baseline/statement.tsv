@@ -914,6 +914,7 @@ MAbs_helper	Move_Mouse_Block/grd9,1/GRD	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Block/grd9,2/GRD	PASS
 MAbs_helper	Move_Mouse_Block/act9,1/SIM	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Block/act9,4/SIM	PASS
+MAbs_helper	Move_Mouse_Block/abstract_block/WFIS	PASS
 MAbs_helper	Move_Mouse_Airplane/block_slot_position/INV	PASS
 MAbs_helper	Move_Mouse_Airplane/block_slot_position_glue/INV	PASS
 MAbs_helper	Move_Mouse_Airplane/mousePositionAirplane_glue/INV	PASS
@@ -980,6 +981,7 @@ MAbs_helper	AMAN_Update_mouse_to_nothing/act2,1/SIM	PASS
 MAbs_helper	AMAN_Update_mouse_to_nothing/act5,1/SIM	FAIL:no such sequent in .bpo
 MAbs_helper	AMAN_Update_mouse_to_nothing/act9,1/SIM	FAIL:no such sequent in .bpo
 MAbs_helper	AMAN_Update_mouse_to_nothing/inv1,2/WD	PASS
+MAbs_helper	AMAN_Update_mouse_to_nothing/new_abstract_blockedTime/WFIS	PASS
 MAbs_helper	AMAN_Update_mouse_to_airplane/landing_sequence_1/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_airplane/landing_sequence_2/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_airplane/landing_sequence_2/WD	FAIL:no such sequent in .bpo
@@ -1006,6 +1008,7 @@ MAbs_helper	AMAN_Update_mouse_to_airplane/act2,1/SIM	PASS
 MAbs_helper	AMAN_Update_mouse_to_airplane/act5,1/SIM	FAIL:no such sequent in .bpo
 MAbs_helper	AMAN_Update_mouse_to_airplane/act9,1/SIM	FAIL:no such sequent in .bpo
 MAbs_helper	AMAN_Update_mouse_to_airplane/inv1,2/WD	PASS
+MAbs_helper	AMAN_Update_mouse_to_airplane/new_abstract_blockedTime/WFIS	PASS
 MAbs_helper	AMAN_Update_mouse_stays/landing_sequence_1/INV	PASS
 MAbs_helper	AMAN_Update_mouse_stays/landing_sequence_2/INV	PASS
 MAbs_helper	AMAN_Update_mouse_stays/landing_sequence_2/WD	FAIL:no such sequent in .bpo
@@ -1023,6 +1026,7 @@ MAbs_helper	AMAN_Update_mouse_stays/grdAbstractBlocked/GRD	FAIL:no such sequent 
 MAbs_helper	AMAN_Update_mouse_stays/act2,1/SIM	PASS
 MAbs_helper	AMAN_Update_mouse_stays/act5,1/SIM	FAIL:no such sequent in .bpo
 MAbs_helper	AMAN_Update_mouse_stays/inv1,2/WD	PASS
+MAbs_helper	AMAN_Update_mouse_stays/new_abstract_blockedTime/WFIS	PASS
 MAbs_helper	AMAN_Timeout/selected_airplane_glue/INV	PASS
 MAbs_helper	AMAN_Timeout/selected_airplane_glue_2/INV	PASS
 MAbs_helper	AMAN_Timeout/dragged_airplane/INV	PASS
@@ -1089,6 +1093,7 @@ MAbs_helper	Release_Trigger_Deblock_Time/abstract_blocked/GRD	PASS
 MAbs_helper	Release_Trigger_Deblock_Time/abstract_isClicked_empty/GRD	PASS
 MAbs_helper	Release_Trigger_Deblock_Time/new_abstract_blockedTime_inv/GRD	PASS
 MAbs_helper	Release_Trigger_Deblock_Time/clicked_pos/SIM	PASS
+MAbs_helper	Release_Trigger_Deblock_Time/new_abstract_blockedTime/WFIS	PASS
 MAbs_helper	changeZoom/selected_airplane_glue/INV	PASS
 MAbs_helper	changeZoom/selected_airplane_glue_2/INV	PASS
 MAbs_helper	changeZoom/dragged_airplane/INV	PASS

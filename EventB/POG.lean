@@ -93,6 +93,12 @@ private def substOf (action : Elem) : List (String × Term) :=
             match v with | .id n => some (n, e) | _ => none
     | _ => []
 
+private def witnessBinding (witness : Elem) : Option (String × Term) :=
+  match Formula.parse ((attrOf witness "predicate").getD "") with
+  | .ok (.bin "=" (.id v) e) => some (v, e)
+  | .ok (.bin "=" e (.id v)) => some (v, e)
+  | _ => none
+
 /-- The variables an action assigns. Rodin's three assignment forms all name their
 targets on the left: `v ≔ E`, `v :∈ S`, and `v, w :∣ P`. -/
 private def assignedBy (action : Elem) : List String :=
@@ -406,6 +412,12 @@ private def wdGoal (theory : Theory.Env) (roots totalKeywords : List String)
   | .ok t => wdTerm theory roots totalKeywords env t
   | .error _ => none
 
+private def witnessFeasibility (types : List (String × Ty)) (witness : Elem) : Option Term := do
+  let predicate ← Formula.parse ((attrOf witness "predicate").getD "") |>.toOption
+  let (witnessVar, _) ← witnessBinding witness
+  let type ← types.find? (fun pair => pair.1 == witnessVar) |>.map (·.2)
+  some (.bind "∃" (.bin "⦂" (.id witnessVar) (wdType type)) predicate)
+
 /- Rules tried against the corpus and rejected by measurement, recorded so they are not
 retried. Each was plausible and each made the gates worse:
 
@@ -606,10 +618,13 @@ def generateIn (theory : Theory.Env) (p : Project) (name : String) : List Obliga
                hyps := eventHyps p name ev }]
       for w in childrenOf ev "witness" do
         out := out ++
-          [{ name := labelOf ev ++ "/" ++ labelOf w ++ "/WFIS", kind := "WFIS" }]
+          [{ name := labelOf ev ++ "/" ++ labelOf w ++ "/WFIS", kind := "WFIS",
+             goal := witnessFeasibility types w, hyps := eventHyps p name ev }]
         if wdRequired total ((attrOf w "predicate").getD "") then
           out := out ++
-            [{ name := labelOf ev ++ "/" ++ labelOf w ++ "/WWD", kind := "WWD" }]
+            [{ name := labelOf ev ++ "/" ++ labelOf w ++ "/WWD", kind := "WWD",
+               -- Rodin records witness WD as a hypothesis-only sequent.
+               hyps := eventHyps p name ev }]
     return finalize out
 
 /-- Compatibility entry point for Rodin corpus projects without user theories. -/
