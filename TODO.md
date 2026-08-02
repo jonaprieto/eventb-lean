@@ -74,7 +74,7 @@ It is complete only when each item below is checked and the v1 contract still pa
 - [x] Preserve and round-trip the supported Rodin theory-file extension data, or reject
   it with a precise declaration path and documented limitation.
 - [x] Publish the v2 architecture, trust boundary, commands, and reproducible checks.
-- [ ] Run the complete v1+v2 contract, close every v2 checkbox, and tag the release.
+- [x] Run the complete v1+v2 contract, close every v2 checkbox, and tag the release.
 
 ### Execution order
 
