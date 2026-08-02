@@ -32,6 +32,10 @@ private def reflexiveObligation : Obligation :=
   { component := "Demo", name := "refl", kind := "THM"
     goal := some (.bin "=" (.num 1) (.num 1)) }
 
+private def numeralObligation : Obligation :=
+  { component := "Demo", name := "zero-lt-numeral", kind := "THM"
+    goal := some (.bin "<" (.num 0) (.num 1)) }
+
 private def contradictionObligation : Obligation :=
   { component := "Demo", name := "contra", kind := "THM",
     goal := some (.bin "=" (.num 1) (.num 2)), hyps := [.id "⊥"] }
@@ -52,6 +56,7 @@ private def projectionObligation : Obligation :=
 private def examples : List (EventB.Prover.Kernel.Rule × Obligation) :=
   [(.true, trueObligation), (.exactHypothesis, exactObligation),
    (.reflexive, reflexiveObligation), (.contradiction, contradictionObligation),
+   (.zeroLtNumeral, numeralObligation),
    (.andIntro, conjunctionObligation), (.implicationIntro, implicationObligation),
    (.hypothesisProjection, projectionObligation)]
 
@@ -72,6 +77,12 @@ private meta def check : TermElabM Unit := do
   let openResult ← EventB.Prover.Kernel.prove {} rejected
   unless !openResult.discharged do
     throwError "kernel prover discharged an unsupported goal"
+  let falseNumeral : Obligation :=
+    { component := "Demo", name := "false-numeral", kind := "THM",
+      goal := some (.bin "<" (.num 0) (.num 0)) }
+  let falseNumeralResult ← EventB.Prover.Kernel.prove {} falseNumeral
+  unless !falseNumeralResult.discharged do
+    throwError "kernel numeral rule accepted a false inequality"
   let falseImp : Obligation :=
     { component := "Demo", name := "false-imp", kind := "THM",
       goal := some (.bin "⇒" (.id "⊤") (.bin "=" (.num 1) (.num 2))) }

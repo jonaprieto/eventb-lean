@@ -12,6 +12,7 @@ inductive Rule where
   | true
   | reflexive
   | contradiction
+  | zeroLtNumeral
   | andIntro
   | implicationIntro
   | hypothesisProjection
@@ -22,6 +23,7 @@ def Rule.label : Rule → String
   | .true => "true"
   | .reflexive => "reflexive"
   | .contradiction => "contradiction"
+  | .zeroLtNumeral => "zero-lt-numeral"
   | .andIntro => "and-intro"
   | .implicationIntro => "implication-intro"
   | .hypothesisProjection => "hypothesis-projection"
@@ -51,6 +53,29 @@ private def reflexiveProof (goal : Expr) : MetaM (Option Expr) := do
       if ← isDefEq left right then some <$> mkAppM ``Eq.refl #[left] else pure none
   | _ => pure none
 
+private theorem zeroLtIntOfNatSucc (n : Nat) :
+    Int.ofNat 0 < Int.ofNat (Nat.succ n) := by
+  exact Int.ofNat_lt.mpr (Nat.zero_lt_succ n)
+
+private def zeroLtNumeralProof (goal : Expr) : MetaM (Option Expr) := do
+  let (function, arguments) := goal.getAppFnArgs
+  if function == ``Int.lt && arguments.size == 2 then
+    let left := arguments[0]!
+    let right := arguments[1]!
+    if left.isAppOfArity ``Int.ofNat 1 && right.isAppOfArity ``Int.ofNat 1 then
+      let leftArg ← whnf (left.getArg! 0)
+      let rightArg ← whnf (right.getArg! 0)
+      let leftNat := leftArg.rawNatLit?
+      let rightNat := rightArg.rawNatLit?
+      match leftNat, rightNat with
+      | some 0, some (n + 1) =>
+          pure (some (mkApp (mkConst ``zeroLtIntOfNatSucc) (mkNatLit n)))
+      | _, _ => pure none
+    else
+      pure none
+  else
+    pure none
+
 private def basicProof (pairs : List (Expr × Expr)) (goal : Expr) :
     MetaM (Option (Rule × Expr)) := do
   for pair in pairs do
@@ -60,6 +85,8 @@ private def basicProof (pairs : List (Expr × Expr)) (goal : Expr) :
     return some (.true, mkConst ``True.intro)
   if let some proof ← reflexiveProof goal then
     return some (.reflexive, proof)
+  if let some proof ← zeroLtNumeralProof goal then
+    return some (.zeroLtNumeral, proof)
   for pair in pairs do
     if ← isDefEq pair.1 (mkConst ``False) then
       let proof := mkApp (mkApp (mkConst ``False.elim [Level.zero]) goal) pair.2
@@ -135,7 +162,10 @@ def validate (context : KernelContext) (obligation : Obligation) : MetaM Result 
   match result.proof with
   | none => pure result
   | some proof =>
-      let _ ← Trust.Replay.validateTerm context obligation proof
+      let axioms := match result.rule with
+        | some .zeroLtNumeral => ["propext"]
+        | _ => []
+      let _ ← Trust.Replay.validateTerm context obligation proof "<kernel-rule>" axioms
       pure result
 
 end EventB.Prover.Kernel
