@@ -30,38 +30,20 @@ M2_Hold_Button	INITIALISATION/inv4,1/INV	PASS
 M2_Hold_Button	AMAN_Update/inv4,1/INV	PASS
 M2_Hold_Button	Move_Aircraft/inv4,1/INV	PASS
 M2_Hold_Button	Hold_Button/inv4,1/INV	PASS
-M2_Hold_Button	AMAN_Update/inv1,2/WD	FAIL:not in .bpo
-M2_Hold_Button	Move_Aircraft/grd1,3/WD	FAIL:not in .bpo
-M2_Hold_Button	Move_Aircraft/grd1,4/WD	FAIL:not in .bpo
-M2_Hold_Button	Move_Aircraft/act1,1/WD	FAIL:not in .bpo
 M3_Block_Timeslots	INITIALISATION/inv3,1/INV	PASS
 M3_Block_Timeslots	AMAN_Update/inv3,1/INV	PASS
 M3_Block_Timeslots	Block_Time/inv3,1/INV	PASS
 M3_Block_Timeslots	Deblock_Time/inv3,1/INV	PASS
-M3_Block_Timeslots	AMAN_Update/inv1,2/WD	FAIL:not in .bpo
-M3_Block_Timeslots	Move_Aircraft/grd1,3/WD	FAIL:not in .bpo
-M3_Block_Timeslots	Move_Aircraft/grd1,4/WD	FAIL:not in .bpo
-M3_Block_Timeslots	Move_Aircraft/act1,1/WD	FAIL:not in .bpo
 M4_Zoom	INITIALISATION/inv6,1/INV	PASS
 M4_Zoom	Move_Aircraft/grd6,1/WD	PASS
 M4_Zoom	Hold_Button/grd6,1/WD	PASS
 M4_Zoom	changeZoom/inv6,1/INV	PASS
-M4_Zoom	AMAN_Update/inv1,2/WD	FAIL:not in .bpo
-M4_Zoom	Move_Aircraft/grd1,3/WD	FAIL:not in .bpo
-M4_Zoom	Move_Aircraft/grd1,4/WD	FAIL:not in .bpo
-M4_Zoom	Move_Aircraft/act1,1/WD	FAIL:not in .bpo
 M4_Zoom_Ctx	ZOOM_LEVELS_value/WD	PASS
 M4_Zoom_Ctx	ZOOM_LEVELS_sub_PLANNING_INTERVAL/THM	PASS
 M4_Zoom_prob_mc_Ctx	ZOOM_LEVELS_inst/WD	PASS
 M5_AMAN_Timeout	INITIALISATION/inv5,1/INV	FAIL:not in .bpo
 M5_AMAN_Timeout	AMAN_Update/inv5,1/INV	FAIL:not in .bpo
-M5_AMAN_Timeout	AMAN_Update/inv1,2/WD	FAIL:not in .bpo
 M5_AMAN_Timeout	AMAN_Timeout/inv5,1/INV	FAIL:not in .bpo
-M5_AMAN_Timeout	Move_Aircraft/grd1,3/WD	FAIL:not in .bpo
-M5_AMAN_Timeout	Move_Aircraft/grd1,4/WD	FAIL:not in .bpo
-M5_AMAN_Timeout	Move_Aircraft/grd6,1/WD	FAIL:not in .bpo
-M5_AMAN_Timeout	Move_Aircraft/act1,1/WD	FAIL:not in .bpo
-M5_AMAN_Timeout	Hold_Button/grd6,1/WD	FAIL:not in .bpo
 M6_Select_Airplane	selectedAirplane_card/WD	PASS
 M6_Select_Airplane	INITIALISATION/inv7,1/INV	PASS
 M6_Select_Airplane	INITIALISATION/selectedAirplane_finite/INV	PASS
@@ -88,14 +70,8 @@ M6_Select_Airplane	deselectAirplane/selectedAirplane_finite/INV	PASS
 M6_Select_Airplane	deselectAirplane/selectedAirplane_card/INV	PASS
 M6_Select_Airplane	INITIALISATION/selectedAirplane_card/WD	FAIL:not in .bpo
 M6_Select_Airplane	AMAN_Update/selectedAirplane_card/WD	FAIL:not in .bpo
-M6_Select_Airplane	AMAN_Update/inv1,2/WD	FAIL:not in .bpo
 M6_Select_Airplane	AMAN_Timeout/selectedAirplane_card/WD	FAIL:not in .bpo
-M6_Select_Airplane	Move_Aircraft/grd1,3/WD	FAIL:not in .bpo
-M6_Select_Airplane	Move_Aircraft/grd1,4/WD	FAIL:not in .bpo
-M6_Select_Airplane	Move_Aircraft/grd6,1/WD	FAIL:not in .bpo
-M6_Select_Airplane	Move_Aircraft/act1,1/WD	FAIL:not in .bpo
 M6_Select_Airplane	Hold_Button/selectedAirplane_card/WD	FAIL:not in .bpo
-M6_Select_Airplane	Hold_Button/grd6,1/WD	FAIL:not in .bpo
 M6_Select_Airplane	changeZoom/selectedAirplane_card/WD	FAIL:not in .bpo
 M6_Select_Airplane	selectAirplane/selectedAirplane_card/WD	FAIL:not in .bpo
 M6_Select_Airplane	deselectAirplane/selectedAirplane_card/WD	FAIL:not in .bpo
@@ -110,15 +86,8 @@ M7_Interaction_Pauses_Updates	deselectAirplane/dragging_selected_airplane/INV	PA
 M7_Interaction_Pauses_Updates	resume_dragging_airplane/dragging_selected_airplane/INV	PASS
 M7_Interaction_Pauses_Updates	stop_dragging_airplane/dragging_selected_airplane/INV	PASS
 M7_Interaction_Pauses_Updates	INITIALISATION/dragging_airplane_type/INV	FAIL:not in .bpo
-M7_Interaction_Pauses_Updates	AMAN_Update/inv1,2/WD	FAIL:not in .bpo
 M7_Interaction_Pauses_Updates	Move_Aircraft/dragging_airplane_type/INV	FAIL:not in .bpo
-M7_Interaction_Pauses_Updates	Move_Aircraft/grd1,3/WD	FAIL:not in .bpo
-M7_Interaction_Pauses_Updates	Move_Aircraft/grd1,4/WD	FAIL:not in .bpo
-M7_Interaction_Pauses_Updates	Move_Aircraft/grd6,1/WD	FAIL:not in .bpo
-M7_Interaction_Pauses_Updates	Move_Aircraft/act1,1/WD	FAIL:not in .bpo
-M7_Interaction_Pauses_Updates	Hold_Button/grd6,1/WD	FAIL:not in .bpo
 M7_Interaction_Pauses_Updates	selectAirplane/dragging_airplane_type/INV	FAIL:not in .bpo
-M7_Interaction_Pauses_Updates	selectAirplane/grd6,2/WD	FAIL:not in .bpo
 M7_Interaction_Pauses_Updates	resume_dragging_airplane/dragging_airplane_type/INV	FAIL:not in .bpo
 M7_Interaction_Pauses_Updates	stop_dragging_airplane/dragging_airplane_type/INV	FAIL:not in .bpo
 M8_Interaction_Events	dragged_airplane_card/WD	PASS
@@ -236,15 +205,6 @@ M8_Interaction_Events	stop_dragging_airplane/dragging_airplane/SIM	FAIL:not in .
 M8_Interaction_Events	drag_airplane/dragged_airplane_card/WD	FAIL:not in .bpo
 M8_Interaction_Events	start_dragging_zoom_slider/dragged_zoom_level_card/WD	FAIL:not in .bpo
 M8_Interaction_Events	drag_zoom_slider/dragged_zoom_level_card/WD	FAIL:not in .bpo
-M9_Push_Mouse_Button_prob_mc	Move_Aircraft/grd1,3/WD	FAIL:not in .bpo
-M9_Push_Mouse_Button_prob_mc	Move_Aircraft/grd1,4/WD	FAIL:not in .bpo
-M9_Push_Mouse_Button_prob_mc	Move_Aircraft/act1,1/WD	FAIL:not in .bpo
-M9_Push_Mouse_Button_prob_mc	selectAirplane/grd6,3/WD	FAIL:not in .bpo
-M9_Push_Mouse_Button_prob_mc	selectAirplane/dragged_airplane/WD	FAIL:not in .bpo
-M9_Push_Mouse_Button_prob_mc	deselectAirplane/grd6,3/WD	FAIL:not in .bpo
-M9_Push_Mouse_Button_prob_mc	resume_dragging_airplane/dragged_airplane/WD	FAIL:not in .bpo
-M9_Push_Mouse_Button_prob_mc	stop_dragging_airplane/dest_not_allowed/WD	FAIL:not in .bpo
-M9_Push_Mouse_Button_prob_mc	drag_airplane/different_time/WD	FAIL:not in .bpo
 M9_Push_Mouse_Buttons	is_clicked_block_card/WD	PASS
 M9_Push_Mouse_Buttons	block_slot_position_card/WD	PASS
 M9_Push_Mouse_Buttons	airplane_Position_card/WD	PASS
@@ -469,9 +429,6 @@ M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_nothing/airplane_Position_card/WD	FAI
 M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_airplane/current_mouse_selection/INV	FAIL:not in .bpo
 M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_airplane/airplane_Position_card/WD	FAIL:not in .bpo
 M9_Push_Mouse_Buttons	Move_Aircraft/is_mouse_pressed/INV	FAIL:not in .bpo
-M9_Push_Mouse_Buttons	Move_Aircraft/grd1,3/WD	FAIL:not in .bpo
-M9_Push_Mouse_Buttons	Move_Aircraft/grd1,4/WD	FAIL:not in .bpo
-M9_Push_Mouse_Buttons	Move_Aircraft/act1,1/WD	FAIL:not in .bpo
 M9_Push_Mouse_Buttons	Click_Hold_Button/is_mouse_pressed/INV	FAIL:not in .bpo
 M9_Push_Mouse_Buttons	Release_Trigger_Hold_Button/is_mouse_pressed/INV	FAIL:not in .bpo
 M9_Push_Mouse_Buttons	Release_Abort_Hold_Button/is_mouse_pressed/INV	FAIL:not in .bpo
@@ -485,14 +442,8 @@ M9_Push_Mouse_Buttons	Release_Trigger_Deblock_Time/is_mouse_pressed/INV	FAIL:not
 M9_Push_Mouse_Buttons	Release_Trigger_Deblock_Time/is_clicked_block_card/WD	FAIL:not in .bpo
 M9_Push_Mouse_Buttons	changeZoom/is_mouse_pressed/INV	FAIL:not in .bpo
 M9_Push_Mouse_Buttons	selectAirplane/is_mouse_pressed/INV	FAIL:not in .bpo
-M9_Push_Mouse_Buttons	selectAirplane/grd6,3/WD	FAIL:not in .bpo
-M9_Push_Mouse_Buttons	selectAirplane/dragged_airplane/WD	FAIL:not in .bpo
-M9_Push_Mouse_Buttons	deselectAirplane/grd6,3/WD	FAIL:not in .bpo
 M9_Push_Mouse_Buttons	resume_dragging_airplane/is_mouse_pressed/INV	FAIL:not in .bpo
-M9_Push_Mouse_Buttons	resume_dragging_airplane/dragged_airplane/WD	FAIL:not in .bpo
 M9_Push_Mouse_Buttons	stop_dragging_airplane/is_mouse_pressed/INV	FAIL:not in .bpo
-M9_Push_Mouse_Buttons	stop_dragging_airplane/dest_not_allowed/WD	FAIL:not in .bpo
-M9_Push_Mouse_Buttons	drag_airplane/different_time/WD	FAIL:not in .bpo
 M9_Push_Mouse_Buttons	start_dragging_zoom_slider/is_mouse_pressed/INV	FAIL:not in .bpo
 MAbs	abstract_selectedAirplane_card/WD	PASS
 MAbs	dragged_airplane_card/WD	PASS
@@ -1337,13 +1288,7 @@ Env_M1	ENV_join_network/typeof_connected/INV	PASS
 Env_M1	ENV_join_network/distinct_states_in_connected_sm/INV	PASS
 Env_M1	INITIALISATION/typeof_train/INV	FAIL:not in .bpo
 Env_M1	ENV_leave_network/typeof_train/INV	FAIL:not in .bpo
-Env_M1	ENV_front_move_next/grdnext11/WD	FAIL:not in .bpo
-Env_M1	ENV_front_move_next/grdnnn/WD	FAIL:not in .bpo
-Env_M1	ENV_front_move_next/grdm/WD	FAIL:not in .bpo
-Env_M1	ENV_rear_leave_section/cdm_guards5/WD	FAIL:not in .bpo
 Env_M1	ENV_train_split/typeof_train/INV	FAIL:not in .bpo
-Env_M1	ENV_train_split/grd15/WD	FAIL:not in .bpo
-Env_M1	ENV_train_split/grd1next/WD	FAIL:not in .bpo
 Env_M1	ENV_join_network/typeof_train/INV	FAIL:not in .bpo
 Env_M2	cdm_inv1/THM	PASS
 Env_M2	INITIALISATION/inv1/INV	PASS
@@ -1358,12 +1303,6 @@ Env_M2	ENV_last_train_leave_ttd/inv1/INV	PASS
 Env_M2	ENV_leave_network_and_free_ttd/inv1/INV	PASS
 Env_M2	INITIALISATION/TTD_supertypeOf_occupiedTTD/INV	FAIL:not in .bpo
 Env_M2	ENV_front_move_next/TTD_supertypeOf_occupiedTTD/INV	FAIL:not in .bpo
-Env_M2	ENV_front_move_next/grdnext11/WD	FAIL:not in .bpo
-Env_M2	ENV_front_move_next/grdnnn/WD	FAIL:not in .bpo
-Env_M2	ENV_front_move_next/grdm/WD	FAIL:not in .bpo
-Env_M2	ENV_rear_leave_section/cdm_guards5/WD	FAIL:not in .bpo
-Env_M2	ENV_train_split/grd15/WD	FAIL:not in .bpo
-Env_M2	ENV_train_split/grd1next/WD	FAIL:not in .bpo
 Env_M2	ENV_join_network/TTD_supertypeOf_occupiedTTD/INV	FAIL:not in .bpo
 Env_M2	ENV_last_train_leave_ttd/TTD_supertypeOf_occupiedTTD/INV	FAIL:not in .bpo
 Env_M2	ENV_leave_network_and_free_ttd/TTD_supertypeOf_occupiedTTD/INV	FAIL:not in .bpo
@@ -1454,26 +1393,18 @@ Env_M3	ENV_leave_network/inv4/WD	FAIL:not in .bpo
 Env_M3	ENV_front_move_next/inv2/WD	FAIL:not in .bpo
 Env_M3	ENV_front_move_next/inv3/WD	FAIL:not in .bpo
 Env_M3	ENV_front_move_next/inv4/WD	FAIL:not in .bpo
-Env_M3	ENV_front_move_next/grdnext11/WD	FAIL:not in .bpo
-Env_M3	ENV_front_move_next/grdnnn/WD	FAIL:not in .bpo
-Env_M3	ENV_front_move_next/grdm/WD	FAIL:not in .bpo
 Env_M3	ENV_rear_leave_section/inv2/WD	FAIL:not in .bpo
 Env_M3	ENV_rear_leave_section/inv3/WD	FAIL:not in .bpo
 Env_M3	ENV_rear_leave_section/inv4/WD	FAIL:not in .bpo
-Env_M3	ENV_rear_leave_section/cdm_guards5/WD	FAIL:not in .bpo
-Env_M3	ENV_rear_leave_section/grd3/WD	FAIL:not in .bpo
 Env_M3	ENV_train_split/inv2/WD	FAIL:not in .bpo
 Env_M3	ENV_train_split/inv3/WD	FAIL:not in .bpo
 Env_M3	ENV_train_split/inv4/WD	FAIL:not in .bpo
-Env_M3	ENV_train_split/grd15/WD	FAIL:not in .bpo
-Env_M3	ENV_train_split/grd1next/WD	FAIL:not in .bpo
 Env_M3	ENV_join_network/inv2/WD	FAIL:not in .bpo
 Env_M3	ENV_join_network/inv3/WD	FAIL:not in .bpo
 Env_M3	ENV_join_network/inv4/WD	FAIL:not in .bpo
 Env_M3	ENV_last_train_leave_ttd/inv2/WD	FAIL:not in .bpo
 Env_M3	ENV_last_train_leave_ttd/inv3/WD	FAIL:not in .bpo
 Env_M3	ENV_last_train_leave_ttd/inv4/WD	FAIL:not in .bpo
-Env_M3	ENV_last_train_leave_ttd/grd3/WD	FAIL:not in .bpo
 Env_M3	ENV_leave_network_and_free_ttd/inv2/WD	FAIL:not in .bpo
 Env_M3	ENV_leave_network_and_free_ttd/inv3/WD	FAIL:not in .bpo
 Env_M3	ENV_leave_network_and_free_ttd/inv4/WD	FAIL:not in .bpo
@@ -1543,13 +1474,8 @@ VBD_M4	ENV_leave_network/inv1/WD	FAIL:not in .bpo
 VBD_M4	ENV_leave_network/inv2/WD	FAIL:not in .bpo
 VBD_M4	ENV_front_move_next/inv1/WD	FAIL:not in .bpo
 VBD_M4	ENV_front_move_next/inv2/WD	FAIL:not in .bpo
-VBD_M4	ENV_front_move_next/grdnext11/WD	FAIL:not in .bpo
-VBD_M4	ENV_front_move_next/grdnnn/WD	FAIL:not in .bpo
-VBD_M4	ENV_front_move_next/grdm/WD	FAIL:not in .bpo
 VBD_M4	ENV_rear_leave_section/inv1/WD	FAIL:not in .bpo
 VBD_M4	ENV_rear_leave_section/inv2/WD	FAIL:not in .bpo
-VBD_M4	ENV_rear_leave_section/cdm_guards5/WD	FAIL:not in .bpo
-VBD_M4	ENV_rear_leave_section/grd3/WD	FAIL:not in .bpo
 VBD_M4	VBD_mute_timer_expired/act1/WD	FAIL:not in .bpo
 VBD_M4	ENV_train_split/inv1/WD	FAIL:not in .bpo
 VBD_M4	ENV_train_split/inv2/WD	FAIL:not in .bpo
@@ -1564,22 +1490,13 @@ VBD_M4	ENV_join_network/inv1/WD	FAIL:not in .bpo
 VBD_M4	ENV_join_network/inv2/WD	FAIL:not in .bpo
 VBD_M4	ENV_last_train_leave_ttd/inv1/WD	FAIL:not in .bpo
 VBD_M4	ENV_last_train_leave_ttd/inv2/WD	FAIL:not in .bpo
-VBD_M4	ENV_last_train_leave_ttd/grd3/WD	FAIL:not in .bpo
 VBD_M4	ENV_leave_network_and_free_ttd/inv1/WD	FAIL:not in .bpo
 VBD_M4	ENV_leave_network_and_free_ttd/inv2/WD	FAIL:not in .bpo
 VBD_M4	ENV_start_of_mission/inv1/WD	FAIL:not in .bpo
 VBD_M4	ENV_start_of_mission/inv2/WD	FAIL:not in .bpo
-VBD_M4	ENV_start_of_mission/act1/WD	FAIL:not in .bpo
 VBD_M4	ENV_start_of_mission/act4/WD	FAIL:not in .bpo
 VBD_M4	ENV_end_of_mission/inv1/WD	FAIL:not in .bpo
 VBD_M4	ENV_end_of_mission/inv2/WD	FAIL:not in .bpo
-VBD_M4	RBC_extend_ma/grd3/WD	FAIL:not in .bpo
-VBD_M4	RBC_shrink_ma/grd1/WD	FAIL:not in .bpo
-VBD_M4	RBC_shrink_ma/grd4/WD	FAIL:not in .bpo
-VBD_M4	set_as_safe/grd1/WD	FAIL:not in .bpo
-VBD_M4	set_as_safe/act1/WD	FAIL:not in .bpo
-VBD_M4	set_as_unsafe/grd1/WD	FAIL:not in .bpo
-VBD_M4	set_as_unsafe/act1/WD	FAIL:not in .bpo
 VBD_M4	RBC_trim_ma/act1/SIM	FAIL:not in .bpo
 VBD_M4	VBD_receive_position_report/inv1/WD	FAIL:not in .bpo
 VBD_M4	VBD_receive_position_report/inv2/WD	FAIL:not in .bpo
@@ -1612,37 +1529,9 @@ VBD_M5	RBC_trim_ma/inv1/INV	PASS
 VBD_M5	VBD_add_available_vss/grd1/WD	PASS
 VBD_M5	VBD_remove_available_vss/grd1/WD	PASS
 VBD_M5	INITIALISATION/VSS_supertypeOf_availableVSS/INV	FAIL:not in .bpo
-VBD_M5	ENV_front_move_next/grdnext11/WD	FAIL:not in .bpo
-VBD_M5	ENV_front_move_next/grdnnn/WD	FAIL:not in .bpo
-VBD_M5	ENV_front_move_next/grdm/WD	FAIL:not in .bpo
-VBD_M5	ENV_front_move_next/grd4/WD	FAIL:not in .bpo
-VBD_M5	ENV_rear_leave_section/cdm_guards5/WD	FAIL:not in .bpo
-VBD_M5	ENV_rear_leave_section/grd3/WD	FAIL:not in .bpo
-VBD_M5	ENV_rear_leave_section/grd4/WD	FAIL:not in .bpo
-VBD_M5	VBD_mute_timer_expired/act1/WD	FAIL:not in .bpo
-VBD_M5	ENV_train_split/grd15/WD	FAIL:not in .bpo
-VBD_M5	ENV_train_split/grd16/WD	FAIL:not in .bpo
-VBD_M5	ENV_train_split/grd17/WD	FAIL:not in .bpo
-VBD_M5	ENV_train_split/grd18/WD	FAIL:not in .bpo
-VBD_M5	ENV_train_split/grdnext/WD	FAIL:not in .bpo
-VBD_M5	ENV_last_train_leave_ttd/grd3/WD	FAIL:not in .bpo
-VBD_M5	ENV_start_of_mission/act1/WD	FAIL:not in .bpo
-VBD_M5	ENV_start_of_mission/act4/WD	FAIL:not in .bpo
 VBD_M5	RBC_extend_fs_ma/act1/SIM	FAIL:not in .bpo
 VBD_M5	RBC_extend_os_ma/act1/SIM	FAIL:not in .bpo
 VBD_M5	RBC_extend_os_ma/grd3/WD	FAIL:not in .bpo
-VBD_M5	RBC_shrink_ma/grd1/WD	FAIL:not in .bpo
-VBD_M5	RBC_shrink_ma/grd4/WD	FAIL:not in .bpo
-VBD_M5	set_as_safe/grd1/WD	FAIL:not in .bpo
-VBD_M5	set_as_safe/act1/WD	FAIL:not in .bpo
-VBD_M5	set_as_unsafe/grd1/WD	FAIL:not in .bpo
-VBD_M5	set_as_unsafe/act1/WD	FAIL:not in .bpo
-VBD_M5	RBC_trim_ma/grd3/WD	FAIL:not in .bpo
-VBD_M5	VBD_receive_position_report/grd2/WD	FAIL:not in .bpo
-VBD_M5	VBD_receive_position_report/grd5/WD	FAIL:not in .bpo
-VBD_M5	VBD_receive_position_report/act2/WD	FAIL:not in .bpo
-VBD_M5	VBD_disconnect_propagation_timer_expired/grd2/WD	FAIL:not in .bpo
-VBD_M5	VBD_disconnect_propagation_timer_expired/act1/WD	FAIL:not in .bpo
 VBD_M5	VBD_add_available_vss/VSS_supertypeOf_availableVSS/INV	FAIL:not in .bpo
 VBD_M5	VBD_remove_available_vss/VSS_supertypeOf_availableVSS/INV	FAIL:not in .bpo
 VBD_M6	INITIALISATION/typeof_nonIntegral/INV	PASS
@@ -1672,41 +1561,12 @@ VBD_M6	VBD_receive_position_report_integrity_unavailable/distinct_states_in_conn
 VBD_M6	VBD_receive_position_report_train_length_changed/typeof_nonIntegral/INV	PASS
 VBD_M6	VBD_receive_position_report_train_length_changed/typeof_integral/INV	PASS
 VBD_M6	VBD_receive_position_report_train_length_changed/distinct_states_in_connected_integrity/INV	PASS
-VBD_M6	ENV_front_move_next/grdnext11/WD	FAIL:not in .bpo
-VBD_M6	ENV_front_move_next/grdnnn/WD	FAIL:not in .bpo
-VBD_M6	ENV_front_move_next/grdm/WD	FAIL:not in .bpo
-VBD_M6	ENV_front_move_next/grd4/WD	FAIL:not in .bpo
-VBD_M6	ENV_rear_leave_section/cdm_guards5/WD	FAIL:not in .bpo
-VBD_M6	ENV_rear_leave_section/grd3/WD	FAIL:not in .bpo
-VBD_M6	ENV_rear_leave_section/grd4/WD	FAIL:not in .bpo
-VBD_M6	VBD_mute_timer_expired/act1/WD	FAIL:not in .bpo
-VBD_M6	ENV_train_split/grd15/WD	FAIL:not in .bpo
-VBD_M6	ENV_train_split/grd16/WD	FAIL:not in .bpo
-VBD_M6	ENV_train_split/grd17/WD	FAIL:not in .bpo
-VBD_M6	ENV_train_split/grd18/WD	FAIL:not in .bpo
-VBD_M6	ENV_train_split/grdnext/WD	FAIL:not in .bpo
-VBD_M6	ENV_last_train_leave_ttd/grd3/WD	FAIL:not in .bpo
-VBD_M6	ENV_start_of_mission/act1/WD	FAIL:not in .bpo
-VBD_M6	ENV_start_of_mission/act4/WD	FAIL:not in .bpo
-VBD_M6	RBC_extend_fs_ma/grd3/WD	FAIL:not in .bpo
-VBD_M6	RBC_extend_os_ma/grd3/WD	FAIL:not in .bpo
-VBD_M6	RBC_shrink_ma/grd1/WD	FAIL:not in .bpo
-VBD_M6	RBC_shrink_ma/grd4/WD	FAIL:not in .bpo
-VBD_M6	set_as_safe/grd1/WD	FAIL:not in .bpo
-VBD_M6	set_as_safe/act1/WD	FAIL:not in .bpo
-VBD_M6	set_as_unsafe/grd1/WD	FAIL:not in .bpo
-VBD_M6	set_as_unsafe/act1/WD	FAIL:not in .bpo
-VBD_M6	RBC_trim_ma/grd3/WD	FAIL:not in .bpo
 VBD_M6	VBD_receive_position_report_integrity_loss/act1/SIM	FAIL:not in .bpo
 VBD_M6	VBD_receive_position_report_integrity_loss/act2/SIM	FAIL:not in .bpo
 VBD_M6	VBD_receive_position_report_integrity_loss/act3/SIM	FAIL:not in .bpo
 VBD_M6	VBD_receive_position_report_integrity_loss/grd2/WD	FAIL:not in .bpo
 VBD_M6	VBD_receive_position_report_integrity_loss/grd5/WD	FAIL:not in .bpo
 VBD_M6	VBD_receive_position_report_integrity_loss/act2/WD	FAIL:not in .bpo
-VBD_M6	VBD_disconnect_propagation_timer_expired/grd2/WD	FAIL:not in .bpo
-VBD_M6	VBD_disconnect_propagation_timer_expired/act1/WD	FAIL:not in .bpo
-VBD_M6	VBD_add_available_vss/grd1/WD	FAIL:not in .bpo
-VBD_M6	VBD_remove_available_vss/grd1/WD	FAIL:not in .bpo
 VBD_M6	VBD_receive_position_report_integrity_confirmed/act1/SIM	FAIL:not in .bpo
 VBD_M6	VBD_receive_position_report_integrity_confirmed/act2/SIM	FAIL:not in .bpo
 VBD_M6	VBD_receive_position_report_integrity_confirmed/act3/SIM	FAIL:not in .bpo

@@ -107,6 +107,13 @@ private def assignedBy (action : Elem) : List String :=
         else []
     | .ok _ => []
 
+private def targetEventName (ev : Elem) : String :=
+  ((childrenOf ev "refinesEvent").filterMap targetName).head?.getD (labelOf ev)
+
+private def beforeElem (target : Elem) : List Elem → List Elem
+  | [] => []
+  | elem :: elems => if elem == target then [] else elem :: beforeElem target elems
+
 /-- An event marked `extended` inherits the parameters, guards and actions of the event
 it refines, so its effective children are its own plus everything up the chain.
 
@@ -127,7 +134,8 @@ def inheritedChildren (p : Project) (tag : String) : Nat → String → Elem →
           match lookupComponent p am with
           | none => []
           | some a =>
-            match (childrenOf a.elem "event").find? (fun e => labelOf e == labelOf ev) with
+            match (childrenOf a.elem "event").find? (fun e =>
+              labelOf e == targetEventName ev) with
             | none => []
             | some ae => inheritedChildren p tag depth am ae
         inherited ++ own
@@ -158,8 +166,7 @@ def eventSubst (p : Project) : Nat → String → Elem → List (String × Term)
           match lookupComponent p am with
           | none => []
           | some a =>
-            let target :=
-              ((childrenOf ev "refinesEvent").filterMap targetName).head?.getD (labelOf ev)
+            let target := targetEventName ev
             match (childrenOf a.elem "event").find? (fun e => labelOf e == target) with
             | none => []
             | some ae => eventSubst p depth am ae
@@ -442,6 +449,28 @@ private def contextAxioms (p : Project) (name : String) : List Term :=
     | some c => (childrenOf c.elem "axiom").filterMap fun a =>
         (Formula.parse ((attrOf a "predicate").getD "")).toOption
 
+private def hypothesesBefore (p : Project) (name : String) (target : Elem) : List Term :=
+  let (_, order) := closure p [] name
+  order.flatMap fun dep =>
+    match lookupComponent p dep with
+    | none => []
+    | some c =>
+      let declarations := childrenOf c.elem "axiom" ++ childrenOf c.elem "invariant"
+      (if dep == name then beforeElem target declarations else declarations).filterMap fun a =>
+        (Formula.parse ((attrOf a "predicate").getD "")).toOption
+
+private def eventHypsBefore (p : Project) (name : String) (ev target : Elem) : List Term :=
+  let base := if labelOf ev == "INITIALISATION" then contextAxioms p name
+    else contextHyps p name
+  base ++ (beforeElem target (effectiveGuards p name ev)).filterMap fun g =>
+    (Formula.parse ((attrOf g "predicate").getD "")).toOption
+
+private def eventHyps (p : Project) (name : String) (ev : Elem) : List Term :=
+  let base := if labelOf ev == "INITIALISATION" then contextAxioms p name
+    else contextHyps p name
+  base ++ (effectiveGuards p name ev).filterMap fun g =>
+    (Formula.parse ((attrOf g "predicate").getD "")).toOption
+
 /-- Obligations for one machine or context under a native theory environment. -/
 def generateIn (theory : Theory.Env) (p : Project) (name : String) : List Obligation := Id.run do
   match lookupComponent p name with
@@ -463,14 +492,15 @@ def generateIn (theory : Theory.Env) (p : Project) (name : String) : List Obliga
         -- precedes it, so nothing is substituted.
         out := out ++ [{ name := labelOf a ++ "/THM", kind := "THM",
                          goal := (Formula.parse ((attrOf a "predicate").getD "")).toOption,
-                         hyps := contextAxioms p name }]
+                         hyps := hypothesesBefore p name a }]
     -- Well-definedness is named after the predicate alone in a context or an
     -- invariant, and under its event for a guard, action or witness.
     for a in childrenOf c.elem "axiom" ++ childrenOf c.elem "invariant" do
       if wdRequired total ((attrOf a "predicate").getD "") then
         out := out ++ [{ name := labelOf a ++ "/WD", kind := "WD",
                          goal := wdGoal theory roots total types
-                           ((attrOf a "predicate").getD "") }]
+                           ((attrOf a "predicate").getD ""),
+                         hyps := hypothesesBefore p name a }]
     -- A guard can be marked `theorem` too, and is then named under its event.
     for ev in childrenOf c.elem "event" do
       for g in childrenOf ev "guard" do
@@ -478,7 +508,7 @@ def generateIn (theory : Theory.Env) (p : Project) (name : String) : List Obliga
           out := out ++
             [{ name := labelOf ev ++ "/" ++ labelOf g ++ "/THM", kind := "THM",
                goal := (Formula.parse ((attrOf g "predicate").getD "")).toOption,
-               hyps := contextHyps p name }]
+               hyps := eventHypsBefore p name ev g }]
     if !isMachine then return finalize out
     let invariants := childrenOf c.elem "invariant"
     for ev in childrenOf c.elem "event" do
@@ -537,7 +567,7 @@ def generateIn (theory : Theory.Env) (p : Project) (name : String) : List Obliga
               let goal := abstractPredicate.map (Formula.subst witnesses)
               out := out ++
                 [{ name := labelOf ev ++ "/" ++ labelOf g ++ "/GRD", kind := "GRD",
-                   goal := goal, hyps := contextHyps p name ++
+                   goal := goal, hyps := base ++
                      concreteGuards.filterMap fun q =>
                        (Formula.parse ((attrOf q "predicate").getD "")).toOption }]
           -- Simulation: whatever the abstract action does to a variable, the concrete
@@ -554,20 +584,22 @@ def generateIn (theory : Theory.Env) (p : Project) (name : String) : List Obliga
               | _ => none
             out := out ++
               [{ name := labelOf ev ++ "/" ++ labelOf act ++ "/SIM", kind := "SIM",
-                 goal := goal, hyps := contextHyps p name ++
+                 goal := goal, hyps := base ++
                    ((effectiveGuards p name ev).filterMap fun q =>
                      (Formula.parse ((attrOf q "predicate").getD "")).toOption) }]
-      for g in effectiveGuards p name ev do
+      for g in childrenOf ev "guard" do
         if wdRequired total ((attrOf g "predicate").getD "") then
           out := out ++
             [{ name := labelOf ev ++ "/" ++ labelOf g ++ "/WD", kind := "WD",
-               goal := wdGoal theory roots total types ((attrOf g "predicate").getD "") }]
-      for act in actions do
+               goal := wdGoal theory roots total types ((attrOf g "predicate").getD ""),
+               hyps := eventHypsBefore p name ev g }]
+      for act in childrenOf ev "action" do
         if wdRequired total ((attrOf act "assignment").getD "") then
           out := out ++
             [{ name := labelOf ev ++ "/" ++ labelOf act ++ "/WD", kind := "WD",
                goal := wdGoal theory roots total types
-                 ((attrOf act "assignment").getD "") }]
+                 ((attrOf act "assignment").getD ""),
+               hyps := eventHyps p name ev }]
       for w in childrenOf ev "witness" do
         out := out ++
           [{ name := labelOf ev ++ "/" ++ labelOf w ++ "/WFIS", kind := "WFIS" }]
