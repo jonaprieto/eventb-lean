@@ -73,12 +73,12 @@ theorem initialInv1 (limit _cars : Int) (_gate : Bool)
   trivial
 
 theorem initialInv2 (limit _cars : Int) (_gate : Bool)
-    (_ : 0 ≤ limit) (_ : 0 < limit) (_ : false = true) : 0 < limit := by
-  cases ‹false = true›
+    (_ : 0 ≤ limit) (_ : 0 < limit) : false = true → 0 < limit := by
+  intro contradiction
+  cases contradiction
 
 theorem initialSim (limit cars : Int) (gate : Bool)
-    (_ : 0 ≤ limit) (_ : 0 < limit) (_ : 0 ≤ cars) (_ : cars ≤ limit)
-    (_ : True) (_ : gate = true → cars < limit) : (0 : Int) = 0 := by
+    (_ : 0 ≤ limit) (_ : 0 < limit) : (0 : Int) = 0 := by
   rfl
 
 theorem enterInv1 (limit cars : Int) (gate : Bool)
