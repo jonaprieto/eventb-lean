@@ -10,6 +10,7 @@ eventb_context LspContext where
   uses LspTheory
   constants cars
   axiom bounded : cars < LIMIT
+  axiom boolean : TRUE = TRUE
 
 private def symbolName (owner symbol : String) : Name :=
   Name.mkSimple ("EventB.DSL.symbol." ++ owner ++ "." ++ symbol)
