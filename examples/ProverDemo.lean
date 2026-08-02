@@ -72,6 +72,12 @@ private meta def check : TermElabM Unit := do
   let openResult ← EventB.Prover.Kernel.prove {} rejected
   unless !openResult.discharged do
     throwError "kernel prover discharged an unsupported goal"
+  let falseImp : Obligation :=
+    { component := "Demo", name := "false-imp", kind := "THM",
+      goal := some (.bin "⇒" (.id "⊤") (.bin "=" (.num 1) (.num 2))) }
+  let falseImpResult ← EventB.Prover.Kernel.prove {} falseImp
+  unless !falseImpResult.discharged do
+    throwError "kernel implication rule accepted a false conclusion"
   let stale : Obligation := { examples.head!.2 with goal := some (.id "⊥") }
   unless !(← succeeds do
       let _ ← Trust.Replay.validateTerm {} stale (mkConst ``True.intro)) do
