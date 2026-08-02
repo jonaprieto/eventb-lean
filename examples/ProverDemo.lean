@@ -108,6 +108,17 @@ private meta def check : TermElabM Unit := do
       goal := some (.bin "⊆" (.set [.num 1]) (.set [.num 2])) }
   unless !(← EventB.Prover.Kernel.prove {} falseSubset).discharged do
     throwError "kernel subset rule accepted a false goal"
+  match (← EventB.Prover.Kernel.validate {} membershipObligation).proof with
+  | some proof =>
+      unless !(← succeeds do
+          let _ ← Trust.Replay.validateTerm {} falseMembership proof) do
+        throwError "kernel replay accepted stale membership evidence"
+  | none => throwError "kernel membership rule returned no proof term"
+  let unbound : Obligation :=
+    { component := "Demo", name := "unbound", kind := "THM", goal := some (.id "x") }
+  unless !(← succeeds do
+      let _ ← EventB.Prover.Kernel.prove {} unbound) do
+    throwError "kernel prover invented a semantic binding"
   let stale : Obligation := { examples.head!.2 with goal := some (.id "⊥") }
   unless !(← succeeds do
       let _ ← Trust.Replay.validateTerm {} stale (mkConst ``True.intro)) do
