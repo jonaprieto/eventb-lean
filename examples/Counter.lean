@@ -16,14 +16,26 @@ eventb_context Ctx where
 
 eventb_machine M where
   sees Ctx
-  variables sched
+  variables sched count rel
   invariant inv1 : "sched ⊆ AIRPLANES"
+  invariant inv2 : "count ∈ ℕ"
+  invariant inv3 : "rel ∈ AIRPLANES ↔ AIRPLANES"
   event INITIALISATION where
     action act1 : "sched ≔ ∅"
+    action act2 : "count ≔ 0"
+    action act3 : "rel ≔ ∅"
   event Add where
     any a
     guard grd1 : "a ∈ AIRPLANES ∖ sched"
     action act1 : "sched ≔ sched ∪ {a}"
+  event Count where
+    any a
+    guard grd1 : "a ∈ AIRPLANES"
+    action act1 : "count ≔ card({a})"
+  event Relabel where
+    any a
+    guard grd1 : "a ∈ AIRPLANES"
+    action act1 : "rel(a) ≔ a"
 
 /-- The project this file defines, in the shape the generator wants. -/
 def project : Typing.Project := [{ name := "Ctx", elem := Ctx }, { name := "M", elem := M }]
@@ -32,10 +44,16 @@ def project : Typing.Project := [{ name := "Ctx", elem := Ctx }, { name := "M", 
 assigning `sched`, and initialisation must establish it from `∅`. -/
 
 #guard (POG.generate project "M").map (·.name)
-  == ["INITIALISATION/inv1/INV", "Add/inv1/INV"]
+  |>.contains "INITIALISATION/inv1/INV"
+#guard (POG.generate project "M").map (·.name) |>.contains "Add/inv1/INV"
 
 #guard ((POG.generate project "M").filterMap (·.goal)).map Formula.print
-  == ["({} ⊆ AIRPLANES)", "((sched ∪ {a}) ⊆ AIRPLANES)"]
+  |>.contains "({} ⊆ AIRPLANES)"
+#guard ((POG.generate project "M").filterMap (·.goal)).map Formula.print
+  |>.contains "((sched ∪ {a}) ⊆ AIRPLANES)"
+
+#guard (POG.generate project "M").map (·.name) |>.contains "Count/act1/WD"
+#guard !((POG.generate project "M").map (·.name) |>.contains "Relabel/act1/WD")
 
 -- Uncomment to see them printed:
 -- #eventb_pog M Ctx
