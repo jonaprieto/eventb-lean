@@ -14,6 +14,7 @@ inductive Rule where
   | contradiction
   | zeroLtNumeral
   | andIntro
+  | orIntro
   | implicationIntro
   | hypothesisProjection
   deriving BEq, Repr, Inhabited
@@ -25,6 +26,7 @@ def Rule.label : Rule → String
   | .contradiction => "contradiction"
   | .zeroLtNumeral => "zero-lt-numeral"
   | .andIntro => "and-intro"
+  | .orIntro => "or-intro"
   | .implicationIntro => "implication-intro"
   | .hypothesisProjection => "hypothesis-projection"
 
@@ -99,6 +101,12 @@ private def andParts (goal : Expr) : MetaM (Option (Expr × Expr)) := do
   | .app (.app (.const ``And _) left) right => pure (some (left, right))
   | _ => pure none
 
+private def orParts (goal : Expr) : MetaM (Option (Expr × Expr)) := do
+  let goal ← whnf goal
+  match goal with
+  | .app (.app (.const ``Or _) left) right => pure (some (left, right))
+  | _ => pure none
+
 private def implicationParts (goal : Expr) : MetaM (Option (Expr × Expr)) := do
   let goal ← whnf goal
   match goal with
@@ -135,6 +143,17 @@ private def ruleProof : Nat → List (Expr × Expr) → Expr → MetaM (Option (
             let proof ← mkAppM ``And.intro #[leftProof, rightProof]
             pure (some (.andIntro, proof))
         | _, _ => pure none
+      else if let some (left, right) ← orParts goal then
+        match ← ruleProof fuel pairs left with
+        | some (_, proof) =>
+            let inl := mkApp (mkApp (mkApp (mkConst ``Or.inl) left) right) proof
+            pure (some (.orIntro, inl))
+        | none =>
+            match ← ruleProof fuel pairs right with
+            | some (_, proof) =>
+                let inr := mkApp (mkApp (mkApp (mkConst ``Or.inr) left) right) proof
+                pure (some (.orIntro, inr))
+            | none => pure none
       else if let some (premise, body) ← implicationParts goal then
         withLocalDeclD `hypothesis premise fun localVar => do
           match ← ruleProof fuel ((premise, localVar) :: pairs)

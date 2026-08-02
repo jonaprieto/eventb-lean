@@ -44,6 +44,14 @@ private def conjunctionObligation : Obligation :=
   { component := "Demo", name := "and", kind := "THM",
     goal := some (.bin "∧" (.id "⊤") (.bin "=" (.num 1) (.num 1))) }
 
+private def membershipObligation : Obligation :=
+  { component := "Demo", name := "membership", kind := "THM",
+    goal := some (.bin "∈" (.num 1) (.set [.num 1, .num 2])) }
+
+private def subsetObligation : Obligation :=
+  { component := "Demo", name := "subset", kind := "THM",
+    goal := some (.bin "⊆" (.set [.num 1]) (.set [.num 1])) }
+
 private def implicationObligation : Obligation :=
   { component := "Demo", name := "imp", kind := "THM",
     goal := some (.bin "⇒" (.id "⊤") (.id "⊤")) }
@@ -58,6 +66,7 @@ private def examples : List (EventB.Prover.Kernel.Rule × Obligation) :=
    (.reflexive, reflexiveObligation), (.contradiction, contradictionObligation),
    (.zeroLtNumeral, numeralObligation),
    (.andIntro, conjunctionObligation), (.implicationIntro, implicationObligation),
+   (.orIntro, membershipObligation), (.implicationIntro, subsetObligation),
    (.hypothesisProjection, projectionObligation)]
 
 private meta def succeeds (action : TermElabM Unit) : TermElabM Bool := do
@@ -89,6 +98,16 @@ private meta def check : TermElabM Unit := do
   let falseImpResult ← EventB.Prover.Kernel.prove {} falseImp
   unless !falseImpResult.discharged do
     throwError "kernel implication rule accepted a false conclusion"
+  let falseMembership : Obligation :=
+    { component := "Demo", name := "false-membership", kind := "THM",
+      goal := some (.bin "∈" (.num 1) (.set [.num 2])) }
+  unless !(← EventB.Prover.Kernel.prove {} falseMembership).discharged do
+    throwError "kernel membership rule accepted a false goal"
+  let falseSubset : Obligation :=
+    { component := "Demo", name := "false-subset", kind := "THM",
+      goal := some (.bin "⊆" (.set [.num 1]) (.set [.num 2])) }
+  unless !(← EventB.Prover.Kernel.prove {} falseSubset).discharged do
+    throwError "kernel subset rule accepted a false goal"
   let stale : Obligation := { examples.head!.2 with goal := some (.id "⊥") }
   unless !(← succeeds do
       let _ ← Trust.Replay.validateTerm {} stale (mkConst ``True.intro)) do
