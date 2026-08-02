@@ -153,6 +153,20 @@ private def constructorType (context : KernelContext) (arguments : List Ty) (res
     let type ← leanType context type
     mkArrow type result) result
 
+private def namedParameters : Nat → List Ty → List (String × Ty)
+  | _, [] => []
+  | index, type :: types =>
+      ("arg" ++ toString index, type) :: namedParameters (index + 1) types
+
+private def checkedUncurriedFunction (context : KernelContext) (name : String)
+    (argument result : Ty) (value : Expr) : MetaM Unit := do
+  let argumentType ← leanType context argument
+  let resultType ← leanType context result
+  let actual ← inferType value
+  unless ← isDefEq actual (← mkArrow argumentType resultType) do
+    throwError s!"constructor `{name}` has Lean type {actual}, " ++
+      s!"expected {argumentType} → {resultType}"
+
 def checkDatatype (context : KernelContext) (datatype : Datatype) (value : Expr)
     (constructors : List (String × Expr)) : MetaM KernelDatatype := do
   requireValid context.theory context.roots (.dataType datatype)
@@ -171,6 +185,34 @@ def checkDatatype (context : KernelContext) (datatype : Datatype) (value : Expr)
       throwError s!"constructor `{name}` has type {actual}, expected {expected}"
     pure { name, value := constructor }
   pure { name := datatype.name, value, constructors := checked }
+
+/-- Check datatype denotations and add their constructors to a formula context. -/
+def addDatatypeBindings (context : KernelContext) (datatype : Datatype) (value : Expr)
+    (constructors : List (String × Expr)) : MetaM KernelContext := do
+  let checked ← checkDatatype context datatype value constructors
+  let mut resolved := context
+  for (declaration, constructor) in datatype.constructors.zip checked.constructors do
+    match declaration.arguments with
+    | [] =>
+        resolved := { resolved with bindings :=
+          { name := constructor.name, ty := .given datatype.name, value := constructor.value } ::
+            resolved.bindings }
+    | [argument] =>
+        resolved := { resolved with functions :=
+          { name := constructor.name, argument, result := .given datatype.name,
+            value := constructor.value } :: resolved.functions }
+    | arguments =>
+        match productType arguments with
+        | none => throwError s!"constructor `{constructor.name}` has no arguments"
+        | some argument => do
+            let parameters := namedParameters 0 arguments
+            let function ← uncurried context parameters constructor.value
+            checkedUncurriedFunction context constructor.name argument
+              (.given datatype.name) function
+            resolved := { resolved with functions :=
+              { name := constructor.name, argument, result := .given datatype.name,
+                value := function } :: resolved.functions }
+  pure resolved
 
 private def implications : List Expr → Expr → MetaM Expr
   | [], conclusion => pure conclusion

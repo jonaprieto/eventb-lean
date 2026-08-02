@@ -13,6 +13,9 @@ inductive Colour where
   | red
   | blue
 
+inductive Point where
+  | mk (x y : Int)
+
 private meta def succeeds (action : TermElabM Unit) : TermElabM Bool := do
   try
     action
@@ -83,6 +86,21 @@ private meta def checkDatatype : TermElabM Unit := do
       let _ ← Embed.checkDatatype {} datatype (mkConst ``Bool.true)
         [("red", mkConst ``Colour.red), ("blue", mkConst ``Colour.blue)]) do
     throwError "a proposition value was accepted as a datatype type"
+  let pointTheory ← match Theory.add Theory.empty
+      { name := "PointTheory", declarations :=
+        [.dataType { name := "Point", constructors :=
+          [{ name := "mk", arguments := [.int, .int] }] }] } with
+    | .ok value => pure value
+    | .error error => throwError error
+  let pointContext ← Embed.addDatatypeBindings
+    { theory := pointTheory, roots := ["PointTheory"],
+      signature := { carriers := [("Point", mkConst ``Point)] } }
+    { name := "Point", constructors := [{ name := "mk", arguments := [.int, .int] }] }
+    (mkConst ``Point) [("mk", mkConst ``Point.mk)]
+  let equality ← match Formula.parse "mk(1, 2) = mk(1, 2)" with
+    | .ok value => pure value
+    | .error error => throwError error
+  let _ ← Embedding.translatePredicate pointContext equality
 
 private meta def checkRules : TermElabM Unit := do
   let rewrite : Rule :=
