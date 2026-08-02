@@ -172,7 +172,8 @@ private def abstractEvent (p : Project) (machine : String) (ev : Elem) :
   let m ← lookupComponent p machine
   let am ← ((childrenOf m.elem "refinesMachine").filterMap targetName).head?
   let a ← lookupComponent p am
-  let target := ((childrenOf ev "refinesEvent").filterMap targetName).head?.getD (labelOf ev)
+  let target ← if labelOf ev == "INITIALISATION" then some "INITIALISATION"
+    else ((childrenOf ev "refinesEvent").filterMap targetName).head?
   let ae ← (childrenOf a.elem "event").find? (fun e => labelOf e == target)
   return (am, ae)
 
@@ -484,7 +485,10 @@ def generateIn (theory : Theory.Env) (p : Project) (name : String) : List Obliga
       let base := if labelOf ev == "INITIALISATION" then contextAxioms p name
         else contextHyps p name
       let actions := effectiveActions p name ev
-      let assigned := actions.flatMap assignedBy
+      -- A non-extended refined event still executes its abstract actions.  Use the
+      -- refinement substitution here so inherited assignments trigger preservation
+      -- obligations for concrete invariants as well as for the after-state formula.
+      let assigned := (eventSubst p p.length name ev).map (·.1)
       -- An invariant needs re-proving only if the event can change something it
       -- mentions. This filter is what keeps the INV count at Rodin's 934 rather than
       -- events times invariants.
@@ -521,14 +525,21 @@ def generateIn (theory : Theory.Env) (p : Project) (name : String) : List Obliga
             match Formula.parse ((attrOf w "predicate").getD "") with
             | .ok (.bin "=" (.id v) e) => some (v, e)
             | _ => none
-          for g in childrenOf ae "guard" do
-            let goal := (Formula.parse ((attrOf g "predicate").getD "")).toOption.map
-              (Formula.subst witnesses)
-            out := out ++
-              [{ name := labelOf ev ++ "/" ++ labelOf g ++ "/GRD", kind := "GRD",
-                 goal := goal, hyps := contextHyps p name ++
-                   ((effectiveGuards p name ev).filterMap fun q =>
-                     (Formula.parse ((attrOf q "predicate").getD "")).toOption) }]
+          let concreteGuards := effectiveGuards p name ev
+          for g in effectiveGuards p am ae do
+            let abstractPredicate := (Formula.parse ((attrOf g "predicate").getD "")).toOption
+            let repeated := concreteGuards.any fun q =>
+              match abstractPredicate, Formula.parse ((attrOf q "predicate").getD "") with
+              | some abstractTerm, .ok concreteTerm =>
+                  Formula.stripAscriptions abstractTerm == Formula.stripAscriptions concreteTerm
+              | _, _ => false
+            if !repeated then
+              let goal := abstractPredicate.map (Formula.subst witnesses)
+              out := out ++
+                [{ name := labelOf ev ++ "/" ++ labelOf g ++ "/GRD", kind := "GRD",
+                   goal := goal, hyps := contextHyps p name ++
+                     concreteGuards.filterMap fun q =>
+                       (Formula.parse ((attrOf q "predicate").getD "")).toOption }]
           -- Simulation: whatever the abstract action does to a variable, the concrete
           -- event must do the same thing to it. The goal equates the two right-hand
           -- sides, with the concrete event's witnesses substituted into the abstract one.
