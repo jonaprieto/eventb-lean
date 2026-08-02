@@ -207,6 +207,9 @@ private def inferOne (given : List (String × Ty)) (unknown : List String)
   == some "ℙ(T×T)"
 -- A maplet inside a set extension propagates through both components.
 #guard inferOne [("n", .int)] ["r"] "r = {n ↦ TRUE}" "r" == some "ℙ(ℤ×BOOL)"
+#guard inferOne [("x", .int), ("y", .bool)] ["a", "b"] "a,b ≔ x,y" "a" == some "ℤ"
+#guard inferOne [("S", .pow .int), ("m", .int), ("t", .bool)] ["f"]
+  "f = f  (S × {m ↦ t})" "f" == some "ℙ(ℤ×(ℤ×BOOL))"
 -- `dom` and relational image agree on the relation's shape.
 #guard (inferOne [("S", .pow .int)] ["r"] "dom(r) = S" "r").isSome
 -- Products print left-nested without brackets and right-nested with them, as Rodin does.

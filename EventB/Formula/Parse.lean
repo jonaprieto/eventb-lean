@@ -44,7 +44,9 @@ structure Level where
   deriving Repr
 
 private def infixLevel : String → Option Level
-  | "," => some { power := 5 }
+  -- Parallel assignment lists must bind more tightly than `≔`: `a,b ≔ x,y`
+  -- is one assignment with comma-separated sides, not a comma-rooted predicate.
+  | "," => some { power := 9 }
   | "∣" => some { power := 7, assoc := none }
   | "≔" | ":∈" | ":∣" => some { power := 8, assoc := none }
   | "⇔" => some { power := 10, assoc := none }
@@ -57,7 +59,8 @@ private def infixLevel : String → Option Level
   | "×" => some { power := 40 }
   | "∪" | "∩" | "∖" => some { power := 50 }
   | "◁" | "⩤" | "▷" | "⩥" | "" | "∘" | ";" | "⊗" | "∥" => some { power := 55 }
-  | "↦" => some { power := 60 }
+  -- Product binds tighter than maplet: `a ↦ b × c` means `a ↦ (b × c)`.
+  | "↦" => some { power := 35 }
   -- Binds tighter than `↦` and `,` so that `∀x⦂ℤ,y⦂ℤ·P` and `λx⦂ℤ ↦ y⦂ℤ·E` group the
   -- ascription with its own variable.
   | "⦂" => some { power := 75, assoc := none }
@@ -278,6 +281,8 @@ private def sameTree (a b : String) : Bool :=
 -- Precedence: application and image bind tightest, `↦` above `∈`, `∧` above `⇒`.
 #guard sameTree "f(x) ∈ S" "(f(x)) ∈ S"
 #guard sameTree "a ↦ b ∈ r" "(a ↦ b) ∈ r"
+#guard sameTree "a ↦ b × c" "a ↦ (b × c)"
+#guard sameTree "a,b ≔ x,y" "(a,b) ≔ (x,y)"
 #guard sameTree "p ∧ q ⇒ r" "(p ∧ q) ⇒ r"
 #guard sameTree "a + b ∗ c" "a + (b ∗ c)"
 #guard sameTree "r[s] ∪ t" "(r[s]) ∪ t"
