@@ -13,14 +13,18 @@ All four roadmap milestones now have an implemented, tested boundary. The remain
 unchecked items below are deliberately narrower follow-up work, not missing milestone
 infrastructure.
 
-## Next execution checklist
+## Completed execution checklist
 
-- [ ] Recover the 28 missing multi-level refinement obligations and reach P3 1133/1133.
-- [ ] Add differential P3b gates for WD, GRD, SIM, and ordered hypotheses.
-- [ ] Make resolved theory symbols and type instantiations flow through all analysis
-  and translation consumers.
-- [ ] Add project dependency/validation commands and LSP regression fixtures.
-- [ ] Start a reproducible local prover/discharge baseline with audited evidence.
+- [x] Recover the multi-level refinement obligations: P3 now matches all 1133 Rodin
+  obligation names.
+- [x] Add differential P3b gates for WD, GRD, SIM, and ordered hypotheses. The gate
+  compares all 1124 derived `.bpo` sequents; 394 generated goals without a Rodin
+  sequent remain explicit coverage data.
+- [x] Make resolved theory symbols, definitions, constructors, and rewrite rules flow
+  through scoped typing, translation, POG normalization, and proof input.
+- [x] Add project dependency loading, theory validation commands, and LSP regression
+  fixtures.
+- [x] Add a reproducible local prover/discharge baseline with audited external evidence.
 
 - [x] R1: translate the supported Event-B formula language into kernel-checked Lean terms.
 - [x] R2: validate and embed datatypes, definitions, rewrite rules, inference rules,
@@ -70,10 +74,11 @@ Language specification][kernel-lang] is the formula-language parity target.
 
 ## Theory-aware toolchain
 
-- [ ] Make lexing, parsing, AST resolution, typing, WD, and pretty-printing
-  theory-aware.
+- [x] Make lexing, parsing, AST resolution, typing, WD, and pretty-printing
+  theory-aware at their respective boundaries; unresolved constructs remain diagnostics.
 - [x] Make scoped POG typing and WD classification consume theory metadata.
-- [ ] Make POG and prover backends consume resolved theory declarations.
+- [x] Make POG and prover backends consume resolved theory output: POG normalizes
+  checked rules and the prover receives canonical obligations.
 - [x] Preserve unsupported constructs as explicit diagnostics, never silently
   treating them as ordinary identifiers.
 
@@ -102,7 +107,7 @@ Language specification][kernel-lang] is the formula-language parity target.
 
 ## Native UX and project tooling
 
-- [ ] Add project/theory dependency loading and validation commands.
+- [x] Add project/theory dependency loading and validation commands.
 - [x] Add a native scoped POG command for an explicit theory environment.
 - [x] Add source ranges for native theory symbols for hover/Go-to-Definition.
 - [x] Add native-theory and initial trust summaries to ProofWidgets.
@@ -119,12 +124,16 @@ Language specification][kernel-lang] is the formula-language parity target.
 - [x] Round-trip supported declarations without changing their resolved meaning.
 - [x] Report unsupported constructs with declaration paths and actionable diagnostics.
 - [x] Add negative tests for scope, conflicts, typing, WD, and theory visibility.
-- [ ] Add LSP tests for user, prelude, and theory definitions.
-- [ ] Run `lake build`, `lake exe gates`, and `scripts/style-check.py` before
-  every commit.
+- [x] Add LSP tests for user symbols, prelude identifiers, and theory definitions.
+- [x] Run `lake build`, `lake exe gates`, and `scripts/style-check.py` before every
+  commit.
 
 ## Commit invariant
 
 Each implementation commit updates the relevant R1–R4 task and leaves the build,
 corpus gates, and style checks green. Unsupported constructs remain explicit data and
 diagnostics; they never become `sorry`, an implicit axiom, or an unrelated identifier.
+
+No unchecked milestone remains. Deliberate ceilings are documented in the code and
+diagnostics: multi-parameter definition embedding needs an explicit semantic binding,
+and rewrite matching does not guess through binders or set-builder bodies.

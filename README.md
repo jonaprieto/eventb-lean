@@ -13,18 +13,18 @@ scope, trust boundary, and verification contract.
 [![reader](https://img.shields.io/badge/reader-38%2F38-brightgreen)](baseline/parse.tsv)
 [![formulas](https://img.shields.io/badge/formulas-1102%2F1102-brightgreen)](baseline/formula.tsv)
 [![types](https://img.shields.io/badge/types-940%2F940-brightgreen)](baseline/typecheck.tsv)
-[![obligations](https://img.shields.io/badge/obligations-1105%2F1133-yellow)](baseline/pog.tsv)
-[![statements](https://img.shields.io/badge/statements-1041%2F1685-yellow)](baseline/statement.tsv)
-[![hypotheses](https://img.shields.io/badge/hypotheses-906%2F1685-yellow)](baseline/hypothesis.tsv)
+[![obligations](https://img.shields.io/badge/obligations-1133%2F1133-brightgreen)](baseline/pog.tsv)
+[![statements](https://img.shields.io/badge/statements-1124%2F1518-yellow)](baseline/statement.tsv)
+[![hypotheses](https://img.shields.io/badge/hypotheses-1124%2F1518-yellow)](baseline/hypothesis.tsv)
 
 ```
 $ lake exe gates
 P0 reader: 38/38
 P1 formulas: 1102/1102
 P2 types: 940/940
-P3 obligations: 1105/1133
-P3b statements: 1041/1685 derived
-P3b hypotheses: 906/1685 derived
+P3 obligations: 1133/1133
+P3b statements: 1124/1518 derived
+P3b hypotheses: 1124/1518 derived
 ```
 
 ## Using it
@@ -54,6 +54,13 @@ M0_AMAN_Update_Ctx: 0 match, 0 only Rodin, 0 only ours
 M0_AMAN_Update_prob_mc_Ctx: 1 match, 0 only Rodin, 0 only ours
 M1_Landing_Sequence: 13 match, 0 only Rodin, 8 only ours
   only ours: INITIALISATION/inv13,2/WD, INITIALISATION/act0,1/SIM, AMAN_Update/inv13,2/WD, AMAN_Update/grd0,1/GRD, AMAN_Update/act0,1/SIM, AMAN_Update/newScheduledAirplanes/WFIS, Move_Aircraft/inv13,2/WD, Move_Aircraft/act1,1/WD
+```
+
+The project loader also accepts Rossi `.eventb` files and Rodin `.tuf` theories:
+
+```text
+$ lake exe eventb theory path/to/theories
+$ lake exe eventb prove path/to/project
 ```
 
 ## Why the numbers mean something
@@ -100,13 +107,12 @@ variables and event parameters (including primed after-state variables) are the 
 user identifiers visible in a formula. A misspelling such as `LIMITT` is therefore an
 elaboration error instead of an unresolved model symbol.
 
-The executable examples are grouped in six files: `Counter.lean` is the small
-introductory model; `BookBridge.lean`, `BookPrograms.lean`, and `BookSystems.lean`
-hold the book-derived models; `WidgetDemo.lean` demonstrates the Infoview; and
-`TheoryDemo.lean` demonstrates native theories. Together the model examples contain
-17 contexts and 40 machines; the two demos add 2 contexts and 3 machines. They are
-ordinary Lean sources, so `lake build Examples` checks them through the same DSL,
-parser, typechecker, and proof-obligation generator as Rodin files.
+The executable examples are ordinary Lean sources. The four book-derived files are
+`BookBridge.lean`, `BookPrograms.lean`, `BookSystems.lean`, and the introductory
+`Counter.lean`; the remaining files cover widgets, theories, translation, trust,
+Rossi input, LSP ranges, and the local prover. Together they contain 20 contexts and
+43 machines. `lake build Examples` checks them through the same DSL, parser,
+typechecker, and proof-obligation generator as Rodin files.
 
 The book export also contains proof trees, pseudocode, OCR fragments, and image-only
 blocks. Those are documentation, not executable Event-B inputs; the four book-derived
@@ -137,11 +143,10 @@ for Event-B operators that Lean syntax cannot represent, but do not provide iden
 navigation.
 
 
-Corpus-wide, `eventb diff` reports **1105 obligations matching Rodin, 28 only Rodin has,
-649 only we have**. The 28 are refinement chains deeper than one level. The 649 are
-mostly well-definedness obligations Rodin skips because the condition is trivially
-satisfied: recall is the priority here, since a missing obligation is unsound while a
-spurious one is only wasted work.
+Corpus-wide, `eventb diff` reports **1133 obligations matching Rodin, none only Rodin
+has, and 649 only we have**. The additional obligations are explicit generated
+coverage, mostly well-definedness conditions Rodin does not serialize; a spurious
+obligation costs proof effort, while a missing obligation would be unsound.
 
 ## The point
 

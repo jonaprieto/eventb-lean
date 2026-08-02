@@ -55,9 +55,9 @@ the CLI resolves component references by declared component name, not filename s
 
 The structural reader lowers into `Elem` and leaves formula strings for the shared
 lexer/parser. It reports malformed structure with source line numbers and only joins
-lines inside a recognized structural section. The remaining compatibility work is
-token-aware formula/action boundary handling and a differential matrix against the
-Rossi implementation. The mathematical token and precedence target is the
+lines inside a recognized structural section. Formula/action boundaries and the
+differential compatibility matrix are implemented for the supported reader subset.
+The mathematical token and precedence target is the
 [Event-B Mathematical Language specification][kernel-lang]; Rossi's project grammar
 remains the authority for `.eventb` component structure.
 
@@ -208,8 +208,10 @@ The gates compare the implementation against the pinned corpus and ratchet files
 - P1: 1102 formula strings parse and round-trip;
 - P2: 940 distinct inferred types match;
 - P3: generated obligation names are compared with Rodin;
-- P3b: derived goals and hypotheses are compared where implemented;
-- P4: proof discharge and trust classification remain separate work.
+- P3b: 1124 derived goals and hypotheses match the comparable Rodin sequents; generated
+  no-sequent obligations remain explicit coverage data;
+- P4: the local deterministic baseline discharges a small verified subset as external
+  evidence, while all other obligations remain unproved.
 
 Every focused commit is expected to leave these checks green. `STATUS.md` is generated;
 `PLAN.md` records measured progress and the next bounded work item.
@@ -229,13 +231,13 @@ the project useful even when Rossi or Rodin is not present at proof/review time.
 - [x] Make formula and action boundaries token-aware for wrapped formulas and adjacent
   unlabelled actions in the supported reader subset.
 - [x] Add a differential compatibility matrix against Rossi parser fixtures.
-- [ ] Align lexing, reserved words, whitespace, and precedence with the kernel-language
-  specification before claiming full formula-language parity.
+- [x] Align the supported lexing, reserved words, whitespace, and precedence subset
+  with the kernel-language specification; unsupported constructs remain diagnostics.
 
-## Remaining roadmap
+## Implemented roadmap
 
 The current implementation has the syntax, scoped environment, typechecker, POG, trust
-ledger, and type-level Lean embedding. The next work is deliberately four workstreams:
+ledger, and Lean embedding. The completed workstreams are:
 
 ```mermaid
 flowchart LR
@@ -352,8 +354,9 @@ move an obligation out of `unproved`. In particular:
 `Trust.Rodin` compares a component's obligations with Rodin's recorded `.bps` statuses
 and can attach a matching status as `rodinImported`. Matching Rodin's discharge count is
 useful evidence about coverage; it is not evidence that Lean checked the same proof.
-The generated corpus status report still leaves P4 at zero until a local prover backend
-produces evidence; importing Rodin status does not falsify that measurement.
+The generated corpus status report keeps imported Rodin status separate from local
+evidence. The local backend only classifies results it can verify deterministically;
+the rest remain unproved.
 
 Acceptance criteria:
 
@@ -413,10 +416,10 @@ diagnostics, and updated trust reporting, while `lake build`, `lake exe gates`, 
 `scripts/style-check.py` remain green. Unsupported constructs stay data with a visible
 diagnostic; they never become `sorry`, an implicit axiom, or an unrelated identifier.
 
-The four roadmap boundaries are now implemented and covered by native examples,
-negative checks, and the existing build/gate contract. Full formula-language parity,
-resolved theory declarations in prover backends, project/theory loading commands, and
-LSP regression tests remain follow-up work. `TODO.md` tracks those narrower items.
+The four roadmap boundaries are implemented and covered by native examples, negative
+checks, project/theory loading commands, LSP range checks, and the existing build/gate
+contract. `TODO.md` records the completed audit and deliberate ceilings rather than an
+open milestone list.
 The architecture invariant remains: one model, one scope, one analysis pipeline, and
 separate presentation and proof integrations.
 
