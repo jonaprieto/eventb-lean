@@ -203,6 +203,10 @@ private def elabWidgetProofChecks : CommandElab := fun stx =>
 
 #guard (POG.generate widgetProject "BridgeController").isEmpty == false
 #guard widgetLedger.count .unproved == 0
+#guard ((POG.generate widgetProject "BridgeController").map (·.name)
+  |>.countP (· == "enter/act1/SIM")) == 1
+#guard ((POG.generate widgetProject "BridgeController").map (·.name)
+  |>.countP (· == "enter/grd1/GRD")) == 1
 
 #eventb_model_widget widgetProject WidgetCtx
 #eventb_model_widget widgetProject BridgeController
