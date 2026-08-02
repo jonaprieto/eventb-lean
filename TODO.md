@@ -261,112 +261,116 @@ it means that supported inputs are checked reproducibly, unsupported inputs fail
 clearly, generated obligations are measured against the available oracle, and no proof
 or trust result is presented as stronger than the evidence behind it.
 
+Every V4 item has one GitHub issue labelled `production-readiness`. An item is complete
+only when its implementation is committed, the checklist records the solving commit,
+and the issue is closed with that same commit SHA in the closing comment.
+
 ### V4.0 Release definition
 
-- [ ] Write the supported-input contract for Rodin XML, Rossi `.eventb`, native Lean
+- [ ] #5 Write the supported-input contract for Rodin XML, Rossi `.eventb`, native Lean
   DSL, native theories, and the supported `.tuf` subset.
-- [ ] Define the production P3b and P4 release thresholds explicitly; do not use a
+- [ ] #6 Define the production P3b and P4 release thresholds explicitly; do not use a
   larger percentage as a substitute for exact diagnostics or trustworthy evidence.
-- [ ] Update README badges, `STATUS.md`, `notes/architecture.md`, and release notes
+- [ ] #7 Update README badges, `STATUS.md`, `notes/architecture.md`, and release notes
   from the final measured commit before tagging.
-- [ ] Tag the release only after every V4 checklist item is checked and the complete
+- [ ] #8 Tag the release only after every V4 checklist item is checked and the complete
   verification command succeeds from a clean checkout.
 
 ### V4.1 CI and executable-surface coverage
 
-- [ ] Make CI build every shipped target: `EventB`, `EventBWidgets`, `Examples`,
+- [ ] #9 Make CI build every shipped target: `EventB`, `EventBWidgets`, `Examples`,
   `gates`, `rossi-dump`, `eventb`, and `bench`.
-- [ ] Run the CLI fixture matrix in CI, including `check --json`, `summary`, `report`,
+- [ ] #10 Run the CLI fixture matrix in CI, including `check --json`, `summary`, `report`,
   `po`, `prove`, `theory`, and the expected error paths for invalid arguments and
   missing components.
-- [ ] Run `rossi-dump` over every checked-in `.eventb` fixture and assert the complete
+- [ ] #11 Run `rossi-dump` over every checked-in `.eventb` fixture and assert the complete
   component list, names, and success status.
-- [ ] Add machine-readable assertions for the witness fixture: exact INV, GRD, SIM,
+- [ ] #12 Add machine-readable assertions for the witness fixture: exact INV, GRD, SIM,
   WD, WFIS, and hypothesis-only WWD records, including exit status.
-- [ ] Make the full verification contract fail on a missing executable target rather
+- [ ] #13 Make the full verification contract fail on a missing executable target rather
   than relying on the default Lake target to discover it indirectly.
-- [ ] Record whether the official Rossi differential executable is available in CI;
+- [ ] #14 Record whether the official Rossi differential executable is available in CI;
   a production release must either run the comparison or fail with an actionable
   dependency error.
 
 ### V4.2 Book-example correctness
 
-- [ ] Replace the 21 book-example `POG.generate ... .isEmpty == false` smoke checks in
+- [ ] #15 Replace the 21 book-example `POG.generate ... .isEmpty == false` smoke checks in
   `BookBridge.lean`, `BookPrograms.lean`, and `BookSystems.lean` with exact assertions
   for selected obligation names, classes, goals, and hypotheses.
-- [ ] Cover at least one exact expected obligation for each book family: bridge,
+- [ ] #16 Cover at least one exact expected obligation for each book family: bridge,
   file-transfer, notation/program, controller/system, refinement, witness, and
   convergence examples.
-- [ ] Add negative controls proving that a changed or missing obligation fails the
+- [ ] #17 Add negative controls proving that a changed or missing obligation fails the
   example test instead of merely leaving a non-empty list.
-- [ ] Keep the private book export, images, and archive outside commits and release
+- [ ] #18 Keep the private book export, images, and archive outside commits and release
   artifacts; retain only section references and independently authored executable
   models.
 
 ### V4.3 P3b parity and compatibility
 
-- [ ] Resolve the 193 unmatched P3b records against regenerated Rodin `.bpo` artifacts,
+- [ ] #19 Resolve the 193 unmatched P3b records against regenerated Rodin `.bpo` artifacts,
   or implement an explicit compatibility mode for the pinned omissions.
-- [ ] Preserve the current diagnostics for plain type invariants, definedness,
+- [ ] #20 Preserve the current diagnostics for plain type invariants, definedness,
   refinement guards/actions, and witness feasibility while resolving the records.
-- [ ] Keep goal and hypothesis comparison separate from PO-name comparison; no missing
+- [ ] #21 Keep goal and hypothesis comparison separate from PO-name comparison; no missing
   sequent may be hidden by shrinking a denominator or broadening a skip rule.
-- [ ] Add a regression fixture and negative control for every compatibility rule that
+- [ ] #22 Add a regression fixture and negative control for every compatibility rule that
   changes the P3b result.
-- [ ] Require `lake exe gates --coverage` and `lake exe gates --histogram` to remain
+- [ ] #23 Require `lake exe gates --coverage` and `lake exe gates --histogram` to remain
   reproducible after each P3b change.
 
 ### V4.4 P4 proof coverage and trust
 
-- [ ] Bind corpus symbols to explicit Lean semantic values in a reviewable way before
+- [ ] #24 Bind corpus symbols to explicit Lean semantic values in a reviewable way before
   claiming corpus-scale kernel coverage.
-- [ ] Implement the next prover rules in measured histogram order, starting with
+- [ ] #25 Implement the next prover rules in measured histogram order, starting with
   membership and subset goals, then equality, finite sets, relations, and arithmetic
   only where replayable proof terms are available.
-- [ ] Give every new rule a positive proof-term replay test, a false-goal negative
+- [ ] #26 Give every new rule a positive proof-term replay test, a false-goal negative
   control, and a stale/fingerprint mismatch test.
-- [ ] Keep kernel, SMT, Rodin-imported, external, and unproved modes separate in the
+- [ ] #27 Keep kernel, SMT, Rodin-imported, external, and unproved modes separate in the
   ledger, CLI, widgets, and reports.
-- [ ] Ensure every discharged result identifies its declaration or verifier, input
+- [ ] #28 Ensure every discharged result identifies its declaration or verifier, input
   fingerprint, dependencies, and trust mode; no external result may be relabelled as
   kernel evidence.
-- [ ] Re-measure P4 against the pinned corpus and record the toolchain and corpus SHA
+- [ ] #29 Re-measure P4 against the pinned corpus and record the toolchain and corpus SHA
   in a timestamped benchmark after each prover increment.
 
 ### V4.5 Rossi fixture quality
 
-- [ ] Document `actions.eventb` and `boundaries.eventb` explicitly as parser-boundary
+- [ ] #30 Document `actions.eventb` and `boundaries.eventb` explicitly as parser-boundary
   fixtures, including their intentional semantic typechecking failures.
-- [ ] Separate parser-only fixtures from semantically valid project fixtures, or add
+- [ ] #31 Separate parser-only fixtures from semantically valid project fixtures, or add
   an executable expectation file that records the intended exit code and diagnostic.
-- [ ] Add `witnesses.eventb` to `scripts/rossi-diff.py` once the official Rossi parser
+- [ ] #32 Add `witnesses.eventb` to `scripts/rossi-diff.py` once the official Rossi parser
   accepts the same construct; otherwise record the incompatibility explicitly.
-- [ ] Pin or provision the official Rossi executable used by the differential matrix;
+- [ ] #33 Pin or provision the official Rossi executable used by the differential matrix;
   do not leave compatibility confidence dependent on an unmentioned local install.
 
 ### V4.6 ProofWidget and editor acceptance
 
-- [ ] Manually verify `examples/WidgetDemo.lean` in the VS Code Infoview from a clean
+- [ ] #34 Manually verify `examples/WidgetDemo.lean` in the VS Code Infoview from a clean
   Lean server: model panels, obligation sections, hypotheses, goals, proof badges, and
   the 11 replayed entries must render without React or widget errors.
-- [ ] Verify native Go to Definition and scope diagnostics for theory, context, machine,
+- [ ] #35 Verify native Go to Definition and scope diagnostics for theory, context, machine,
   event, and invariant symbols in the editor.
-- [ ] Record the manual UI acceptance procedure in the README without committing
+- [ ] #36 Record the manual UI acceptance procedure in the README without committing
   private screenshots or generated editor state.
-- [ ] Keep raw Rossi/XML source-range limitations explicit until source navigation for
+- [ ] #37 Keep raw Rossi/XML source-range limitations explicit until source navigation for
   those front ends is implemented and tested.
 
 ### V4.7 Distribution and operational gate
 
-- [ ] Run the complete build, gate, fixture, style, manifest, and diff checks from a
+- [ ] #38 Run the complete build, gate, fixture, style, manifest, and diff checks from a
   clean checkout with no private book artifacts staged.
-- [ ] Replace the current full-scope `GRIP_TOKEN` CI credential with a read-only
+- [ ] #39 Replace the current full-scope `GRIP_TOKEN` CI credential with a read-only
   deploy key or publish the dependency before the production release.
-- [ ] Verify the corpus manifest, pinned dependency SHAs, generated status, benchmark
+- [ ] #40 Verify the corpus manifest, pinned dependency SHAs, generated status, benchmark
   metadata, and README badges all describe the same commit.
-- [ ] Confirm that no `sorry`, implicit axiom, silently ignored syntax, stale evidence,
+- [ ] #41 Confirm that no `sorry`, implicit axiom, silently ignored syntax, stale evidence,
   or unclassified unsupported construct is reachable through a shipped front end.
-- [ ] Publish a release note that states the supported subset, current P3b/P4 numbers,
+- [ ] #42 Publish a release note that states the supported subset, current P3b/P4 numbers,
   trust modes, known ceilings, and the exact commands used for acceptance.
 
 ## Commit and audit protocol
