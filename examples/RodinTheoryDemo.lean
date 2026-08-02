@@ -8,7 +8,8 @@ open EventB EventB.Theory
 private def source :=
   "<?xml version=\"1.0\"?><org.eventb.theory.core.theoryFile " ++
     "identifier=\"Basic\"><org.eventb.theory.core.symbol " ++
-    "identifier=\"LIMIT\" kind=\"constant\" type=\"ℤ\"/>" ++
+    "identifier=\"LIMIT\" kind=\"constant\" type=\"ℤ\" " ++
+    "description=\"A bound.\"/>" ++
     "<org.eventb.theory.core.datatypeDefinition identifier=\"Colour\">" ++
     "<org.eventb.theory.core.datatypeConstructor identifier=\"red\"/>" ++
     "<org.eventb.theory.core.datatypeConstructor identifier=\"blue\"/>" ++
@@ -37,14 +38,18 @@ private def unsupported :=
   | .error _ => false
 
 #guard match Theory.Rodin.importSpec Theory.empty source with
-  | .ok spec => match Theory.Rodin.exportSpec Theory.empty spec with
-    | .ok output => match Theory.Rodin.importSpec Theory.empty output with
+  | .ok spec =>
+    match Theory.Rodin.exportSpec Theory.empty spec with
+    | .ok output =>
+      match Theory.Rodin.importSpec Theory.empty output with
       | .ok roundTrip => roundTrip.name == spec.name &&
           roundTrip.declarations.map Declaration.name == spec.declarations.map Declaration.name &&
-          match roundTrip.declarations.getLast? with
+          roundTrip.symbols.map (fun symbol => symbol.description) ==
+            spec.symbols.map (fun symbol => symbol.description) &&
+          (match roundTrip.declarations.getLast? with
           | some (.ruleDecl rule) => rule.typeParameters == ["T"] &&
               rule.parameters == [("x", .given "T")]
-          | _ => false
+          | _ => false)
       | .error _ => false
     | .error _ => false
   | .error _ => false
