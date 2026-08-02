@@ -268,6 +268,7 @@ private def eventOf (owner : String) (theoryRoots owners : List String) (stx : T
     CommandElabM (TSyntax `term) := do
   match stx with
   | `(ebEvent| event $n:ident where $ps:ebEventPart*) => do
+      addSymbolRange owner n.raw
       let eventOwner := owner ++ "." ++ n.getId.toString
       for p in ps do
         match p with
@@ -300,9 +301,13 @@ private def addEventInfos (owner : String) (owners : List String)
 
 private def addMachineInfos (owner : String) (owners : List String)
     (parts : Array (TSyntax `ebMachinePart)) : CommandElabM Unit := do
-  for p in parts do
+    for p in parts do
     match p with
     | `(ebMachinePart| invariant $l:ebLabelled) =>
+        match l with
+        | `(ebLabelled| $label:ident : $_) => addSymbolRange owner label.raw
+        | `(ebLabelled| theorem $label:ident : $_) => addSymbolRange owner label.raw
+        | _ => pure ()
         let (_, _, s, _) ← labelledOf l
         addFormulaInfos owners s
     | `(ebMachinePart| variant $l:ebLabelled) =>

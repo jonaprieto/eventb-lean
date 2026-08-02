@@ -105,6 +105,26 @@ one fully typecheckable witness project. The parser-boundary fixtures are not al
 semantically valid Event-B models, so `rossi-dump` is the appropriate structural test
 for them; use `eventb check` and `eventb report` for `witnesses.eventb`.
 
+## Manual editor acceptance
+
+The ProofWidgets surface needs one editor check in addition to the terminal contract:
+
+1. Run `lake build EventB EventBWidgets Examples` from a clean checkout.
+2. Open `examples/WidgetDemo.lean` in VS Code with the Lean extension and restart the
+   Lean server.
+3. Confirm the Infoview shows `Event-B proof obligations · BridgeController`, model
+   panels, obligation class sections, hypotheses, goals, trust badges, fingerprints,
+   and the 11 replayed entries. There must be no React error, `Click to reload`, or
+   `No info found` result for the widget commands.
+4. Open `examples/LspDemo.lean`; use Go to Definition on `LIMIT`, `cars`, `step`, and
+   `inv`. The native declaration-range checks in that file must also compile.
+5. Introduce an unknown identifier in a native formula temporarily and confirm the
+   editor reports `unknown Event-B identifier`; revert the temporary edit.
+
+Do not commit screenshots, editor state, or the private book export. Native DSL
+declarations have Lean source ranges; raw Rossi/XML inputs currently expose parser
+diagnostics but do not promise source navigation ranges.
+
 ## Why the numbers mean something
 
 There are no hand-written answers in the corpus gate. Rodin already wrote its answers

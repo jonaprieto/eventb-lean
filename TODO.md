@@ -368,9 +368,9 @@ Production thresholds:
   the 11 replayed entries must render without React or widget errors.
 - [ ] #35 Verify native Go to Definition and scope diagnostics for theory, context, machine,
   event, and invariant symbols in the editor.
-- [ ] #36 Record the manual UI acceptance procedure in the README without committing
+- [x] #36 Record the manual UI acceptance procedure in the README without committing
   private screenshots or generated editor state.
-- [ ] #37 Keep raw Rossi/XML source-range limitations explicit until source navigation for
+- [x] #37 Keep raw Rossi/XML source-range limitations explicit until source navigation for
   those front ends is implemented and tested.
 
 ### V4.7 Distribution and operational gate
