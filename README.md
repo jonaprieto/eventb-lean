@@ -25,6 +25,7 @@ P2 types: 940/940
 P3 obligations: 1133/1133
 P3b statements: 1124/1518 derived
 P3b hypotheses: 1124/1518 derived
+P4 local baseline: 73/1133 discharged
 ```
 
 ## Using it
@@ -152,8 +153,8 @@ obligation costs proof effort, while a missing obligation would be unsound.
 
 Rodin cannot tell you which of your proofs rest on what. This can: `lake exe gates
 --status` writes a trust ledger splitting every obligation into kernel-checked,
-SMT-trusted, external-prover-trusted, and unproved. For a certification argument that
-distinction is the whole conversation.
+SMT-trusted, Rodin-imported, external-prover-trusted, and unproved. The current local
+baseline records 73 external-trusted results; it does not claim they are kernel proofs.
 
 `Proved.sound` and `Refines.sound` in `EventB/Semantics.lean` are axiom-free, and CI
 fails if that ever stops being true.

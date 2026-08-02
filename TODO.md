@@ -9,19 +9,19 @@ The design and dependencies are documented in
 [`notes/architecture.md`](notes/architecture.md). These four checkboxes are the
 canonical milestones; the sections below contain their implementation tasks.
 
-The first four roadmap milestones have an implemented, tested boundary. The next
-milestone is P4 integration: the standalone local baseline must become part of the
-canonical corpus status without being mistaken for kernel proof.
+The first four roadmap milestones and the P4 integration boundary have an implemented,
+tested result. Local evidence remains explicitly external-trusted, never kernel proof.
 
-## P4 integration plan
+## P4 integration plan (complete)
 
-- [ ] Run the deterministic local prover over the canonical POG obligations.
-- [ ] Accept results only through `Trust.Ledger.attach` and retain fingerprints.
-- [ ] Report external, kernel, and unproved counts in generated `STATUS.md`.
-- [ ] Add stale/forged evidence regression checks at the integrated boundary.
-- [ ] Keep P0–P3b ratchets unchanged and compare P4 with the Rodin `.bps` bar.
+- [x] Run the deterministic local prover over the 1133 P3-matched canonical obligations.
+- [x] Accept results only through `Trust.Ledger.attach` and retain fingerprints.
+- [x] Report external, kernel, and unproved counts in generated `STATUS.md`.
+- [x] Add stale/forged evidence regression checks at the integrated boundary.
+- [x] Keep P0–P3b ratchets unchanged and compare P4 with the Rodin `.bps` bar.
 
-The existing milestones below are complete; these are the only open checklist items.
+The existing milestones below and this integration plan are complete; no milestone is
+open. Expanding the local prover is future capacity work, not an untracked issue.
 
 ## Completed execution checklist
 

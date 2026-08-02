@@ -210,8 +210,8 @@ The gates compare the implementation against the pinned corpus and ratchet files
 - P3: generated obligation names are compared with Rodin;
 - P3b: 1124 derived goals and hypotheses match the comparable Rodin sequents; generated
   no-sequent obligations remain explicit coverage data;
-- P4: the local deterministic baseline discharges a small verified subset as external
-  evidence, while all other obligations remain unproved.
+- P4: the gates run the deterministic local baseline over the 1133 P3-matched
+  obligations; the current result is 73 external-trusted and the rest unproved.
 
 Every focused commit is expected to leave these checks green. `STATUS.md` is generated;
 `TODO.md` records the completed roadmap audit and deliberate ceilings.
@@ -356,7 +356,8 @@ and can attach a matching status as `rodinImported`. Matching Rodin's discharge 
 useful evidence about coverage; it is not evidence that Lean checked the same proof.
 The generated corpus status report keeps imported Rodin status separate from local
 evidence. The local backend only classifies results it can verify deterministically;
-the rest remain unproved.
+the rest remain unproved. Its current 73/1133 result is a baseline, not a claim of
+kernel proof coverage.
 
 Acceptance criteria:
 
