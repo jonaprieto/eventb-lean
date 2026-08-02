@@ -53,9 +53,11 @@ private def rule? (obligation : Obligation) : Option Rule := do
   else
     none
 
+private def evidenceFingerprint (obligation : Obligation) (rule : Rule) : String :=
+  Trust.fingerprint (obligation.canonical ++ "\nrule=" ++ rule.label)
+
 def evidence (obligation : Obligation) (rule : Rule) : Evidence :=
-  .external "eventb-local" "0" (Trust.fingerprint
-    (obligation.canonical ++ "\nrule=" ++ rule.label)) "EventB.Prover.Local"
+  .external "eventb-local" "0" (evidenceFingerprint obligation rule) "EventB.Prover.Local"
 
 def prove (obligation : Obligation) : Result :=
   match rule? obligation with
@@ -63,7 +65,15 @@ def prove (obligation : Obligation) : Result :=
   | none => {}
 
 def attach (ledger : Ledger) (obligation : Obligation) : Result → Except String Ledger
-  | { rule := some _, evidence } => ledger.attach obligation evidence
+  | { rule := some rule, evidence := .external tool version digest verifier } =>
+      if tool != "eventb-local" || version != "0" || verifier != "EventB.Prover.Local" then
+        .error "local prover evidence metadata mismatch"
+      else if digest != evidenceFingerprint obligation rule then
+        .error "local prover evidence fingerprint mismatch"
+      else
+        ledger.attach obligation (.external tool version digest verifier)
+  | { rule := some _, evidence := .none } => .error "local prover evidence is missing"
+  | { rule := some _, evidence := _ } => .error "local prover evidence has wrong trust mode"
   | _ => pure ledger
 
 private def trueObligation : Obligation :=
@@ -80,5 +90,11 @@ private def reflexiveObligation : Obligation :=
     (prove trueObligation) with
   | .ok ledger => ledger.count .external == 1
   | .error _ => false
+#guard match attach (Ledger.ofObligations [trueObligation]) trueObligation
+    { rule := some .true,
+      evidence := .external "eventb-local" "0" (Trust.fingerprint "stale")
+        "EventB.Prover.Local" } with
+  | .error _ => true
+  | .ok _ => false
 
 end EventB.Prover.Local

@@ -9,8 +9,19 @@ The design and dependencies are documented in
 [`notes/architecture.md`](notes/architecture.md). These four checkboxes are the
 canonical milestones; the sections below contain their implementation tasks.
 
-All four roadmap milestones now have an implemented, tested boundary. The checklist
-below records the completed work and its deliberate ceilings; no milestone is open.
+The first four roadmap milestones have an implemented, tested boundary. The next
+milestone is P4 integration: the standalone local baseline must become part of the
+canonical corpus status without being mistaken for kernel proof.
+
+## P4 integration plan
+
+- [ ] Run the deterministic local prover over the canonical POG obligations.
+- [ ] Accept results only through `Trust.Ledger.attach` and retain fingerprints.
+- [ ] Report external, kernel, and unproved counts in generated `STATUS.md`.
+- [ ] Add stale/forged evidence regression checks at the integrated boundary.
+- [ ] Keep P0–P3b ratchets unchanged and compare P4 with the Rodin `.bps` bar.
+
+The existing milestones below are complete; these are the only open checklist items.
 
 ## Completed execution checklist
 
