@@ -145,7 +145,7 @@ private def setBinary : List String := ["∪", "∩", "∖"]
 
 /-- Relation and function arrows, all `ℙ(A) × ℙ(B) → ℙ(ℙ(A×B))`. -/
 private def arrows : List String :=
-  ["↔", "", "", "", "⇸", "→", "⤔", "↣", "⤀", "↠", "⤖"]
+  ["↔", "", "", "", "⇸", "→", "⤔", "↣", "⤀", "↠", "⤖"]
 
 /-- Domain and range restriction: `◁ ⩤` take a set on the left, `▷ ⩥` on the right. -/
 private def domRestrict : List String := ["◁", "⩤"]
@@ -407,6 +407,14 @@ def inferBin (o : String) (a b : Term) : M Ty := do
     let (x, y) ← asRelation (← inferExpr a)
     let (u, v) ← asRelation (← inferExpr b)
     return .pow (.prod (.prod x u) (.prod y v))
+  else if o == "" then do
+    let left ← inferExpr a
+    let right ← inferExpr b
+    let (x, y) ← asRelation left
+    let (u, v) ← asRelation right
+    unify x u
+    unify y v
+    return left
   else if relational.contains o || connectives.contains o then
     throw s!"predicate operator {o} used as an expression"
   else
