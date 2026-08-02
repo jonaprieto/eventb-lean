@@ -218,37 +218,112 @@ private def termSize : Formula.Term → Nat
   | .set terms => terms.foldl (fun size term => size + termSize term) 1
   | .bind _ pattern body => termSize pattern + termSize body + 1
 
-private def matchRewrite : List String → Formula.Term → Formula.Term →
-    List (String × Formula.Term) → Option (List (String × Formula.Term))
-  | parameters, .id name, target, substitutions =>
-      if parameters.contains name then
-        match substitutions.find? (·.1 == name) with
-        | some (_, previous) =>
-            if Formula.alphaEq previous target then some substitutions else none
-        | none => some ((name, target) :: substitutions)
-      else if Formula.alphaEq (.id name) target then some substitutions else none
-  | _, .num left, .num right, substitutions =>
+private def patternShape : Formula.Term → Formula.Term → Bool
+  | .id _, .id _ => true
+  | .bin leftOp leftA leftB, .bin rightOp rightA rightB =>
+      leftOp == rightOp && patternShape leftA rightA && patternShape leftB rightB
+  | _, _ => false
+
+mutual
+
+private def referencesBound : Nat → List String → Formula.Term → Bool
+  | 0, _, _ => false
+  | _ + 1, bound, .id name => bound.contains name
+  | _ + 1, _, .num _ => false
+  | fuel + 1, bound, .bin _ left right =>
+      referencesBound fuel bound left || referencesBound fuel bound right
+  | fuel + 1, bound, .pre _ term => referencesBound fuel bound term
+  | fuel + 1, bound, .post _ term => referencesBound fuel bound term
+  | fuel + 1, bound, .app function argument =>
+      referencesBound fuel bound function || referencesBound fuel bound argument
+  | fuel + 1, bound, .img function argument =>
+      referencesBound fuel bound function || referencesBound fuel bound argument
+  | fuel + 1, bound, .set terms => referencesBoundList fuel bound terms
+  | fuel + 1, bound, .bind _ pattern body =>
+      let shadowed := Formula.patternNames pattern
+      referencesBound fuel (bound.filter (fun name => !shadowed.contains name)) body
+
+termination_by fuel _ _ => fuel
+
+private def referencesBoundList : Nat → List String → List Formula.Term → Bool
+  | 0, _, _ => false
+  | _ + 1, _, [] => false
+  | fuel + 1, bound, term :: terms =>
+      referencesBound fuel bound term || referencesBoundList fuel bound terms
+
+termination_by fuel _ _ => fuel
+
+end
+
+private def matchRewrite : Nat → List String → List (String × String) → List String →
+    Formula.Term → Formula.Term → List (String × Formula.Term) →
+    Option (List (String × Formula.Term))
+  | 0, _, _, _, _, _, _ => none
+  | _ + 1, parameters, bound, targetBound, .id name, target, substitutions =>
+      match bound.find? (·.1 == name) with
+      | some (_, targetName) =>
+          match target with
+          | .id actual => if actual == targetName then some substitutions else none
+          | _ => none
+      | none =>
+          if parameters.contains name then
+            if referencesBound (termSize target + 1) targetBound target then none
+            else match substitutions.find? (·.1 == name) with
+              | some (_, previous) =>
+                  if Formula.alphaEq previous target then some substitutions else none
+              | none => some ((name, target) :: substitutions)
+          else if Formula.alphaEq (.id name) target then some substitutions else none
+  | _, _, _, _, .num left, .num right, substitutions =>
       if left == right then some substitutions else none
-  | parameters, .bin leftOp leftA leftB, .bin rightOp rightA rightB, substitutions =>
+  | fuel + 1, parameters, bound, targetBound,
+      .bin leftOp leftA leftB, .bin rightOp rightA rightB, substitutions =>
       if leftOp != rightOp then none
       else do
-        let substitutions ← matchRewrite parameters leftA rightA substitutions
-        matchRewrite parameters leftB rightB substitutions
-  | parameters, .pre leftOp left, .pre rightOp right, substitutions =>
-      if leftOp == rightOp then matchRewrite parameters left right substitutions else none
-  | parameters, .post leftOp left, .post rightOp right, substitutions =>
-      if leftOp == rightOp then matchRewrite parameters left right substitutions else none
-  | parameters, .app leftFunction leftArgument, .app rightFunction rightArgument,
-      substitutions => do
-      let substitutions ← matchRewrite parameters leftFunction rightFunction substitutions
-      matchRewrite parameters leftArgument rightArgument substitutions
-  | parameters, .img leftRelation leftSet, .img rightRelation rightSet, substitutions => do
-      let substitutions ← matchRewrite parameters leftRelation rightRelation substitutions
-      matchRewrite parameters leftSet rightSet substitutions
-  | _, .set .., _, _ => none
-  | _, .bind .., _, _ => none
-  | _, _, _, _ => none
-termination_by _ pattern target _ => sizeOf pattern + sizeOf target
+        let substitutions ← matchRewrite fuel parameters bound targetBound
+          leftA rightA substitutions
+        matchRewrite fuel parameters bound targetBound leftB rightB substitutions
+  | fuel + 1, parameters, bound, targetBound, .pre leftOp left, .pre rightOp right,
+      substitutions =>
+      if leftOp == rightOp then
+        matchRewrite fuel parameters bound targetBound left right substitutions
+      else none
+  | fuel + 1, parameters, bound, targetBound, .post leftOp left, .post rightOp right,
+      substitutions =>
+      if leftOp == rightOp then
+        matchRewrite fuel parameters bound targetBound left right substitutions
+      else none
+  | fuel + 1, parameters, bound, targetBound,
+      .app leftFunction leftArgument, .app rightFunction rightArgument, substitutions => do
+      let substitutions ← matchRewrite fuel parameters bound targetBound
+        leftFunction rightFunction substitutions
+      matchRewrite fuel parameters bound targetBound leftArgument rightArgument substitutions
+  | fuel + 1, parameters, bound, targetBound,
+      .img leftRelation leftSet, .img rightRelation rightSet, substitutions => do
+      let substitutions ← matchRewrite fuel parameters bound targetBound
+        leftRelation rightRelation substitutions
+      matchRewrite fuel parameters bound targetBound leftSet rightSet substitutions
+  | fuel + 1, parameters, bound, targetBound, .set leftTerms, .set rightTerms,
+      substitutions =>
+      if leftTerms.length != rightTerms.length then none
+      else leftTerms.zip rightTerms |>.foldlM
+        (fun substitutions (left, right) =>
+          matchRewrite fuel parameters bound targetBound left right substitutions) substitutions
+  | fuel + 1, parameters, bound, targetBound,
+      .bind leftKind leftPattern leftBody, .bind rightKind rightPattern rightBody,
+      substitutions =>
+      let leftNames := Formula.patternNames leftPattern
+      let rightNames := Formula.patternNames rightPattern
+      if leftKind != rightKind || !patternShape leftPattern rightPattern ||
+          leftNames.length != rightNames.length ||
+          leftNames.eraseDups.length != leftNames.length ||
+          rightNames.eraseDups.length != rightNames.length then none
+      else
+        let localBound := leftNames.zip rightNames
+        let bound := localBound ++ bound.filter (fun pair => !leftNames.contains pair.1)
+        let targetBound := rightNames ++ targetBound.filter (fun name => !rightNames.contains name)
+        matchRewrite fuel parameters bound targetBound leftBody rightBody substitutions
+  | _, _, _, _, _, _, _ => none
+termination_by fuel _ _ _ _ _ _ => fuel
 
 private def rewriteRoot (rules : List (String × Rule)) (term : Formula.Term) :
     Option Formula.Term :=
@@ -256,7 +331,8 @@ private def rewriteRoot (rules : List (String × Rule)) (term : Formula.Term) :
     let lhs ← rule.lhs
     let rhs ← rule.rhs
     if termSize rhs >= termSize lhs then none else
-      let substitutions ← matchRewrite (rule.parameters.map (·.1)) lhs term []
+      let fuel := termSize lhs + termSize term + 1
+      let substitutions ← matchRewrite fuel (rule.parameters.map (·.1)) [] [] lhs term []
       some (Formula.subst substitutions rhs)
 
 private def normalizeAux (rules : List (String × Rule)) : Nat → Formula.Term → Formula.Term
@@ -510,12 +586,53 @@ private def rewriteEnv : Env :=
   | .ok env => env
   | .error _ => empty
 
+private def binderRewriteEnv : Env :=
+  match add empty
+      { name := "BinderRewrite", declarations :=
+        [.ruleDecl
+          { name := "singleton_union_empty", kind := .rewrite,
+            parameters := [("x", .int)]
+            lhs := some (.bin "∪" (.set [.id "x"]) (.set []))
+            rhs := some (.set [.id "x"]) },
+         .ruleDecl
+          { name := "forall_add_zero", kind := .rewrite,
+            parameters := [("x", .int)]
+            lhs := some (.bind "∀" (.id "y")
+              (.bin "=" (.bin "+" (.id "x") (.num 0)) (.id "y")))
+            rhs := some (.bind "∀" (.id "y") (.bin "=" (.id "x") (.id "y"))) },
+         .ruleDecl
+          { name := "comprehension_add_zero", kind := .rewrite,
+            parameters := [("x", .int)]
+            lhs := some (.bind "{" (.id "y")
+              (.bin "∣" (.bin "=" (.id "x") (.id "y"))
+                (.bin "+" (.id "x") (.num 0))))
+            rhs := some (.bind "{" (.id "y")
+              (.bin "∣" (.bin "=" (.id "x") (.id "y")) (.id "x"))) }] } with
+  | .ok env => env
+  | .error _ => empty
+
+private def parseFormula! (source : String) : Formula.Term :=
+  (Formula.parse source).toOption.getD (.id "?")
+
 #guard Definition.type
     { name := "increment", parameters := [("x", .int)], result := .int, body := .num 0 }
     == .pow (.prod .int .int)
 #guard match Formula.parse "1 + 0" with
   | .ok term => Formula.alphaEq (normalize rewriteEnv ["Rewrite"] term) (.num 1)
   | .error _ => false
+#guard Formula.alphaEq
+  (normalize binderRewriteEnv ["BinderRewrite"] (parseFormula! "{1} ∪ {}"))
+  (parseFormula! "{1}")
+#guard Formula.alphaEq
+  (normalize binderRewriteEnv ["BinderRewrite"] (parseFormula! "∀z · (1 + 0) = z"))
+  (parseFormula! "∀z · 1 = z")
+#guard Formula.alphaEq
+  (normalize binderRewriteEnv ["BinderRewrite"]
+    (parseFormula! "{z · 1 = z ∣ 1 + 0}"))
+  (parseFormula! "{z · 1 = z ∣ 1}")
+#guard Formula.alphaEq
+  (normalize binderRewriteEnv ["BinderRewrite"] (parseFormula! "∀z · z + 0 = z"))
+  (parseFormula! "∀z · z + 0 = z")
 
 #guard match add empty
     { name := "EmptyData", declarations := [.dataType (Datatype.mk "EmptyData" [] [])] } with
