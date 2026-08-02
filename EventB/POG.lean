@@ -590,18 +590,21 @@ def generateIn (theory : Theory.Env) (p : Project) (name : String) : List Obliga
           -- sides, with the concrete event's witnesses substituted into the abstract one.
           let concrete := actions.flatMap substOf
           for act in effectiveActions p am ae do
-            let goal := match substOf act with
+            let simGoal : Option Term := match substOf act with
               | [(v, absRhs)] =>
-                  match concrete.find? (fun q => q.1 == v) with
+                  match concrete.find? (fun q : String × Term => q.1 == v) with
                   | some (_, conRhs) =>
                       some (Term.bin "=" conRhs (Formula.subst witnesses absRhs))
                   | none => none
               | _ => none
-            out := out ++
-              [{ name := labelOf ev ++ "/" ++ labelOf act ++ "/SIM", kind := "SIM",
-                 goal := goal, hyps := base ++
-                   ((effectiveGuards p name ev).filterMap fun q =>
-                     (Formula.parse ((attrOf q "predicate").getD "")).toOption) }]
+            match simGoal with
+            | some goal =>
+                out := out ++
+                  [{ name := labelOf ev ++ "/" ++ labelOf act ++ "/SIM", kind := "SIM",
+                     goal := some goal, hyps := base ++
+                       ((effectiveGuards p name ev).filterMap fun q =>
+                         (Formula.parse ((attrOf q "predicate").getD "")).toOption) }]
+            | none => pure ()
       for g in childrenOf ev "guard" do
         if wdRequired total ((attrOf g "predicate").getD "") then
           out := out ++

@@ -14,8 +14,8 @@ scope, trust boundary, and verification contract.
 [![formulas](https://img.shields.io/badge/formulas-1102%2F1102-brightgreen)](baseline/formula.tsv)
 [![types](https://img.shields.io/badge/types-940%2F940-brightgreen)](baseline/typecheck.tsv)
 [![obligations](https://img.shields.io/badge/obligations-1133%2F1133-brightgreen)](baseline/pog.tsv)
-[![statements](https://img.shields.io/badge/statements-1129%2F1523-yellow)](baseline/statement.tsv)
-[![hypotheses](https://img.shields.io/badge/hypotheses-1129%2F1523-yellow)](baseline/hypothesis.tsv)
+[![statements](https://img.shields.io/badge/statements-1129%2F1322-yellow)](baseline/statement.tsv)
+[![hypotheses](https://img.shields.io/badge/hypotheses-1129%2F1322-yellow)](baseline/hypothesis.tsv)
 
 ```
 $ lake exe gates
@@ -23,8 +23,8 @@ P0 reader: 38/38
 P1 formulas: 1102/1102
 P2 types: 940/940
 P3 obligations: 1133/1133
-P3b statements: 1129/1523 derived
-P3b hypotheses: 1129/1523 derived
+P3b statements: 1129/1322 derived
+P3b hypotheses: 1129/1322 derived
 P4 local baseline: 73/1133 discharged
 ```
 

@@ -17,12 +17,12 @@ Run `lake exe gates --histogram` before changing a rule. The current ratchet is:
 | P1 formulas | 1102/1102 | Corpus formulas parse and round-trip. |
 | P2 types | 940/940 | Rodin's recorded identifier types are reproduced. |
 | P3 names | 1133/1133 | Every Rodin PO name is generated. Extra names remain visible. |
-| P3b statements | 1129/1523 | 394 generated targets lack `.bpo` sequents. |
-| P3b hypotheses | 1129/1523 | Comparable hypothesis sets are derived; the same 394 are unmatched. |
+| P3b statements | 1129/1322 | 193 generated targets lack `.bpo` sequents. |
+| P3b hypotheses | 1129/1322 | Comparable hypothesis sets are derived; the same 193 are unmatched. |
 | P4 local baseline | 73/1133 | Deterministic evidence is attached as external-trusted. |
 
-The 394 P3b unmatched records are not proof failures. They are generator-precision
-work, grouped by the current histogram as 214 WD, 103 INV, 69 SIM, and 8 GRD. Seven
+The 193 P3b unmatched records are not proof failures. They are generator-precision
+work, with the current coverage report retaining their component and class. Seven
 additional WFIS names are absent from the pinned `.bpo` files and remain explicit
 coverage data rather than being forced into the P3b denominator. P4 has no kernel,
 SMT, or imported-Rodin entries yet; the other 1060 obligations remain unproved.
@@ -102,6 +102,10 @@ matching Rodin sequent and comparable goal/hypotheses.
   where it genuinely strengthens/simulates it.
 - [ ] Verify substitution is simultaneous and witness substitution does not alter
   unrelated INV/GRD obligations.
+
+Progress: SIM generation now omits abstract actions with no matching concrete
+assignment. This reduced unmatched SIM names from 122 to 69 while retaining the
+1133-name gate; inherited-action selection remains under audit.
 
 Acceptance: GRD and SIM unmatched records reach zero, and the P3 name gate still
 matches all 1133 Rodin names.

@@ -14,9 +14,7 @@ M1_Landing_Sequence	Move_Aircraft/grd1,4/WD	PASS
 M1_Landing_Sequence	Move_Aircraft/inv1,1/INV	PASS
 M1_Landing_Sequence	Move_Aircraft/inv13,2/INV	PASS
 M1_Landing_Sequence	Move_Aircraft/glue1,1/INV	PASS
-M1_Landing_Sequence	INITIALISATION/act0,1/SIM	FAIL:not in .bpo
 M1_Landing_Sequence	AMAN_Update/grd0,1/GRD	FAIL:not in .bpo
-M1_Landing_Sequence	AMAN_Update/act0,1/SIM	FAIL:not in .bpo
 M1_Landing_Sequence	AMAN_Update/newScheduledAirplanes/WFIS	FAIL:not in .bpo
 M1_Landing_Sequence_Ctx	axm3,1/WD	PASS
 M1_Landing_Sequence_Ctx	axm3,2/WD	PASS
@@ -162,7 +160,6 @@ M8_Interaction_Events	INITIALISATION/act3,1/SIM	FAIL:not in .bpo
 M8_Interaction_Events	INITIALISATION/act6,1/SIM	FAIL:not in .bpo
 M8_Interaction_Events	INITIALISATION/act5,1/SIM	FAIL:not in .bpo
 M8_Interaction_Events	INITIALISATION/act7,1/SIM	FAIL:not in .bpo
-M8_Interaction_Events	INITIALISATION/dragging_airplane/SIM	FAIL:not in .bpo
 M8_Interaction_Events	AMAN_Update/act1,1/SIM	FAIL:not in .bpo
 M8_Interaction_Events	AMAN_Update/act2,1/SIM	FAIL:not in .bpo
 M8_Interaction_Events	AMAN_Update/act3,1/SIM	FAIL:not in .bpo
@@ -172,17 +169,13 @@ M8_Interaction_Events	AMAN_Update/inv1,2/WD	FAIL:not in .bpo
 M8_Interaction_Events	AMAN_Timeout/act5,1/SIM	FAIL:not in .bpo
 M8_Interaction_Events	AMAN_Timeout/act7,1/SIM	FAIL:not in .bpo
 M8_Interaction_Events	Move_Aircraft/act1,1/SIM	FAIL:not in .bpo
-M8_Interaction_Events	Move_Aircraft/dragging_airplane/SIM	FAIL:not in .bpo
 M8_Interaction_Events	Hold_Button/act2,1/SIM	FAIL:not in .bpo
 M8_Interaction_Events	Hold_Button/act6,1/SIM	FAIL:not in .bpo
 M8_Interaction_Events	Hold_Button/grd6,1/WD	FAIL:not in .bpo
 M8_Interaction_Events	changeZoom/act6,1/SIM	FAIL:not in .bpo
 M8_Interaction_Events	changeZoom/selectedAirplane/SIM	FAIL:not in .bpo
 M8_Interaction_Events	selectAirplane/act6,1/SIM	FAIL:not in .bpo
-M8_Interaction_Events	selectAirplane/dragging_airplane/SIM	FAIL:not in .bpo
 M8_Interaction_Events	deselectAirplane/act6,1/SIM	FAIL:not in .bpo
-M8_Interaction_Events	resume_dragging_airplane/dragging_airplane/SIM	FAIL:not in .bpo
-M8_Interaction_Events	stop_dragging_airplane/dragging_airplane/SIM	FAIL:not in .bpo
 M9_Push_Mouse_Buttons	is_clicked_block_card/WD	PASS
 M9_Push_Mouse_Buttons	block_slot_position_card/WD	PASS
 M9_Push_Mouse_Buttons	airplane_Position_card/WD	PASS
@@ -997,88 +990,42 @@ MAbs_helper	drag_airplane/mouse_over_airplane_when_dragged/INV	PASS
 MAbs_helper	drag_airplane/get_dragged_airplane/GRD	PASS
 MAbs_helper	drag_airplane/grd9,2/GRD	PASS
 MAbs_helper	start_dragging_zoom_slider/no_dragged_airplane_abstract/GRD	PASS
-MAbs_helper	INITIALISATION/actAbs/SIM	FAIL:not in .bpo
-MAbs_helper	INITIALISATION/act1,1/SIM	FAIL:not in .bpo
 MAbs_helper	INITIALISATION/act5,1/SIM	FAIL:not in .bpo
-MAbs_helper	INITIALISATION/act7,1/SIM	FAIL:not in .bpo
-MAbs_helper	INITIALISATION/abstract_dragged_airplane/SIM	FAIL:not in .bpo
 MAbs_helper	INITIALISATION/dragged_zoom_level/SIM	FAIL:not in .bpo
 MAbs_helper	INITIALISATION/act9,1/SIM	FAIL:not in .bpo
-MAbs_helper	INITIALISATION/act9,3/SIM	FAIL:not in .bpo
-MAbs_helper	INITIALISATION/act9,4/SIM	FAIL:not in .bpo
-MAbs_helper	INITIALISATION/act9,5/SIM	FAIL:not in .bpo
 MAbs_helper	Move_Mouse_Hold/act9,1/SIM	FAIL:not in .bpo
-MAbs_helper	Move_Mouse_Hold/act9,2/SIM	FAIL:not in .bpo
-MAbs_helper	Move_Mouse_Hold/act9,3/SIM	FAIL:not in .bpo
 MAbs_helper	Move_Mouse_Zoom_Zooming/dragged_zoom_level/SIM	FAIL:not in .bpo
 MAbs_helper	Move_Mouse_Zoom_Zooming/act9,1/SIM	FAIL:not in .bpo
 MAbs_helper	Move_Mouse_Zoom_Zooming/act9,2/SIM	FAIL:not in .bpo
-MAbs_helper	Move_Mouse_Zoom_Zooming/act9,3/SIM	FAIL:not in .bpo
-MAbs_helper	Move_Mouse_Zoom_Zooming/act9,4/SIM	FAIL:not in .bpo
 MAbs_helper	Move_Mouse_Zoom_Not_Zooming/act9,1/SIM	FAIL:not in .bpo
 MAbs_helper	Move_Mouse_Zoom_Not_Zooming/act9,2/SIM	FAIL:not in .bpo
-MAbs_helper	Move_Mouse_Zoom_Not_Zooming/act9,3/SIM	FAIL:not in .bpo
-MAbs_helper	Move_Mouse_Zoom_Not_Zooming/act9,4/SIM	FAIL:not in .bpo
 MAbs_helper	Move_Mouse_Block/grd9,1/GRD	FAIL:not in .bpo
 MAbs_helper	Move_Mouse_Block/act9,1/SIM	FAIL:not in .bpo
-MAbs_helper	Move_Mouse_Block/act9,2/SIM	FAIL:not in .bpo
-MAbs_helper	Move_Mouse_Block/act9,3/SIM	FAIL:not in .bpo
 MAbs_helper	Move_Mouse_Airplane/act9,1/SIM	FAIL:not in .bpo
-MAbs_helper	Move_Mouse_Airplane/act9,2/SIM	FAIL:not in .bpo
-MAbs_helper	Move_Mouse_Airplane/act9,3/SIM	FAIL:not in .bpo
 MAbs_helper	Move_Mouse_Nothing/act9,1/SIM	FAIL:not in .bpo
-MAbs_helper	Move_Mouse_Nothing/act9,2/SIM	FAIL:not in .bpo
-MAbs_helper	Move_Mouse_Nothing/act9,3/SIM	FAIL:not in .bpo
 MAbs_helper	AMAN_Update_mouse_to_nothing/abs_new_air/GRD	FAIL:not in .bpo
 MAbs_helper	AMAN_Update_mouse_to_nothing/grdAbstractBlocked/GRD	FAIL:not in .bpo
-MAbs_helper	AMAN_Update_mouse_to_nothing/act_schedule/SIM	FAIL:not in .bpo
 MAbs_helper	AMAN_Update_mouse_to_nothing/act5,1/SIM	FAIL:not in .bpo
-MAbs_helper	AMAN_Update_mouse_to_nothing/act7,1/SIM	FAIL:not in .bpo
 MAbs_helper	AMAN_Update_mouse_to_nothing/act9,1/SIM	FAIL:not in .bpo
-MAbs_helper	AMAN_Update_mouse_to_nothing/act9,2/SIM	FAIL:not in .bpo
-MAbs_helper	AMAN_Update_mouse_to_nothing/actAbstractBlocked/SIM	FAIL:not in .bpo
 MAbs_helper	AMAN_Update_mouse_to_nothing/new_scheduledAirplanes/WFIS	FAIL:not in .bpo
 MAbs_helper	AMAN_Update_mouse_to_airplane/abs_new_air/GRD	FAIL:not in .bpo
 MAbs_helper	AMAN_Update_mouse_to_airplane/grdAbstractBlocked/GRD	FAIL:not in .bpo
-MAbs_helper	AMAN_Update_mouse_to_airplane/act_schedule/SIM	FAIL:not in .bpo
 MAbs_helper	AMAN_Update_mouse_to_airplane/act5,1/SIM	FAIL:not in .bpo
-MAbs_helper	AMAN_Update_mouse_to_airplane/act7,1/SIM	FAIL:not in .bpo
 MAbs_helper	AMAN_Update_mouse_to_airplane/act9,1/SIM	FAIL:not in .bpo
-MAbs_helper	AMAN_Update_mouse_to_airplane/act9,2/SIM	FAIL:not in .bpo
-MAbs_helper	AMAN_Update_mouse_to_airplane/actAbstractBlocked/SIM	FAIL:not in .bpo
 MAbs_helper	AMAN_Update_mouse_to_airplane/new_scheduledAirplanes/WFIS	FAIL:not in .bpo
 MAbs_helper	AMAN_Update_mouse_stays/abs_new_air/GRD	FAIL:not in .bpo
 MAbs_helper	AMAN_Update_mouse_stays/grdAbstractBlocked/GRD	FAIL:not in .bpo
-MAbs_helper	AMAN_Update_mouse_stays/act_schedule/SIM	FAIL:not in .bpo
 MAbs_helper	AMAN_Update_mouse_stays/act5,1/SIM	FAIL:not in .bpo
-MAbs_helper	AMAN_Update_mouse_stays/act7,1/SIM	FAIL:not in .bpo
-MAbs_helper	AMAN_Update_mouse_stays/actAbstractBlocked/SIM	FAIL:not in .bpo
 MAbs_helper	AMAN_Update_mouse_stays/new_scheduledAirplanes/WFIS	FAIL:not in .bpo
 MAbs_helper	AMAN_Timeout/act5,1/SIM	FAIL:not in .bpo
-MAbs_helper	AMAN_Timeout/act7,1/SIM	FAIL:not in .bpo
-MAbs_helper	Move_Aircraft/abstract_dragged_airplane/SIM	FAIL:not in .bpo
 MAbs_helper	Click_Hold_Button/act9,1/SIM	FAIL:not in .bpo
 MAbs_helper	Release_Trigger_Hold_Button/act2,1/SIM	FAIL:not in .bpo
-MAbs_helper	Release_Trigger_Hold_Button/act6,1/SIM	FAIL:not in .bpo
 MAbs_helper	Release_Abort_Hold_Button/act9,1/SIM	FAIL:not in .bpo
-MAbs_helper	Click_Block_Time/act9,1/SIM	FAIL:not in .bpo
-MAbs_helper	Release_Trigger_Block_Time/act3,1/SIM	FAIL:not in .bpo
-MAbs_helper	Release_Trigger_Block_Time/actabstract_isClicked/SIM	FAIL:not in .bpo
-MAbs_helper	Release_Abort_Time_Button/act_abstract_isClicked/SIM	FAIL:not in .bpo
-MAbs_helper	Release_Trigger_Deblock_Time/act3,1/SIM	FAIL:not in .bpo
-MAbs_helper	Release_Trigger_Deblock_Time/abstract_isClicked_3/SIM	FAIL:not in .bpo
 MAbs_helper	changeZoom/act6,1/SIM	FAIL:not in .bpo
 MAbs_helper	changeZoom/dragged_zoom_level/SIM	FAIL:not in .bpo
-MAbs_helper	changeZoom/selectedAirplane/SIM	FAIL:not in .bpo
 MAbs_helper	changeZoom/new_abstract_selectedAirplane/WFIS	FAIL:not in .bpo
-MAbs_helper	selectAirplane/act6,1/SIM	FAIL:not in .bpo
-MAbs_helper	selectAirplane/abstract_dragged_airplane/SIM	FAIL:not in .bpo
 MAbs_helper	selectAirplane/abstract_airplane/WFIS	FAIL:not in .bpo
-MAbs_helper	deselectAirplane/act6,1/SIM	FAIL:not in .bpo
-MAbs_helper	resume_dragging_airplane/abstract_dragged_airplane/SIM	FAIL:not in .bpo
 MAbs_helper	resume_dragging_airplane/abstract_airplane/WFIS	FAIL:not in .bpo
-MAbs_helper	stop_dragging_airplane/abstract_dragged_airplane/SIM	FAIL:not in .bpo
-MAbs_helper	drag_airplane/abstract_dragged_airplane/SIM	FAIL:not in .bpo
 MAbs_helper	start_dragging_zoom_slider/dragged_zoom_level/SIM	FAIL:not in .bpo
 MAbs_helper	start_dragging_zoom_slider/press_mouse/SIM	FAIL:not in .bpo
 MAbs_prob_mc_Ctx	axm_inst4,1/WD	PASS

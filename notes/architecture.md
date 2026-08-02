@@ -222,8 +222,8 @@ The gates compare the implementation against the pinned corpus and ratchet files
 - P1: 1102 formula strings parse and round-trip;
 - P2: 940 distinct inferred types match;
 - P3: generated obligation names are compared with Rodin;
-- P3b: 1129 of 1523 comparable goals and hypothesis sets are derived; 394 generated
-  non-WFIS targets have no matching `.bpo` sequent and remain explicit coverage data.
+- P3b: 1129 of 1322 comparable goals and hypothesis sets are derived; 193 generated
+  targets have no matching `.bpo` sequent and remain explicit coverage data.
   Seven additional WFIS names are also recorded as name-only coverage when Rodin does
   not serialize a target predicate;
 - P4: the gates run the deterministic local baseline over the 1133 P3-matched
@@ -264,7 +264,7 @@ record:
 1. whether the PO name exists in the `.bpo` corpus;
 2. whether the generated goal and ordered hypotheses match the recorded sequent.
 
-The current 394 unmatched records are concentrated in WD, INV, SIM, and GRD. They are
+The current 193 unmatched records are concentrated in WD, INV, SIM, and GRD. They are
 not to be removed by broadening the comparison or by blessing a smaller denominator.
 The correction belongs in the shared POG conditions: total versus partial symbols,
 assigned-variable filtering, refinement inheritance, witness substitution, and
