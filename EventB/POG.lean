@@ -406,6 +406,12 @@ private def wdRequired (totalKeywords : List String) (formula : String) : Bool :
   | .ok t => needsWD totalKeywords t
   | .error _ => false
 
+private def assignmentRhs (formula : String) : Option String :=
+  match Formula.parse formula with
+  | .ok (.bin op _ rhs) =>
+      if op == "≔" || op == ":∈" || op == ":∣" then some (Formula.print rhs) else none
+  | _ => none
+
 private def wdGoal (theory : Theory.Env) (roots totalKeywords : List String)
     (env : List (String × Ty)) (formula : String) : Option Term :=
   match Formula.parse formula with
@@ -558,13 +564,6 @@ def generateIn (theory : Theory.Env) (p : Project) (name : String) : List Obliga
             out := out ++
               [{ name := labelOf ev ++ "/" ++ labelOf inv ++ "/INV", kind := "INV",
                  goal := goal, hyps := base ++ guards }]
-            -- The invariant is re-stated over the after-state, so if it was
-            -- conditionally defined before, the substituted form needs its own WD.
-            if wdRequired total ((attrOf inv "predicate").getD "") then
-              out := out ++
-                [{ name := labelOf ev ++ "/" ++ labelOf inv ++ "/WD", kind := "WD",
-                   goal := wdGoal theory roots total types
-                     ((attrOf inv "predicate").getD "") }]
       -- Refinement obligations are named after the abstract event's labels.
       if let some (am, ae) := abstractEvent p name ev then
         if (attrOf ev "extended").getD "false" != "true" then
@@ -610,12 +609,12 @@ def generateIn (theory : Theory.Env) (p : Project) (name : String) : List Obliga
                goal := wdGoal theory roots total types ((attrOf g "predicate").getD ""),
                hyps := eventHypsBefore p name ev g }]
       for act in childrenOf ev "action" do
-        if wdRequired total ((attrOf act "assignment").getD "") then
-          out := out ++
-            [{ name := labelOf ev ++ "/" ++ labelOf act ++ "/WD", kind := "WD",
-               goal := wdGoal theory roots total types
-                 ((attrOf act "assignment").getD ""),
-               hyps := eventHyps p name ev }]
+        if let some rhs := assignmentRhs ((attrOf act "assignment").getD "") then
+          if wdRequired total rhs then
+            out := out ++
+              [{ name := labelOf ev ++ "/" ++ labelOf act ++ "/WD", kind := "WD",
+                 goal := wdGoal theory roots total types rhs,
+                 hyps := eventHyps p name ev }]
       for w in childrenOf ev "witness" do
         out := out ++
           [{ name := labelOf ev ++ "/" ++ labelOf w ++ "/WFIS", kind := "WFIS",

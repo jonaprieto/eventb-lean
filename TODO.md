@@ -65,13 +65,17 @@ by hand; the current histogram remains reproducible.
 
 ### A1. Well-definedness precision
 
-- [ ] Compare the 214 extra WD records against Rodin's WD generation conditions.
-- [ ] Audit `wdRequired`, total-symbol metadata, theorem predicates, inherited guards,
+- [x] Compare the 214 extra WD records against Rodin's WD generation conditions.
+- [x] Audit `wdRequired`, total-symbol metadata, theorem predicates, inherited guards,
   invariant WD, action WD, and witness WWD independently.
-- [ ] Correct the shared condition in `EventB/POG.lean`; do not add per-component
+- [x] Correct the shared condition in `EventB/POG.lean`; do not add per-component
   exceptions.
 - [ ] Add one positive and one negative corpus-shaped regression for each corrected WD
   rule, including a total theory symbol and a partial application.
+
+Progress: assignment WD now inspects only the right-hand side, and event-level
+invariant WD is no longer emitted as a separate obligation. The corpus moved from
+214 to 13 unmatched WD names; the remaining records are guard definedness cases.
 
 Acceptance: the 214 WD unmatched records reach zero, with no P0–P3 regression and no
 new unmatched class.
