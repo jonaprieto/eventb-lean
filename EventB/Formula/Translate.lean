@@ -43,6 +43,23 @@ structure KernelContext where
   functions : List KernelFunction := []
   predicates : List KernelPredicate := []
 
+private def semanticValueHash (value : Expr) : String := toString value.hash
+
+def KernelContext.semanticFingerprint (context : KernelContext) : String :=
+  String.intercalate "\n"
+    ["roots=" ++ String.intercalate "," context.roots
+    , "carriers=" ++ String.intercalate ";" (context.signature.carriers.map
+        fun (name, value) => name ++ ":" ++ semanticValueHash value)
+    , "bindings=" ++ String.intercalate ";" (context.bindings.map
+        fun binding => binding.name ++ ":" ++ binding.ty.print ++ ":" ++
+          semanticValueHash binding.value)
+    , "functions=" ++ String.intercalate ";" (context.functions.map
+        fun function => function.name ++ ":" ++ function.argument.print ++ "->" ++
+          function.result.print ++ ":" ++ semanticValueHash function.value)
+    , "predicates=" ++ String.intercalate ";" (context.predicates.map
+        fun predicate => predicate.name ++ ":" ++ predicate.argument.print ++ ":" ++
+          semanticValueHash predicate.value)]
+
 structure KernelTerm where
   ty : Ty
   value : Expr

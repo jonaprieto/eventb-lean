@@ -19,6 +19,7 @@ structure Report where
   mode : Mode
   replayed : Bool := false
   declaration : String := ""
+  fingerprint : String := ""
   axioms : List String := []
   deriving BEq, Repr, Inhabited
 
@@ -42,6 +43,10 @@ def translateStatement (context : Embedding.KernelContext)
   statement context obligation
 
 private def declarationName (declaration : String) : Name := declaration.toName
+
+def proofFingerprint (context : Embedding.KernelContext) (obligation : POG.Obligation) : String :=
+  Trust.fingerprint (obligation.canonical ++
+    "\nsemantic-context=" ++ context.semanticFingerprint)
 
 private def proofTerm (declaration : String) : MetaM Expr := do
   let name := declarationName declaration
@@ -115,7 +120,7 @@ def validateTerm (context : Embedding.KernelContext)
     throwError s!"axiom metadata mismatch for `{declaration}`: declared " ++
       s!"[{String.intercalate ", " declared}], found " ++
       s!"[{String.intercalate ", " actualAxioms}]"
-  pure { mode := .kernel, replayed := true, declaration, axioms := actualAxioms }
+  pure (Report.mk .kernel true declaration (proofFingerprint context obligation) actualAxioms)
 
 private def replayKernel (context : Embedding.KernelContext)
     (obligation : POG.Obligation) (evidence : Evidence) : MetaM Report := do
@@ -130,7 +135,7 @@ def validate (context : Embedding.KernelContext) (obligation : POG.Obligation) :
   | evidence => do
       unless evidence.isWellFormed do
         throwError "evidence metadata is incomplete"
-      pure { mode := evidence.mode }
+      pure { mode := evidence.mode, fingerprint := proofFingerprint context obligation }
 
 def validateEntry (context : Embedding.KernelContext) (obligation : POG.Obligation)
     (entry : Entry) : MetaM Report := do
@@ -142,7 +147,7 @@ def validateEntry (context : Embedding.KernelContext) (obligation : POG.Obligati
     throwError s!"evidence mode mismatch for `{obligation.component}:{obligation.name}`"
   validate context obligation entry.evidence
 
-#guard (Report.mk .kernel true "proof" []).replayed
+#guard ({ mode := .kernel, replayed := true, declaration := "proof" } : Report).replayed
 #guard ({ mode := .smt } : Report).mode == .smt
 #guard Evidence.isWellFormed (.smt "z3" "4" "sha256:input" "checker")
 #guard !Evidence.isWellFormed (.external "" "1" "digest" "checker")
@@ -202,7 +207,7 @@ private meta def checkReplay : TermElabM Unit := do
   let trusted := validate context replayObligation
     (.smt "z3" "4" "sha256:input" "checker")
   let report ← trusted
-  unless report.mode == .smt && !report.replayed do
+  unless report.mode == .smt && !report.replayed && !report.fingerprint.isEmpty do
     throwError "SMT evidence was reported as replayed"
   let external ← validate context replayObligation
     (.external "alt-ergo" "2" "sha256:po" "eventb-checker")
@@ -233,6 +238,19 @@ private meta def checkReplay : TermElabM Unit := do
   unless !(← succeeds (validate context replayObligation
       (.rodinImported "" "digest" false))) do
     throwError "incomplete Rodin metadata was accepted"
+  let valueZero := mkConst ``TestFixtures.testInt
+  let valueOne := mkApp (mkConst ``Int.ofNat) (mkNatLit 1)
+  let bindingObligation : POG.Obligation :=
+    { component := "Replay", name := "bound/reflexive/THM", kind := "THM"
+      goal := some (.bin "=" (.id "value") (.id "value")) }
+  let reportZero ← validate
+    { bindings := [{ name := "value", ty := .int, value := valueZero }] }
+    bindingObligation (.kernel "EventB.Trust.Replay.TestFixtures.reflexive" [])
+  let reportOne ← validate
+    { bindings := [{ name := "value", ty := .int, value := valueOne }] }
+    bindingObligation (.kernel "EventB.Trust.Replay.TestFixtures.reflexive" [])
+  unless reportZero.fingerprint != reportOne.fingerprint do
+    throwError "semantic binding changes did not change the proof fingerprint"
 
 syntax (name := eventbReplayChecks) "#eventb_replay_checks" : command
 
