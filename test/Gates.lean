@@ -268,6 +268,7 @@ chain has to be resolved before they can be compared. -/
 private def refName (ref : String) : String :=
   ((ref.splitOn "#").getLast!).replace "\\/" "/"
     |>.replace "\\\\" "\\"
+    |>.replace "\\|" "|"
 
 private partial def predicateSets (e : XmlElem) : List (String × Option String × List String) :=
   let here :=

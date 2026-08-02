@@ -2,10 +2,10 @@ M0_AMAN_Update	INITIALISATION/inv0,1/INV	FAIL:no such sequent in .bpo
 M0_AMAN_Update	AMAN_Update/inv0,1/INV	FAIL:no such sequent in .bpo
 M0_AMAN_Update_prob_mc_Ctx	axm_init_airplanes/WD	FAIL:missing 1 extra 0
 M1_Landing_Sequence	inv13,2/WD	FAIL:missing 10 extra 0
-M1_Landing_Sequence	INITIALISATION/inv1,1/INV	FAIL:missing 0 extra 8
-M1_Landing_Sequence	INITIALISATION/inv13,2/INV	FAIL:missing 0 extra 8
+M1_Landing_Sequence	INITIALISATION/inv1,1/INV	PASS
+M1_Landing_Sequence	INITIALISATION/inv13,2/INV	PASS
 M1_Landing_Sequence	INITIALISATION/inv13,2/WD	FAIL:no such sequent in .bpo
-M1_Landing_Sequence	INITIALISATION/glue1,1/INV	FAIL:missing 0 extra 8
+M1_Landing_Sequence	INITIALISATION/glue1,1/INV	PASS
 M1_Landing_Sequence	AMAN_Update/inv1,1/INV	PASS
 M1_Landing_Sequence	AMAN_Update/inv13,2/INV	PASS
 M1_Landing_Sequence	AMAN_Update/inv13,2/WD	FAIL:no such sequent in .bpo
@@ -390,7 +390,7 @@ M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_airplane/mouse_pos_not_empty/INV	FAIL
 M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_airplane/zoom_pos_not_empty/INV	FAIL:missing 5 extra 0
 M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_airplane/block_pos_not_empty/INV	FAIL:missing 5 extra 0
 M9_Push_Mouse_Buttons	AMAN_Update_mouse_to_airplane/mouse_over_airplane_when_dragged/INV	FAIL:missing 5 extra 0
-M9_Push_Mouse_Buttons	AMAN_Update_mouse_stays/airplane_Position/INV	FAIL:missing 0 extra 57
+M9_Push_Mouse_Buttons	AMAN_Update_mouse_stays/airplane_Position/INV	FAIL:missing 5 extra 0
 M9_Push_Mouse_Buttons	Move_Aircraft/is_mouse_pressed/INV	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Move_Aircraft/airplane_Position/INV	PASS
 M9_Push_Mouse_Buttons	Move_Aircraft/click_start_airplane/INV	PASS
@@ -647,24 +647,24 @@ MAbs	Move_Mouse_Nothing/zoom_pos_not_empty/INV	PASS
 MAbs	Move_Mouse_Nothing/block_pos_not_empty/INV	PASS
 MAbs	Move_Mouse_Nothing/mouse_over_airplane_when_dragged/INV	PASS
 MAbs	AMAN_Update_mouse_to_nothing/inv3,1/INV	FAIL:no such sequent in .bpo
-MAbs	AMAN_Update_mouse_to_nothing/abstracT_blocks_fin_2/INV	FAIL:missing 0 extra 56
+MAbs	AMAN_Update_mouse_to_nothing/abstracT_blocks_fin_2/INV	PASS
 MAbs	AMAN_Update_mouse_to_nothing/inv0,1/INV	FAIL:no such sequent in .bpo
-MAbs	AMAN_Update_mouse_to_nothing/inv4,1/INV	FAIL:missing 0 extra 56
+MAbs	AMAN_Update_mouse_to_nothing/inv4,1/INV	PASS
 MAbs	AMAN_Update_mouse_to_nothing/inv5,1/INV	FAIL:no such sequent in .bpo
-MAbs	AMAN_Update_mouse_to_nothing/inv7,1/INV	FAIL:missing 0 extra 56
-MAbs	AMAN_Update_mouse_to_nothing/abstract_selectedAirplane_finite/INV	FAIL:missing 0 extra 56
-MAbs	AMAN_Update_mouse_to_nothing/abstract_selectedAirplane_card/INV	FAIL:missing 0 extra 56
+MAbs	AMAN_Update_mouse_to_nothing/inv7,1/INV	PASS
+MAbs	AMAN_Update_mouse_to_nothing/abstract_selectedAirplane_finite/INV	PASS
+MAbs	AMAN_Update_mouse_to_nothing/abstract_selectedAirplane_card/INV	PASS
 MAbs	AMAN_Update_mouse_to_nothing/abstract_selectedAirplane_card/WD	FAIL:no such sequent in .bpo
-MAbs	AMAN_Update_mouse_to_nothing/dragged_airplane_type/INV	FAIL:missing 0 extra 56
+MAbs	AMAN_Update_mouse_to_nothing/dragged_airplane_type/INV	PASS
 MAbs	AMAN_Update_mouse_to_nothing/current_mouse_selection/INV	FAIL:no such sequent in .bpo
-MAbs	AMAN_Update_mouse_to_nothing/airplane_Position/INV	FAIL:missing 0 extra 56
-MAbs	AMAN_Update_mouse_to_nothing/airplane_Position_fin/INV	FAIL:missing 0 extra 56
-MAbs	AMAN_Update_mouse_to_nothing/airplane_Position_card/INV	FAIL:missing 0 extra 56
+MAbs	AMAN_Update_mouse_to_nothing/airplane_Position/INV	PASS
+MAbs	AMAN_Update_mouse_to_nothing/airplane_Position_fin/INV	PASS
+MAbs	AMAN_Update_mouse_to_nothing/airplane_Position_card/INV	PASS
 MAbs	AMAN_Update_mouse_to_nothing/airplane_Position_card/WD	FAIL:no such sequent in .bpo
-MAbs	AMAN_Update_mouse_to_nothing/mouse_pos_not_empty/INV	FAIL:missing 0 extra 56
-MAbs	AMAN_Update_mouse_to_nothing/zoom_pos_not_empty/INV	FAIL:missing 0 extra 56
-MAbs	AMAN_Update_mouse_to_nothing/block_pos_not_empty/INV	FAIL:missing 0 extra 56
-MAbs	AMAN_Update_mouse_to_nothing/mouse_over_airplane_when_dragged/INV	FAIL:missing 0 extra 56
+MAbs	AMAN_Update_mouse_to_nothing/mouse_pos_not_empty/INV	PASS
+MAbs	AMAN_Update_mouse_to_nothing/zoom_pos_not_empty/INV	PASS
+MAbs	AMAN_Update_mouse_to_nothing/block_pos_not_empty/INV	PASS
+MAbs	AMAN_Update_mouse_to_nothing/mouse_over_airplane_when_dragged/INV	PASS
 MAbs	AMAN_Update_mouse_to_airplane/inv3,1/INV	FAIL:no such sequent in .bpo
 MAbs	AMAN_Update_mouse_to_airplane/abstracT_blocks_fin_2/INV	PASS
 MAbs	AMAN_Update_mouse_to_airplane/inv0,1/INV	FAIL:no such sequent in .bpo
@@ -1004,31 +1004,31 @@ MAbs_helper	Move_Mouse_Nothing/block_slot_position_card/WD	FAIL:no such sequent 
 MAbs_helper	Move_Mouse_Nothing/grd9,1/GRD	PASS
 MAbs_helper	Move_Mouse_Nothing/act9,1/SIM	FAIL:no such sequent in .bpo
 MAbs_helper	Move_Mouse_Nothing/act9,4/SIM	PASS
-MAbs_helper	AMAN_Update_mouse_to_nothing/landing_sequence_1/INV	FAIL:missing 0 extra 89
-MAbs_helper	AMAN_Update_mouse_to_nothing/landing_sequence_2/INV	FAIL:missing 0 extra 89
+MAbs_helper	AMAN_Update_mouse_to_nothing/landing_sequence_1/INV	PASS
+MAbs_helper	AMAN_Update_mouse_to_nothing/landing_sequence_2/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_nothing/landing_sequence_2/WD	FAIL:no such sequent in .bpo
-MAbs_helper	AMAN_Update_mouse_to_nothing/landing_sequence_3/INV	FAIL:missing 0 extra 89
-MAbs_helper	AMAN_Update_mouse_to_nothing/selected_airplane_glue/INV	FAIL:missing 0 extra 89
-MAbs_helper	AMAN_Update_mouse_to_nothing/selected_airplane_glue_2/INV	FAIL:missing 0 extra 89
-MAbs_helper	AMAN_Update_mouse_to_nothing/dragged_airplane/INV	FAIL:missing 0 extra 89
-MAbs_helper	AMAN_Update_mouse_to_nothing/mousePositionAirplane_glue/INV	FAIL:missing 0 extra 89
-MAbs_helper	AMAN_Update_mouse_to_nothing/mousePositionAirplane_glue_2/INV	FAIL:missing 0 extra 89
-MAbs_helper	AMAN_Update_mouse_to_nothing/mouse_over_airplane_when_dragged/INV	FAIL:missing 0 extra 89
-MAbs_helper	AMAN_Update_mouse_to_nothing/mouse_pos_not_empty/INV	FAIL:missing 0 extra 89
-MAbs_helper	AMAN_Update_mouse_to_nothing/zoom_pos_not_empty/INV	FAIL:missing 0 extra 89
-MAbs_helper	AMAN_Update_mouse_to_nothing/block_pos_not_empty/INV	FAIL:missing 0 extra 89
-MAbs_helper	AMAN_Update_mouse_to_nothing/airplane_Position_fin/INV	FAIL:missing 0 extra 89
-MAbs_helper	AMAN_Update_mouse_to_nothing/airplane_Position_card/INV	FAIL:missing 0 extra 89
+MAbs_helper	AMAN_Update_mouse_to_nothing/landing_sequence_3/INV	PASS
+MAbs_helper	AMAN_Update_mouse_to_nothing/selected_airplane_glue/INV	PASS
+MAbs_helper	AMAN_Update_mouse_to_nothing/selected_airplane_glue_2/INV	PASS
+MAbs_helper	AMAN_Update_mouse_to_nothing/dragged_airplane/INV	PASS
+MAbs_helper	AMAN_Update_mouse_to_nothing/mousePositionAirplane_glue/INV	PASS
+MAbs_helper	AMAN_Update_mouse_to_nothing/mousePositionAirplane_glue_2/INV	PASS
+MAbs_helper	AMAN_Update_mouse_to_nothing/mouse_over_airplane_when_dragged/INV	PASS
+MAbs_helper	AMAN_Update_mouse_to_nothing/mouse_pos_not_empty/INV	PASS
+MAbs_helper	AMAN_Update_mouse_to_nothing/zoom_pos_not_empty/INV	PASS
+MAbs_helper	AMAN_Update_mouse_to_nothing/block_pos_not_empty/INV	PASS
+MAbs_helper	AMAN_Update_mouse_to_nothing/airplane_Position_fin/INV	PASS
+MAbs_helper	AMAN_Update_mouse_to_nothing/airplane_Position_card/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_nothing/airplane_Position_card/WD	FAIL:no such sequent in .bpo
-MAbs_helper	AMAN_Update_mouse_to_nothing/blockedTime/INV	FAIL:missing 0 extra 89
-MAbs_helper	AMAN_Update_mouse_to_nothing/blockedTime_glue/INV	FAIL:missing 0 extra 89
+MAbs_helper	AMAN_Update_mouse_to_nothing/blockedTime/INV	PASS
+MAbs_helper	AMAN_Update_mouse_to_nothing/blockedTime_glue/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_nothing/abs_new_air/GRD	FAIL:no such sequent in .bpo
-MAbs_helper	AMAN_Update_mouse_to_nothing/no_abstract_dragged_airplane/GRD	FAIL:missing 0 extra 89
+MAbs_helper	AMAN_Update_mouse_to_nothing/no_abstract_dragged_airplane/GRD	PASS
 MAbs_helper	AMAN_Update_mouse_to_nothing/grdAbstractBlocked/GRD	FAIL:no such sequent in .bpo
-MAbs_helper	AMAN_Update_mouse_to_nothing/act2,1/SIM	FAIL:missing 0 extra 89
+MAbs_helper	AMAN_Update_mouse_to_nothing/act2,1/SIM	PASS
 MAbs_helper	AMAN_Update_mouse_to_nothing/act5,1/SIM	FAIL:no such sequent in .bpo
 MAbs_helper	AMAN_Update_mouse_to_nothing/act9,1/SIM	FAIL:no such sequent in .bpo
-MAbs_helper	AMAN_Update_mouse_to_nothing/inv1,2/WD	PASS
+MAbs_helper	AMAN_Update_mouse_to_nothing/inv1,2/WD	FAIL:missing 83 extra 0
 MAbs_helper	AMAN_Update_mouse_to_airplane/landing_sequence_1/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_airplane/landing_sequence_2/INV	PASS
 MAbs_helper	AMAN_Update_mouse_to_airplane/landing_sequence_2/WD	FAIL:no such sequent in .bpo
@@ -1223,10 +1223,10 @@ Env_M0	ENV_join_network/inv3/INV	PASS
 Env_M0	ENV_join_network/inv2/INV	PASS
 Env_M0	ENV_join_network/inv2/WD	FAIL:no such sequent in .bpo
 Env_M0	ENV_leave_network/TRAIN_supertypeOf_train/INV	FAIL:no such sequent in .bpo
-Env_M0	ENV_leave_network/assocMult_occupiedBy/INV	FAIL:missing 0 extra 26
-Env_M0	ENV_leave_network/inv1/INV	FAIL:missing 0 extra 26
-Env_M0	ENV_leave_network/inv3/INV	FAIL:missing 0 extra 26
-Env_M0	ENV_leave_network/inv2/INV	FAIL:missing 0 extra 26
+Env_M0	ENV_leave_network/assocMult_occupiedBy/INV	PASS
+Env_M0	ENV_leave_network/inv1/INV	PASS
+Env_M0	ENV_leave_network/inv3/INV	PASS
+Env_M0	ENV_leave_network/inv2/INV	PASS
 Env_M0	ENV_leave_network/inv2/WD	FAIL:no such sequent in .bpo
 Env_M0	ENV_front_move_next/assocMult_occupiedBy/INV	PASS
 Env_M0	ENV_front_move_next/inv1/INV	PASS
@@ -1638,9 +1638,9 @@ VBD_M6	VBD_receive_position_report_integrity_confirmed/act3/SIM	FAIL:no such seq
 VBD_M6	VBD_receive_position_report_integrity_confirmed/grd2/WD	FAIL:no such sequent in .bpo
 VBD_M6	VBD_receive_position_report_integrity_confirmed/grd5/WD	FAIL:no such sequent in .bpo
 VBD_M6	VBD_receive_position_report_integrity_confirmed/act2/WD	FAIL:no such sequent in .bpo
-VBD_M6	VBD_receive_position_report_integrity_unavailable/typeof_nonIntegral/INV	FAIL:missing 0 extra 72
-VBD_M6	VBD_receive_position_report_integrity_unavailable/typeof_integral/INV	FAIL:missing 0 extra 72
-VBD_M6	VBD_receive_position_report_integrity_unavailable/distinct_states_in_connected_integrity/INV	FAIL:missing 0 extra 72
+VBD_M6	VBD_receive_position_report_integrity_unavailable/typeof_nonIntegral/INV	PASS
+VBD_M6	VBD_receive_position_report_integrity_unavailable/typeof_integral/INV	PASS
+VBD_M6	VBD_receive_position_report_integrity_unavailable/distinct_states_in_connected_integrity/INV	PASS
 VBD_M6	VBD_receive_position_report_integrity_unavailable/act1/SIM	FAIL:no such sequent in .bpo
 VBD_M6	VBD_receive_position_report_integrity_unavailable/act2/SIM	FAIL:no such sequent in .bpo
 VBD_M6	VBD_receive_position_report_integrity_unavailable/act3/SIM	FAIL:no such sequent in .bpo
