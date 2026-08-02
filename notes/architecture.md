@@ -198,12 +198,21 @@ The widget layer calls the same `Typing` and `POG` functions as the CLI. It is a
 not a second checker, so presentation changes cannot alter generated obligations.
 
 The corpus gate also exposes `lake exe gates --coverage`. It emits stable tab-separated
-records with component, obligation class, name, derivation status, and one of
-`matched`, `no-sequent`, `goal-differs`, or `hypotheses-differ`. The histogram groups
-unmatched records by component and class. A missing Rodin target therefore remains a
-visible coverage record instead of shrinking a denominator. WFIS and WWD records with
-no generated goal retain `not-derived` status; WWD is explicitly labelled
-`hypothesis-only` in CLI JSON and widgets.
+records with component, obligation class, name, derivation status, reason, and a
+diagnostic. Reasons are `matched`, `no-sequent`, `goal-differs`, or
+`hypotheses-differ`; missing targets are further classified as pinned-`.bpo` omissions
+of plain type invariants, definedness, refinement guards/actions, or witness
+feasibility. A missing Rodin target therefore remains visible instead of shrinking a
+denominator. WFIS and WWD records with no generated goal retain `not-derived` status;
+WWD is explicitly labelled `hypothesis-only` in CLI JSON and widgets.
+
+`lake exe eventb report <project-or-eventb>` emits one machine-readable JSON object for
+the same project. Each obligation includes its P3 name-coverage status (when `.bpo`
+files are present), derived/hypothesis-only status, local proof rule, trust mode, goal,
+and canonical fingerprint; the top-level `trust_ledger` counts each mode separately.
+For a Rossi-only file the coverage source is explicitly `none`, rather than implying
+Rodin parity. `lake exe gates --histogram` additionally groups unproved P4 records by
+formula shape before a new kernel rule is attempted.
 
 ## Verification contract
 
@@ -223,7 +232,10 @@ The gates compare the implementation against the pinned corpus and ratchet files
 - P2: 940 distinct inferred types match;
 - P3: generated obligation names are compared with Rodin;
 - P3b: 1129 of 1322 comparable goals and hypothesis sets are derived; 193 generated
-  targets have no matching `.bpo` sequent and remain explicit coverage data.
+  targets have no matching `.bpo` sequent and remain explicit coverage data with
+  diagnostics. The 103 plain type-invariant omissions are a selective pinned-corpus
+  compatibility difference; broad filtering is unsound because the corpus retains
+  other static-looking invariant sequents.
   Seven additional WFIS names are also recorded as name-only coverage when Rodin does
   not serialize a target predicate;
 - P4: the gates run the deterministic local baseline over the 1133 P3-matched
@@ -275,9 +287,11 @@ fact is reported explicitly in CLI, JSON, widgets, and the ratchet.
 ### P4 proof boundary
 
 Only obligations that have passed the P3b comparison enter the proof-coverage path.
-The canonical input contains the resolved theory roots, normalized hypotheses, goal,
-formula-language version, and semantic bindings. Display labels and source ranges do
-not affect its fingerprint; a semantic change does.
+The canonical input contains the model scope, resolved theory roots, normalized
+hypotheses, goal, and formula-language version. Display labels and source ranges do
+not affect its fingerprint; a semantic change does. `Trust.Replay.translateStatement`
+is the single translated-sequent path, and missing semantic bindings remain actionable
+translation errors rather than opaque constants.
 
 Backends are ordered by trust strength, not by convenience:
 
@@ -288,10 +302,14 @@ Backends are ordered by trust strength, not by convenience:
 - `.bps` status is imported as `rodinImported`, never upgraded to kernel evidence;
 - missing or stale evidence remains `unproved`.
 
-The current local rules are a measurement baseline, not the final prover. The next
-proof work starts with kernel-backed versions of exact-hypothesis, truth, reflexivity,
-and contradiction, then adds auditable logical, arithmetic, set, relation, theory, and
-refinement rules only when each has a negative regression and replayable evidence.
+The current local rules are a measurement baseline, not the final prover. Kernel-backed
+proof-term construction now covers exact-hypothesis, truth, reflexivity, contradiction,
+positive closed numeral inequalities, conjunction introduction, implication
+introduction, and conjunction projection in `EventB.Prover.Kernel`; standard axiom
+dependencies are declared to `Trust.Replay.validateTerm` rather than hidden. Replay
+checks each term against the translated sequent. The external local backend remains a
+comparator. Further arithmetic, set, relation, theory, and refinement rules are added
+only when each has a negative regression and replayable evidence.
 
 ### Version 3 definition of done
 

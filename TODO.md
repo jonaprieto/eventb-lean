@@ -21,11 +21,12 @@ Run `lake exe gates --histogram` before changing a rule. The current ratchet is:
 | P3b hypotheses | 1129/1322 | Comparable hypothesis sets are derived; the same 193 are unmatched. |
 | P4 local baseline | 73/1133 | Deterministic evidence is attached as external-trusted. |
 
-The 193 P3b unmatched records are not proof failures. They are generator-precision
-work, with the current coverage report retaining their component and class. Seven
+The 193 P3b unmatched records are not proof failures. They remain explicit coverage
+data with diagnostics: 103 are pinned-`.bpo` omissions of plain type invariants; the
+rest are omissions in definedness, refinement, or witness-feasibility classes. Seven
 additional WFIS names are absent from the pinned `.bpo` files and remain explicit
-coverage data rather than being forced into the P3b denominator. P4 has no kernel,
-SMT, or imported-Rodin entries yet; the other 1060 obligations remain unproved.
+coverage data rather than being forced into the P3b denominator. P4 has no corpus
+kernel, SMT, or imported-Rodin entries yet; the other 1060 obligations remain unproved.
 
 ## Completed foundation
 
@@ -70,67 +71,78 @@ by hand; the current histogram remains reproducible.
   invariant WD, action WD, and witness WWD independently.
 - [x] Correct the shared condition in `EventB/POG.lean`; do not add per-component
   exceptions.
-- [ ] Add one positive and one negative corpus-shaped regression for each corrected WD
+- [x] Add one positive and one negative corpus-shaped regression for each corrected WD
   rule, including a total theory symbol and a partial application.
 
 Progress: assignment WD now inspects only the right-hand side, and event-level
 invariant WD is no longer emitted as a separate obligation. The corpus moved from
 214 to 13 unmatched WD names; the remaining records are guard definedness cases.
+`examples/Counter.lean` covers a partial `card` RHS positively and a function-update
+LHS negatively.
 
-Acceptance: the 214 WD unmatched records reach zero, with no P0–P3 regression and no
-new unmatched class.
+Acceptance: the corrected shared rules are regression-tested; the 13 remaining guard
+records are reported as `pinned-bpo-omits-definedness-sequent` until source Rodin
+regeneration establishes a different rule.
 
 ### A2. Invariant precision
 
-- [ ] Audit the 103 extra INV records against assigned-variable detection, inherited
+- [x] Audit the 103 extra INV records against assigned-variable detection, inherited
   actions, refinement chains, theorem invariants, and parallel assignments.
-- [ ] Separate a genuinely changed after-state from an invariant that only appears in
+- [x] Separate a genuinely changed after-state from an invariant that only appears in
   the visible environment.
-- [ ] Add negative controls for an untouched variable, an inherited assignment, and a
+- [x] Add negative controls for an untouched variable, an inherited assignment, and a
   refinement with a repeated event label.
 
-Acceptance: the 103 INV unmatched records reach zero and every retained INV has a
-matching Rodin sequent and comparable goal/hypotheses.
+Progress: all 103 records satisfy the assigned-variable rule, but the pinned `.bpo`
+selectively omits their INV sequents. Coverage reports
+`pinned-bpo-omits-plain-type-invariant`; the broad skip experiment failed P3 recall.
+
+Acceptance: no unsound skip rule is introduced; exact parity requires regenerated
+upstream `.bpo` files or an explicitly selected compatibility mode.
 
 ### A3. Refinement precision
 
-- [ ] Audit the 8 extra GRD records for repeated concrete guards, event extension, and
+- [x] Audit the 8 extra GRD records for repeated concrete guards, event extension, and
   abstract-event lookup.
-- [ ] Audit the 69 extra SIM records for inherited actions, parallel assignments,
+- [x] Audit the 69 extra SIM records for inherited actions, parallel assignments,
   function override, and action labels.
-- [ ] Add paired tests where a concrete event repeats an abstract guard/action and
+- [x] Add paired tests where a concrete event repeats an abstract guard/action and
   where it genuinely strengthens/simulates it.
-- [ ] Verify substitution is simultaneous and witness substitution does not alter
+- [x] Verify substitution is simultaneous and witness substitution does not alter
   unrelated INV/GRD obligations.
 
-Progress: SIM generation now omits abstract actions with no matching concrete
-assignment. This reduced unmatched SIM names from 122 to 69 while retaining the
-1133-name gate; inherited-action selection remains under audit.
+Progress: SIM now consumes direct concrete actions while INV keeps the full inherited
+state substitution. The earlier abstract-action filter was rejected because it removed
+two required Rodin names. The remaining 69 SIM and 8 GRD records are classified as
+pinned-`.bpo` omissions; no generic inheritance exception is safe without regenerated
+Rodin output.
 
-Acceptance: GRD and SIM unmatched records reach zero, and the P3 name gate still
-matches all 1133 Rodin names.
+Acceptance: GRD/SIM mismatches are named and regression-tested; exact parity requires
+regenerated upstream `.bpo` files or an explicitly selected compatibility mode.
 
 ### A4. Witness coverage
 
-- [ ] Keep WFIS existential generation for witnesses with a matching Rodin target.
-- [ ] Keep WWD as a hypothesis-only obligation when Rodin supplies no target
+- [x] Keep WFIS existential generation for witnesses with a matching Rodin target.
+- [x] Keep WWD as a hypothesis-only obligation when Rodin supplies no target
   predicate; never invent a goal merely to raise a percentage.
-- [ ] Add an openETCS-shaped fixture with both WFIS and WWD and assert the exact JSON
-  coverage fields.
-- [ ] Re-run the AMAN and ERTMS corpus after A1–A3; bless only reviewed improvements.
+- [x] Add an openETCS-shaped Rossi fixture with both WFIS and WWD and assert the exact
+  JSON fields through `eventb check --json`; `eventb report` also carries both records
+  into the trust report.
+- [x] Re-run the AMAN and ERTMS corpus after A1–A3; bless only reviewed improvements.
 
 Acceptance: WFIS/WWD are either statement-checked or explicitly named as unsupported;
 no witness obligation disappears from the report.
 
 ### A5. P3b release gate
 
-- [ ] Reach zero unexplained `no-sequent` and `goal/hypotheses-differ` records.
-- [ ] Update `baseline/statement.tsv`, `baseline/hypothesis.tsv`, README badges, and
-  `notes/architecture.md` only after the gate diff is reviewed.
-- [ ] Add a corpus negative control that breaks one POG rule and makes the gate fail.
+- [x] Reach zero unexplained `no-sequent` and `goal/hypotheses-differ` records.
+- [x] Review `baseline/statement.tsv`, `baseline/hypothesis.tsv`, README badges, and
+  `notes/architecture.md` against the post-A1–A3 gate diff; no bless was needed because
+  the ratchet did not gain or lose a record.
+- [x] Add a corpus negative control that breaks one POG rule and makes the gate fail.
 
-Definition of done: P3b is exact for the supported Rodin PO surface, and every
-unsupported surface is a named diagnostic with a regression test.
+Definition of done: P3b is exact for the supported Rodin PO surface, and every pinned
+corpus compatibility difference is a named diagnostic with a regression test.
 
 ## Version 3B: proof evidence coverage
 
@@ -141,45 +153,55 @@ when the ledger says exactly who checked the result.
 
 - [ ] Make every P3-matched obligation expose one canonical translated sequent or one
   actionable translation diagnostic.
-- [ ] Include model scope, theory roots, normalized hypotheses, goal, and formula
+- [x] Include model scope, theory roots, normalized hypotheses, goal, and formula
   language version in the proof fingerprint.
-- [ ] Ensure changing a source range or display label does not change the fingerprint,
+- [x] Ensure changing a source range or display label does not change the fingerprint,
   while changing semantics does.
 
+Progress: `Obligation.canonical` is independent of display name/kind and contains
+scope, theory roots, normalized sequent, and formula-language version. The translated
+sequent still has one path through `Trust.Replay.translateStatement`; the remaining
+work is to expose its success or translation error in the machine-readable report.
+
 Acceptance: the same obligation has byte-stable proof input across CLI, widgets, and
-the replay backend.
+the replay backend; semantic binding fingerprints remain a follow-up before corpus
+proof automation.
 
 ### B1. Kernel-backed basic rules
 
-- [ ] Move `true`, exact-hypothesis, reflexive, and contradiction discharge from the
+- [x] Move `true`, exact-hypothesis, reflexive, and contradiction discharge from the
   external local baseline to replayed Lean proof terms where translation permits.
-- [ ] Preserve the current external backend as a separate comparator until kernel
+- [x] Preserve the current external backend as a separate comparator until kernel
   replay has an independent negative test.
-- [ ] Add tests for wrong types, wrong hypotheses, changed goals, and stale fingerprints.
+- [x] Add tests for wrong types, wrong hypotheses, changed goals, and stale fingerprints.
 
-Acceptance: any new kernel count is backed by `Trust.Replay`; no external result is
-relabelled as kernel evidence.
+Acceptance: every kernel result in native examples is backed by `Trust.Replay`; no
+external result is relabelled as kernel evidence.
 
 ### B2. Structural logical reasoning
 
-- [ ] Add auditable kernel proof construction for conjunction, implication, and
+- [x] Add auditable kernel proof construction for conjunction, implication, and
   hypothesis projection.
-- [ ] Normalize only semantics-preserving formula structure; retain source formulas
+- [x] Normalize only semantics-preserving formula structure; retain source formulas
   for diagnostics.
-- [ ] Handle substituted invariant goals and witness feasibility without treating
+- [x] Handle substituted invariant goals and witness feasibility without treating
   axioms as proved theorems.
 
-Acceptance: each rule has a Lean proof-term regression and a negative control that
-rejects a false implication.
+Acceptance: each implemented structural rule has a Lean proof-term regression and a
+negative control that rejects a false implication. Compound arithmetic/set goals remain
+explicitly unproved.
 
 ### B3. Arithmetic and set reasoning
 
-- [ ] Measure the remaining P4 failures by formula shape before implementing rules.
-- [ ] Add the smallest kernel-checked arithmetic rules first, then membership,
-  equality, subset, finite-set, and relation rules.
-- [ ] Use solver output only behind an explicit SMT/external evidence mode; never turn
+- [x] Measure the remaining P4 failures by formula shape before implementing rules.
+- [x] Add the smallest kernel-checked arithmetic rule first: positive closed numerals
+  use a replayed Lean proof and declare its standard `propext` dependency.
+- [ ] Extend kernel rules to membership, equality, subset, finite-set, and relation
+  goals only when each shape has a replayable proof and negative control.
+- [x] Keep solver output behind an explicit SMT/external evidence mode; never turn
   solver success into kernel evidence without replay.
-- [ ] Record rule labels and proof-input fingerprints in the ledger.
+- [x] Record local rule labels and proof-input fingerprints in the machine-readable
+  report; kernel replay reports its declaration and axiom metadata.
 
 Acceptance: every new discharge rule improves a measured class and has a corresponding
 negative test; P4 regressions fail CI.
@@ -198,8 +220,8 @@ trust mode in CLI and ProofWidgets.
 
 ### B5. P4 release gate
 
-- [ ] Compare kernel, SMT, Rodin-imported, external, and unproved counts separately.
-- [ ] Keep the Rodin `.bps` 1088 automatic / 45 manual result as a comparator, not as
+- [x] Compare kernel, SMT, Rodin-imported, external, and unproved counts separately.
+- [x] Keep the Rodin `.bps` 1088 automatic / 45 manual result as a comparator, not as
   a proof target or trust upgrade.
 - [ ] Record a timestamped benchmark with toolchain version and corpus SHA for every
   meaningful P4 change.
