@@ -28,17 +28,28 @@ P3b hypotheses: 1129/1322 derived
 P4 local baseline: 73/1133 discharged
 ```
 
+The first four gates are complete. The remaining P3b records are explicit coverage
+data: 193 generated targets have no matching sequent in the pinned `.bpo` files.
+P4 currently has 73 external-trusted local results and 1060 unproved obligations; no
+corpus obligation is currently classified as kernel-checked, SMT-trusted, or imported
+from Rodin.
+
 ## Using it
 
-From a checkout, this verifies the library, the executable book examples, the
-corpus ratchet, and the repository style:
+From a checkout, this verifies the library, widgets, every executable example and
+tool, the corpus ratchet, and the repository style:
 
 ```sh
 $ lake build
-$ lake build Examples
+$ lake build EventBWidgets Examples gates rossi-dump eventb bench
 $ lake exe gates
 $ python3 scripts/style-check.py
+$ git diff --check
 ```
+
+The GitHub workflow currently builds `EventB`, `gates`, and `Examples`, and runs the
+style, manifest, gate, and soundness checks. The additional executable targets are
+part of the local full audit contract; CLI fixture checks are currently run locally.
 
 Build the executable, then point it at a Rodin project directory. `check` lists the
 generated obligations; `diff` compares their names with Rodin's `.bpo` files:
@@ -70,10 +81,15 @@ P3 name-coverage status (when `.bpo` files are present), derived status, proof r
 trust mode, formula, fingerprint, and translation diagnostic. It never labels an
 unbound model as kernel-checked.
 
+The checked-in Rossi fixtures under `test/rossi-fixtures/` cover parser boundaries and
+one fully typecheckable witness project. The parser-boundary fixtures are not all
+semantically valid Event-B models, so `rossi-dump` is the appropriate structural test
+for them; use `eventb check` and `eventb report` for `witnesses.eventb`.
+
 ## Why the numbers mean something
 
-There are no hand-written fixtures. Rodin already wrote its answers into the model
-files, so the corpus labels itself:
+There are no hand-written answers in the corpus gate. Rodin already wrote its answers
+into the model files, so the corpus labels itself:
 
 | File | Holds | Checks |
 |---|---|---|
@@ -125,6 +141,10 @@ The book export also contains proof trees, pseudocode, OCR fragments, and image-
 blocks. Those are documentation, not executable Event-B inputs; the four book-derived
 files cover the model examples that can be represented and checked by this toolchain.
 
+The repository contains 15 executable example modules and 8 focused test/fixture
+entries. The examples use compile-time `#guard` checks and elaborator commands; the
+corpus gates provide the independent large-scale comparison against Rodin artifacts.
+
 ## Infoview proof obligations
 
 For an interactive view in the Lean VS Code Infoview, open
@@ -155,10 +175,12 @@ for Event-B operators that Lean syntax cannot represent, but do not provide iden
 navigation.
 
 
-Corpus-wide, `eventb diff` reports **1133 obligations matching Rodin, none only Rodin
-has, and 649 only we have**. The additional obligations are explicit generated
-coverage, mostly well-definedness conditions Rodin does not serialize; a spurious
-obligation costs proof effort, while a missing obligation would be unsound.
+At the PO-name level, `eventb diff` reports **1133 obligations matching Rodin, none only
+Rodin has, and 649 only we have**. The additional obligations are explicit generated
+coverage, mostly well-definedness conditions Rodin does not serialize. This is a
+name-level result; the stricter goal-and-hypothesis comparison is the P3b result shown
+above. A spurious obligation costs proof effort, while a missing obligation would be
+unsound.
 
 ## The point
 

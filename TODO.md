@@ -1,8 +1,9 @@
 # Roadmap
 
-`eventb-lean` v2 is tagged and the four GitHub issues found during the audit are
-closed. The next work is not a new parser or a second model representation. It is
-precision in proof-obligation generation followed by replayable proof evidence.
+`eventb-lean` v3 is tagged and the four GitHub issues found during the audit are
+closed. The next work is production hardening, not a new parser or a second model
+representation: every supported surface must be exercised, every limitation must be
+visible, and every accepted proof result must retain its trust classification.
 
 The architecture and dependency rules for this roadmap live in
 [`notes/architecture.md`](notes/architecture.md). This file is the execution ledger.
@@ -41,7 +42,7 @@ kernel, SMT, or imported-Rodin entries yet; the other 1060 obligations remain un
 - [x] Display models, obligations, hypotheses, goals, and trust in CLI and
   ProofWidgets.
 - [x] Keep the private book export and its images outside distribution artifacts.
-- [x] Tag `prototype-v1.0.0` and `prototype-v2.0.0`.
+- [x] Tag `prototype-v1.0.0`, `prototype-v2.0.0`, and `prototype-v3.0.0`.
 
 ## Version 3A: exact P3b coverage
 
@@ -251,6 +252,122 @@ artifacts or an explicit compatibility mode, and corpus-scale kernel proof count
 semantic Lean bindings for each model symbol. Both are reported rather than silently
 claimed as complete. The next proof increments are measured by the P4 formula-shape
 histogram, starting with membership and subset goals.
+
+## Version 4: production readiness
+
+This is the release contract for the first commit that may be called
+production-ready. Production-ready does not mean that every obligation is automated;
+it means that supported inputs are checked reproducibly, unsupported inputs fail
+clearly, generated obligations are measured against the available oracle, and no proof
+or trust result is presented as stronger than the evidence behind it.
+
+### V4.0 Release definition
+
+- [ ] Write the supported-input contract for Rodin XML, Rossi `.eventb`, native Lean
+  DSL, native theories, and the supported `.tuf` subset.
+- [ ] Define the production P3b and P4 release thresholds explicitly; do not use a
+  larger percentage as a substitute for exact diagnostics or trustworthy evidence.
+- [ ] Update README badges, `STATUS.md`, `notes/architecture.md`, and release notes
+  from the final measured commit before tagging.
+- [ ] Tag the release only after every V4 checklist item is checked and the complete
+  verification command succeeds from a clean checkout.
+
+### V4.1 CI and executable-surface coverage
+
+- [ ] Make CI build every shipped target: `EventB`, `EventBWidgets`, `Examples`,
+  `gates`, `rossi-dump`, `eventb`, and `bench`.
+- [ ] Run the CLI fixture matrix in CI, including `check --json`, `summary`, `report`,
+  `po`, `prove`, `theory`, and the expected error paths for invalid arguments and
+  missing components.
+- [ ] Run `rossi-dump` over every checked-in `.eventb` fixture and assert the complete
+  component list, names, and success status.
+- [ ] Add machine-readable assertions for the witness fixture: exact INV, GRD, SIM,
+  WD, WFIS, and hypothesis-only WWD records, including exit status.
+- [ ] Make the full verification contract fail on a missing executable target rather
+  than relying on the default Lake target to discover it indirectly.
+- [ ] Record whether the official Rossi differential executable is available in CI;
+  a production release must either run the comparison or fail with an actionable
+  dependency error.
+
+### V4.2 Book-example correctness
+
+- [ ] Replace the 21 book-example `POG.generate ... .isEmpty == false` smoke checks in
+  `BookBridge.lean`, `BookPrograms.lean`, and `BookSystems.lean` with exact assertions
+  for selected obligation names, classes, goals, and hypotheses.
+- [ ] Cover at least one exact expected obligation for each book family: bridge,
+  file-transfer, notation/program, controller/system, refinement, witness, and
+  convergence examples.
+- [ ] Add negative controls proving that a changed or missing obligation fails the
+  example test instead of merely leaving a non-empty list.
+- [ ] Keep the private book export, images, and archive outside commits and release
+  artifacts; retain only section references and independently authored executable
+  models.
+
+### V4.3 P3b parity and compatibility
+
+- [ ] Resolve the 193 unmatched P3b records against regenerated Rodin `.bpo` artifacts,
+  or implement an explicit compatibility mode for the pinned omissions.
+- [ ] Preserve the current diagnostics for plain type invariants, definedness,
+  refinement guards/actions, and witness feasibility while resolving the records.
+- [ ] Keep goal and hypothesis comparison separate from PO-name comparison; no missing
+  sequent may be hidden by shrinking a denominator or broadening a skip rule.
+- [ ] Add a regression fixture and negative control for every compatibility rule that
+  changes the P3b result.
+- [ ] Require `lake exe gates --coverage` and `lake exe gates --histogram` to remain
+  reproducible after each P3b change.
+
+### V4.4 P4 proof coverage and trust
+
+- [ ] Bind corpus symbols to explicit Lean semantic values in a reviewable way before
+  claiming corpus-scale kernel coverage.
+- [ ] Implement the next prover rules in measured histogram order, starting with
+  membership and subset goals, then equality, finite sets, relations, and arithmetic
+  only where replayable proof terms are available.
+- [ ] Give every new rule a positive proof-term replay test, a false-goal negative
+  control, and a stale/fingerprint mismatch test.
+- [ ] Keep kernel, SMT, Rodin-imported, external, and unproved modes separate in the
+  ledger, CLI, widgets, and reports.
+- [ ] Ensure every discharged result identifies its declaration or verifier, input
+  fingerprint, dependencies, and trust mode; no external result may be relabelled as
+  kernel evidence.
+- [ ] Re-measure P4 against the pinned corpus and record the toolchain and corpus SHA
+  in a timestamped benchmark after each prover increment.
+
+### V4.5 Rossi fixture quality
+
+- [ ] Document `actions.eventb` and `boundaries.eventb` explicitly as parser-boundary
+  fixtures, including their intentional semantic typechecking failures.
+- [ ] Separate parser-only fixtures from semantically valid project fixtures, or add
+  an executable expectation file that records the intended exit code and diagnostic.
+- [ ] Add `witnesses.eventb` to `scripts/rossi-diff.py` once the official Rossi parser
+  accepts the same construct; otherwise record the incompatibility explicitly.
+- [ ] Pin or provision the official Rossi executable used by the differential matrix;
+  do not leave compatibility confidence dependent on an unmentioned local install.
+
+### V4.6 ProofWidget and editor acceptance
+
+- [ ] Manually verify `examples/WidgetDemo.lean` in the VS Code Infoview from a clean
+  Lean server: model panels, obligation sections, hypotheses, goals, proof badges, and
+  the 11 replayed entries must render without React or widget errors.
+- [ ] Verify native Go to Definition and scope diagnostics for theory, context, machine,
+  event, and invariant symbols in the editor.
+- [ ] Record the manual UI acceptance procedure in the README without committing
+  private screenshots or generated editor state.
+- [ ] Keep raw Rossi/XML source-range limitations explicit until source navigation for
+  those front ends is implemented and tested.
+
+### V4.7 Distribution and operational gate
+
+- [ ] Run the complete build, gate, fixture, style, manifest, and diff checks from a
+  clean checkout with no private book artifacts staged.
+- [ ] Replace the current full-scope `GRIP_TOKEN` CI credential with a read-only
+  deploy key or publish the dependency before the production release.
+- [ ] Verify the corpus manifest, pinned dependency SHAs, generated status, benchmark
+  metadata, and README badges all describe the same commit.
+- [ ] Confirm that no `sorry`, implicit axiom, silently ignored syntax, stale evidence,
+  or unclassified unsupported construct is reachable through a shipped front end.
+- [ ] Publish a release note that states the supported subset, current P3b/P4 numbers,
+  trust modes, known ceilings, and the exact commands used for acceptance.
 
 ## Commit and audit protocol
 
