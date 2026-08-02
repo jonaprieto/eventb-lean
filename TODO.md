@@ -339,9 +339,9 @@ and the issue is closed with that same commit SHA in the closing comment.
 
 ### V4.5 Rossi fixture quality
 
-- [ ] #30 Document `actions.eventb` and `boundaries.eventb` explicitly as parser-boundary
+- [x] #30 Document `actions.eventb` and `boundaries.eventb` explicitly as parser-boundary
   fixtures, including their intentional semantic typechecking failures.
-- [ ] #31 Separate parser-only fixtures from semantically valid project fixtures, or add
+- [x] #31 Separate parser-only fixtures from semantically valid project fixtures, or add
   an executable expectation file that records the intended exit code and diagnostic.
 - [ ] #32 Add `witnesses.eventb` to `scripts/rossi-diff.py` once the official Rossi parser
   accepts the same construct; otherwise record the incompatibility explicitly.
