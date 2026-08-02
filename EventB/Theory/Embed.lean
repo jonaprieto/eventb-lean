@@ -97,6 +97,31 @@ def translateDefinition (context : KernelContext) (definition : Definition) :
     checkedFunction context definition.parameters definition.result value
     pure { name := definition.name, kind := definition.kind, result := definition.result, value }
 
+private def addDefinitionBinding (context : KernelContext) (definition : Definition)
+    (translated : KernelDefinition) : MetaM KernelContext :=
+  match definition.parameters with
+  | [] =>
+      pure { context with bindings :=
+        { name := definition.name, ty := definition.result, value := translated.value } ::
+          context.bindings }
+  | [(_, argument)] =>
+      pure { context with functions :=
+        { name := definition.name, argument, result := definition.result,
+          value := translated.value } :: context.functions }
+  | _ => throwError s!
+      "automatic theory resolution supports at most one definition parameter; " ++
+      s!"provide a semantic binding for `{definition.name}`"
+
+/-- Translate all visible definitional declarations and add their Lean denotations to the
+formula context. Declarations are resolved in theory order, so a definition may depend on
+an earlier definition while still requiring explicit model and datatype denotations. -/
+def translateDefinitions (context : KernelContext) : MetaM KernelContext := do
+  let mut resolved := context
+  for (_, definition) in Theory.definitionsIn context.theory context.roots do
+    let translated ← translateDefinition resolved definition
+    resolved ← addDefinitionBinding resolved definition translated
+  pure resolved
+
 private def constructorType (context : KernelContext) (arguments : List Ty) (result : Expr) :
     MetaM Expr := do
   arguments.foldrM (fun type result => do

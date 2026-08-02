@@ -36,6 +36,25 @@ private meta def checkDefinition : TermElabM Unit := do
   unless !(← succeeds do let _ ← Embed.translateDefinition {} identity) do
     throwError "a polymorphic definition was accepted without an instantiation"
 
+private meta def checkResolvedDefinitions : TermElabM Unit := do
+  let theory ← match Theory.add Theory.empty
+      { name := "Resolved", declarations :=
+        [.definitionDecl
+          { name := "zero", result := .int, body := .num 0 },
+         .definitionDecl
+          { name := "one", result := .int, body := .bin "+" (.id "zero") (.num 1) },
+         .definitionDecl
+          { name := "increment", parameters := [("x", .int)], result := .int,
+            body := .bin "+" (.id "x") (.num 1) }] } with
+    | .ok value => pure value
+    | .error error => throwError error
+  let context ← Embed.translateDefinitions
+    { theory, roots := ["Resolved"] }
+  let equality ← match Formula.parse "one = 1 ∧ increment(1) = 2" with
+    | .ok value => pure value
+    | .error error => throwError error
+  let _ ← Embedding.translatePredicate context equality
+
 private meta def checkDatatype : TermElabM Unit := do
   let datatype : Datatype :=
     { name := "Colour", constructors := [{ name := "red" }, { name := "blue" }] }
@@ -84,6 +103,7 @@ meta def elabTheoryEmbedChecks : CommandElab := fun stx =>
   match stx with
   | `(command| #eventb_theory_embed_checks) => liftTermElabM do
       checkDefinition
+      checkResolvedDefinitions
       checkDatatype
       checkRules
   | _ => throwUnsupportedSyntax

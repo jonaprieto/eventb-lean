@@ -145,7 +145,12 @@ private def lookupExpr (context : KernelContext) (name : String) : MetaM KernelT
             s!"but the visible theory declares {expected.print}"
       checked context binding.ty binding.value
   | none =>
-      if Theory.isIdentifierIn context.theory context.roots name then
+      if let some (_, _, _) := Theory.constructor? context.theory context.roots name then
+        throwError s!"theory constructor `{name}` has no Lean semantic binding"
+      else if let some (_, declaration) :=
+          Theory.declaration? context.theory context.roots name then
+        throwError s!"theory declaration `{declaration.name}` has no Lean semantic binding"
+      else if Theory.isIdentifierIn context.theory context.roots name then
         throwError s!"Event-B symbol `{name}` has no Lean semantic binding"
       else
         throwError s!"unknown Event-B identifier `{name}`"
