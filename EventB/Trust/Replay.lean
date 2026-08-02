@@ -36,6 +36,11 @@ private def statement (context : Embedding.KernelContext)
   let hypotheses ← obligation.hyps.mapM (Embedding.translatePredicate context)
   mkImplications hypotheses goal
 
+/-- Translate a complete obligation sequent without assigning trust evidence. -/
+def translateStatement (context : Embedding.KernelContext)
+    (obligation : POG.Obligation) : MetaM Expr :=
+  statement context obligation
+
 private def declarationName (declaration : String) : Name := declaration.toName
 
 private def proofTerm (declaration : String) : MetaM Expr := do
@@ -100,7 +105,7 @@ private def replayKernel (context : Embedding.KernelContext)
   let (declaration, declaredAxioms) ← expectedAxioms evidence
   let proof ← proofTerm declaration
   let proof ← specializeProof proof context.bindings
-  let expected ← statement context obligation
+  let expected ← translateStatement context obligation
   let proofType ← inferType proof
   unless ← isDefEq proofType expected do
     throwError s!"proof declaration `{declaration}` does not prove `{obligation.name}`"
@@ -171,6 +176,9 @@ private meta def checkReplay : TermElabM Unit := do
   unless ← succeeds (validate specializedContext specializedObligation
       (.kernel "EventB.Trust.Replay.TestFixtures.reflexive" [])) do
     throwError "universally quantified kernel evidence did not replay"
+  let translated ← translateStatement specializedContext specializedObligation
+  unless (← inferType translated).isSort do
+    throwError "translated obligation sequent is not a proposition"
   unless !(← succeeds (validate context replayObligation
       (.kernel "True.intro" ["propext"]))) do
     throwError "forged axiom metadata was accepted"
