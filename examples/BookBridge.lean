@@ -237,9 +237,31 @@ def bookProject : Typing.Project :=
   , { name := "File2", elem := File2 }
   , { name := "File3", elem := File3 } ]
 
-#guard (POG.generate bookProject "Bridge0").isEmpty == false
-#guard (POG.generate bookProject "Bridge1").isEmpty == false
-#guard (POG.generate bookProject "Bridge2").isEmpty == false
-#guard (POG.generate bookProject "File0").isEmpty == false
-#guard (POG.generate bookProject "File1").isEmpty == false
-#guard (POG.generate bookProject "File2").isEmpty == false
+private def hasPO (machine name : String) : Bool :=
+  (POG.generate bookProject machine).any (·.name == name)
+
+private def goalText (machine name : String) : Option String :=
+  (POG.generate bookProject machine).find? (·.name == name) |>.bind
+    (fun obligation => obligation.goal.map Formula.print)
+
+private def hypothesesText (machine name : String) : Option (List String) :=
+  (POG.generate bookProject machine).find? (·.name == name) |>.map
+    (fun obligation => obligation.hyps.map Formula.print)
+
+#guard hasPO "Bridge0" "INITIALISATION/inv0_1/INV"
+#guard hasPO "Bridge1" "INITIALISATION/inv1_1/INV"
+#guard hasPO "Bridge2" "INITIALISATION/inv2_1/INV"
+#guard hasPO "File0" "INITIALISATION/inv0_1/INV"
+#guard hasPO "File1" "INITIALISATION/inv1_1/INV"
+#guard hasPO "File2" "INITIALISATION/inv2_1/INV"
+
+#guard goalText "Bridge0" "INITIALISATION/inv0_1/INV" == some "(0 ∈ ℕ)"
+#guard goalText "Bridge0" "ML_out/inv0_2/INV" == some "((n + 1) ≤ d)"
+#guard hypothesesText "Bridge0" "ML_out/inv0_2/INV" == some
+  ["(d ∈ ℕ)", "(0 < d)", "(n ∈ ℕ)", "(n ≤ d)", "(n < d)"]
+#guard hasPO "File1" "final/act2/SIM"
+#guard hasPO "File1" "final/wit1/WFIS"
+
+/-! Negative controls: exact checks must fail for a changed goal or missing PO. -/
+#guard !goalText "Bridge0" "ML_out/inv0_2/INV" == some "((n + 1) < d)"
+#guard !hasPO "Bridge0" "ML_out/inv0_9/INV"

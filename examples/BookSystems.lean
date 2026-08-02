@@ -526,11 +526,28 @@ def systemsProject : Typing.Project :=
   , { name := "Train0", elem := Train0 }
   , { name := "Train1", elem := Train1 } ]
 
-#guard (POG.generate systemsProject "Press0").isEmpty == false
-#guard (POG.generate systemsProject "Slots0").isEmpty == false
-#guard (POG.generate systemsProject "Circuit0").isEmpty == false
-#guard (POG.generate systemsProject "Ring1").isEmpty == false
-#guard (POG.generate systemsProject "Tree1").isEmpty == false
-#guard (POG.generate systemsProject "Graph1").isEmpty == false
-#guard (POG.generate systemsProject "Access0").isEmpty == false
-#guard (POG.generate systemsProject "Train1").isEmpty == false
+private def hasPO (machine name : String) : Bool :=
+  (POG.generate systemsProject machine).any (·.name == name)
+
+#guard hasPO "Press0" "a_on/inv0_1/INV"
+#guard hasPO "Slots0" "Writer_1/inv0_5/INV"
+#guard hasPO "Circuit0" "env_event/inv0_1/INV"
+#guard hasPO "Ring1" "elect/act1/SIM"
+#guard hasPO "Tree1" "thm1_1/THM"
+#guard hasPO "Graph1" "send_msg/inv1_2/INV"
+#guard hasPO "Access0" "enter/inv0_1/INV"
+#guard hasPO "Train1" "route_formation/act1/SIM"
+
+private def pressGoal (name : String) : Option String :=
+  (POG.generate systemsProject "Press0").find? (·.name == name) |>.bind
+    (fun obligation => obligation.goal.map Formula.print)
+
+private def pressHypotheses (name : String) : Option (List String) :=
+  (POG.generate systemsProject "Press0").find? (·.name == name) |>.map
+    (fun obligation => obligation.hyps.map Formula.print)
+
+#guard pressGoal "a_on/inv0_1/INV" == some "(working ∈ STATUS)"
+#guard pressHypotheses "a_on/inv0_1/INV" == some
+  ["(STATUS = {stopped, working})", "(stopped ≠ working)",
+   "(motor_actuator ∈ STATUS)", "(motor_sensor ∈ STATUS)",
+   "(motor_actuator = stopped)", "(motor_sensor = stopped)"]

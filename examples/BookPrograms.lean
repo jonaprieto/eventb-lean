@@ -299,13 +299,16 @@ def programsProject : Typing.Project :=
   , { name := "Inverse0", elem := Inverse0 }
   , { name := "Inverse1", elem := Inverse1 } ]
 
-#guard (POG.generate programsProject "NotationMachine").isEmpty == false
-#guard (POG.generate programsProject "MathMachine").isEmpty == false
-#guard (POG.generate programsProject "BinarySearch1").isEmpty == false
-#guard (POG.generate programsProject "ArrayPrograms").isEmpty == false
-#guard (POG.generate programsProject "ListReverse1").isEmpty == false
-#guard (POG.generate programsProject "SquareRoot1").isEmpty == false
-#guard (POG.generate programsProject "Inverse1").isEmpty == false
+private def hasPO (machine name : String) : Bool :=
+  (POG.generate programsProject machine).any (·.name == name)
+
+#guard hasPO "NotationMachine" "INITIALISATION/inv0_1/INV"
+#guard hasPO "MathMachine" "INITIALISATION/inv0_1/INV"
+#guard hasPO "BinarySearch1" "inv1_2/WD"
+#guard hasPO "ArrayPrograms" "INITIALISATION/inv0_1/INV"
+#guard hasPO "ListReverse1" "INITIALISATION/inv1_1/INV"
+#guard hasPO "SquareRoot1" "INITIALISATION/inv1_1/INV"
+#guard hasPO "Inverse1" "INITIALISATION/inv1_1/INV"
 
 /-! Witness coverage regression: the openETCS-style refinement shape has both a
 feasibility statement and the hypothesis-only well-definedness record. -/
@@ -315,3 +318,13 @@ def witnessObligations := POG.generate programsProject "NotationMachine"
 #guard witnessObligations.map (·.name) |>.contains "witness_example/wit1/WWD"
 #guard (witnessObligations.find? (·.name == "witness_example/wit1/WFIS")).bind (·.goal) |>.isSome
 #guard (witnessObligations.find? (·.name == "witness_example/wit1/WWD")).bind (·.goal) |>.isNone
+#guard (witnessObligations.find? (·.name == "witness_example/wit1/WFIS")).bind
+    (fun obligation => obligation.goal.map Formula.print) ==
+  some "(∃ (v ⦂ D) · (v = f(i)))"
+#guard (witnessObligations.find? (·.name == "witness_example/wit1/WFIS")).map
+    (fun obligation => obligation.hyps.map Formula.print) == some
+  ["(0 < n)", "(f ∈ ((1 ‥ n) → D))", "(∀ x · ((x ∈ (1 ‥ n)) ⇒ (x ∈ ℕ)))",
+   "(x ∈ ℕ)", "(y ∈ ℕ)", "(g ∈ ((1 ‥ n) ⇸ D))", "(v ∈ D)"]
+#guard !(witnessObligations.find? (·.name == "witness_example/wit1/WFIS")).bind
+    (fun obligation => obligation.goal.map Formula.print) ==
+  some "(∃ (v ⦂ D) · (v = f(i) ∧ FALSE))"

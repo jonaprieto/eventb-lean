@@ -308,13 +308,13 @@ Production thresholds:
 
 ### V4.2 Book-example correctness
 
-- [ ] #15 Replace the 21 book-example `POG.generate ... .isEmpty == false` smoke checks in
+- [x] #15 Replace the 21 book-example `POG.generate ... .isEmpty == false` smoke checks in
   `BookBridge.lean`, `BookPrograms.lean`, and `BookSystems.lean` with exact assertions
   for selected obligation names, classes, goals, and hypotheses.
-- [ ] #16 Cover at least one exact expected obligation for each book family: bridge,
+- [x] #16 Cover at least one exact expected obligation for each book family: bridge,
   file-transfer, notation/program, controller/system, refinement, witness, and
   convergence examples.
-- [ ] #17 Add negative controls proving that a changed or missing obligation fails the
+- [x] #17 Add negative controls proving that a changed or missing obligation fails the
   example test instead of merely leaving a non-empty list.
 - [ ] #18 Keep the private book export, images, and archive outside commits and release
   artifacts; retain only section references and independently authored executable
