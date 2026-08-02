@@ -353,6 +353,7 @@ private structure CoverageResult where
   name : String
   derivation : String
   reason : String
+  diagnostic : String
 
 private def coverageReasonFor (hasName hasGoal derived goalOK hypsOK : Bool) : String :=
   if !hasName then "no-sequent"
@@ -364,6 +365,44 @@ private def coverageReasonFor (hasName hasGoal derived goalOK hypsOK : Bool) : S
 
 private theorem deletedGoldSequentIsCoverageLoss :
     coverageReasonFor false false false false false == "no-sequent" := by decide
+
+private def isPlainTypeInvariant : Formula.Term → Bool
+  | .bin op (.id _) (.id _) => op == "∈" || op == "⊆"
+  | .bin op (.id _) (.pre "ℙ" (.id _)) => op == "∈"
+  | _ => false
+
+private def omittedInvariant (project : Project) (file name : String) : Bool :=
+  match lookupComponent project file, name.splitOn "/" with
+  | some component, _ :: label :: _ =>
+      match component.elem.children.find? (fun elem =>
+          elem.tag == "org.eventb.core.invariant" &&
+          elem.attr? "org.eventb.core.label" == some label) with
+      | some invariant =>
+          match invariant.attr? "org.eventb.core.predicate" with
+          | some predicate =>
+              match Formula.parse predicate with
+              | .ok term => isPlainTypeInvariant term
+              | .error _ => false
+          | none => false
+      | none => false
+  | _, _ => false
+
+private def coverageDiagnostic (project : Project) (file : String)
+    (obligation : Obligation) (reason : String) : String :=
+  if reason != "no-sequent" then "none"
+  else if obligation.kind == "INV" && omittedInvariant project file obligation.name then
+    "pinned-bpo-omits-plain-type-invariant"
+  else
+    match obligation.kind with
+    | "WD" => "pinned-bpo-omits-definedness-sequent"
+    | "GRD" => "pinned-bpo-omits-refinement-guard-sequent"
+    | "SIM" => "pinned-bpo-omits-refinement-action-sequent"
+    | "WFIS" => "pinned-bpo-omits-witness-feasibility-sequent"
+    | _ => "pinned-bpo-omits-sequent"
+
+#guard isPlainTypeInvariant (.bin "⊆" (.id "x") (.id "S"))
+#guard isPlainTypeInvariant (.bin "∈" (.id "x") (.pre "ℙ" (.id "S")))
+#guard !isPlainTypeInvariant (.bin "=" (.id "x") (.id "y"))
 
 private def goalAgrees (obligation : Obligation) (gold : List (String × String)) : Bool :=
   match obligation.goal, gold.find? (fun p => p.1 == obligation.name) with
@@ -397,18 +436,22 @@ private def coverage (project : Project) (file : String) (names : List String)
       kind := obligation.kind
       name := obligation.name
       derivation := if derived then "derived" else "not-derived"
-      reason := coverageReasonFor hasName hasGoal derived goalOK hypsOK }
+      reason := coverageReasonFor hasName hasGoal derived goalOK hypsOK
+      diagnostic := coverageDiagnostic project file obligation
+        (coverageReasonFor hasName hasGoal derived goalOK hypsOK) }
 
 private def coverageLine (record : CoverageResult) : String :=
   String.intercalate "\t"
-    [record.component, record.kind, record.name, record.derivation, record.reason]
+    [record.component, record.kind, record.name, record.derivation, record.reason,
+      record.diagnostic]
 
 private def coverageHistogram (records : List CoverageResult) : List (String × Nat) :=
   (records.foldl
     (fun counts record =>
       if record.reason == "matched" then counts
       else histogramAdd
-        (record.reason ++ "\t" ++ record.component ++ "\t" ++ record.kind) counts)
+        (record.reason ++ "\t" ++ record.diagnostic ++ "\t" ++ record.component ++
+          "\t" ++ record.kind) counts)
     []).mergeSort (fun left right =>
       if left.2 == right.2 then left.1 < right.1 else right.2 < left.2)
 
@@ -629,7 +672,7 @@ private def run (args : List String) : IO UInt32 := do
     for (reason, count) in coverageHistogram coverageResults do
       IO.println s!"{count}\tP3b\t{reason}"
   if args.contains "--coverage" then
-    IO.println "component\tkind\tname\tderivation\treason"
+    IO.println "component\tkind\tname\tderivation\treason\tdiagnostic"
     for record in coverageResults do
       IO.println (coverageLine record)
   if args.contains "--status" then
