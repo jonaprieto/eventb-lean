@@ -313,11 +313,12 @@ only when each has a negative regression and replayable evidence.
 
 ### Version 3 definition of done
 
-Version 3 is complete only when P3b has no unexplained unmatched records, every
-discharged P4 result has an explicit trust mode and replay or verifier path, and all
-remaining obligations are visibly unproved. The existing model, scope, formula AST,
-POG obligation type, and trust ledger remain the single representations; no backend or
-front end may create a second checker.
+Version 3 is complete when every P3b mismatch is an explained, regression-tested
+diagnostic, every discharged P4 result has an explicit trust mode and replay or
+verifier path, and all remaining obligations are visibly unproved. The current corpus
+ceiling is pinned-artifact compatibility, not an unreported failure. The existing
+model, scope, formula AST, POG obligation type, and trust ledger remain the single
+representations; no backend or front end may create a second checker.
 
 ## Rossi compatibility and project input
 

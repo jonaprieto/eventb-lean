@@ -1,0 +1,13 @@
+eventb-lean commit: 3689fe1
+lean-toolchain: leanprover/lean4:v4.28.0
+lake: Lake version 5.0.0-src+7e01a1b (Lean version 4.28.0)
+corpus/MANIFEST.tsv sha256: 84d51dbc09498d0b3c61d3a69a0d7aa700390983c53ef6dd5b8b26a9b61e4e2f
+command: lake exe gates
+
+P0 reader: 38/38
+P1 formulas: 1102/1102
+P2 types: 940/940
+P3 obligations: 1133/1133
+P3b statements: 1129/1322 derived
+P3b hypotheses: 1129/1322 derived
+P4 local baseline: 73/1133 discharged

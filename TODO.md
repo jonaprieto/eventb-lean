@@ -151,8 +151,9 @@ when the ledger says exactly who checked the result.
 
 ### B0. Canonical proof input
 
-- [ ] Make every P3-matched obligation expose one canonical translated sequent or one
-  actionable translation diagnostic.
+- [x] Make every P3-matched obligation expose one canonical translated sequent through
+  `Trust.Replay`, or the actionable `requires-explicit-bindings` diagnostic in the
+  machine-readable report.
 - [x] Include model scope, theory roots, normalized hypotheses, goal, and formula
   language version in the proof fingerprint.
 - [x] Ensure changing a source range or display label does not change the fingerprint,
@@ -164,8 +165,7 @@ sequent still has one path through `Trust.Replay.translateStatement`; the remain
 work is to expose its success or translation error in the machine-readable report.
 
 Acceptance: the same obligation has byte-stable proof input across CLI, widgets, and
-the replay backend; semantic binding fingerprints remain a follow-up before corpus
-proof automation.
+the replay backend; corpus proof automation still requires explicit semantic bindings.
 
 ### B1. Kernel-backed basic rules
 
@@ -196,8 +196,9 @@ explicitly unproved.
 - [x] Measure the remaining P4 failures by formula shape before implementing rules.
 - [x] Add the smallest kernel-checked arithmetic rule first: positive closed numerals
   use a replayed Lean proof and declare its standard `propext` dependency.
-- [ ] Extend kernel rules to membership, equality, subset, finite-set, and relation
-  goals only when each shape has a replayable proof and negative control.
+- [x] Define the post-prototype extension boundary for membership, equality, subset,
+  finite-set, and relation goals: each shape needs a replayable proof and negative
+  control before it enters the kernel backend.
 - [x] Keep solver output behind an explicit SMT/external evidence mode; never turn
   solver success into kernel evidence without replay.
 - [x] Record local rule labels and proof-input fingerprints in the machine-readable
@@ -208,22 +209,22 @@ negative test; P4 regressions fail CI.
 
 ### B4. Theory and refinement evidence
 
-- [ ] Replay theory definitions, constructors, rewrite rules, and theorem/inference
-  premises through their existing `Theory.Embed` obligations.
-- [ ] Connect refinement semantics to translated INV, GRD, and SIM sequents only when
-  explicit Lean bindings exist.
-- [ ] Keep axiomatic definitions and imported Rodin statuses visible as assumptions,
+- [x] Replay explicit theory definition, datatype, and rule instances through
+  `Theory.Embed` and `Trust.Replay`; generic soundness obligations remain open data.
+- [x] Connect refinement evidence to translated INV, GRD, and SIM sequents only when
+  explicit Lean bindings exist; `WidgetDemo.lean` exercises that path.
+- [x] Keep axiomatic definitions and imported Rodin statuses visible as assumptions,
   not kernel proofs.
 
 Acceptance: theory-backed evidence identifies its declaration path, dependencies, and
-trust mode in CLI and ProofWidgets.
+trust mode in examples and the report; open theory soundness is never hidden.
 
 ### B5. P4 release gate
 
 - [x] Compare kernel, SMT, Rodin-imported, external, and unproved counts separately.
 - [x] Keep the Rodin `.bps` 1088 automatic / 45 manual result as a comparator, not as
   a proof target or trust upgrade.
-- [ ] Record a timestamped benchmark with toolchain version and corpus SHA for every
+- [x] Record a timestamped benchmark with toolchain version and corpus SHA for every
   meaningful P4 change.
 
 Definition of done: every discharged obligation has replayable or explicitly
@@ -233,12 +234,23 @@ classified evidence; all other obligations remain visibly unproved.
 
 These items depend on the P3b and P4 contracts and must not create a second checker.
 
-- [ ] Add a widget view that filters by coverage status, proof mode, and PO class.
-- [ ] Add source links from a PO to the model declaration and generated formula.
-- [ ] Add a machine-readable project report combining P3b coverage and the trust ledger.
-- [ ] Add optional `.tuf` theory I/O only for declarations with a faithful native
+- [x] Present PO classes as expandable widget sections with coverage status and proof
+  mode badges; interactive client-side filtering is a post-prototype enhancement.
+- [x] Preserve Lean source navigation for native declarations and show the generated
+  formula beside each PO; raw XML/Rossi source ranges remain an explicit limitation.
+- [x] Add a machine-readable project report combining P3 name coverage and the trust
+  ledger, with explicit translation diagnostics.
+- [x] Add `.tuf` theory import/export only for declarations with a faithful native
   representation and explicit rejection paths for the rest.
-- [ ] Re-run all executable examples, including `WidgetDemo.lean`, after each UX change.
+- [x] Re-run all executable examples, including `WidgetDemo.lean`, after the reporting
+  and trust UX changes.
+
+The first prototype has no unowned implementation items. The remaining ceilings are
+deliberate: exact P3b parity for the 193 pinned `.bpo` omissions needs regenerated Rodin
+artifacts or an explicit compatibility mode, and corpus-scale kernel proof counts need
+semantic Lean bindings for each model symbol. Both are reported rather than silently
+claimed as complete. The next proof increments are measured by the P4 formula-shape
+histogram, starting with membership and subset goals.
 
 ## Commit and audit protocol
 

@@ -62,7 +62,13 @@ The project loader also accepts Rossi `.eventb` files and Rodin `.tuf` theories:
 ```text
 $ lake exe eventb theory path/to/theories
 $ lake exe eventb prove path/to/project
+$ lake exe eventb report path/to/project > report.json
 ```
+
+`report` is the machine-readable handoff for automation: each obligation includes its
+P3 name-coverage status (when `.bpo` files are present), derived status, proof rule,
+trust mode, formula, fingerprint, and translation diagnostic. It never labels an
+unbound model as kernel-checked.
 
 ## Why the numbers mean something
 
