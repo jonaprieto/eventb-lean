@@ -13,6 +13,11 @@ The timestamped gate record in
 `bench/results/2026-08-02T21-56-30Z/gates.txt` records the measured commit and
 toolchain metadata.
 
+The complete contract was also run from a detached clean checkout at commit
+`937609f`: all 108 build jobs, gates, CLI fixtures, the official Rossi v0.1.7
+differential matrix, distribution, manifest, style, and diff checks passed. The clean
+checkout contained no private book artifacts.
+
 | Gate | Result | Interpretation |
 | --- | ---: | --- |
 | P0 reader | 38/38 | Source files read losslessly. |

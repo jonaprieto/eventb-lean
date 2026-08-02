@@ -375,7 +375,7 @@ Production thresholds:
 
 ### V4.7 Distribution and operational gate
 
-- [ ] #38 Run the complete build, gate, fixture, style, manifest, and diff checks from a
+- [x] #38 Run the complete build, gate, fixture, style, manifest, and diff checks from a
   clean checkout with no private book artifacts staged.
 - [x] #39 Replace the current full-scope `GRIP_TOKEN` CI credential with the read-only
   `GRIP_SSH_KEY` deploy key before the production release.
