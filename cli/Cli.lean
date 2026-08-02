@@ -1,5 +1,6 @@
 import EventB.POG
 import EventB.Rossi
+import EventB.Theory.Rodin
 
 namespace EventB.Cli
 
@@ -16,6 +17,9 @@ private def isRossi (path : System.FilePath) : Bool :=
 
 private def isBpo (path : System.FilePath) : Bool :=
   path.toString.endsWith ".bpo"
+
+private def isTheory (path : System.FilePath) : Bool :=
+  path.toString.endsWith ".tuf"
 
 private def stem (path : System.FilePath) : String :=
   ((path.toString.splitOn "/").getLast!).splitOn "." |>.head!
@@ -36,6 +40,15 @@ private partial def rossiFiles (dir : System.FilePath) : IO (List System.FilePat
       paths := entry.path :: paths
   return paths.mergeSort (fun left right => left.toString < right.toString)
 
+private partial def theoryFiles (dir : System.FilePath) : IO (List System.FilePath) := do
+  let mut paths : List System.FilePath := []
+  for entry in ← dir.readDir do
+    if ← entry.path.isDir then
+      paths := (← theoryFiles entry.path) ++ paths
+    else if isTheory entry.path then
+      paths := entry.path :: paths
+  return paths.mergeSort (fun left right => left.toString < right.toString)
+
 private def bpoFiles (dir : System.FilePath) : IO (List System.FilePath) := do
   let mut paths : List System.FilePath := []
   for entry in ← dir.readDir do
@@ -48,13 +61,45 @@ private structure Source where
   name : String
   model : Model
 
-private def projectComponent (source : Source) : Component :=
-  { name := source.name, elem := source.model.root }
+private def projectComponent (roots : List String) (source : Source) : Component :=
+  { name := source.name, elem := source.model.root, theories := roots }
 
 private structure ProjectData where
   project : Project
   sources : List Source
+  theory : Theory.Env
   errors : List String
+
+private def loadTheories (paths : List System.FilePath) : IO (Theory.Env × List String) := do
+  let mut pending := paths
+  let mut env := Theory.empty
+  let mut errors : List String := []
+  while !pending.isEmpty do
+    let mut next : List (System.FilePath × String) := []
+    let mut progressed := false
+    for path in pending do
+      try
+        let source ← IO.FS.readFile path
+        match Theory.Rodin.importSpec env source with
+        | .ok spec =>
+            match Theory.add env spec with
+            | .ok extended =>
+                env := extended
+                progressed := true
+            | .error error => errors := s!"{path}: {error}" :: errors
+        | .error error =>
+            if error.endsWith "is not registered" then
+              next := (path, error) :: next
+            else
+              errors := s!"{path}: {error}" :: errors
+      catch error => errors := s!"{path}: could not be read: {error}" :: errors
+    if !progressed && next.length == pending.length then
+      for (path, error) in next do
+        errors := s!"{path}: {error}" :: errors
+      pending := []
+    else
+      pending := next.reverse.map (·.1)
+  return (env, errors.reverse)
 
 private def readSource (path : System.FilePath) : IO (Except String Source) := do
   try
@@ -88,6 +133,11 @@ private def readRossi (path : System.FilePath) : IO (Except String (List Source)
 private def loadProject (path : System.FilePath) : IO ProjectData := do
   let mut sources : List Source := []
   let mut errors : List String := []
+  let (theory, theoryErrors) ← if ← path.isDir then
+      loadTheories (← theoryFiles path)
+    else
+      pure (Theory.empty, [])
+  errors := theoryErrors
   if ← path.isDir then
     for sourcePath in ← sourceFiles path do
       match ← readSource sourcePath with
@@ -111,8 +161,9 @@ private def loadProject (path : System.FilePath) : IO ProjectData := do
       duplicateErrors := s!"{source.path}: duplicate component `{source.name}`" :: duplicateErrors
     else
       uniqueSources := uniqueSources ++ [source]
-  let project : Project := uniqueSources.map projectComponent
-  return ProjectData.mk project uniqueSources (errors.reverse ++ duplicateErrors.reverse)
+  let roots := theory.theories.filter (·.name != Theory.core.name) |>.map (·.name)
+  let project : Project := uniqueSources.map (projectComponent roots)
+  return ProjectData.mk project uniqueSources theory (errors.reverse ++ duplicateErrors.reverse)
 
 private def formulaErrorLabel (model : Model) (error : String) : Option String :=
   model.formulas.find? (fun pair =>
@@ -137,13 +188,13 @@ private def recoverableTypeError (error : String) : Bool :=
   error.startsWith "unbound identifier "
 
 private def typeErrors (data : ProjectData) (source : Source) : List String :=
-  match inferComponent data.project source.name with
+  match inferComponentIn data.theory data.project source.name with
   | .error error => [formatTypeError source error]
   | .ok (_, errors) => errors.filter (fun error => !recoverableTypeError error)
       |>.map (formatTypeError source)
 
 private def typeWarnings (data : ProjectData) (source : Source) : List String :=
-  match inferComponent data.project source.name with
+  match inferComponentIn data.theory data.project source.name with
   | .error _ => []
   | .ok (_, errors) =>
       let messages := errors.filter recoverableTypeError |>.map (formatTypeError source)
@@ -159,7 +210,7 @@ private structure Report where
 private def reports (data : ProjectData) : List Report :=
   data.sources.map fun source =>
     { source := source
-      obligations := generate data.project source.name
+      obligations := generateIn data.theory data.project source.name
       errors := typeErrors data source
       warnings := typeWarnings data source }
 
@@ -240,6 +291,7 @@ private def help : String :=
   "  check <project-dir-or-.eventb> [--json] [--kind INV,WD,...] [--machine NAME]\n" ++
   "  po <project-dir-or-.eventb> <PO-NAME>\n" ++
   "  summary <project-dir-or-.eventb> [--json]\n" ++
+  "  theory <project-dir-or-.tuf>\n" ++
   "  diff <project-dir>\n"
 
 private def checkHelp : String :=
@@ -258,6 +310,10 @@ private def summaryHelp : String :=
 private def diffHelp : String :=
   "Usage: eventb diff <project-dir>\n\n" ++
   "Compare generated obligation names with Rodin .bpo files."
+
+private def theoryHelp : String :=
+  "Usage: eventb theory <project-dir-or-.tuf>\n\n" ++
+  "Load and validate Rodin theory files in dependency order."
 
 private def jsonEscape (value : String) : String :=
   String.ofList (value.toList.flatMap fun c =>
@@ -361,6 +417,23 @@ private def runSummary (dir : System.FilePath) (json : Bool) : IO UInt32 := do
         s!"({derivedCount report.obligations} derived)")
   return if (fatalErrors data rs).isEmpty then 0 else 1
 
+private def runTheory (path : System.FilePath) : IO UInt32 := do
+  let paths ← if ← path.isDir then theoryFiles path
+    else if isTheory path then pure [path]
+    else pure []
+  if paths.isEmpty then
+    IO.eprintln s!"eventb theory: {path} contains no .tuf file"
+    return 1
+  let (env, errors) ← loadTheories paths
+  for error in errors do
+    IO.eprintln s!"eventb theory: error: {error}"
+  for spec in env.theories do
+    if spec.name != Theory.core.name then
+      IO.println (s!"{spec.name}: {spec.symbols.length} symbols, " ++
+        s!"{spec.declarations.length} declarations, imports=" ++
+        String.intercalate "," spec.imports)
+  return if errors.isEmpty then 0 else 1
+
 private def findObligation : List Report → String → Option (String × Obligation)
   | [], _ => none
   | report :: rest, name =>
@@ -446,7 +519,7 @@ private def runDiff (dir : System.FilePath) : IO UInt32 := do
             failed := true
             IO.eprintln s!"eventb diff: {path}: {error}"
         | .ok gold =>
-            let ours := (generate data.project source.name).map (·.name)
+            let ours := (generateIn data.theory data.project source.name).map (·.name)
             let missing := gold.filter (fun name => !ours.contains name)
             let extra := ours.filter (fun name => !gold.contains name)
             let matching := gold.length - missing.length
@@ -497,6 +570,16 @@ private def runCommand (args : List String) : IO UInt32 := do
           IO.println summaryHelp
           return 0
       | .ok (some (dir, json)) => runSummary dir json
+  | "theory" :: rest =>
+      if rest.any (fun arg => arg == "--help" || arg == "-h") then
+        IO.println theoryHelp
+        return 0
+      match rest with
+      | [path] => runTheory path
+      | _ =>
+          IO.eprintln "eventb theory: expected <project-dir-or-.tuf>"
+          IO.eprintln theoryHelp
+          return 1
   | "diff" :: rest =>
       if rest.any (fun arg => arg == "--help" || arg == "-h") then
         IO.println diffHelp

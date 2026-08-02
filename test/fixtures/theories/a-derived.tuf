@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<org.eventb.theory.core.theoryFile identifier="Derived">
+  <org.eventb.theory.core.import identifier="Base"/>
+  <org.eventb.theory.core.symbol identifier="OPEN" kind="constant" type="BOOL"/>
+</org.eventb.theory.core.theoryFile>

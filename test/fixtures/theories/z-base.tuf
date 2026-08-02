@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<org.eventb.theory.core.theoryFile identifier="Base">
+  <org.eventb.theory.core.symbol identifier="LIMIT" kind="constant" type="ℤ"/>
+</org.eventb.theory.core.theoryFile>
