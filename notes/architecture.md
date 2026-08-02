@@ -40,6 +40,8 @@ flowchart LR
   G --> L["Trust.Ledger"]
   T --> U["CLI + ProofWidgets"]
   G --> U
+  G --> E["Replay.translateStatement"]
+  E --> L
 ```
 
 The `.bpo` and `.bps` files are comparison data rather than inputs to the native
@@ -156,8 +158,10 @@ evidence without changing the model checker.
 
 Theory validation also emits declaration obligations. Structural rewrite termination is
 marked `checked` only for the conservative decreasing case; rewrite soundness and
-inference/theorem soundness remain `open` until a proof is supplied. Axiomatic
-definitions are marked `assumed`. These statuses are data, not hidden axioms.
+inference/theorem soundness remain `open` until a proof is supplied. `Theory.Embed`
+retains these obligations beside each translated rule proposition, so a caller can
+attach proof evidence without confusing translation with proof. Axiomatic definitions
+are marked `assumed`. These statuses are data, not hidden axioms.
 
 ## Trust ledger
 
@@ -173,9 +177,11 @@ obligations start as `unproved`; later integrations may classify evidence as:
 The ledger is intentionally separate from `POG.Obligation`. A generator must not imply
 that a generated proposition has already been discharged.
 
-`Trust.Replay` accepts a kernel proof only after resolving its declaration, translating
-the complete POG sequent, checking definitional equality, and comparing its transitive
-axiom dependencies with the declared metadata. `Trust.Rodin` imports `.bps` status
+`Trust.Replay.translateStatement` is the reusable translation backend for a complete
+goal-plus-hypotheses sequent. It does not change the ledger. `Trust.Replay` accepts a
+kernel proof only after resolving its declaration, translating the complete POG sequent,
+checking definitional equality, and comparing its transitive axiom dependencies with
+the declared metadata. `Trust.Rodin` imports `.bps` status
 records as `rodinImported`; it never upgrades them to kernel evidence. SMT and external
 evidence remain explicit metadata boundaries and must carry solver/tool, version, input
 digest, and verifier fields.
@@ -212,6 +218,12 @@ The gates compare the implementation against the pinned corpus and ratchet files
   no-sequent obligations remain explicit coverage data;
 - P4: the gates run the deterministic local baseline over the 1133 P3-matched
   obligations; the current result is 73 external-trusted and the rest unproved.
+
+The v2 semantic boundary is explicit: theory definitions and constructors require
+caller-supplied Lean denotations; translation can be measured independently; only a
+replayed Lean proof can produce kernel evidence. The complete v2 audit repeats all four
+commands above and the executable examples, including native theory and Rodin theory
+round-trip checks.
 
 Every focused commit is expected to leave these checks green. `STATUS.md` is generated;
 `TODO.md` records the completed roadmap audit and deliberate ceilings.

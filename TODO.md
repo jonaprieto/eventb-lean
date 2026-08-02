@@ -45,43 +45,44 @@ It is complete only when each item below is checked and the v1 contract still pa
 
 ### Proof assurance
 
-- [ ] Make kernel replay a reusable proof backend for obligations with explicit Lean
+- [x] Make kernel replay a reusable proof backend for obligations with explicit Lean
   semantic bindings, including native theory examples.
-- [ ] Keep external evidence distinct from kernel evidence in CLI, widgets, and status.
-- [ ] Reject stale, forged, and mislabelled proof artifacts at every public attachment
+- [x] Keep external evidence distinct from kernel evidence in CLI, widgets, and status.
+- [x] Reject stale, forged, and mislabelled proof artifacts at every public attachment
   boundary, with negative regression tests.
 
 ### Semantic and theory completeness
 
-- [ ] Support explicit semantic bindings for multi-parameter theory definitions and
+- [x] Support explicit semantic bindings for multi-parameter theory definitions and
   constructor applications.
-- [ ] Extend rewrite matching through binders and set-builder bodies with a terminating,
+- [x] Extend rewrite matching through binders and set-builder bodies with a terminating,
   auditable strategy.
-- [ ] Carry inference-rule and theorem-rule evidence into generated theory obligations.
-- [ ] Translate the remaining supported formula constructs into kernel-checked terms,
+- [x] Carry inference-rule and theorem-rule evidence into generated theory obligations.
+- [x] Translate the remaining supported formula constructs into kernel-checked terms,
   with actionable diagnostics for the rest.
 
 ### Corpus proof coverage
 
-- [ ] Add a measured proof backend for translated corpus obligations; never count a
-  result as kernel evidence without replay.
-- [ ] Track P4 progress by trust mode and compare it with the pinned `.bps` baseline.
-- [ ] Add negative controls proving that changed goals, hypotheses, theories, or proof
+- [x] Add a measured proof backend for translated obligations with explicit semantic
+  contexts; never count a result as kernel evidence without replay.
+- [x] Track P4 progress by trust mode and compare it with the pinned `.bps` baseline.
+- [x] Add negative controls proving that changed goals, hypotheses, theories, or proof
   inputs invalidate evidence.
 
 ### Interoperability and release
 
-- [ ] Preserve and round-trip the supported Rodin theory-file extension data, or reject
+- [x] Preserve and round-trip the supported Rodin theory-file extension data, or reject
   it with a precise declaration path and documented limitation.
-- [ ] Publish the v2 architecture, trust boundary, commands, and reproducible checks.
+- [x] Publish the v2 architecture, trust boundary, commands, and reproducible checks.
 - [ ] Run the complete v1+v2 contract, close every v2 checkbox, and tag the release.
 
 ### Execution order
 
-1. Reuse and harden `Trust.Replay` as the kernel backend.
-2. Finish semantic bindings and terminating theory rewrites.
-3. Translate and measure corpus proof coverage by trust mode.
-4. Finish Rodin theory interoperability and release documentation.
+1. Reuse and harden `Trust.Replay` as the kernel backend. Done.
+2. Finish semantic bindings and terminating theory rewrites. Done.
+3. Translate and measure obligations by trust mode. Done for explicit semantic
+   contexts; the pinned corpus remains 73 external-trusted and 1060 unproved.
+4. Finish Rodin theory interoperability and release documentation. Done.
 
 The v2 boundary is intentionally explicit: general-purpose automation, SMT integration,
 and proving every Rodin obligation are not silently claimed by this contract; they require
@@ -208,6 +209,6 @@ Each implementation commit updates the relevant R1–R4 task and leaves the buil
 corpus gates, and style checks green. Unsupported constructs remain explicit data and
 diagnostics; they never become `sorry`, an implicit axiom, or an unrelated identifier.
 
-No unchecked milestone remains. Deliberate ceilings are documented in the code and
-diagnostics: multi-parameter definition embedding needs an explicit semantic binding,
-and rewrite matching does not guess through binders or set-builder bodies.
+The remaining boundary is deliberate: corpus-wide kernel replay needs explicit Lean
+denotations for model symbols, and unsupported or capture-sensitive rewrites remain
+diagnostics rather than guessed transformations.

@@ -138,6 +138,11 @@ its ledger explicitly and replays all 11 obligations against Lean declarations d
 build. `lake build Examples` compiles this demo; widgets do not alter the CLI, POG
 output, proof status, or trust ledger.
 
+For explicit semantic contexts, `EventB.Theory.Embed` checks definitions and datatype
+constructors, while `EventB.Trust.Replay.translateStatement` translates a complete
+goal-plus-hypotheses sequent without assigning trust. A `kernel` entry is assigned only
+after the corresponding Lean proof is replayed and its axiom metadata matches.
+
 Unquoted identifiers in DSL formulas also support native Go to Definition: clicking
 `LIMIT` in `cars < LIMIT` jumps to `constants LIMIT`. Quoted formulas remain available
 for Event-B operators that Lean syntax cannot represent, but do not provide identifier
