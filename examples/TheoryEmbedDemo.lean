@@ -1,10 +1,13 @@
 /- Checked native theory declarations become Lean expressions with explicit denotations. -/
 import EventB.Theory.Embed
+import EventB.Trust.Replay
 
 namespace EventB.TheoryEmbedDemo
 
 open Lean Elab Command Meta
 open EventB EventB.Embedding EventB.Formula EventB.Theory
+
+theorem zeroReflexive (zero : Int) : zero = zero := rfl
 
 inductive Colour where
   | red
@@ -96,6 +99,21 @@ private meta def checkRules : TermElabM Unit := do
   unless !(← succeeds do let _ ← Embed.translateRule {} cyclic) do
     throwError "non-decreasing rewrite was accepted"
 
+private meta def checkKernelReplay : TermElabM Unit := do
+  let theory ← match Theory.add Theory.empty
+      { name := "ReplayTheory", declarations :=
+        [.definitionDecl { name := "zero", result := .int, body := .num 0 }] } with
+    | .ok value => pure value
+    | .error error => throwError error
+  let context ← Embed.translateDefinitions { theory, roots := ["ReplayTheory"] }
+  let obligation : POG.Obligation :=
+    { component := "ReplayTheory", name := "zero/reflexive/THM", kind := "THM"
+      goal := some (.bin "=" (.id "zero") (.id "zero")) }
+  let report ← Trust.Replay.validate context obligation
+    (.kernel "EventB.TheoryEmbedDemo.zeroReflexive" [])
+  unless report.replayed do
+    throwError "theory-resolved kernel evidence was not replayed"
+
 syntax (name := eventbTheoryEmbedChecks) "#eventb_theory_embed_checks" : command
 
 @[command_elab eventbTheoryEmbedChecks]
@@ -106,6 +124,7 @@ meta def elabTheoryEmbedChecks : CommandElab := fun stx =>
       checkResolvedDefinitions
       checkDatatype
       checkRules
+      checkKernelReplay
   | _ => throwUnsupportedSyntax
 
 #eventb_theory_embed_checks
