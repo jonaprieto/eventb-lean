@@ -50,6 +50,8 @@ jobs:
           ssh-keyscan -H github.com > "$ssh_dir/known_hosts"
           eval "$(ssh-agent -s)"
           ssh-add "$ssh_dir/id_ed25519"
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
           git config --global core.sshCommand \
             "ssh -o UserKnownHostsFile=$ssh_dir/known_hosts -o StrictHostKeyChecking=yes"
           git config --global \
@@ -130,6 +132,8 @@ jobs:
           ssh-keyscan -H github.com > "$ssh_dir/known_hosts"
           eval "$(ssh-agent -s)"
           ssh-add "$ssh_dir/id_ed25519"
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
           git config --global core.sshCommand \
             "ssh -o UserKnownHostsFile=$ssh_dir/known_hosts -o StrictHostKeyChecking=yes"
           git config --global \
