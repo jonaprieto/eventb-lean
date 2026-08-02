@@ -292,6 +292,7 @@ private def help : String :=
   "  check <project-dir-or-.eventb> [--json] [--kind INV,WD,...] [--machine NAME]\n" ++
   "  po <project-dir-or-.eventb> <PO-NAME>\n" ++
   "  summary <project-dir-or-.eventb> [--json]\n" ++
+  "  report <project-dir-or-.eventb>\n" ++
   "  theory <project-dir-or-.tuf>\n" ++
   "  prove <project-dir-or-.eventb>\n" ++
   "  diff <project-dir>\n"
@@ -308,6 +309,10 @@ private def poHelp : String :=
 private def summaryHelp : String :=
   "Usage: eventb summary <project-dir-or-.eventb> [--json]\n\n" ++
   "Count obligations by class and component."
+
+private def reportHelp : String :=
+  "Usage: eventb report <project-dir-or-.eventb>\n\n" ++
+  "Emit one JSON report containing coverage, fingerprints, and trust-ledger entries."
 
 private def diffHelp : String :=
   "Usage: eventb diff <project-dir>\n\n" ++
@@ -539,6 +544,65 @@ private def readGoldPOs (path : System.FilePath) : IO (Except String (List Strin
   catch error =>
     return .error s!"could not be read: {error}"
 
+private def localLedger (obligations : List Obligation) : Trust.Ledger :=
+  obligations.foldl (fun ledger obligation =>
+    match Prover.Local.attach ledger obligation (Prover.Local.prove obligation) with
+    | .ok updated => updated
+    | .error _ => ledger) (Trust.Ledger.ofObligations obligations)
+
+private def reportCoverage (gold : List (String × List String))
+    (machine name : String) : String :=
+  match gold.find? (·.1 == machine) with
+  | none => "not-compared"
+  | some (_, names) => if names.contains name then "name-matched" else "name-missing"
+
+private def reportEntry (gold : List (String × List String)) (ledger : Trust.Ledger)
+    (machine : String) (obligation : Obligation) : String :=
+  let entry := ledger.entry? machine obligation.name
+  let mode := entry.map (·.mode.label) |>.getD "unproved"
+  let rule := Prover.Local.prove obligation |>.rule.map Prover.Local.Rule.label |>.getD "none"
+  let goal := obligation.goal.map Formula.print |>.getD ""
+  "{\"machine\":" ++ jsonString machine ++
+    ",\"name\":" ++ jsonString obligation.name ++
+    ",\"kind\":" ++ jsonString obligation.kind ++
+    ",\"coverage\":" ++ jsonString (reportCoverage gold machine obligation.name) ++
+    ",\"derived\":" ++ jsonBool obligation.goal.isSome ++
+    ",\"hypothesis_only\":" ++ jsonBool (hypothesisOnly obligation) ++
+    ",\"proof_mode\":" ++ jsonString mode ++
+    ",\"rule\":" ++ jsonString rule ++
+    ",\"fingerprint\":" ++ jsonString (Trust.fingerprint obligation.canonical) ++
+    ",\"goal\":" ++ jsonString goal ++ "}"
+
+private def runReport (dir : System.FilePath) : IO UInt32 := do
+  let data ← loadProject dir
+  if data.sources.isEmpty then
+    for error in data.errors do
+      IO.eprintln s!"eventb: error: {error}"
+    IO.eprintln s!"eventb report: {dir} contains no Event-B source file"
+    return 1
+  let rs := reports data
+  for error in fatalErrors data rs do
+    IO.eprintln s!"eventb: error: {error}"
+  let mut gold : List (String × List String) := []
+  if ← dir.isDir then
+    for path in ← bpoFiles dir do
+      match ← readGoldPOs path with
+      | .ok names => gold := (stem path, names) :: gold
+      | .error error => IO.eprintln s!"eventb report: {error}"
+  let obligations := rs.flatMap fun report =>
+    report.obligations.map (fun obligation => (report.source.name, obligation))
+  let ledger := localLedger (obligations.map (·.2))
+  let records := obligations.map fun (machine, obligation) =>
+    reportEntry gold ledger machine obligation
+  let modes := [Trust.Mode.kernel, .smt, .rodinImported, .external, .unproved]
+  let counts := modes.map fun mode =>
+    jsonString mode.label ++ ":" ++ toString (ledger.count mode)
+  IO.println ("{\"coverage_source\":" ++
+    jsonString (if gold.isEmpty then "none" else "bpo-names") ++
+    ",\"obligations\":[" ++ String.intercalate "," records ++
+    "],\"trust_ledger\":{" ++ String.intercalate "," counts ++ "}}")
+  return if (fatalErrors data rs).isEmpty then 0 else 1
+
 private def findSource (sources : List Source) (name : String) : Option Source :=
   sources.find? (fun source => source.name == name)
 
@@ -617,6 +681,16 @@ private def runCommand (args : List String) : IO UInt32 := do
           IO.println summaryHelp
           return 0
       | .ok (some (dir, json)) => runSummary dir json
+  | "report" :: rest =>
+      if rest.any (fun arg => arg == "--help" || arg == "-h") then
+        IO.println reportHelp
+        return 0
+      match rest with
+      | [dir] => runReport dir
+      | _ =>
+          IO.eprintln "eventb report: expected <project-dir-or-.eventb>"
+          IO.eprintln reportHelp
+          return 1
   | "theory" :: rest =>
       if rest.any (fun arg => arg == "--help" || arg == "-h") then
         IO.println theoryHelp
