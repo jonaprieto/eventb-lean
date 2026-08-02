@@ -9,6 +9,9 @@ claim that every proof obligation is automatically discharged.
 The acceptance run uses Lean `v4.28.0`, the pinned corpus manifest
 `84d51dbc09498d0b3c61d3a69a0d7aa700390983c53ef6dd5b8b26a9b61e4e2f`, `grip`
 `eb29a2331729a7087eab54838557e7490e802a29`, and ProofWidgets `v0.0.87`.
+The timestamped gate record in
+`bench/results/2026-08-02T21-56-30Z/gates.txt` records the measured commit and
+toolchain metadata.
 
 | Gate | Result | Interpretation |
 | --- | ---: | --- |

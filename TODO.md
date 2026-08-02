@@ -379,7 +379,7 @@ Production thresholds:
   clean checkout with no private book artifacts staged.
 - [x] #39 Replace the current full-scope `GRIP_TOKEN` CI credential with the read-only
   `GRIP_SSH_KEY` deploy key before the production release.
-- [ ] #40 Verify the corpus manifest, pinned dependency SHAs, generated status, benchmark
+- [x] #40 Verify the corpus manifest, pinned dependency SHAs, generated status, benchmark
   metadata, and README badges all describe the same commit.
 - [ ] #41 Confirm that no `sorry`, implicit axiom, silently ignored syntax, stale evidence,
   or unclassified unsupported construct is reachable through a shipped front end.
