@@ -15,4 +15,5 @@ import EventB.POG
 import EventB.Trust
 import EventB.Trust.Replay
 import EventB.Trust.Rodin
+import EventB.Prover.Kernel
 import EventB.DSL

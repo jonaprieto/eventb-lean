@@ -100,21 +100,29 @@ private def expectedAxioms (evidence : Evidence) : MetaM (String × List String)
       pure (declaration, axioms.map fun name => (name.toName).toString false)
   | _ => throwError "kernel replay requires kernel evidence"
 
+/-- Validate an in-memory proof term against the translated sequent. -/
+def validateTerm (context : Embedding.KernelContext)
+    (obligation : POG.Obligation) (proof : Expr)
+    (declaration : String := "<term>")
+    (declaredAxioms : List String := []) : MetaM Report := do
+  let expected ← translateStatement context obligation
+  let proofType ← inferType proof
+  unless ← isDefEq proofType expected do
+    throwError s!"proof term does not prove `{obligation.name}`"
+  let actualAxioms ← actualAxioms proof
+  let declared := declaredAxioms.map fun name => (name.toName).toString false
+  unless actualAxioms == declared.mergeSort (· < ·) do
+    throwError s!"axiom metadata mismatch for `{declaration}`: declared " ++
+      s!"[{String.intercalate ", " declared}], found " ++
+      s!"[{String.intercalate ", " actualAxioms}]"
+  pure { mode := .kernel, replayed := true, declaration, axioms := actualAxioms }
+
 private def replayKernel (context : Embedding.KernelContext)
     (obligation : POG.Obligation) (evidence : Evidence) : MetaM Report := do
   let (declaration, declaredAxioms) ← expectedAxioms evidence
   let proof ← proofTerm declaration
   let proof ← specializeProof proof context.bindings
-  let expected ← translateStatement context obligation
-  let proofType ← inferType proof
-  unless ← isDefEq proofType expected do
-    throwError s!"proof declaration `{declaration}` does not prove `{obligation.name}`"
-  let actualAxioms ← actualAxioms proof
-  unless actualAxioms == declaredAxioms.mergeSort (· < ·) do
-    throwError s!"axiom metadata mismatch for `{declaration}`: declared " ++
-      s!"[{String.intercalate ", " declaredAxioms}], found " ++
-      s!"[{String.intercalate ", " actualAxioms}]"
-  pure { mode := .kernel, replayed := true, declaration, axioms := actualAxioms }
+  validateTerm context obligation proof declaration declaredAxioms
 
 def validate (context : Embedding.KernelContext) (obligation : POG.Obligation) :
     Evidence → MetaM Report
