@@ -537,7 +537,6 @@ def generateIn (theory : Theory.Env) (p : Project) (name : String) : List Obliga
     for ev in childrenOf c.elem "event" do
       let base := if labelOf ev == "INITIALISATION" then contextAxioms p name
         else contextHyps p name
-      let actions := effectiveActions p name ev
       let witnesses := (childrenOf ev "witness").filterMap fun w =>
         match Formula.parse ((attrOf w "predicate").getD "") with
         | .ok (.bin "=" (.id v) e) => some (v, e)
@@ -587,9 +586,11 @@ def generateIn (theory : Theory.Env) (p : Project) (name : String) : List Obliga
                      concreteGuards.filterMap fun q =>
                        (Formula.parse ((attrOf q "predicate").getD "")).toOption }]
           -- Simulation: whatever the abstract action does to a variable, the concrete
-          -- event must do the same thing to it. The goal equates the two right-hand
-          -- sides, with the concrete event's witnesses substituted into the abstract one.
-          let concrete := actions.flatMap substOf
+          -- event's direct actions must do the same thing to it. Inherited actions are
+          -- already included in eventSubst for INV, but an extended concrete event does
+          -- not execute them again as a new SIM action. The goal equates the two
+          -- right-hand sides, with witnesses substituted into the abstract one.
+          let concrete := (childrenOf ev "action").flatMap substOf
           for act in effectiveActions p am ae do
             let simGoal : Option Term := match substOf act with
               | [(v, absRhs)] =>
