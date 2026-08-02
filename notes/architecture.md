@@ -197,6 +197,14 @@ There are two presentation paths:
 The widget layer calls the same `Typing` and `POG` functions as the CLI. It is a view,
 not a second checker, so presentation changes cannot alter generated obligations.
 
+The corpus gate also exposes `lake exe gates --coverage`. It emits stable tab-separated
+records with component, obligation class, name, derivation status, and one of
+`matched`, `no-sequent`, `goal-differs`, or `hypotheses-differ`. The histogram groups
+unmatched records by component and class. A missing Rodin target therefore remains a
+visible coverage record instead of shrinking a denominator. WFIS and WWD records with
+no generated goal retain `not-derived` status; WWD is explicitly labelled
+`hypothesis-only` in CLI JSON and widgets.
+
 ## Verification contract
 
 The repository's executable contract is:

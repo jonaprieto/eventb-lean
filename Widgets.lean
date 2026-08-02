@@ -50,6 +50,9 @@ private def evidenceLabel : Trust.Evidence → String
   | .rodinImported source _ manual =>
       s!"Rodin import {source} ({if manual then "manual" else "automatic"})"
 
+private def hypothesisOnly (obligation : Obligation) : Bool :=
+  obligation.kind == "WWD" && obligation.goal.isNone
+
 private def obligationBody (obligation : Obligation) (entry : Trust.Entry) : Html :=
   elementWith "div" [classes "pa2"] [
     elementWith "p" [classes "mv1 o-70"] [
@@ -71,7 +74,9 @@ private def obligationBody (obligation : Obligation) (entry : Trust.Entry) : Htm
         formula goal
       ]
     | none => elementWith "p" [classes "mv1 o-70"] [
-        text "No statement derived yet."
+        text (if hypothesisOnly obligation then
+          "Rodin records this obligation through hypotheses only."
+        else "No statement derived yet.")
       ]
   ]
 
@@ -106,8 +111,10 @@ private def obligationCard (ledger : Trust.Ledger) (obligation : Obligation) : H
   elementWith "details" [classes "mv1 ba br1"] [
     elementWith "summary" [classes "pointer pa2"] [
       text obligation.name,
-      badge (if obligation.goal.isSome then "derived" else "pending")
-        (if obligation.goal.isSome then "green" else "red"),
+      badge (if obligation.goal.isSome then "derived" else
+          if hypothesisOnly obligation then "hypothesis-only" else "pending")
+        (if obligation.goal.isSome then "green" else
+          if hypothesisOnly obligation then "gold" else "red"),
       badge entry.mode.label (if entry.mode == .unproved then "red" else "green")
     ],
     obligationBody obligation entry

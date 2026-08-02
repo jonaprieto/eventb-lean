@@ -336,6 +336,9 @@ private def jsonString (value : String) : String :=
 
 private def jsonBool (value : Bool) : String := if value then "true" else "false"
 
+private def hypothesisOnly (obligation : Obligation) : Bool :=
+  obligation.kind == "WWD" && obligation.goal.isNone
+
 private def selected (args : CheckArgs) (report : Report) (obligation : Obligation) : Bool :=
   (match args.machine with
    | none => true
@@ -364,14 +367,17 @@ private def runCheck (args : CheckArgs) : IO UInt32 := do
     return 1
   for (machine, obligation) in filteredObligations args rs do
     let derived := obligation.goal.isSome
+    let hypothesisOnly := hypothesisOnly obligation
     if args.json then
       IO.println ("{\"machine\":" ++ jsonString machine ++
         ",\"name\":" ++ jsonString obligation.name ++
         ",\"kind\":" ++ jsonString obligation.kind ++
-        ",\"derived\":" ++ jsonBool derived ++ "}")
+        ",\"derived\":" ++ jsonBool derived ++
+        ",\"hypothesis_only\":" ++ jsonBool hypothesisOnly ++ "}")
     else
       IO.println (s!"{machine}: {obligation.name} [{obligation.kind}] " ++
-        (if derived then "derived" else "no statement"))
+        (if derived then "derived" else
+          if hypothesisOnly then "hypothesis-only" else "no statement"))
   return if (fatalErrors data rs).isEmpty then 0 else 1
 
 private def bump (key : String) : List (String × Nat) → List (String × Nat)
@@ -391,6 +397,9 @@ private def notDerivedCount (obligations : List Obligation) : Nat :=
 
 private def notDerivedKinds (obligations : List Obligation) : List (String × Nat) :=
   countKinds (obligations.filter (·.goal.isNone))
+
+private def hypothesisOnlyCount (obligations : List Obligation) : Nat :=
+  obligations.countP hypothesisOnly
 
 private def jsonCounts (counts : List (String × Nat)) : String :=
   "{" ++ String.intercalate "," (counts.map fun (name, count) =>
@@ -418,6 +427,7 @@ private def runSummary (dir : System.FilePath) (json : Bool) : IO UInt32 := do
       ",\"by_class\":" ++ jsonCounts counts ++
       ",\"not_derived\":" ++ toString (notDerivedCount obligations) ++
       ",\"not_derived_by_class\":" ++ jsonCounts (notDerivedKinds obligations) ++
+      ",\"hypothesis_only\":" ++ toString (hypothesisOnlyCount obligations) ++
       ",\"by_machine\":{" ++ String.intercalate "," machines ++ "}}")
   else
     IO.println s!"obligations: {obligations.length}"
@@ -428,6 +438,7 @@ private def runSummary (dir : System.FilePath) (json : Bool) : IO UInt32 := do
     IO.println "not derived by class:"
     for (kind, count) in notDerivedKinds obligations do
       IO.println s!"  {kind}: {count}"
+    IO.println s!"hypothesis-only obligations: {hypothesisOnlyCount obligations}"
     IO.println "by machine:"
     for report in rs do
       IO.println (s!"  {report.source.name}: {report.obligations.length} " ++

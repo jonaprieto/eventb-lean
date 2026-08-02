@@ -50,18 +50,18 @@ new baselines until the generated rule is explained and a negative control exist
 
 ### A0. Coverage observability
 
-- [ ] Add a stable P3b coverage record containing component, event, PO kind, PO name,
+- [x] Add a stable P3b coverage record containing component, event, PO kind, PO name,
   derivation status, and reason (`matched`, `no-sequent`, `goal-differs`, or
   `hypotheses-differ`).
-- [ ] Make `gates --histogram` group unmatched records by component and class, not
+- [x] Make `gates --histogram` group unmatched records by component and class, not
   only by failure text.
-- [ ] Keep WFIS/WWD's hypothesis-only Rodin shape explicit in CLI, JSON, widgets,
+- [x] Keep WFIS/WWD's hypothesis-only Rodin shape explicit in CLI, JSON, widgets,
   and the ratchet.
-- [ ] Add a small negative-control fixture proving that deleting a gold sequent is
+- [x] Add a small negative-control check proving that deleting a gold sequent is
   reported as coverage loss rather than silently removed from the denominator.
 
-Acceptance: one command identifies every P3b mismatch without opening a TSV by hand;
-the current histogram remains reproducible.
+Acceptance: `lake exe gates --coverage` identifies every P3b mismatch without opening a TSV
+by hand; the current histogram remains reproducible.
 
 ### A1. Well-definedness precision
 

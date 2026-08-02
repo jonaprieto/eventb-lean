@@ -335,9 +335,82 @@ private def readGoldGoals (path : System.FilePath) : IO (List (String × String)
   | .error _ => return []
   | .ok xml => return goldGoals xml
 
+/-- Ascriptions carry no logical content, so a generator has no reason to reproduce
+them. Nothing else is normalised: the gate's job is to notice a difference, and a
+comparison that rewrites both sides can only hide one. -/
+private def comparable (t : Term) : Term := Formula.stripAscriptions t
+
+private def equivalent (left right : Term) : Bool :=
+  Formula.alphaEq (comparable left) (comparable right)
+
 private structure GoalResult where
   key    : String
   status : String
+
+private structure CoverageResult where
+  component : String
+  kind : String
+  name : String
+  derivation : String
+  reason : String
+
+private def coverageReasonFor (hasName hasGoal derived goalOK hypsOK : Bool) : String :=
+  if !hasName then "no-sequent"
+  else if !derived then "matched"
+  else if !hasGoal then "no-sequent"
+  else if !goalOK then "goal-differs"
+  else if !hypsOK then "hypotheses-differ"
+  else "matched"
+
+private theorem deletedGoldSequentIsCoverageLoss :
+    coverageReasonFor false false false false false == "no-sequent" := by decide
+
+private def goalAgrees (obligation : Obligation) (gold : List (String × String)) : Bool :=
+  match obligation.goal, gold.find? (fun p => p.1 == obligation.name) with
+  | some ours, some (_, wanted) =>
+      match Formula.parse wanted with
+      | .ok theirs => equivalent ours theirs
+      | .error _ => false
+  | _, _ => false
+
+private def hypothesesAgree (obligation : Obligation)
+    (gold : List (String × List String)) : Bool :=
+  match gold.find? (fun p => p.1 == obligation.name) with
+  | none => false
+  | some (_, wanted) =>
+      let want := wanted.filterMap (fun text => (Formula.parse text).toOption.map comparable)
+      let ours := obligation.hyps.map comparable
+      let missing := want.filter (fun w => !ours.any (equivalent w ·))
+      let extra := ours.filter (fun h => !want.any (equivalent h ·))
+      missing.isEmpty && extra.isEmpty
+
+private def coverage (project : Project) (file : String) (names : List String)
+    (goals : List (String × String)) (hyps : List (String × List String)) :
+    List CoverageResult :=
+  (generate project file).map fun obligation =>
+    let hasName := names.contains obligation.name
+    let hasGoal := goals.any (fun p => p.1 == obligation.name)
+    let derived := obligation.goal.isSome
+    let goalOK := goalAgrees obligation goals
+    let hypsOK := hypothesesAgree obligation hyps
+    { component := file
+      kind := obligation.kind
+      name := obligation.name
+      derivation := if derived then "derived" else "not-derived"
+      reason := coverageReasonFor hasName hasGoal derived goalOK hypsOK }
+
+private def coverageLine (record : CoverageResult) : String :=
+  String.intercalate "\t"
+    [record.component, record.kind, record.name, record.derivation, record.reason]
+
+private def coverageHistogram (records : List CoverageResult) : List (String × Nat) :=
+  (records.foldl
+    (fun counts record =>
+      if record.reason == "matched" then counts
+      else histogramAdd
+        (record.reason ++ "\t" ++ record.component ++ "\t" ++ record.kind) counts)
+    []).mergeSort (fun left right =>
+      if left.2 == right.2 then left.1 < right.1 else right.2 < left.2)
 
 /-- Only obligations we generate a goal for are scored; the rest are not yet attempted
 and would otherwise drown the signal. -/
@@ -367,14 +440,6 @@ private def readGoldHyps (path : System.FilePath) : IO (List (String × List Str
   match parseXml (← IO.FS.readBinFile path) with
   | .error _ => return []
   | .ok xml => return goldHyps xml (predicateSets xml)
-
-/-- Ascriptions carry no logical content, so a generator has no reason to reproduce
-them. Nothing else is normalised: the gate's job is to notice a difference, and a
-comparison that rewrites both sides can only hide one. -/
-private def comparable (t : Term) : Term := Formula.stripAscriptions t
-
-private def equivalent (left right : Term) : Bool :=
-  Formula.alphaEq (comparable left) (comparable right)
 
 /-- Hypotheses are scored as sets: Rodin's order is an artefact of how it walks the
 predicate-set chain, and a generator that produces the same assumptions in a different
@@ -515,6 +580,14 @@ private def run (args : List String) : IO UInt32 := do
     let bpo := (path.toString.dropEnd 4).toString ++ ".bpo"
     let name := ((path.toString.splitOn "/").getLast!.splitOn ".").head!
     hypResults := hypResults ++ checkHyps project name (← readGoldHyps bpo)
+  let mut coverageResults : List CoverageResult := []
+  for path in files do
+    let bpo := (path.toString.dropEnd 4).toString ++ ".bpo"
+    let name := ((path.toString.splitOn "/").getLast!.splitOn ".").head!
+    let names ← readGoldPOs bpo
+    let goals ← readGoldGoals bpo
+    let hyps ← readGoldHyps bpo
+    coverageResults := coverageResults ++ coverage project name names goals hyps
   let hypPassed := hypResults.countP (fun r => r.status == "PASS")
   let hypActual := hypResults.map (fun r => r.key ++ "\t" ++ r.status)
   let goalPassed := goalResults.countP (fun r => r.status == "PASS")
@@ -553,6 +626,12 @@ private def run (args : List String) : IO UInt32 := do
       IO.println s!"{count}\t{reason}"
     for (reason, count) in goalHistogram hypResults do
       IO.println s!"{count}\t{reason}"
+    for (reason, count) in coverageHistogram coverageResults do
+      IO.println s!"{count}\tP3b\t{reason}"
+  if args.contains "--coverage" then
+    IO.println "component\tkind\tname\tderivation\treason"
+    for record in coverageResults do
+      IO.println (coverageLine record)
   if args.contains "--status" then
     writeStatus results formulas typeResults poResults p4Results inventory
   let parseOK := results.all (fun result => result.status == "PASS")
