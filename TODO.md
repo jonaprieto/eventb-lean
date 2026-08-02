@@ -13,6 +13,15 @@ All four roadmap milestones now have an implemented, tested boundary. The remain
 unchecked items below are deliberately narrower follow-up work, not missing milestone
 infrastructure.
 
+## Next execution checklist
+
+- [ ] Recover the 28 missing multi-level refinement obligations and reach P3 1133/1133.
+- [ ] Add differential P3b gates for WD, GRD, SIM, and ordered hypotheses.
+- [ ] Make resolved theory symbols and type instantiations flow through all analysis
+  and translation consumers.
+- [ ] Add project dependency/validation commands and LSP regression fixtures.
+- [ ] Start a reproducible local prover/discharge baseline with audited evidence.
+
 - [x] R1: translate the supported Event-B formula language into kernel-checked Lean terms.
 - [x] R2: validate and embed datatypes, definitions, rewrite rules, inference rules,
   and theorems.
