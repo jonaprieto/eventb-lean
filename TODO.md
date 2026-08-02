@@ -381,7 +381,7 @@ Production thresholds:
   `GRIP_SSH_KEY` deploy key before the production release.
 - [x] #40 Verify the corpus manifest, pinned dependency SHAs, generated status, benchmark
   metadata, and README badges all describe the same commit.
-- [ ] #41 Confirm that no `sorry`, implicit axiom, silently ignored syntax, stale evidence,
+- [x] #41 Confirm that no `sorry`, implicit axiom, silently ignored syntax, stale evidence,
   or unclassified unsupported construct is reachable through a shipped front end.
 - [x] #42 Publish a release note that states the supported subset, current P3b/P4 numbers,
   trust modes, known ceilings, and the exact commands used for acceptance.
