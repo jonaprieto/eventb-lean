@@ -16,6 +16,7 @@ scope, trust boundary, and verification contract.
 [![obligations](https://img.shields.io/badge/obligations-1133%2F1133-brightgreen)](baseline/pog.tsv)
 [![statements](https://img.shields.io/badge/statements-1129%2F1322-yellow)](baseline/statement.tsv)
 [![hypotheses](https://img.shields.io/badge/hypotheses-1129%2F1322-yellow)](baseline/hypothesis.tsv)
+[![compatibility](https://img.shields.io/badge/compatibility-200%20pinned-yellow)](baseline/compatibility.tsv)
 
 ```
 $ lake exe gates
@@ -25,14 +26,16 @@ P2 types: 940/940
 P3 obligations: 1133/1133
 P3b statements: 1129/1322 derived
 P3b hypotheses: 1129/1322 derived
+P3b compatibility: 200 pinned omissions
 P4 local baseline: 73/1133 discharged
 ```
 
-The first four gates are complete. The remaining P3b records are explicit coverage
-data: 193 generated targets have no matching sequent in the pinned `.bpo` files.
-P4 currently has 73 external-trusted local results and 1060 unproved obligations; no
-corpus obligation is currently classified as kernel-checked, SMT-trusted, or imported
-from Rodin.
+P0 through P3 are exact against the pinned corpus. P3b derives 1129 of 1322 comparable
+goals and hypotheses; its 200 compatibility records are explicit data: 193 generated
+targets have no matching sequent in the pinned `.bpo` files, plus seven WFIS names that
+Rodin records without a target predicate. P4 currently has 73 external-trusted local
+results and 1060 unproved obligations; no corpus obligation is classified as
+kernel-checked, SMT-trusted, or imported from Rodin.
 
 ## Using it
 
@@ -44,12 +47,16 @@ $ lake build
 $ lake build EventBWidgets Examples gates rossi-dump eventb bench
 $ lake exe gates
 $ python3 scripts/style-check.py
+$ python3 scripts/cli-fixtures.py
+$ python3 scripts/distribution-check.py
+$ python3 scripts/manifest.py --check
 $ git diff --check
 ```
 
-The GitHub workflow currently builds `EventB`, `gates`, and `Examples`, and runs the
-style, manifest, gate, and soundness checks. The additional executable targets are
-part of the local full audit contract; CLI fixture checks are currently run locally.
+The GitHub workflow builds `EventB`, `EventBWidgets`, `Examples`, `gates`, `rossi-dump`,
+`eventb`, and `bench`. It also runs the CLI fixture matrix, pinned Rossi differential
+matrix, style, manifest, distribution, gate, and soundness checks. The exact release
+record is maintained in [the production acceptance note](notes/production-acceptance.md).
 
 ## Supported input contract
 
@@ -120,6 +127,9 @@ The ProofWidgets surface needs one editor check in addition to the terminal cont
    `inv`. The native declaration-range checks in that file must also compile.
 5. Introduce an unknown identifier in a native formula temporarily and confirm the
    editor reports `unknown Event-B identifier`; revert the temporary edit.
+
+This is a release gate, not a claim that terminal compilation verifies browser layout.
+The acceptance note records whether this manual check has been performed.
 
 Do not commit screenshots, editor state, or the private book export. Native DSL
 declarations have Lean source ranges; raw Rossi/XML inputs currently expose parser

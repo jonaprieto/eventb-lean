@@ -237,18 +237,18 @@ The gates compare the implementation against the pinned corpus and ratchet files
   compatibility difference; broad filtering is unsound because the corpus retains
   other static-looking invariant sequents.
   Seven additional WFIS names are also recorded as name-only coverage when Rodin does
-  not serialize a target predicate;
+  not serialize a target predicate, for 200 pinned compatibility records in total;
 - P4: the gates run the deterministic local baseline over the 1133 P3-matched
   obligations; the current result is 73 external-trusted and the rest unproved.
 
-The v2 semantic boundary is explicit: theory definitions and constructors require
+The semantic boundary is explicit: theory definitions and constructors require
 caller-supplied Lean denotations; translation can be measured independently; only a
 replayed Lean proof can produce kernel evidence. The complete v2 audit repeats all four
 commands above and the executable examples, including native theory and Rodin theory
 round-trip checks.
 
 Every focused commit is expected to leave these checks green. `STATUS.md` is generated;
-`TODO.md` records the active v3 execution ledger and deliberate ceilings.
+`TODO.md` records the production-readiness execution ledger and deliberate ceilings.
 
 ## Next-version architecture: precision before proof
 
@@ -276,7 +276,8 @@ record:
 1. whether the PO name exists in the `.bpo` corpus;
 2. whether the generated goal and ordered hypotheses match the recorded sequent.
 
-The current 193 unmatched records are concentrated in WD, INV, SIM, and GRD. They are
+The current 193 unmatched records are concentrated in WD, INV, SIM, and GRD, with seven
+additional WFIS name-only records. They are
 not to be removed by broadening the comparison or by blessing a smaller denominator.
 The correction belongs in the shared POG conditions: total versus partial symbols,
 assigned-variable filtering, refinement inheritance, witness substitution, and
@@ -521,10 +522,10 @@ diagnostics, and updated trust reporting, while `lake build`, `lake exe gates`, 
 `scripts/style-check.py` remain green. Unsupported constructs stay data with a visible
 diagnostic; they never become `sorry`, an implicit axiom, or an unrelated identifier.
 
-The v2 roadmap boundaries are implemented and covered by native examples, negative
-checks, project/theory loading commands, LSP range checks, and the existing build/gate
-contract. The active v3 P3b/P4 work is tracked in `TODO.md`; it must preserve the
-single-model invariant and the explicit trust boundary described above.
+The roadmap boundaries are implemented and covered by native examples, negative checks,
+project/theory loading commands, LSP range checks, and the existing build/gate contract.
+The production-readiness work is tracked in `TODO.md`; it must preserve the single-model
+invariant and the explicit trust boundary described above.
 The architecture invariant remains: one model, one scope, one analysis pipeline, and
 separate presentation and proof integrations.
 

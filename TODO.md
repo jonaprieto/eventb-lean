@@ -322,32 +322,32 @@ Production thresholds:
 
 ### V4.3 P3b parity and compatibility
 
-- [ ] #19 Resolve the 193 unmatched P3b records against regenerated Rodin `.bpo` artifacts,
+- [x] #19 Resolve the 193 unmatched P3b records against regenerated Rodin `.bpo` artifacts,
   or implement an explicit compatibility mode for the pinned omissions.
-- [ ] #20 Preserve the current diagnostics for plain type invariants, definedness,
+- [x] #20 Preserve the current diagnostics for plain type invariants, definedness,
   refinement guards/actions, and witness feasibility while resolving the records.
-- [ ] #21 Keep goal and hypothesis comparison separate from PO-name comparison; no missing
+- [x] #21 Keep goal and hypothesis comparison separate from PO-name comparison; no missing
   sequent may be hidden by shrinking a denominator or broadening a skip rule.
-- [ ] #22 Add a regression fixture and negative control for every compatibility rule that
+- [x] #22 Add a regression fixture and negative control for every compatibility rule that
   changes the P3b result.
-- [ ] #23 Require `lake exe gates --coverage` and `lake exe gates --histogram` to remain
+- [x] #23 Require `lake exe gates --coverage` and `lake exe gates --histogram` to remain
   reproducible after each P3b change.
 
 ### V4.4 P4 proof coverage and trust
 
-- [ ] #24 Bind corpus symbols to explicit Lean semantic values in a reviewable way before
+- [x] #24 Bind corpus symbols to explicit Lean semantic values in a reviewable way before
   claiming corpus-scale kernel coverage.
-- [ ] #25 Implement the next prover rules in measured histogram order, starting with
+- [x] #25 Implement the next prover rules in measured histogram order, starting with
   membership and subset goals, then equality, finite sets, relations, and arithmetic
   only where replayable proof terms are available.
-- [ ] #26 Give every new rule a positive proof-term replay test, a false-goal negative
+- [x] #26 Give every new rule a positive proof-term replay test, a false-goal negative
   control, and a stale/fingerprint mismatch test.
-- [ ] #27 Keep kernel, SMT, Rodin-imported, external, and unproved modes separate in the
+- [x] #27 Keep kernel, SMT, Rodin-imported, external, and unproved modes separate in the
   ledger, CLI, widgets, and reports.
-- [ ] #28 Ensure every discharged result identifies its declaration or verifier, input
+- [x] #28 Ensure every discharged result identifies its declaration or verifier, input
   fingerprint, dependencies, and trust mode; no external result may be relabelled as
   kernel evidence.
-- [ ] #29 Re-measure P4 against the pinned corpus and record the toolchain and corpus SHA
+- [x] #29 Re-measure P4 against the pinned corpus and record the toolchain and corpus SHA
   in a timestamped benchmark after each prover increment.
 
 ### V4.5 Rossi fixture quality
