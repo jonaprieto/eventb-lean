@@ -37,18 +37,23 @@ jobs:
           restore-keys: lake-${{ runner.os }}-
       - name: Authenticate to the private grip dependency
         env:
-          GRIP_TOKEN: ${{ secrets.GRIP_TOKEN }}
+          GRIP_SSH_KEY: ${{ secrets.GRIP_SSH_KEY }}
         run: |
-          # jonaprieto/grip is private, so an anonymous runner cannot clone it and lake
-          # fails with a bare "git exited with code 128". Fail here instead, with the fix.
-          if [ -z "$GRIP_TOKEN" ]; then
-            echo "::error::grip is private. Either 'gh secret set GRIP_TOKEN' with a" \
-                 "repo-scoped PAT that can read jonaprieto/grip, or make grip public."
+          if [ -z "$GRIP_SSH_KEY" ]; then
+            echo "::error::grip is private. Set the read-only GRIP_SSH_KEY secret."
             exit 1
           fi
+          ssh_dir="$RUNNER_TEMP/eventb-lean-ssh"
+          install -m 700 -d "$ssh_dir"
+          printf '%s\n' "$GRIP_SSH_KEY" > "$ssh_dir/id_ed25519"
+          chmod 600 "$ssh_dir/id_ed25519"
+          ssh-keyscan -H github.com > "$ssh_dir/known_hosts"
+          eval "$(ssh-agent -s)"
+          ssh-add "$ssh_dir/id_ed25519"
+          git config --global core.sshCommand \
+            "ssh -o UserKnownHostsFile=$ssh_dir/known_hosts -o StrictHostKeyChecking=yes"
           git config --global \
-            url."https://x-access-token:${GRIP_TOKEN}@github.com/".insteadOf \
-            "https://github.com/"
+            url."ssh://git@github.com/".insteadOf "https://github.com/"
       - uses: leanprover/lean-action@v1
         with:
           build-args: "EventB EventBWidgets Examples gates rossi-dump eventb bench"
@@ -112,18 +117,23 @@ jobs:
           restore-keys: lake-${{ runner.os }}-
       - name: Authenticate to the private grip dependency
         env:
-          GRIP_TOKEN: ${{ secrets.GRIP_TOKEN }}
+          GRIP_SSH_KEY: ${{ secrets.GRIP_SSH_KEY }}
         run: |
-          # jonaprieto/grip is private, so an anonymous runner cannot clone it and lake
-          # fails with a bare "git exited with code 128". Fail here instead, with the fix.
-          if [ -z "$GRIP_TOKEN" ]; then
-            echo "::error::grip is private. Either 'gh secret set GRIP_TOKEN' with a" \
-                 "repo-scoped PAT that can read jonaprieto/grip, or make grip public."
+          if [ -z "$GRIP_SSH_KEY" ]; then
+            echo "::error::grip is private. Set the read-only GRIP_SSH_KEY secret."
             exit 1
           fi
+          ssh_dir="$RUNNER_TEMP/eventb-lean-ssh"
+          install -m 700 -d "$ssh_dir"
+          printf '%s\n' "$GRIP_SSH_KEY" > "$ssh_dir/id_ed25519"
+          chmod 600 "$ssh_dir/id_ed25519"
+          ssh-keyscan -H github.com > "$ssh_dir/known_hosts"
+          eval "$(ssh-agent -s)"
+          ssh-add "$ssh_dir/id_ed25519"
+          git config --global core.sshCommand \
+            "ssh -o UserKnownHostsFile=$ssh_dir/known_hosts -o StrictHostKeyChecking=yes"
           git config --global \
-            url."https://x-access-token:${GRIP_TOKEN}@github.com/".insteadOf \
-            "https://github.com/"
+            url."ssh://git@github.com/".insteadOf "https://github.com/"
       - uses: leanprover/lean-action@v1
         with:
           build-args: "EventB"

@@ -377,8 +377,8 @@ Production thresholds:
 
 - [ ] #38 Run the complete build, gate, fixture, style, manifest, and diff checks from a
   clean checkout with no private book artifacts staged.
-- [ ] #39 Replace the current full-scope `GRIP_TOKEN` CI credential with a read-only
-  deploy key or publish the dependency before the production release.
+- [x] #39 Replace the current full-scope `GRIP_TOKEN` CI credential with the read-only
+  `GRIP_SSH_KEY` deploy key before the production release.
 - [ ] #40 Verify the corpus manifest, pinned dependency SHAs, generated status, benchmark
   metadata, and README badges all describe the same commit.
 - [ ] #41 Confirm that no `sorry`, implicit axiom, silently ignored syntax, stale evidence,
