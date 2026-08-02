@@ -49,9 +49,7 @@ jobs:
             "https://github.com/"
       - uses: leanprover/lean-action@v1
         with:
-          build-args: "EventB gates"
-      - name: Compile book examples
-        run: lake build Examples
+          build-args: "EventB EventBWidgets Examples gates rossi-dump eventb bench"
       - name: Corpus ratchet
         run: |
           # `if !` tests the exit status directly, so a regression fails the job

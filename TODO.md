@@ -278,7 +278,7 @@ and the issue is closed with that same commit SHA in the closing comment.
 
 ### V4.1 CI and executable-surface coverage
 
-- [ ] #9 Make CI build every shipped target: `EventB`, `EventBWidgets`, `Examples`,
+- [x] #9 Make CI build every shipped target: `EventB`, `EventBWidgets`, `Examples`,
   `gates`, `rossi-dump`, `eventb`, and `bench`.
 - [ ] #10 Run the CLI fixture matrix in CI, including `check --json`, `summary`, `report`,
   `po`, `prove`, `theory`, and the expected error paths for invalid arguments and
