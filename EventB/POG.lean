@@ -485,6 +485,10 @@ def generateIn (theory : Theory.Env) (p : Project) (name : String) : List Obliga
       let base := if labelOf ev == "INITIALISATION" then contextAxioms p name
         else contextHyps p name
       let actions := effectiveActions p name ev
+      let witnesses := (childrenOf ev "witness").filterMap fun w =>
+        match Formula.parse ((attrOf w "predicate").getD "") with
+        | .ok (.bin "=" (.id v) e) => some (v, e)
+        | _ => none
       -- A non-extended refined event still executes its abstract actions.  Use the
       -- refinement substitution here so inherited assignments trigger preservation
       -- obligations for concrete invariants as well as for the after-state formula.
@@ -500,7 +504,7 @@ def generateIn (theory : Theory.Env) (p : Project) (name : String) : List Obliga
             -- exactly the invariant with the event's assignments substituted in.
             let σ := eventSubst p p.length name ev
             let goal := (Formula.parse ((attrOf inv "predicate").getD "")).toOption.map
-              (Formula.subst σ)
+              (fun predicate => Formula.subst witnesses (Formula.subst σ predicate))
             -- The event's guards hold when it fires, so they join the standing
             -- hypotheses.
             let guards := (effectiveGuards p name ev).filterMap fun g =>
@@ -521,10 +525,6 @@ def generateIn (theory : Theory.Env) (p : Project) (name : String) : List Obliga
           -- Guard strengthening: the concrete event must be enabled only where the
           -- abstract one is, so the goal is the abstract guard itself. A witness names
           -- the value an abstract parameter takes, and is substituted in when present.
-          let witnesses := (childrenOf ev "witness").filterMap fun w =>
-            match Formula.parse ((attrOf w "predicate").getD "") with
-            | .ok (.bin "=" (.id v) e) => some (v, e)
-            | _ => none
           let concreteGuards := effectiveGuards p name ev
           for g in effectiveGuards p am ae do
             let abstractPredicate := (Formula.parse ((attrOf g "predicate").getD "")).toOption

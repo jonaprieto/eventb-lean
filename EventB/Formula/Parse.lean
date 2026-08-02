@@ -307,33 +307,103 @@ def patternNames : Term → List String
   | .bin _ a b => patternNames a ++ patternNames b
   | _ => []
 
+private def allNames : Term → List String
+  | .id n => [n]
+  | .num _ => []
+  | .bin _ a b => allNames a ++ allNames b
+  | .pre _ a | .post _ a => allNames a
+  | .app f a | .img f a => allNames f ++ allNames a
+  | .set ts => ts.flatMap allNames
+  | .bind _ p b => allNames p ++ allNames b
+
+private def freshName (base : String) (used : List String) : Nat → String
+  | 0 => base ++ "0"
+  | fuel + 1 =>
+      if used.contains base then freshName (base ++ "0") used fuel else base
+
+private def makeRenames : List String → List String → List String →
+    List (String × String) × List String
+  | [], _, used => ([], used)
+  | name :: names, conflicts, used =>
+      let renamed := if conflicts.contains name then
+        freshName name used (used.length + 1)
+      else name
+      let (rest, finalUsed) := makeRenames names conflicts (renamed :: used)
+      ((name, renamed) :: rest, finalUsed)
+
+private def renameBound (mapping : List (String × String)) : Term → Term
+  | .id name => .id (mapping.find? (fun pair => pair.1 == name) |>.map (·.2) |>.getD name)
+  | .num value => .num value
+  | .bin op a b => .bin op (renameBound mapping a) (renameBound mapping b)
+  | .pre op a => .pre op (renameBound mapping a)
+  | .post op a => .post op (renameBound mapping a)
+  | .app f a => .app (renameBound mapping f) (renameBound mapping a)
+  | .img r a => .img (renameBound mapping r) (renameBound mapping a)
+  | .set ts => .set (ts.map (renameBound mapping))
+  | .bind kind pattern body =>
+      let shadowed := patternNames pattern
+      .bind kind (renameBound mapping pattern)
+        (renameBound (mapping.filter (fun pair => !shadowed.contains pair.1)) body)
+
 mutual
 
-/-- Simultaneous substitution. Simultaneous matters: an event assigning `a ≔ b` and
-`b ≔ a` swaps them, and substituting one at a time would not. -/
-def subst (σ : List (String × Term)) : Term → Term
-  | .id n => match σ.find? (fun p => p.1 == n) with
-             | some (_, t) => t
-             | none => .id n
-  | .num n => .num n
-  | .bin o a b => .bin o (subst σ a) (subst σ b)
-  | .pre o a => .pre o (subst σ a)
-  | .post o a => .post o (subst σ a)
-  | .app f a => .app (subst σ f) (subst σ a)
-  | .img r a => .img (subst σ r) (subst σ a)
-  | .set ts => .set (substList σ ts)
-  -- A binder captures only the names in its own pattern. Machine variables are free
-  -- inside a quantified invariant and must be substituted there too, which is what
-  -- makes `∀a1,a2 · a1 ∈ dom(f) ⇒ ...` become `... dom(∅) ...` after `f ≔ ∅`.
-  | .bind k p b =>
-      let bound := patternNames p
-      .bind k p (subst (σ.filter (fun q => !bound.contains q.1)) b)
+private def termFuel : Term → Nat
+  | .id _ | .num _ => 1
+  | .bin _ a b => 1 + termFuel a + termFuel b
+  | .pre _ a | .post _ a => 1 + termFuel a
+  | .app f a | .img f a => 1 + termFuel f + termFuel a
+  | .set ts => 1 + termFuelList ts
+  | .bind _ p b => 1 + termFuel p + termFuel b
 
-def substList (σ : List (String × Term)) : List Term → List Term
-  | [] => []
-  | t :: ts => subst σ t :: substList σ ts
+private def termFuelList : List Term → Nat
+  | [] => 0
+  | t :: ts => termFuel t + termFuelList ts
 
 end
+
+mutual
+
+/-- Fuelled implementation of simultaneous substitution. Fuel lets the binder case
+alpha-rename before descending without weakening termination to a partial function. -/
+private def substFuel : Nat → List (String × Term) → Term → Term
+  | 0, _, term => term
+  | _fuel + 1, σ, .id n =>
+      match σ.find? (fun p => p.1 == n) with
+      | some (_, t) => t
+      | none => .id n
+  | _fuel + 1, _, .num n => .num n
+  | fuel + 1, σ, .bin o a b => .bin o (substFuel fuel σ a) (substFuel fuel σ b)
+  | fuel + 1, σ, .pre o a => .pre o (substFuel fuel σ a)
+  | fuel + 1, σ, .post o a => .post o (substFuel fuel σ a)
+  | fuel + 1, σ, .app f a => .app (substFuel fuel σ f) (substFuel fuel σ a)
+  | fuel + 1, σ, .img r a => .img (substFuel fuel σ r) (substFuel fuel σ a)
+  | fuel + 1, σ, .set ts => .set (substListFuel fuel σ ts)
+  -- A binder captures only the names in its own pattern. Machine variables are free
+  -- inside a quantified invariant and must be substituted there, while a replacement
+  -- that mentions a bound name first triggers alpha-renaming to avoid capture.
+  | fuel + 1, σ, .bind k p b =>
+      let bound := patternNames p
+      let rhsNames := σ.flatMap (fun (_, term) => allNames term)
+      let used := allNames p ++ allNames b ++ rhsNames ++ σ.map (·.1)
+      let (renames, _) := makeRenames bound rhsNames used
+      let renamedPattern := renameBound renames p
+      let renamedBody := renameBound renames b
+      let renamedBound := patternNames renamedPattern
+      .bind k renamedPattern
+        (substFuel fuel (σ.filter (fun q => !renamedBound.contains q.1)) renamedBody)
+
+private def substListFuel : Nat → List (String × Term) → List Term → List Term
+  | 0, _, terms => terms
+  | _fuel + 1, _, [] => []
+  | fuel + 1, σ, term :: terms =>
+      substFuel fuel σ term :: substListFuel fuel σ terms
+
+end
+
+/-- Simultaneous substitution. Simultaneous matters: an event assigning `a ≔ b` and
+`b ≔ a` swaps them, and capture-avoiding binders preserve the same semantics. -/
+def subst (σ : List (String × Term)) (term : Term) : Term :=
+  substFuel (termFuel term + 1) σ term
 
 mutual
 
@@ -357,6 +427,69 @@ def stripList : List Term → List Term
 
 end
 
+/-- Compare formulas modulo the names chosen for bound variables. Rodin alpha-renames
+bound identifiers when an event parameter would collide with one; those names carry no
+logical content and must not make the P3b statement gate reject the same formula. -/
+def alphaEq (left right : Term) : Bool :=
+  go left right [] [] 0
+where
+  lookup (name : String) (env : List (String × Nat)) : Option Nat :=
+    env.find? (fun pair => pair.1 == name) |>.map (·.2)
+
+  patternShape : Term → Term → Bool
+    | .id _, .id _ => true
+    | .bin leftOp a b, .bin rightOp c d =>
+        leftOp == rightOp && patternShape a c && patternShape b d
+    | _, _ => false
+
+  bindings : List String → Nat → List (String × Nat)
+    | [], _ => []
+    | name :: names, index => (name, index) :: bindings names (index + 1)
+
+  terms : List Term → List Term → List (String × Nat) → List (String × Nat) → Nat → Bool
+    | [], [], _, _, _ => true
+    | left :: lefts, right :: rights, leftEnv, rightEnv, next =>
+        go left right leftEnv rightEnv next && terms lefts rights leftEnv rightEnv next
+    | _, _, _, _, _ => false
+
+  go : Term → Term → List (String × Nat) → List (String × Nat) → Nat → Bool
+    | .id leftName, .id rightName, leftEnv, rightEnv, _ =>
+        match lookup leftName leftEnv, lookup rightName rightEnv with
+        | some leftIndex, some rightIndex => leftIndex == rightIndex
+        | none, none => leftName == rightName
+        | _, _ => false
+    | .num leftNumber, .num rightNumber, _, _, _ => leftNumber == rightNumber
+    | .bin leftOp leftA leftB, .bin rightOp rightA rightB, leftEnv, rightEnv, next =>
+        leftOp == rightOp && go leftA rightA leftEnv rightEnv next &&
+          go leftB rightB leftEnv rightEnv next
+    | .pre leftOp leftTerm, .pre rightOp rightTerm, leftEnv, rightEnv, next =>
+        leftOp == rightOp && go leftTerm rightTerm leftEnv rightEnv next
+    | .post leftOp leftTerm, .post rightOp rightTerm, leftEnv, rightEnv, next =>
+        leftOp == rightOp && go leftTerm rightTerm leftEnv rightEnv next
+    | .app leftFunction leftArgument, .app rightFunction rightArgument,
+        leftEnv, rightEnv, next =>
+        go leftFunction rightFunction leftEnv rightEnv next &&
+          go leftArgument rightArgument leftEnv rightEnv next
+    | .img leftRelation leftArgument, .img rightRelation rightArgument,
+        leftEnv, rightEnv, next =>
+        go leftRelation rightRelation leftEnv rightEnv next &&
+          go leftArgument rightArgument leftEnv rightEnv next
+    | .set leftTerms, .set rightTerms, leftEnv, rightEnv, next =>
+        terms leftTerms rightTerms leftEnv rightEnv next
+    | .bind leftKind leftPattern leftBody, .bind rightKind rightPattern rightBody,
+        leftEnv, rightEnv, next =>
+        let leftNames := patternNames leftPattern
+        let rightNames := patternNames rightPattern
+        let leftBindings := bindings leftNames next
+        let rightBindings := bindings rightNames next
+        leftKind == rightKind && patternShape leftPattern rightPattern &&
+          leftNames.length == rightNames.length &&
+          go leftBody rightBody
+            (leftBindings ++ leftEnv.filter (fun pair => !leftNames.contains pair.1))
+            (rightBindings ++ rightEnv.filter (fun pair => !rightNames.contains pair.1))
+            (next + leftNames.length)
+    | _, _, _, _, _ => false
+
 /-! Self-checks for substitution and ascription stripping. -/
 
 private def parse! (s : String) : Term := (parse s).toOption.getD (.id "?")
@@ -368,6 +501,10 @@ private def parse! (s : String) : Term := (parse s).toOption.getD (.id "?")
 
 -- Simultaneous, not sequential: a swap must not collapse.
 #guard subst [("a", .id "b"), ("b", .id "a")] (parse! "a ∪ b") == parse! "b ∪ a"
+
+-- Substitution must rename a binder when a replacement would capture it.
+#guard subst [("x", .id "tr")] (parse! "∀tr · tr = x")
+  == parse! "∀tr0 · tr0 = tr"
 
 -- A name the event does not assign is untouched.
 #guard subst [("x", .id "y")] (parse! "z ∈ S") == parse! "z ∈ S"
@@ -382,5 +519,13 @@ private def parse! (s : String) : Term := (parse s).toOption.getD (.id "?")
 -- Ascriptions vanish, and nothing else does.
 #guard stripAscriptions (parse! "(∅ ⦂ ℙ(AIRPLANES)) ⊆ dom(f)") == parse! "∅ ⊆ dom(f)"
 #guard stripAscriptions (parse! "∀x⦂ℤ · x ∈ S") == parse! "∀x · x ∈ S"
+#guard alphaEq (parse! "∀x · x ∈ S") (parse! "∀y · y ∈ S")
+#guard !alphaEq (parse! "∀x · x ∈ S") (parse! "∀y · y ∈ T")
+#guard alphaEq (parse! "∀x · x ∈ S ⇒ ∃y · y = x")
+  (parse! "∀a · a ∈ S ⇒ ∃b · b = a")
+#guard alphaEq (parse! "f = λx · x ∈ S ∣ x") (parse! "f = λy · y ∈ S ∣ y")
+#guard alphaEq (parse! "x ∈ S ∧ y = f(x)") (parse! "x ∈ S ∧ y = f(x)")
+#guard alphaEq (stripAscriptions (parse! "∀a1⦂ℤ,a2⦂ℤ · a1 ∈ S ∧ a2 ∈ S ⇒ a1 = a2"))
+  (stripAscriptions (parse! "∀a1⦂ℤ,a2⦂ℤ · a1 ∈ S ∧ a2 ∈ S ⇒ a1 = a2"))
 
 end EventB.Formula

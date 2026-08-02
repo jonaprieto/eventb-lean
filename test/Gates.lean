@@ -341,7 +341,7 @@ private def checkGoals (project : Project) (file : String)
         match Formula.parse gs with
         | .error _ => { key := key, status := "FAIL:gold goal unparsable" }
         | .ok gt =>
-          if Formula.stripAscriptions gt == Formula.stripAscriptions g then
+          if Formula.alphaEq (Formula.stripAscriptions gt) (Formula.stripAscriptions g) then
             { key := key, status := "PASS" }
           else
             { key := key, status := "FAIL:differs" }
@@ -355,6 +355,9 @@ private def readGoldHyps (path : System.FilePath) : IO (List (String × List Str
 them. Nothing else is normalised: the gate's job is to notice a difference, and a
 comparison that rewrites both sides can only hide one. -/
 private def comparable (t : Term) : Term := Formula.stripAscriptions t
+
+private def equivalent (left right : Term) : Bool :=
+  Formula.alphaEq (comparable left) (comparable right)
 
 /-- Hypotheses are scored as sets: Rodin's order is an artefact of how it walks the
 predicate-set chain, and a generator that produces the same assumptions in a different
@@ -371,8 +374,8 @@ private def checkHyps (project : Project) (file : String)
     | some (_, gs) =>
       let want := gs.filterMap (fun t => (Formula.parse t).toOption.map comparable)
       let ours := o.hyps.map comparable
-      let missing := want.filter (fun w => !ours.contains w)
-      let extra := ours.filter (fun h => !want.contains h)
+      let missing := want.filter (fun w => !ours.any (equivalent w ·))
+      let extra := ours.filter (fun h => !want.any (equivalent h ·))
       if missing.isEmpty && extra.isEmpty then some { key := key, status := "PASS" }
       else some { key := key,
                   status := s!"FAIL:missing {missing.length} extra {extra.length}" }
