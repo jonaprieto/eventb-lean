@@ -22,6 +22,15 @@ def run(*args: str) -> subprocess.CompletedProcess[str]:
     )
 
 
+def run_gates(*args: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [LAKE, "exe", "gates", *args],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
+
+
 def expect(name: str, result: subprocess.CompletedProcess[str], code: int,
            stdout: str = "", stderr: str = "") -> None:
     if result.returncode != code:
@@ -160,9 +169,23 @@ def check_corpus_diff() -> None:
     expect("corpus diff", result, 0, stdout="M0_AMAN_Update")
 
 
+def check_gate_reports() -> None:
+    first = run_gates("--coverage", "--histogram")
+    expect("gate reports", first, 0,
+           stdout="P3b compatibility: 200 pinned omissions")
+    coverage_rows = [line.split("\t") for line in first.stdout.splitlines()
+                     if len(line.split("\t")) == 6]
+    if sum(row[4] == "no-sequent" for row in coverage_rows) != 200:
+        raise AssertionError("gate reports: compatibility record count changed")
+    second = run_gates("--coverage", "--histogram")
+    expect("gate reports repeat", second, 0)
+    if first.stdout != second.stdout or first.stderr != second.stderr:
+        raise AssertionError("gate reports: repeated output differs")
+
+
 def main() -> int:
     checks = [check_witness, check_rossi_dump, check_theories_and_errors,
-              check_corpus_diff]
+              check_corpus_diff, check_gate_reports]
     try:
         for check in checks:
             check()
