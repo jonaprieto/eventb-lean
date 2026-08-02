@@ -588,13 +588,15 @@ private def writeBaseline (path : String) (lines : List String) : IO Unit := do
   IO.FS.writeFile path (String.intercalate "\n" lines ++ "\n")
 
 private def writeStatus (results : List FileResult) (formulas : List FormulaResult)
-    (types : List TypeResult) (pos : List PoResult) (p4 : List P4Result)
-    (inventory : List (String × Nat)) :
+    (types : List TypeResult) (pos : List PoResult) (goals hyps : List GoalResult)
+    (compatibilityCount : Nat) (p4 : List P4Result) (inventory : List (String × Nat)) :
     IO Unit := do
   let passed := results.countP (fun result => result.status == "PASS")
   let fpass := formulas.countP (fun result => result.status == "PASS")
   let tpass := types.countP (fun result => result.status == "PASS")
   let ppass := pos.countP (fun result => result.status == "PASS")
+  let gpass := goals.countP (fun result => result.status == "PASS")
+  let hpass := hyps.countP (fun result => result.status == "PASS")
   let p4pass := p4.countP (·.accepted)
   let counts := inventory.map (fun (name, count) => s!"| {name} | {count} |")
   IO.FS.writeFile "STATUS.md"
@@ -608,8 +610,11 @@ private def writeStatus (results : List FileResult) (formulas : List FormulaResu
         s!" | {typeCount} |\n" ++
       s!"| P3 POG | `.bpo` PO sequents reproduced | {ppass}/{sequentCount} |" ++
         s!" {sequentCount} |\n" ++
+      s!"| P3b statements | goals derived | {gpass}/{goals.length} | tracked |\n" ++
+      s!"| P3b hypotheses | hypotheses derived | {hpass}/{hyps.length} | tracked |\n" ++
+      s!"| P3b compatibility | pinned omissions | {compatibilityCount} | tracked |\n" ++
       s!"| P4 provers | local evidence vs Rodin `.bps` | {p4pass}/{p4.length} |" ++
-        s!" within 20pt of {rodinAuto} |\n" ++
+        " measured evidence baseline |\n" ++
       "\n## Trust ledger\n\nThe artifact Rodin cannot produce: for each obligation, " ++
       "what is actually holding it\nup. This status includes only evidence accepted " ++
       "through the local ledger; it is not kernel proof.\n\n" ++
@@ -722,7 +727,8 @@ private def run (args : List String) : IO UInt32 := do
     for record in coverageResults do
       IO.println (coverageLine record)
   if args.contains "--status" then
-    writeStatus results formulas typeResults poResults p4Results inventory
+    writeStatus results formulas typeResults poResults goalResults hypResults compatibility.length
+      p4Results inventory
   let parseOK := results.all (fun result => result.status == "PASS")
   if args.contains "--bless" then
     -- P0 must be perfect to bless, since a dropped file would silently shrink the P1
