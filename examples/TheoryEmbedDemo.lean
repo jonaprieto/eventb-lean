@@ -9,6 +9,9 @@ open EventB EventB.Embedding EventB.Formula EventB.Theory
 
 theorem zeroReflexive (zero : Int) : zero = zero := rfl
 
+theorem addZero (value : Int) : value + 0 = value := by
+  simp
+
 inductive Colour where
   | red
   | blue
@@ -154,6 +157,16 @@ private meta def checkKernelReplay : TermElabM Unit := do
     (.kernel "EventB.TheoryEmbedDemo.zeroReflexive" [])
   unless report.replayed do
     throwError "theory-resolved kernel evidence was not replayed"
+  let zeroValue := mkApp (mkConst ``Int.ofNat) (mkNatLit 0)
+  let rewriteContext : KernelContext :=
+    { bindings := [{ name := "x", ty := .int, value := zeroValue }] }
+  let rewriteObligation : POG.Obligation :=
+    { component := "ReplayTheory", name := "add_zero/THM", kind := "THM"
+      goal := some (.bin "=" (.bin "+" (.id "x") (.num 0)) (.id "x")) }
+  let rewriteReport ← Trust.Replay.validate rewriteContext rewriteObligation
+    (.kernel "EventB.TheoryEmbedDemo.addZero" ["propext"])
+  unless rewriteReport.replayed do
+    throwError "theory rewrite evidence was not replayed"
 
 syntax (name := eventbTheoryEmbedChecks) "#eventb_theory_embed_checks" : command
 
