@@ -556,10 +556,40 @@ private def reportCoverage (gold : List (String × List String))
   | none => "not-compared"
   | some (_, names) => if names.contains name then "name-matched" else "name-missing"
 
+private def jsonArray (values : List String) : String :=
+  "[" ++ String.intercalate "," (values.map jsonString) ++ "]"
+
+private def evidenceJson : Trust.Evidence → String
+  | .none =>
+      "{\"mode\":\"unproved\",\"declaration\":\"\",\"verifier\":\"\",\"dependencies\":[]}"
+  | .kernel declaration axioms =>
+      "{\"mode\":" ++ jsonString Trust.Mode.kernel.label ++
+      ",\"declaration\":" ++ jsonString declaration ++
+      ",\"verifier\":\"Lean kernel\",\"dependencies\":" ++ jsonArray axioms ++ "}"
+  | .smt solver version inputDigest verifier =>
+      "{\"mode\":" ++ jsonString Trust.Mode.smt.label ++
+      ",\"tool\":" ++ jsonString solver ++
+      ",\"version\":" ++ jsonString version ++
+      ",\"input_digest\":" ++ jsonString inputDigest ++
+      ",\"verifier\":" ++ jsonString verifier ++ "}"
+  | .external tool version artifactDigest verifier =>
+      "{\"mode\":" ++ jsonString Trust.Mode.external.label ++
+      ",\"tool\":" ++ jsonString tool ++
+      ",\"version\":" ++ jsonString version ++
+      ",\"input_digest\":" ++ jsonString artifactDigest ++
+      ",\"verifier\":" ++ jsonString verifier ++ "}"
+  | .rodinImported source digest manual =>
+      "{\"mode\":" ++ jsonString Trust.Mode.rodinImported.label ++
+      ",\"source\":" ++ jsonString source ++
+      ",\"input_digest\":" ++ jsonString digest ++
+      ",\"manual\":" ++ jsonBool manual ++
+      ",\"verifier\":\"Rodin .bps importer\"}"
+
 private def reportEntry (gold : List (String × List String)) (ledger : Trust.Ledger)
     (machine : String) (obligation : Obligation) : String :=
-  let entry := ledger.entry? machine obligation.name
-  let mode := entry.map (·.mode.label) |>.getD "unproved"
+  let fallback := (Trust.Ledger.ofObligations [obligation]).entries.head!
+  let entry := (ledger.entry? machine obligation.name).getD fallback
+  let mode := entry.mode.label
   let rule := Prover.Local.prove obligation |>.rule.map Prover.Local.Rule.label |>.getD "none"
   let goal := obligation.goal.map Formula.print |>.getD ""
   let translation := if obligation.goal.isNone then "no-goal"
@@ -572,6 +602,7 @@ private def reportEntry (gold : List (String × List String)) (ledger : Trust.Le
     ",\"hypothesis_only\":" ++ jsonBool (hypothesisOnly obligation) ++
     ",\"proof_mode\":" ++ jsonString mode ++
     ",\"rule\":" ++ jsonString rule ++
+    ",\"evidence\":" ++ evidenceJson entry.evidence ++
     ",\"translation\":" ++ jsonString translation ++
     ",\"fingerprint\":" ++ jsonString (Trust.fingerprint obligation.canonical) ++
     ",\"goal\":" ++ jsonString goal ++ "}"

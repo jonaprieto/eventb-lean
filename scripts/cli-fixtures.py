@@ -101,6 +101,21 @@ def check_witness() -> None:
         "unproved": 5,
     }:
         raise AssertionError("witness report: trust ledger changed")
+    for record in report["obligations"]:
+        if not record["fingerprint"].startswith("eventb-v1-"):
+            raise AssertionError("witness report: missing obligation fingerprint")
+        evidence = record["evidence"]
+        if record["proof_mode"] == "external-trusted":
+            required = {"mode", "tool", "version", "input_digest", "verifier"}
+            if not required <= evidence.keys() or evidence["mode"] != "external-trusted":
+                raise AssertionError("witness report: incomplete external provenance")
+            if record["rule"] == "none":
+                raise AssertionError("witness report: discharged record has no rule")
+        elif record["proof_mode"] == "unproved":
+            if evidence.get("mode") != "unproved" or record["rule"] != "none":
+                raise AssertionError("witness report: unproved record was upgraded")
+        else:
+            raise AssertionError("witness report: unexpected trust mode")
 
     result = run("po", path, "step/wit/WWD")
     expect("witness WWD", result, 0, "(no statement derived)")
