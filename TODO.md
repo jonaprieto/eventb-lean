@@ -1,214 +1,234 @@
-# Native Event-B development environment
+# Roadmap
 
-The native Lean/Event-B environment is the source of truth. Rodin artifacts are
-compatibility input/output only; no runtime Rodin dependency is allowed.
+`eventb-lean` v2 is tagged and the four GitHub issues found during the audit are
+closed. The next work is not a new parser or a second model representation. It is
+precision in proof-obligation generation followed by replayable proof evidence.
 
-## Active roadmap
+The architecture and dependency rules for this roadmap live in
+[`notes/architecture.md`](notes/architecture.md). This file is the execution ledger.
 
-The design and dependencies are documented in
-[`notes/architecture.md`](notes/architecture.md). These four checkboxes are the
-canonical milestones; the sections below contain their implementation tasks.
+## Current measured state
 
-The first four roadmap milestones and the P4 integration boundary have an implemented,
-tested result. Local corpus evidence remains explicitly external-trusted, never kernel
-proof.
+Run `lake exe gates --histogram` before changing a rule. The current ratchet is:
 
-## Prototype v1 contract
+| Phase | Result | Meaning |
+| --- | ---: | --- |
+| P0 reader | 38/38 | Every pinned source file is read losslessly. |
+| P1 formulas | 1102/1102 | Corpus formulas parse and round-trip. |
+| P2 types | 940/940 | Rodin's recorded identifier types are reproduced. |
+| P3 names | 1133/1133 | Every Rodin PO name is generated. Extra names remain visible. |
+| P3b statements | 1129/1523 | 394 generated targets lack `.bpo` sequents. |
+| P3b hypotheses | 1129/1523 | Comparable hypothesis sets are derived; the same 394 are unmatched. |
+| P4 local baseline | 73/1133 | Deterministic evidence is attached as external-trusted. |
 
-Prototype v1 is complete when every item below is checked. It is a reference checker and
-trust ledger, not a general-purpose automatic Event-B prover.
+The 394 P3b unmatched records are not proof failures. They are generator-precision
+work, grouped by the current histogram as 214 WD, 103 INV, 69 SIM, and 8 GRD. Seven
+additional WFIS names are absent from the pinned `.bpo` files and remain explicit
+coverage data rather than being forced into the P3b denominator. P4 has no kernel,
+SMT, or imported-Rodin entries yet; the other 1060 obligations remain unproved.
 
-- [x] Read and analyze the pinned Rodin corpus losslessly through P3b.
-- [x] Author native models and theories with scoped diagnostics and source ranges.
-- [x] Read Rossi `.eventb` and Rodin `.tuf` inputs through the shared pipeline.
-- [x] Present models, obligations, and trust evidence in CLI and ProofWidgets.
-- [x] Run the local corpus baseline on all P3-matched obligations.
-- [x] Replay kernel evidence and reject stale, forged, or mislabelled evidence.
-- [x] Build every executable example and document the reproducible verification contract.
-- [x] Leave all deliberate unsupported ceilings explicit in diagnostics and notes.
+## Completed foundation
 
-## P4 integration plan (complete)
+- [x] Read Rodin `.bum`/`.buc` files losslessly and pin the corpus manifest.
+- [x] Parse and type-check the pinned formula corpus.
+- [x] Generate the 1133 Rodin obligation names and retain extra generated names in
+  the ratchet instead of hiding them.
+- [x] Read Rossi `.eventb` projects through the shared model and scope checker.
+- [x] Support native contexts, machines, theories, datatypes, definitions, and rules.
+- [x] Translate supported formulas and explicit theory bindings to Lean terms.
+- [x] Replay kernel evidence and reject stale, forged, or mislabelled artifacts.
+- [x] Display models, obligations, hypotheses, goals, and trust in CLI and
+  ProofWidgets.
+- [x] Keep the private book export and its images outside distribution artifacts.
+- [x] Tag `prototype-v1.0.0` and `prototype-v2.0.0`.
 
-- [x] Run the deterministic local prover over the 1133 P3-matched canonical obligations.
-- [x] Accept results only through `Trust.Ledger.attach` and retain fingerprints.
-- [x] Report external, kernel, and unproved counts in generated `STATUS.md`.
-- [x] Add stale/forged evidence regression checks at the integrated boundary.
-- [x] Keep P0–P3b ratchets unchanged and compare P4 with the Rodin `.bps` bar.
+## Version 3A: exact P3b coverage
 
-The existing milestones below and this integration plan are complete; no milestone is
-open. Expanding the local prover is future capacity work, not an untracked issue.
+Goal: make every generated statement/hypothesis correspond to a Rodin sequent, or
+classify the absence as an intentional, named compatibility limitation. Do not bless
+new baselines until the generated rule is explained and a negative control exists.
 
-## Prototype v2 contract
+### A0. Coverage observability
 
-Prototype v2 expands assurance and semantic coverage while preserving every v1 gate.
-It is complete only when each item below is checked and the v1 contract still passes.
+- [ ] Add a stable P3b coverage record containing component, event, PO kind, PO name,
+  derivation status, and reason (`matched`, `no-sequent`, `goal-differs`, or
+  `hypotheses-differ`).
+- [ ] Make `gates --histogram` group unmatched records by component and class, not
+  only by failure text.
+- [ ] Keep WFIS/WWD's hypothesis-only Rodin shape explicit in CLI, JSON, widgets,
+  and the ratchet.
+- [ ] Add a small negative-control fixture proving that deleting a gold sequent is
+  reported as coverage loss rather than silently removed from the denominator.
 
-### Proof assurance
+Acceptance: one command identifies every P3b mismatch without opening a TSV by hand;
+the current histogram remains reproducible.
 
-- [x] Make kernel replay a reusable proof backend for obligations with explicit Lean
-  semantic bindings, including native theory examples.
-- [x] Keep external evidence distinct from kernel evidence in CLI, widgets, and status.
-- [x] Reject stale, forged, and mislabelled proof artifacts at every public attachment
-  boundary, with negative regression tests.
+### A1. Well-definedness precision
 
-### Semantic and theory completeness
+- [ ] Compare the 214 extra WD records against Rodin's WD generation conditions.
+- [ ] Audit `wdRequired`, total-symbol metadata, theorem predicates, inherited guards,
+  invariant WD, action WD, and witness WWD independently.
+- [ ] Correct the shared condition in `EventB/POG.lean`; do not add per-component
+  exceptions.
+- [ ] Add one positive and one negative corpus-shaped regression for each corrected WD
+  rule, including a total theory symbol and a partial application.
 
-- [x] Support explicit semantic bindings for multi-parameter theory definitions and
-  constructor applications.
-- [x] Extend rewrite matching through binders and set-builder bodies with a terminating,
-  auditable strategy.
-- [x] Carry inference-rule and theorem-rule evidence into generated theory obligations.
-- [x] Translate the remaining supported formula constructs into kernel-checked terms,
-  with actionable diagnostics for the rest.
+Acceptance: the 214 WD unmatched records reach zero, with no P0–P3 regression and no
+new unmatched class.
 
-### Corpus proof coverage
+### A2. Invariant precision
 
-- [x] Add a measured proof backend for translated obligations with explicit semantic
-  contexts; never count a result as kernel evidence without replay.
-- [x] Track P4 progress by trust mode and compare it with the pinned `.bps` baseline.
-- [x] Add negative controls proving that changed goals, hypotheses, theories, or proof
-  inputs invalidate evidence.
+- [ ] Audit the 103 extra INV records against assigned-variable detection, inherited
+  actions, refinement chains, theorem invariants, and parallel assignments.
+- [ ] Separate a genuinely changed after-state from an invariant that only appears in
+  the visible environment.
+- [ ] Add negative controls for an untouched variable, an inherited assignment, and a
+  refinement with a repeated event label.
 
-### Interoperability and release
+Acceptance: the 103 INV unmatched records reach zero and every retained INV has a
+matching Rodin sequent and comparable goal/hypotheses.
 
-- [x] Preserve and round-trip the supported Rodin theory-file extension data, or reject
-  it with a precise declaration path and documented limitation.
-- [x] Publish the v2 architecture, trust boundary, commands, and reproducible checks.
-- [x] Run the complete v1+v2 contract, close every v2 checkbox, and tag the release.
+### A3. Refinement precision
 
-### Execution order
+- [ ] Audit the 8 extra GRD records for repeated concrete guards, event extension, and
+  abstract-event lookup.
+- [ ] Audit the 69 extra SIM records for inherited actions, parallel assignments,
+  function override, and action labels.
+- [ ] Add paired tests where a concrete event repeats an abstract guard/action and
+  where it genuinely strengthens/simulates it.
+- [ ] Verify substitution is simultaneous and witness substitution does not alter
+  unrelated INV/GRD obligations.
 
-1. Reuse and harden `Trust.Replay` as the kernel backend. Done.
-2. Finish semantic bindings and terminating theory rewrites. Done.
-3. Translate and measure obligations by trust mode. Done for explicit semantic
-   contexts; the pinned corpus remains 73 external-trusted and 1060 unproved.
-4. Finish Rodin theory interoperability and release documentation. Done.
+Acceptance: GRD and SIM unmatched records reach zero, and the P3 name gate still
+matches all 1133 Rodin names.
 
-The v2 boundary is intentionally explicit: general-purpose automation, SMT integration,
-and proving every Rodin obligation are not silently claimed by this contract; they require
-their own version after the replayable semantic path is complete.
+### A4. Witness coverage
 
-## Completed execution checklist
+- [ ] Keep WFIS existential generation for witnesses with a matching Rodin target.
+- [ ] Keep WWD as a hypothesis-only obligation when Rodin supplies no target
+  predicate; never invent a goal merely to raise a percentage.
+- [ ] Add an openETCS-shaped fixture with both WFIS and WWD and assert the exact JSON
+  coverage fields.
+- [ ] Re-run the AMAN and ERTMS corpus after A1–A3; bless only reviewed improvements.
 
-- [x] Recover the multi-level refinement obligations: P3 now matches all 1133 Rodin
-  obligation names.
-- [x] Add differential P3b gates for WD, GRD, SIM, and ordered hypotheses. The gate
-  compares all 1124 derived `.bpo` sequents; 394 generated goals without a Rodin
-  sequent remain explicit coverage data.
-- [x] Make resolved theory symbols, definitions, constructors, and rewrite rules flow
-  through scoped typing, translation, POG normalization, and proof input.
-- [x] Add project dependency loading, theory validation commands, and LSP regression
-  fixtures.
-- [x] Add a reproducible local prover/discharge baseline with audited external evidence.
+Acceptance: WFIS/WWD are either statement-checked or explicitly named as unsupported;
+no witness obligation disappears from the report.
 
-- [x] R1: translate the supported Event-B formula language into kernel-checked Lean terms.
-- [x] R2: validate and embed datatypes, definitions, rewrite rules, inference rules,
-  and theorems.
-- [x] R3: attach replayable prover evidence with explicit trust modes.
-- [x] R4: add optional Rodin theory and proof-status I/O without a Rodin runtime
-  dependency.
+### A5. P3b release gate
 
-## Core language and environment
+- [ ] Reach zero unexplained `no-sequent` and `goal/hypotheses-differ` records.
+- [ ] Update `baseline/statement.tsv`, `baseline/hypothesis.tsv`, README badges, and
+  `notes/architecture.md` only after the gate diff is reviewed.
+- [ ] Add a corpus negative control that breaks one POG rule and makes the gate fail.
 
-- [x] Define the core Event-B prelude (`BOOL`, `TRUE`, `FALSE`, `ℤ`, `ℕ`, and
-  core operators) in one registry.
-- [x] Define `Theory.Env` for the prelude and imported theories.
-- [x] Connect `Theory.Env` to component model scopes.
-- [x] Give every symbol a stable identity, type, documentation, and source range.
-- [x] Specify conflict and shadowing rules against Event-B visibility semantics.
+Definition of done: P3b is exact for the supported Rodin PO surface, and every
+unsupported surface is a named diagnostic with a regression test.
 
-## Rossi `.eventb` input
+## Version 3B: proof evidence coverage
 
-Rossi remains the modern text/LSP authoring workflow. `eventb-lean` reads that format
-as an independent Lean reference implementation: it lowers text into the shared model,
-then runs the existing scope checker, POG, and trust ledger. The [Event-B Mathematical
-Language specification][kernel-lang] is the formula-language parity target.
+Goal: increase P4 without weakening the trust contract. A higher count is useful only
+when the ledger says exactly who checked the result.
 
-- [x] Read one or more Rossi contexts/machines from a `.eventb` file.
-- [x] Load Rossi files and mixed Rossi/Rodin source directories in the CLI.
-- [x] Preserve labels, theorem flags, statuses, witnesses, refinements, variants, and
-  enumerated-set metadata.
-- [x] Exercise compact, multiline, commented, and published Rossi examples.
-- [x] Add token-aware formula/action boundary handling for wrapped formulas and adjacent
-  unlabelled actions.
-- [x] Pin a differential fixture matrix against the Rossi parser and the kernel-language
-  lexical/precedence rules.
+### B0. Canonical proof input
 
-[kernel-lang]: https://web-archive.southampton.ac.uk/deploy-eprints.ecs.soton.ac.uk/11/4/kernel_lang.pdf
+- [ ] Make every P3-matched obligation expose one canonical translated sequent or one
+  actionable translation diagnostic.
+- [ ] Include model scope, theory roots, normalized hypotheses, goal, and formula
+  language version in the proof fingerprint.
+- [ ] Ensure changing a source range or display label does not change the fingerprint,
+  while changing semantics does.
 
-## R2. Datatypes and theory rules
+Acceptance: the same obligation has byte-stable proof input across CLI, widgets, and
+the replay backend.
 
-- [x] Add native Lean syntax for basic theory declarations and imports.
-- [x] Type-check imported unary expression declarations against model formulas.
-- [x] Type-check imported predicates represented as relations into `BOOL`.
-- [x] Support operators, predicates, datatypes, and axiomatic definitions.
-- [x] Support typing and well-definedness rules.
-- [x] Support rewrite rules, inference rules, and theorems.
-- [x] Support polymorphic theorem instantiation and type-variable declarations.
-- [x] Validate theory soundness with generated proof obligations.
+### B1. Kernel-backed basic rules
 
-## Theory-aware toolchain
+- [ ] Move `true`, exact-hypothesis, reflexive, and contradiction discharge from the
+  external local baseline to replayed Lean proof terms where translation permits.
+- [ ] Preserve the current external backend as a separate comparator until kernel
+  replay has an independent negative test.
+- [ ] Add tests for wrong types, wrong hypotheses, changed goals, and stale fingerprints.
 
-- [x] Make lexing, parsing, AST resolution, typing, WD, and pretty-printing
-  theory-aware at their respective boundaries; unresolved constructs remain diagnostics.
-- [x] Make scoped POG typing and WD classification consume theory metadata.
-- [x] Make POG and prover backends consume resolved theory output: POG normalizes
-  checked rules and the prover receives canonical obligations.
-- [x] Preserve unsupported constructs as explicit diagnostics, never silently
-  treating them as ordinary identifiers.
+Acceptance: any new kernel count is backed by `Trust.Replay`; no external result is
+relabelled as kernel evidence.
 
-## R1. Full formula translation and Lean embedding
+### B2. Structural logical reasoning
 
-- [x] Map resolved Event-B types, sets, products, and theory carriers to Lean types.
-- [x] Embed resolved Event-B types, expressions, predicates, and theories in Lean.
-- [x] Translate definitions and datatype denotations to kernel-checked Lean terms.
-- [x] Represent axiomatic assumptions without hiding them as trusted theorems.
-- [x] Translate binders, primed variables, partial operators, and well-definedness
-  hooks.
-- [x] Expose translated POG goals and hypotheses to the semantic proof layer.
-- [x] Reject unsupported or unresolved terms with actionable diagnostics.
-- [x] Provide a typed trust ledger that defaults generated obligations to `unproved`.
-- [x] Record kernel, SMT, Rodin-imported, and external trust in the ledger.
+- [ ] Add auditable kernel proof construction for conjunction, implication, and
+  hypothesis projection.
+- [ ] Normalize only semantics-preserving formula structure; retain source formulas
+  for diagnostics.
+- [ ] Handle substituted invariant goals and witness feasibility without treating
+  axioms as proved theorems.
 
-## R3. Prover evidence
+Acceptance: each rule has a Lean proof-term regression and a negative control that
+rejects a false implication.
 
-- [x] Define a canonical obligation statement and stable fingerprint.
-- [x] Replay Lean proof terms before assigning the `kernel` trust mode.
-- [x] Record solver, version, input digest, and verifier for external evidence.
-- [x] Import Rodin results only as `rodinImported`, never as kernel proofs.
-- [x] Reject stale, missing, forged, or mislabelled evidence.
-- [x] Show per-obligation evidence and trust in the CLI and ProofWidgets.
-- [x] Compare discharge results with `.bps` without weakening the earlier gates.
+### B3. Arithmetic and set reasoning
 
-## Native UX and project tooling
+- [ ] Measure the remaining P4 failures by formula shape before implementing rules.
+- [ ] Add the smallest kernel-checked arithmetic rules first, then membership,
+  equality, subset, finite-set, and relation rules.
+- [ ] Use solver output only behind an explicit SMT/external evidence mode; never turn
+  solver success into kernel evidence without replay.
+- [ ] Record rule labels and proof-input fingerprints in the ledger.
 
-- [x] Add project/theory dependency loading and validation commands.
-- [x] Add a native scoped POG command for an explicit theory environment.
-- [x] Add source ranges for native theory symbols for hover/Go-to-Definition.
-- [x] Add native-theory and initial trust summaries to ProofWidgets.
-- [x] Render scoped native-theory obligations through an explicit widget command.
-- [x] Add source locations and per-obligation trust evidence to ProofWidgets.
-- [x] Add a native example covering an imported theory symbol.
-- [x] Add native examples covering a Boolean theory and an imported operator.
+Acceptance: every new discharge rule improves a measured class and has a corresponding
+negative test; P4 regressions fail CI.
 
-## R4. Optional Rodin theory I/O and verification
+### B4. Theory and refinement evidence
 
-- [x] Keep the existing Rodin corpus reader and gates green throughout.
-- [x] Add optional Rodin theory import/export after native theories work.
-- [x] Validate imported theory dependencies through `Theory.add` and scoped lookup.
-- [x] Round-trip supported declarations without changing their resolved meaning.
-- [x] Report unsupported constructs with declaration paths and actionable diagnostics.
-- [x] Add negative tests for scope, conflicts, typing, WD, and theory visibility.
-- [x] Add LSP tests for user symbols, prelude identifiers, and theory definitions.
-- [x] Run `lake build`, `lake exe gates`, and `scripts/style-check.py` before every
-  commit.
+- [ ] Replay theory definitions, constructors, rewrite rules, and theorem/inference
+  premises through their existing `Theory.Embed` obligations.
+- [ ] Connect refinement semantics to translated INV, GRD, and SIM sequents only when
+  explicit Lean bindings exist.
+- [ ] Keep axiomatic definitions and imported Rodin statuses visible as assumptions,
+  not kernel proofs.
 
-## Commit invariant
+Acceptance: theory-backed evidence identifies its declaration path, dependencies, and
+trust mode in CLI and ProofWidgets.
 
-Each implementation commit updates the relevant R1–R4 task and leaves the build,
-corpus gates, and style checks green. Unsupported constructs remain explicit data and
-diagnostics; they never become `sorry`, an implicit axiom, or an unrelated identifier.
+### B5. P4 release gate
 
-The remaining boundary is deliberate: corpus-wide kernel replay needs explicit Lean
-denotations for model symbols, and unsupported or capture-sensitive rewrites remain
-diagnostics rather than guessed transformations.
+- [ ] Compare kernel, SMT, Rodin-imported, external, and unproved counts separately.
+- [ ] Keep the Rodin `.bps` 1088 automatic / 45 manual result as a comparator, not as
+  a proof target or trust upgrade.
+- [ ] Record a timestamped benchmark with toolchain version and corpus SHA for every
+  meaningful P4 change.
+
+Definition of done: every discharged obligation has replayable or explicitly
+classified evidence; all other obligations remain visibly unproved.
+
+## Version 3C: usability and interoperability follow-up
+
+These items depend on the P3b and P4 contracts and must not create a second checker.
+
+- [ ] Add a widget view that filters by coverage status, proof mode, and PO class.
+- [ ] Add source links from a PO to the model declaration and generated formula.
+- [ ] Add a machine-readable project report combining P3b coverage and the trust ledger.
+- [ ] Add optional `.tuf` theory I/O only for declarations with a faithful native
+  representation and explicit rejection paths for the rest.
+- [ ] Re-run all executable examples, including `WidgetDemo.lean`, after each UX change.
+
+## Commit and audit protocol
+
+Each implementation item is a focused commit. Every commit must pass:
+
+```sh
+lake build
+lake build Examples
+lake exe gates
+scripts/style-check.py
+git diff --check
+```
+
+Before declaring a phase complete:
+
+1. inspect `lake exe gates --histogram`;
+2. run a positive and negative control;
+3. update this ledger, the architecture note, README badges, and generated `STATUS.md`;
+4. record the corpus SHA and benchmark metadata when P4 changes;
+5. verify no private book, image, archive, or generated build artifact is staged.
+
+No item in this roadmap permits `sorry`, an implicit axiom, silently ignored syntax,
+or an evidence mode that is stronger than the checker actually performed.

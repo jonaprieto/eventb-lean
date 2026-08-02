@@ -214,8 +214,10 @@ The gates compare the implementation against the pinned corpus and ratchet files
 - P1: 1102 formula strings parse and round-trip;
 - P2: 940 distinct inferred types match;
 - P3: generated obligation names are compared with Rodin;
-- P3b: 1124 derived goals and hypotheses match the comparable Rodin sequents; generated
-  no-sequent obligations remain explicit coverage data;
+- P3b: 1129 of 1523 comparable goals and hypothesis sets are derived; 394 generated
+  non-WFIS targets have no matching `.bpo` sequent and remain explicit coverage data.
+  Seven additional WFIS names are also recorded as name-only coverage when Rodin does
+  not serialize a target predicate;
 - P4: the gates run the deterministic local baseline over the 1133 P3-matched
   obligations; the current result is 73 external-trusted and the rest unproved.
 
@@ -226,7 +228,70 @@ commands above and the executable examples, including native theory and Rodin th
 round-trip checks.
 
 Every focused commit is expected to leave these checks green. `STATUS.md` is generated;
-`TODO.md` records the completed roadmap audit and deliberate ceilings.
+`TODO.md` records the active v3 execution ledger and deliberate ceilings.
+
+## Next-version architecture: precision before proof
+
+The v2 release establishes the complete shared pipeline. The next version has two
+ordered workstreams, because proving an obligation that should not have been generated
+is worse than leaving it visibly unproved:
+
+```mermaid
+flowchart LR
+  O["POG.Obligation"] --> C["P3b coverage record"]
+  C -->|matched goal and hypotheses| S["canonical translated sequent"]
+  C -->|no matching Rodin sequent| D["named diagnostic"]
+  S --> B["proof backend"]
+  B --> V["replay or evidence verifier"]
+  V --> L["Trust.Ledger"]
+```
+
+### P3b precision boundary
+
+`EventB.POG` remains the only obligation generator. It must emit the same named
+surface that Rodin emits for the supported corpus, while retaining unsupported or
+format-specific cases as data. The gate therefore needs two separate facts for every
+record:
+
+1. whether the PO name exists in the `.bpo` corpus;
+2. whether the generated goal and ordered hypotheses match the recorded sequent.
+
+The current 394 unmatched records are concentrated in WD, INV, SIM, and GRD. They are
+not to be removed by broadening the comparison or by blessing a smaller denominator.
+The correction belongs in the shared POG conditions: total versus partial symbols,
+assigned-variable filtering, refinement inheritance, witness substitution, and
+abstract/concrete event matching. WFIS is derived when Rodin supplies its existential
+target. WWD remains hypothesis-only when Rodin supplies no target predicate, and that
+fact is reported explicitly in CLI, JSON, widgets, and the ratchet.
+
+### P4 proof boundary
+
+Only obligations that have passed the P3b comparison enter the proof-coverage path.
+The canonical input contains the resolved theory roots, normalized hypotheses, goal,
+formula-language version, and semantic bindings. Display labels and source ranges do
+not affect its fingerprint; a semantic change does.
+
+Backends are ordered by trust strength, not by convenience:
+
+- kernel replay constructs or checks a Lean proof term and is the only route to
+  `kernel` evidence;
+- SMT and other external tools return explicit metadata, digests, and verifier
+  identity and remain `smt` or `external` evidence;
+- `.bps` status is imported as `rodinImported`, never upgraded to kernel evidence;
+- missing or stale evidence remains `unproved`.
+
+The current local rules are a measurement baseline, not the final prover. The next
+proof work starts with kernel-backed versions of exact-hypothesis, truth, reflexivity,
+and contradiction, then adds auditable logical, arithmetic, set, relation, theory, and
+refinement rules only when each has a negative regression and replayable evidence.
+
+### Version 3 definition of done
+
+Version 3 is complete only when P3b has no unexplained unmatched records, every
+discharged P4 result has an explicit trust mode and replay or verifier path, and all
+remaining obligations are visibly unproved. The existing model, scope, formula AST,
+POG obligation type, and trust ledger remain the single representations; no backend or
+front end may create a second checker.
 
 ## Rossi compatibility and project input
 
@@ -429,10 +494,10 @@ diagnostics, and updated trust reporting, while `lake build`, `lake exe gates`, 
 `scripts/style-check.py` remain green. Unsupported constructs stay data with a visible
 diagnostic; they never become `sorry`, an implicit axiom, or an unrelated identifier.
 
-The four roadmap boundaries are implemented and covered by native examples, negative
+The v2 roadmap boundaries are implemented and covered by native examples, negative
 checks, project/theory loading commands, LSP range checks, and the existing build/gate
-contract. `TODO.md` records the completed audit and deliberate ceilings rather than an
-open milestone list.
+contract. The active v3 P3b/P4 work is tracked in `TODO.md`; it must preserve the
+single-model invariant and the explicit trust boundary described above.
 The architecture invariant remains: one model, one scope, one analysis pipeline, and
 separate presentation and proof integrations.
 
