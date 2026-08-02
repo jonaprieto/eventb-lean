@@ -37,6 +37,8 @@ structure KernelRule where
   name : String
   kind : DeclarationKind
   value : Expr
+  /-- Validation obligations remain open until separate proof evidence is attached. -/
+  obligations : List Validate.Obligation := []
   deriving Repr
 
 private def reportText (report : Validate.Report) : String :=
@@ -240,6 +242,8 @@ def translateRule (context : KernelContext) (rule : Rule) : MetaM KernelRule := 
     let actual ← inferType value
     unless ← isDefEq actual (mkSort .zero) do
       throwError s!"translated rule `{rule.name}` is not a proposition"
-    pure { name := rule.name, kind := rule.kind, value }
+    let obligations := (Validate.validateDeclaration context.theory context.roots
+      (.ruleDecl rule)).obligations
+    pure { name := rule.name, kind := rule.kind, value, obligations }
 
 end EventB.Theory.Embed

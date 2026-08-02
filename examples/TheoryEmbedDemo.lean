@@ -117,6 +117,12 @@ private meta def checkRules : TermElabM Unit := do
     throwError "rewrite was not translated to a proposition"
   unless (← inferType inferenceValue.value).isSort do
     throwError "inference rule was not translated to a proposition"
+  unless rewriteValue.obligations.any (fun obligation =>
+      obligation.kind == .rewriteSoundness && obligation.status == .open) do
+    throwError "rewrite soundness status was not retained"
+  unless inferenceValue.obligations.any (fun obligation =>
+      obligation.kind == .inferenceSoundness && obligation.status == .open) do
+    throwError "inference soundness status was not retained"
   let identity : Rule :=
     { name := "identity_eq", kind := .theorem, typeParameters := ["α"]
       parameters := [("x", .given "α")]
@@ -126,6 +132,9 @@ private meta def checkRules : TermElabM Unit := do
   let identityValue ← Embed.translateRule context identity
   unless (← inferType identityValue.value).isSort do
     throwError "polymorphic theorem was not translated to a proposition"
+  unless identityValue.obligations.any (fun obligation =>
+      obligation.kind == .theoremSoundness && obligation.status == .open) do
+    throwError "theorem soundness status was not retained"
   let cyclic : Rule :=
     { name := "cyclic", kind := .rewrite, lhs := some (.id "x"), rhs := some (.id "x") }
   unless !(← succeeds do let _ ← Embed.translateRule {} cyclic) do
