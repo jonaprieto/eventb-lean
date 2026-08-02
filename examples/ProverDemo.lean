@@ -36,9 +36,24 @@ private def contradictionObligation : Obligation :=
   { component := "Demo", name := "contra", kind := "THM",
     goal := some (.bin "=" (.num 1) (.num 2)), hyps := [.id "⊥"] }
 
+private def conjunctionObligation : Obligation :=
+  { component := "Demo", name := "and", kind := "THM",
+    goal := some (.bin "∧" (.id "⊤") (.bin "=" (.num 1) (.num 1))) }
+
+private def implicationObligation : Obligation :=
+  { component := "Demo", name := "imp", kind := "THM",
+    goal := some (.bin "⇒" (.id "⊤") (.id "⊤")) }
+
+private def projectionObligation : Obligation :=
+  { component := "Demo", name := "projection", kind := "THM",
+    goal := some (.bin "=" (.num 1) (.num 2)),
+    hyps := [.bin "∧" (.id "⊤") (.bin "=" (.num 1) (.num 2))] }
+
 private def examples : List (EventB.Prover.Kernel.Rule × Obligation) :=
   [(.true, trueObligation), (.exactHypothesis, exactObligation),
-   (.reflexive, reflexiveObligation), (.contradiction, contradictionObligation)]
+   (.reflexive, reflexiveObligation), (.contradiction, contradictionObligation),
+   (.andIntro, conjunctionObligation), (.implicationIntro, implicationObligation),
+   (.hypothesisProjection, projectionObligation)]
 
 private meta def succeeds (action : TermElabM Unit) : TermElabM Bool := do
   try
