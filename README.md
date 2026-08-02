@@ -90,9 +90,13 @@ M0_AMAN_Update: 0 match, 0 only Rodin, 2 only ours
   only ours: INITIALISATION/inv0,1/INV, AMAN_Update/inv0,1/INV
 M0_AMAN_Update_Ctx: 0 match, 0 only Rodin, 0 only ours
 M0_AMAN_Update_prob_mc_Ctx: 1 match, 0 only Rodin, 0 only ours
-M1_Landing_Sequence: 13 match, 0 only Rodin, 8 only ours
-  only ours: INITIALISATION/inv13,2/WD, INITIALISATION/act0,1/SIM, AMAN_Update/inv13,2/WD, AMAN_Update/grd0,1/GRD, AMAN_Update/act0,1/SIM, AMAN_Update/newScheduledAirplanes/WFIS, Move_Aircraft/inv13,2/WD, Move_Aircraft/act1,1/WD
+M1_Landing_Sequence: 13 match, 0 only Rodin, 2 only ours
+  only ours: AMAN_Update/grd0,1/GRD, AMAN_Update/newScheduledAirplanes/WFIS
 ```
+
+`diff` keeps the structural comparison visible, but exits nonzero when the project
+also has semantic diagnostics such as unresolved identifiers. The pinned AMAN sample
+contains such diagnostics; use `lake exe gates` for the ratcheted corpus result.
 
 The project loader also accepts Rossi `.eventb` files and Rodin `.tuf` theories:
 
