@@ -269,12 +269,25 @@ and the issue is closed with that same commit SHA in the closing comment.
 
 - [x] #5 Write the supported-input contract for Rodin XML, Rossi `.eventb`, native Lean
   DSL, native theories, and the supported `.tuf` subset.
-- [ ] #6 Define the production P3b and P4 release thresholds explicitly; do not use a
+- [x] #6 Define the production P3b and P4 release thresholds explicitly; do not use a
   larger percentage as a substitute for exact diagnostics or trustworthy evidence.
 - [ ] #7 Update README badges, `STATUS.md`, `notes/architecture.md`, and release notes
   from the final measured commit before tagging.
 - [ ] #8 Tag the release only after every V4 checklist item is checked and the complete
   verification command succeeds from a clean checkout.
+
+Production thresholds:
+
+- P0, P1, P2, and P3 must remain exact against the pinned corpus.
+- P3b must have no unexplained `goal-differs` or `hypotheses-differ` records. Every
+  generated target without a pinned `.bpo` sequent must either be exact after artifact
+  regeneration or carry a named, tested compatibility decision.
+- P4 has no arbitrary percentage gate. Every discharged result must have replayable or
+  explicitly classified evidence, evidence modes must not regress, and every remaining
+  obligation must stay visibly `unproved`.
+- A production report must publish the measured P3b/P4 counts and trust-mode breakdown;
+  a larger discharge percentage cannot compensate for hidden mismatches or unverifiable
+  evidence.
 
 ### V4.1 CI and executable-surface coverage
 
