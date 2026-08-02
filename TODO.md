@@ -280,14 +280,14 @@ and the issue is closed with that same commit SHA in the closing comment.
 
 - [x] #9 Make CI build every shipped target: `EventB`, `EventBWidgets`, `Examples`,
   `gates`, `rossi-dump`, `eventb`, and `bench`.
-- [ ] #10 Run the CLI fixture matrix in CI, including `check --json`, `summary`, `report`,
+- [x] #10 Run the CLI fixture matrix in CI, including `check --json`, `summary`, `report`,
   `po`, `prove`, `theory`, and the expected error paths for invalid arguments and
   missing components.
-- [ ] #11 Run `rossi-dump` over every checked-in `.eventb` fixture and assert the complete
+- [x] #11 Run `rossi-dump` over every checked-in `.eventb` fixture and assert the complete
   component list, names, and success status.
-- [ ] #12 Add machine-readable assertions for the witness fixture: exact INV, GRD, SIM,
+- [x] #12 Add machine-readable assertions for the witness fixture: exact INV, GRD, SIM,
   WD, WFIS, and hypothesis-only WWD records, including exit status.
-- [ ] #13 Make the full verification contract fail on a missing executable target rather
+- [x] #13 Make the full verification contract fail on a missing executable target rather
   than relying on the default Lake target to discover it indirectly.
 - [ ] #14 Record whether the official Rossi differential executable is available in CI;
   a production release must either run the comparison or fail with an actionable

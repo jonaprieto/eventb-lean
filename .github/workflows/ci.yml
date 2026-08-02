@@ -50,6 +50,8 @@ jobs:
       - uses: leanprover/lean-action@v1
         with:
           build-args: "EventB EventBWidgets Examples gates rossi-dump eventb bench"
+      - name: CLI and fixture matrix
+        run: python3 scripts/cli-fixtures.py
       - name: Corpus ratchet
         run: |
           # `if !` tests the exit status directly, so a regression fails the job
