@@ -453,7 +453,25 @@ private def coverageHistogram (records : List CoverageResult) : List (String × 
         (record.reason ++ "\t" ++ record.diagnostic ++ "\t" ++ record.component ++
           "\t" ++ record.kind) counts)
     []).mergeSort (fun left right =>
-      if left.2 == right.2 then left.1 < right.1 else right.2 < left.2)
+    if left.2 == right.2 then left.1 < right.1 else right.2 < left.2)
+
+private def compatibilityDiagnosticNames : List String :=
+  ["pinned-bpo-omits-plain-type-invariant",
+   "pinned-bpo-omits-definedness-sequent",
+   "pinned-bpo-omits-refinement-guard-sequent",
+   "pinned-bpo-omits-refinement-action-sequent",
+   "pinned-bpo-omits-witness-feasibility-sequent"]
+
+private def isKnownCompatibilityRecord (record : CoverageResult) : Bool :=
+  record.reason == "no-sequent" && compatibilityDiagnosticNames.contains record.diagnostic
+
+private def compatibilityRecords (records : List CoverageResult) : List CoverageResult :=
+  records.filter (fun record => record.reason == "no-sequent")
+
+#guard coverageReasonFor true true true false true == "goal-differs"
+#guard coverageReasonFor true true true true false == "hypotheses-differ"
+#guard compatibilityDiagnosticNames.contains "pinned-bpo-omits-definedness-sequent"
+#guard !compatibilityDiagnosticNames.contains "pinned-bpo-omits-sequent"
 
 /-- Only obligations we generate a goal for are scored; the rest are not yet attempted
 and would otherwise drown the signal. -/
@@ -658,6 +676,10 @@ private def run (args : List String) : IO UInt32 := do
   let p4Results := localResults project poResults
   let p4Passed := p4Results.countP (·.accepted)
   let poActual := poResults.map (fun r => r.key ++ "\t" ++ r.status)
+  let compatibility := compatibilityRecords coverageResults
+  let compatibilityActual := compatibility.map coverageLine
+  let compatibilityOK := coverageResults.all (fun record =>
+    record.reason == "matched" || isKnownCompatibilityRecord record)
   let formulas := formulaResults results
   let formulaPassed := formulas.countP (fun result => result.status == "PASS")
   let formulaActual := formulas.map (fun result => result.key ++ "\t" ++ result.status)
@@ -670,7 +692,10 @@ private def run (args : List String) : IO UInt32 := do
   IO.println s!"P3 obligations: {poPassed}/{sequentCount}"
   IO.println s!"P3b statements: {goalPassed}/{goalResults.length} derived"
   IO.println s!"P3b hypotheses: {hypPassed}/{hypResults.length} derived"
+  IO.println s!"P3b compatibility: {compatibility.length} pinned omissions"
   IO.println s!"P4 local baseline: {p4Passed}/{p4Results.length} discharged"
+  if !compatibilityOK then
+    IO.eprintln "unclassified P3b compatibility diagnostic"
   if !formulaCountOK then
     IO.eprintln s!"formula count {formulas.length}, expected {formulaCount}"
   if !inventoryOK then
@@ -702,13 +727,14 @@ private def run (args : List String) : IO UInt32 := do
   if args.contains "--bless" then
     -- P0 must be perfect to bless, since a dropped file would silently shrink the P1
     -- denominator. P1 blesses whatever it currently reaches: that is the ratchet.
-    if parseOK && inventoryOK && formulaCountOK then
+    if parseOK && inventoryOK && formulaCountOK && compatibilityOK then
       writeBaseline "baseline/parse.tsv" actual
       writeBaseline "baseline/formula.tsv" formulaActual
       writeBaseline "baseline/typecheck.tsv" typeActual
       writeBaseline "baseline/pog.tsv" poActual
       writeBaseline "baseline/statement.tsv" goalActual
       writeBaseline "baseline/hypothesis.tsv" hypActual
+      writeBaseline "baseline/compatibility.tsv" compatibilityActual
     else
       IO.eprintln "refusing to bless a failed P0 gate"
       return 1
@@ -725,8 +751,10 @@ private def run (args : List String) : IO UInt32 := do
   let gbaselineOK ← baselineDiff (nonemptyLines gbaseline) goalActual
   let hbaseline ← try IO.FS.readFile "baseline/hypothesis.tsv" catch _ => pure ""
   let hbaselineOK ← baselineDiff (nonemptyLines hbaseline) hypActual
+  let cbaseline ← try IO.FS.readFile "baseline/compatibility.tsv" catch _ => pure ""
+  let cbaselineOK ← baselineDiff (nonemptyLines cbaseline) compatibilityActual
   if !baselineOK || !fbaselineOK || !tbaselineOK || !pbaselineOK || !gbaselineOK
-      || !hbaselineOK then
+      || !hbaselineOK || !cbaselineOK || !compatibilityOK then
     return 1
   if parseOK && inventoryOK && formulaCountOK then
     if p4Results.length == sequentCount then return 0 else return 1
