@@ -54,6 +54,8 @@ assigning `sched`, and initialisation must establish it from `∅`. -/
 
 #guard (POG.generate project "M").map (·.name) |>.contains "Count/act1/WD"
 #guard !((POG.generate project "M").map (·.name) |>.contains "Relabel/act1/WD")
+#guard !((POG.generate project "M").map (·.name) |>.contains "Add/inv2/INV")
+#guard !((POG.generate project "M").map (·.name) |>.contains "Add/inv3/INV")
 
 -- Uncomment to see them printed:
 -- #eventb_pog M Ctx
