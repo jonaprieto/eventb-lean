@@ -82,6 +82,24 @@ def Declaration.typeParameters : Declaration → List String
   | .definitionDecl value => value.typeParameters
   | .ruleDecl value => value.typeParameters
 
+private def productType : List Typing.Ty → Option Typing.Ty
+  | [] => none
+  | type :: types => some <| types.foldl (fun result next => .prod result next) type
+
+def Constructor.type (datatype : Datatype) (constructor : Constructor) : Typing.Ty :=
+  match productType constructor.arguments with
+  | none => .given datatype.name
+  | some arguments => .pow (.prod arguments (.given datatype.name))
+
+def Definition.type (value : Definition) : Typing.Ty :=
+  match productType (value.parameters.map (·.2)) with
+  | none => value.result
+  | some arguments => .pow (.prod arguments value.result)
+
+def Declaration.expressionType? : Declaration → Option Typing.Ty
+  | .definitionDecl value => some value.type
+  | _ => none
+
 structure Spec where
   name : String
   imports : List String := []
@@ -151,8 +169,15 @@ def declarationsIn (env : Env) (roots : List String) : List (String × Declarati
 
 def namesWithApplication (env : Env) (roots : List String) (application : ApplicationKind) :
     List String :=
-  (symbolsIn env roots).filterMap fun (_, symbol) =>
+  let symbols := (symbolsIn env roots).filterMap fun (_, symbol) =>
     if symbol.application == some application then some symbol.name else none
+  let definitions := if application == .total then
+      (declarationsIn env roots).filterMap fun (_, declaration) =>
+        match declaration with
+        | .definitionDecl value => some value.name
+        | _ => none
+    else []
+  (symbols ++ definitions).eraseDups
 
 def definedness? (env : Env) (roots : List String) (name : String) : List Definedness :=
   (lookupIn? env roots name).map (·.2.definedness) |>.getD []
@@ -161,8 +186,101 @@ def declaration? (env : Env) (roots : List String) (name : String) :
     Option (String × Declaration) :=
   declarationsIn env roots |>.find? (·.2.name == name)
 
+def constructor? (env : Env) (roots : List String) (name : String) :
+    Option (String × Datatype × Constructor) :=
+  declarationsIn env roots |>.findSome? fun (owner, declaration) =>
+    match declaration with
+    | .dataType datatype => datatype.constructors.find? (·.name == name) |>.map
+        (owner, datatype, ·)
+    | _ => none
+
 def isDeclarationIn (env : Env) (roots : List String) (name : String) : Bool :=
   (declaration? env roots name).isSome
+
+def definitionsIn (env : Env) (roots : List String) : List (String × Definition) :=
+  declarationsIn env roots |>.filterMap fun (owner, declaration) =>
+    match declaration with
+    | .definitionDecl value => some (owner, value)
+    | _ => none
+
+def rewriteRulesIn (env : Env) (roots : List String) : List (String × Rule) :=
+  declarationsIn env roots |>.filterMap fun (owner, declaration) =>
+    match declaration with
+    | .ruleDecl value => if value.kind == .rewrite then some (owner, value) else none
+    | _ => none
+
+private def termSize : Formula.Term → Nat
+  | .id _ | .num _ => 1
+  | .bin _ left right => termSize left + termSize right + 1
+  | .pre _ term | .post _ term => termSize term + 1
+  | .app function argument | .img function argument =>
+      termSize function + termSize argument + 1
+  | .set terms => terms.foldl (fun size term => size + termSize term) 1
+  | .bind _ pattern body => termSize pattern + termSize body + 1
+
+private def matchRewrite : List String → Formula.Term → Formula.Term →
+    List (String × Formula.Term) → Option (List (String × Formula.Term))
+  | parameters, .id name, target, substitutions =>
+      if parameters.contains name then
+        match substitutions.find? (·.1 == name) with
+        | some (_, previous) =>
+            if Formula.alphaEq previous target then some substitutions else none
+        | none => some ((name, target) :: substitutions)
+      else if Formula.alphaEq (.id name) target then some substitutions else none
+  | _, .num left, .num right, substitutions =>
+      if left == right then some substitutions else none
+  | parameters, .bin leftOp leftA leftB, .bin rightOp rightA rightB, substitutions =>
+      if leftOp != rightOp then none
+      else do
+        let substitutions ← matchRewrite parameters leftA rightA substitutions
+        matchRewrite parameters leftB rightB substitutions
+  | parameters, .pre leftOp left, .pre rightOp right, substitutions =>
+      if leftOp == rightOp then matchRewrite parameters left right substitutions else none
+  | parameters, .post leftOp left, .post rightOp right, substitutions =>
+      if leftOp == rightOp then matchRewrite parameters left right substitutions else none
+  | parameters, .app leftFunction leftArgument, .app rightFunction rightArgument,
+      substitutions => do
+      let substitutions ← matchRewrite parameters leftFunction rightFunction substitutions
+      matchRewrite parameters leftArgument rightArgument substitutions
+  | parameters, .img leftRelation leftSet, .img rightRelation rightSet, substitutions => do
+      let substitutions ← matchRewrite parameters leftRelation rightRelation substitutions
+      matchRewrite parameters leftSet rightSet substitutions
+  | _, .set .., _, _ => none
+  | _, .bind .., _, _ => none
+  | _, _, _, _ => none
+termination_by parameters pattern target substitutions => sizeOf pattern + sizeOf target
+
+private def rewriteRoot (rules : List (String × Rule)) (term : Formula.Term) :
+    Option Formula.Term :=
+  rules.findSome? fun (_, rule) => do
+    let lhs ← rule.lhs
+    let rhs ← rule.rhs
+    if termSize rhs >= termSize lhs then none else
+      let substitutions ← matchRewrite (rule.parameters.map (·.1)) lhs term []
+      some (Formula.subst substitutions rhs)
+
+private def normalizeAux (rules : List (String × Rule)) : Nat → Formula.Term → Formula.Term
+  | 0, term => term
+  | fuel + 1, term =>
+      match rewriteRoot rules term with
+      | some replacement => normalizeAux rules fuel replacement
+      | none => match term with
+        | .bin op left right => .bin op (normalizeAux rules fuel left)
+            (normalizeAux rules fuel right)
+        | .pre op value => .pre op (normalizeAux rules fuel value)
+        | .post op value => .post op (normalizeAux rules fuel value)
+        | .app function argument => .app (normalizeAux rules fuel function)
+            (normalizeAux rules fuel argument)
+        | .img relation set => .img (normalizeAux rules fuel relation)
+            (normalizeAux rules fuel set)
+        | .set values => .set (values.map (normalizeAux rules fuel))
+        | .bind kind pattern body => .bind kind (normalizeAux rules fuel pattern)
+            (normalizeAux rules fuel body)
+        | _ => term
+
+def normalize (env : Env) (roots : List String) (term : Formula.Term) : Formula.Term :=
+  let rules := rewriteRulesIn env roots
+  normalizeAux rules (termSize term * (rules.length + 1) + 1) term
 
 private def declarationNames (declarations : List Declaration) : List String :=
   declarations.map Declaration.name
@@ -317,13 +435,18 @@ def isIdentifierIn (env : Env) (roots : List String) (name : String) : Bool :=
   (lookupIn? env roots name).isSome || isDeclarationIn env roots name
 
 def isIdentifier (env : Env) (name : String) : Bool :=
-  (lookup? env name).isSome
+  isIdentifierIn env (env.theories.map (·.name)) name
 
 def typeIn? (env : Env) (roots : List String) (name : String) : Option Typing.Ty :=
-  (lookupIn? env roots name).bind (·.2.type)
+  match (lookupIn? env roots name).bind (·.2.type) with
+  | some type => some type
+  | none =>
+      match constructor? env roots name with
+      | some (_, datatype, constructor) => some (constructor.type datatype)
+      | none => (declaration? env roots name).bind (·.2.expressionType?)
 
 def type? (env : Env) (name : String) : Option Typing.Ty :=
-  (lookup? env name).bind (·.2.type)
+  typeIn? env (env.theories.map (·.name)) name
 
 #guard (lookup? empty "BOOL").isSome
 #guard type? empty "TRUE" == some .bool
@@ -367,12 +490,33 @@ private def declarationEnv : Env :=
   match add empty
       { name := "Data", declarations :=
         [.dataType (Datatype.mk "Colour" []
-          [Constructor.mk "red" [], Constructor.mk "blue" []])] } with
+          [Constructor.mk "red" [], Constructor.mk "blue" []]),
+         .definitionDecl { name := "zero", result := .int, body := .num 0 }] } with
   | .ok env => env
   | .error _ => empty
 
 #guard isDeclarationIn declarationEnv ["Data"] "Colour"
 #guard (declaration? declarationEnv ["Data"] "Colour").isSome
+#guard typeIn? declarationEnv ["Data"] "red" == some (.given "Colour")
+#guard typeIn? declarationEnv ["Data"] "Colour" == none
+#guard typeIn? declarationEnv ["Data"] "zero" == some .int
+#guard namesWithApplication declarationEnv ["Data"] .total |>.contains "zero"
+
+private def rewriteEnv : Env :=
+  match add empty
+      { name := "Rewrite", declarations := [.ruleDecl
+          { name := "add_zero", kind := .rewrite, parameters := [("x", .int)]
+            lhs := some (.bin "+" (.id "x") (.num 0)), rhs := some (.id "x") }] } with
+  | .ok env => env
+  | .error _ => empty
+
+#guard Definition.type
+    { name := "increment", parameters := [("x", .int)], result := .int, body := .num 0 }
+    == .pow (.prod .int .int)
+#guard match Formula.parse "1 + 0" with
+  | .ok term => Formula.alphaEq (normalize rewriteEnv ["Rewrite"] term) (.num 1)
+  | .error _ => false
+
 #guard match add empty
     { name := "EmptyData", declarations := [.dataType (Datatype.mk "EmptyData" [] [])] } with
   | .error _ => true

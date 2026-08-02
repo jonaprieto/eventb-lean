@@ -479,7 +479,11 @@ def generateIn (theory : Theory.Env) (p : Project) (name : String) : List Obliga
     let isMachine := c.elem.tag == "org.eventb.core.machineFile"
     let roots := componentTheoryRoots p name
     let finalize := fun obligations : List Obligation => obligations.map fun obligation =>
-      { obligation with component := name, theoryRoots := roots }
+      { obligation with
+          component := name
+          theoryRoots := roots
+          goal := obligation.goal.map (Theory.normalize theory roots)
+          hyps := obligation.hyps.map (Theory.normalize theory roots) }
     let total := totalKeywords theory roots
     let types := match inferComponentIn theory p name with
       | .ok (env, _) => env
