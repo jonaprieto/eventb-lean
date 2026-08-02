@@ -248,7 +248,7 @@ private def matchRewrite : List String → Formula.Term → Formula.Term →
   | _, .set .., _, _ => none
   | _, .bind .., _, _ => none
   | _, _, _, _ => none
-termination_by parameters pattern target substitutions => sizeOf pattern + sizeOf target
+termination_by _ pattern target _ => sizeOf pattern + sizeOf target
 
 private def rewriteRoot (rules : List (String × Rule)) (term : Formula.Term) :
     Option Formula.Term :=
