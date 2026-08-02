@@ -355,7 +355,7 @@ private def elabPogWidget : CommandElab := fun stx => do
         <| ← ``(ProofWidgets.HtmlEval.eval $render)
       let html ← htmlX
       liftCoreM <| Widget.savePanelWidgetInfo
-        (hash HtmlDisplay.javascript)
+        (hash HtmlDisplayPanel.javascript)
         (return json% { html: $(← rpcEncode html) })
         stx
   | _ => throwUnsupportedSyntax
@@ -370,7 +370,7 @@ private def elabPogWidgetIn : CommandElab := fun stx => do
         <| ← ``(ProofWidgets.HtmlEval.eval $render)
       let html ← htmlX
       liftCoreM <| Widget.savePanelWidgetInfo
-        (hash HtmlDisplay.javascript)
+        (hash HtmlDisplayPanel.javascript)
         (return json% { html: $(← rpcEncode html) })
         stx
   | _ => throwUnsupportedSyntax
@@ -385,7 +385,7 @@ private def elabPogWidgetWithLedger : CommandElab := fun stx => do
         <| ← ``(ProofWidgets.HtmlEval.eval $render)
       let html ← htmlX
       liftCoreM <| Widget.savePanelWidgetInfo
-        (hash HtmlDisplay.javascript)
+        (hash HtmlDisplayPanel.javascript)
         (return json% { html: $(← rpcEncode html) })
         stx
   | _ => throwUnsupportedSyntax
@@ -400,7 +400,7 @@ private def elabModelWidget : CommandElab := fun stx => do
         <| ← ``(ProofWidgets.HtmlEval.eval $render)
       let html ← htmlX
       liftCoreM <| Widget.savePanelWidgetInfo
-        (hash HtmlDisplay.javascript)
+        (hash HtmlDisplayPanel.javascript)
         (return json% { html: $(← rpcEncode html) })
         stx
   | _ => throwUnsupportedSyntax
