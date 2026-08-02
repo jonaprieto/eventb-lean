@@ -97,6 +97,26 @@ def translateDefinition (context : KernelContext) (definition : Definition) :
     checkedFunction context definition.parameters definition.result value
     pure { name := definition.name, kind := definition.kind, result := definition.result, value }
 
+private def productType : List Ty → Option Ty
+  | [] => none
+  | type :: types => some (types.foldl (fun result next => .prod result next) type)
+
+private def productValues (value : Expr) : Nat → MetaM (List Expr)
+  | 0 => pure []
+  | 1 => pure [value]
+  | count + 1 => do
+      let left ← mkAppM ``Prod.fst #[value]
+      let right ← mkAppM ``Prod.snd #[value]
+      return (← productValues left count) ++ [right]
+
+private def uncurried (context : KernelContext) (parameters : List (String × Ty))
+    (value : Expr) : MetaM Expr := do
+  let some argumentType := productType (parameters.map (·.2)) | unreachable!
+  withLocalDeclD `arguments (← leanType context argumentType) fun arguments => do
+    let values ← productValues arguments parameters.length
+    let applied := values.foldl (fun function argument => mkApp function argument) value
+    mkLambdaFVars #[arguments] applied
+
 private def addDefinitionBinding (context : KernelContext) (definition : Definition)
     (translated : KernelDefinition) : MetaM KernelContext :=
   match definition.parameters with
@@ -108,9 +128,14 @@ private def addDefinitionBinding (context : KernelContext) (definition : Definit
       pure { context with functions :=
         { name := definition.name, argument, result := definition.result,
           value := translated.value } :: context.functions }
-  | _ => throwError s!
-      "automatic theory resolution supports at most one definition parameter; " ++
-      s!"provide a semantic binding for `{definition.name}`"
+  | parameters =>
+      match productType (parameters.map (·.2)) with
+      | none => throwError s!"definition `{definition.name}` has no parameters"
+      | some argument => do
+          let value ← uncurried context parameters translated.value
+          pure { context with functions :=
+            { name := definition.name, argument, result := definition.result, value } ::
+              context.functions }
 
 /-- Translate all visible definitional declarations and add their Lean denotations to the
 formula context. Declarations are resolved in theory order, so a definition may depend on

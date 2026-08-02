@@ -354,7 +354,9 @@ decreasing_by
   all_goals simp +arith [termSizePos, Term.bin.sizeOf_spec]
 
 def inferBin (o : String) (a b : Term) : M Ty := do
-  if o == "↦" then
+  if o == "," then
+    return .prod (← inferExpr a) (← inferExpr b)
+  else if o == "↦" then
     return .prod (← inferExpr a) (← inferExpr b)
   else if setBinary.contains o then do
     let ta ← inferExpr a

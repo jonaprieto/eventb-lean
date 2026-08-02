@@ -590,6 +590,18 @@ private def translateExprExpected : Nat → KernelContext → Option Ty → Form
       translateLambda fuel context pattern body expected
   | fuel + 1, context, _, term => translateExpr fuel context term
 
+private def translateApplicationArgument : Nat → KernelContext → Ty → Formula.Term →
+    MetaM KernelTerm
+  | 0, _, _, _ => throwError "formula translation recursion limit reached"
+  | fuel + 1, context, .prod left right, .bin "," first rest => do
+      let first ← translateApplicationArgument fuel context left first
+      let rest ← translateApplicationArgument fuel context right rest
+      checked context (.prod left right) (← mkPair first.value rest.value)
+  | _ + 1, _, expected, .bin "," _ _ =>
+      throwError s!"comma-separated application needs product type, found {expected.print}"
+  | fuel + 1, context, expected, term =>
+      translateExprExpected fuel context (some expected) term
+
 private def translateExpr : Nat → KernelContext → Formula.Term → MetaM KernelTerm
   | 0, _, _ => throwError "formula translation recursion limit reached"
   | _ + 1, context, .num value =>
@@ -692,7 +704,7 @@ private def translateExpr : Nat → KernelContext → Formula.Term → MetaM Ker
           | none =>
               throwError s!"function application `{name}` needs a semantic binding"
           | some semantic =>
-              let argument ← translateExprExpected fuel context (some semantic.argument) argument
+              let argument ← translateApplicationArgument fuel context semantic.argument argument
               let _ ← sameType argument.ty semantic.argument
               validateFunction context semantic
               checked context semantic.result (mkApp semantic.value argument.value)

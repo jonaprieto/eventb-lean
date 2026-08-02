@@ -41,22 +41,36 @@ private meta def checkDefinition : TermElabM Unit := do
 
 private meta def checkResolvedDefinitions : TermElabM Unit := do
   let theory ← match Theory.add Theory.empty
-      { name := "Resolved", declarations :=
+         { name := "Resolved", declarations :=
         [.definitionDecl
           { name := "zero", result := .int, body := .num 0 },
          .definitionDecl
           { name := "one", result := .int, body := .bin "+" (.id "zero") (.num 1) },
          .definitionDecl
           { name := "increment", parameters := [("x", .int)], result := .int,
-            body := .bin "+" (.id "x") (.num 1) }] } with
+            body := .bin "+" (.id "x") (.num 1) },
+         .definitionDecl
+          { name := "pairSum", parameters := [("x", .int), ("y", .int)], result := .int,
+            body := .bin "+" (.id "x") (.id "y") }] } with
     | .ok value => pure value
     | .error error => throwError error
   let context ← Embed.translateDefinitions
     { theory, roots := ["Resolved"] }
-  let equality ← match Formula.parse "one = 1 ∧ increment(1) = 2" with
+  let equality ← match Formula.parse "one = 1 ∧ increment(1) = 2 ∧ pairSum(1, 2) = 3" with
     | .ok value => pure value
     | .error error => throwError error
   let _ ← Embedding.translatePredicate context equality
+  let application ← match Formula.parse "pairSum(1, 2)" with
+    | .ok value => pure value
+    | .error error => throwError error
+  match (EventB.Typing.inferExpr application).run
+      { theory, theoryRoots := ["Resolved"] } with
+  | .ok (type, state) =>
+      match (EventB.Typing.zonk type).run state with
+      | .ok (.int, _) => pure ()
+      | .ok (type, _) => throwError s!"multi-parameter application inferred as {type.print}"
+      | .error error => throwError error
+  | .error error => throwError error
 
 private meta def checkDatatype : TermElabM Unit := do
   let datatype : Datatype :=
