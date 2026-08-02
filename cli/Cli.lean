@@ -1,4 +1,5 @@
 import EventB.POG
+import EventB.Prover.Local
 import EventB.Rossi
 import EventB.Theory.Rodin
 
@@ -292,6 +293,7 @@ private def help : String :=
   "  po <project-dir-or-.eventb> <PO-NAME>\n" ++
   "  summary <project-dir-or-.eventb> [--json]\n" ++
   "  theory <project-dir-or-.tuf>\n" ++
+  "  prove <project-dir-or-.eventb>\n" ++
   "  diff <project-dir>\n"
 
 private def checkHelp : String :=
@@ -314,6 +316,10 @@ private def diffHelp : String :=
 private def theoryHelp : String :=
   "Usage: eventb theory <project-dir-or-.tuf>\n\n" ++
   "Load and validate Rodin theory files in dependency order."
+
+private def proveHelp : String :=
+  "Usage: eventb prove <project-dir-or-.eventb>\n\n" ++
+  "Run the deterministic local discharge baseline and report its evidence count."
 
 private def jsonEscape (value : String) : String :=
   String.ofList (value.toList.flatMap fun c =>
@@ -433,6 +439,25 @@ private def runTheory (path : System.FilePath) : IO UInt32 := do
         s!"{spec.declarations.length} declarations, imports=" ++
         String.intercalate "," spec.imports)
   return if errors.isEmpty then 0 else 1
+
+private def runProve (dir : System.FilePath) : IO UInt32 := do
+  let data ← loadProject dir
+  if data.sources.isEmpty then
+    for error in data.errors do
+      IO.eprintln s!"eventb: error: {error}"
+    IO.eprintln s!"eventb prove: {dir} contains no Event-B source file"
+    return 1
+  let rs := reports data
+  for error in fatalErrors data rs do
+    IO.eprintln s!"eventb: error: {error}"
+  let obligations := rs.flatMap (·.obligations)
+  let results := obligations.map Prover.Local.prove
+  let discharged := results.countP Prover.Local.Result.discharged
+  IO.println s!"local baseline: {discharged}/{obligations.length} discharged"
+  for (obligation, result) in obligations.zip results do
+    if let some rule := result.rule then
+      IO.println s!"  {obligation.name}: {rule.label} [external evidence]"
+  return if (fatalErrors data rs).isEmpty then 0 else 1
 
 private def findObligation : List Report → String → Option (String × Obligation)
   | [], _ => none
@@ -579,6 +604,16 @@ private def runCommand (args : List String) : IO UInt32 := do
       | _ =>
           IO.eprintln "eventb theory: expected <project-dir-or-.tuf>"
           IO.eprintln theoryHelp
+          return 1
+  | "prove" :: rest =>
+      if rest.any (fun arg => arg == "--help" || arg == "-h") then
+        IO.println proveHelp
+        return 0
+      match rest with
+      | [dir] => runProve dir
+      | _ =>
+          IO.eprintln "eventb prove: expected <project-dir-or-.eventb>"
+          IO.eprintln proveHelp
           return 1
   | "diff" :: rest =>
       if rest.any (fun arg => arg == "--help" || arg == "-h") then

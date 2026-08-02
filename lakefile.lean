@@ -25,7 +25,7 @@ lean_lib «Examples» where
   globs := #[.one `Counter, .one `BookBridge, .one `BookSystems, .one `BookPrograms,
     .one `WidgetDemo, .one `TheoryDemo, .one `TranslateDemo, .one `TheoryValidateDemo,
     .one `RodinTheoryDemo, .one `TheoryEmbedDemo, .one `TrustRodinDemo,
-    .one `RossiDemo, .one `RossiBoundaryDemo, .one `LspDemo]
+    .one `RossiDemo, .one `RossiBoundaryDemo, .one `LspDemo, .one `ProverDemo]
 
 lean_exe «gates» where
   root := `Gates
