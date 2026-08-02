@@ -562,6 +562,8 @@ private def reportEntry (gold : List (String × List String)) (ledger : Trust.Le
   let mode := entry.map (·.mode.label) |>.getD "unproved"
   let rule := Prover.Local.prove obligation |>.rule.map Prover.Local.Rule.label |>.getD "none"
   let goal := obligation.goal.map Formula.print |>.getD ""
+  let translation := if obligation.goal.isNone then "no-goal"
+    else "requires-explicit-bindings"
   "{\"machine\":" ++ jsonString machine ++
     ",\"name\":" ++ jsonString obligation.name ++
     ",\"kind\":" ++ jsonString obligation.kind ++
@@ -570,6 +572,7 @@ private def reportEntry (gold : List (String × List String)) (ledger : Trust.Le
     ",\"hypothesis_only\":" ++ jsonBool (hypothesisOnly obligation) ++
     ",\"proof_mode\":" ++ jsonString mode ++
     ",\"rule\":" ++ jsonString rule ++
+    ",\"translation\":" ++ jsonString translation ++
     ",\"fingerprint\":" ++ jsonString (Trust.fingerprint obligation.canonical) ++
     ",\"goal\":" ++ jsonString goal ++ "}"
 
