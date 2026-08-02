@@ -77,7 +77,7 @@ theorem initialInv2 (limit _cars : Int) (_gate : Bool)
   intro contradiction
   cases contradiction
 
-theorem initialSim (limit cars : Int) (gate : Bool)
+theorem initialSim (limit _cars : Int) (_gate : Bool)
     (_ : 0 ≤ limit) (_ : 0 < limit) : (0 : Int) = 0 := by
   rfl
 
@@ -202,6 +202,7 @@ private def elabWidgetProofChecks : CommandElab := fun stx =>
 #eventb_widget_proof_checks
 
 #guard (POG.generate widgetProject "BridgeController").isEmpty == false
+#guard widgetLedger.count .unproved == 0
 
 #eventb_model_widget widgetProject WidgetCtx
 #eventb_model_widget widgetProject BridgeController
