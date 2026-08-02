@@ -52,6 +52,22 @@ jobs:
           build-args: "EventB EventBWidgets Examples gates rossi-dump eventb bench"
       - name: CLI and fixture matrix
         run: python3 scripts/cli-fixtures.py
+      - name: Install pinned Rossi
+        env:
+          ROSSI_VERSION: 0.1.7
+          ROSSI_SHA256: 698214d8082e2c9e0e8b638cd561ff0b6d9f1066ee5b79444f7ac54acfb7d10d
+        run: |
+          archive="$RUNNER_TEMP/rossi-x86_64-unknown-linux-gnu.tar.gz"
+          curl --fail --silent --show-error --location --retry 3 \
+            "https://github.com/eventb-rossi/rossi/releases/download/v${ROSSI_VERSION}/rossi-x86_64-unknown-linux-gnu.tar.gz" \
+            --output "$archive"
+          printf '%s  %s\n' "$ROSSI_SHA256" "$archive" | sha256sum --check -
+          mkdir -p "$RUNNER_TEMP/rossi"
+          tar -xzf "$archive" -C "$RUNNER_TEMP/rossi"
+          "$RUNNER_TEMP/rossi/rossi" --version
+          echo "ROSSI_BIN=$RUNNER_TEMP/rossi/rossi" >> "$GITHUB_ENV"
+      - name: Rossi differential matrix
+        run: python3 scripts/rossi-diff.py
       - name: Corpus ratchet
         run: |
           # `if !` tests the exit status directly, so a regression fails the job

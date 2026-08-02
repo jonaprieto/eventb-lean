@@ -302,7 +302,7 @@ Production thresholds:
   WD, WFIS, and hypothesis-only WWD records, including exit status.
 - [x] #13 Make the full verification contract fail on a missing executable target rather
   than relying on the default Lake target to discover it indirectly.
-- [ ] #14 Record whether the official Rossi differential executable is available in CI;
+- [x] #14 Record whether the official Rossi differential executable is available in CI;
   a production release must either run the comparison or fail with an actionable
   dependency error.
 
@@ -356,9 +356,9 @@ Production thresholds:
   fixtures, including their intentional semantic typechecking failures.
 - [x] #31 Separate parser-only fixtures from semantically valid project fixtures, or add
   an executable expectation file that records the intended exit code and diagnostic.
-- [ ] #32 Add `witnesses.eventb` to `scripts/rossi-diff.py` once the official Rossi parser
+- [x] #32 Add `witnesses.eventb` to `scripts/rossi-diff.py` once the official Rossi parser
   accepts the same construct; otherwise record the incompatibility explicitly.
-- [ ] #33 Pin or provision the official Rossi executable used by the differential matrix;
+- [x] #33 Pin or provision the official Rossi executable used by the differential matrix;
   do not leave compatibility confidence dependent on an unmentioned local install.
 
 ### V4.6 ProofWidget and editor acceptance

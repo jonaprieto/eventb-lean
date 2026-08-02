@@ -15,6 +15,9 @@ MATRIX = {
     "identifiers.eventb": [("Context", "names_ctx"),
                             ("Machine", "names-machine")],
     "actions.eventb": [("Machine", "actions")],
+    "witnesses.eventb": [("Context", "C"),
+                          ("Machine", "Abstract"),
+                          ("Machine", "Concrete")],
 }
 
 
