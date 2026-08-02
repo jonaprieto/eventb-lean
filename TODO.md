@@ -10,7 +10,22 @@ The design and dependencies are documented in
 canonical milestones; the sections below contain their implementation tasks.
 
 The first four roadmap milestones and the P4 integration boundary have an implemented,
-tested result. Local evidence remains explicitly external-trusted, never kernel proof.
+tested result. Local corpus evidence remains explicitly external-trusted, never kernel
+proof.
+
+## Prototype v1 contract
+
+Prototype v1 is complete when every item below is checked. It is a reference checker and
+trust ledger, not a general-purpose automatic Event-B prover.
+
+- [x] Read and analyze the pinned Rodin corpus losslessly through P3b.
+- [x] Author native models and theories with scoped diagnostics and source ranges.
+- [x] Read Rossi `.eventb` and Rodin `.tuf` inputs through the shared pipeline.
+- [x] Present models, obligations, and trust evidence in CLI and ProofWidgets.
+- [x] Run the local corpus baseline on all P3-matched obligations.
+- [x] Replay kernel evidence and reject stale, forged, or mislabelled evidence.
+- [x] Build every executable example and document the reproducible verification contract.
+- [x] Leave all deliberate unsupported ceilings explicit in diagnostics and notes.
 
 ## P4 integration plan (complete)
 
