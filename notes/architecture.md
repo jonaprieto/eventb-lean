@@ -214,7 +214,7 @@ The gates compare the implementation against the pinned corpus and ratchet files
   evidence, while all other obligations remain unproved.
 
 Every focused commit is expected to leave these checks green. `STATUS.md` is generated;
-`PLAN.md` records measured progress and the next bounded work item.
+`TODO.md` records the completed roadmap audit and deliberate ceilings.
 
 ## Rossi compatibility and project input
 

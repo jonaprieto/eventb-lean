@@ -9,9 +9,8 @@ The design and dependencies are documented in
 [`notes/architecture.md`](notes/architecture.md). These four checkboxes are the
 canonical milestones; the sections below contain their implementation tasks.
 
-All four roadmap milestones now have an implemented, tested boundary. The remaining
-unchecked items below are deliberately narrower follow-up work, not missing milestone
-infrastructure.
+All four roadmap milestones now have an implemented, tested boundary. The checklist
+below records the completed work and its deliberate ceilings; no milestone is open.
 
 ## Completed execution checklist
 
