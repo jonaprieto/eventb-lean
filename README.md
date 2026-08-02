@@ -107,9 +107,10 @@ variables and event parameters (including primed after-state variables) are the 
 user identifiers visible in a formula. A misspelling such as `LIMITT` is therefore an
 elaboration error instead of an unresolved model symbol.
 
-The executable examples are ordinary Lean sources. The four book-derived files are
-`BookBridge.lean`, `BookPrograms.lean`, `BookSystems.lean`, and the introductory
-`Counter.lean`; the remaining files cover widgets, theories, translation, trust,
+The executable examples are ordinary Lean sources. The core model files are the
+introductory `Counter.lean` and the three book-derived files `BookBridge.lean`,
+`BookPrograms.lean`, and `BookSystems.lean`; the remaining files cover widgets, theories,
+translation, trust,
 Rossi input, LSP ranges, and the local prover. Together they contain 20 contexts and
 43 machines. `lake build Examples` checks them through the same DSL, parser,
 typechecker, and proof-obligation generator as Rodin files.
