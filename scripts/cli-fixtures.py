@@ -5,6 +5,7 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 
@@ -175,13 +176,30 @@ def check_theories_and_errors() -> None:
     result = run("check", str(FIXTURES / "witnesses.eventb"), "--machine", "Missing")
     expect("missing machine", result, 1, stderr="no component named Missing")
 
+    with tempfile.TemporaryDirectory() as directory:
+        path = Path(directory) / "unknown.eventb"
+        path.write_text(
+            "MACHINE unknown\n"
+            "VARIABLES value\n"
+            "INVARIANTS\n"
+            "    @inv missing = TRUE\n"
+            "END\n",
+            encoding="utf-8",
+        )
+        result = run("check", str(path))
+        expect("unknown identifier", result, 1, stderr="unbound identifier missing")
+        result = run("report", str(path))
+        expect("unknown identifier report", result, 1,
+               stderr="unbound identifier missing")
+
     result = run("diff", "test/fixtures/theories")
     expect("diff missing Rodin sources", result, 1, stderr="contains no .bum or .buc")
 
 
 def check_corpus_diff() -> None:
     result = run("diff", "corpus/aman")
-    expect("corpus diff", result, 0, stdout="M0_AMAN_Update")
+    expect("corpus diff diagnostics", result, 1, stdout="M0_AMAN_Update",
+           stderr="unbound identifier")
 
 
 def check_gate_reports() -> None:

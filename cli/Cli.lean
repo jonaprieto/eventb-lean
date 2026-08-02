@@ -185,35 +185,21 @@ private def formatTypeError (source : Source) (error : String) : String :=
   | some label => s!"{source.path}: element {label}: {reason}"
   | none => s!"{source.path}: typechecking failed: {reason}"
 
-private def recoverableTypeError (error : String) : Bool :=
-  error.startsWith "unbound identifier "
-
 private def typeErrors (data : ProjectData) (source : Source) : List String :=
   match inferComponentIn data.theory data.project source.name with
   | .error error => [formatTypeError source error]
-  | .ok (_, errors) => errors.filter (fun error => !recoverableTypeError error)
-      |>.map (formatTypeError source)
-
-private def typeWarnings (data : ProjectData) (source : Source) : List String :=
-  match inferComponentIn data.theory data.project source.name with
-  | .error _ => []
-  | .ok (_, errors) =>
-      let messages := errors.filter recoverableTypeError |>.map (formatTypeError source)
-      messages.foldl (fun unique message =>
-        if unique.contains message then unique else unique ++ [message]) []
+  | .ok (_, errors) => errors.map (formatTypeError source)
 
 private structure Report where
   source : Source
   obligations : List Obligation
   errors : List String
-  warnings : List String
 
 private def reports (data : ProjectData) : List Report :=
   data.sources.map fun source =>
     { source := source
       obligations := generateIn data.theory data.project source.name
-      errors := typeErrors data source
-      warnings := typeWarnings data source }
+      errors := typeErrors data source }
 
 private def fatalErrors (data : ProjectData) (rs : List Report) : List String :=
   data.errors ++ rs.flatMap (·.errors)
@@ -233,16 +219,9 @@ private structure CheckArgs where
   kinds : Option (List String) := none
   machine : Option String := none
 
-private def printCheckDiagnostics (args : CheckArgs) (data : ProjectData)
-    (rs : List Report) : IO Unit := do
+private def printCheckDiagnostics (data : ProjectData) (rs : List Report) : IO Unit := do
   for error in fatalErrors data rs do
     IO.eprintln s!"eventb: error: {error}"
-  let selectedReports := rs.filter fun report =>
-    match args.machine with
-    | none => true
-    | some name => report.source.name == name
-  for warning in selectedReports.flatMap (·.warnings) do
-    IO.eprintln s!"eventb: warning: {warning}"
 
 private def parseCheckOptions : List String → CheckArgs → Except String (Option CheckArgs)
   | [], args => .ok (some args)
@@ -365,7 +344,7 @@ private def runCheck (args : CheckArgs) : IO UInt32 := do
     IO.eprintln s!"eventb check: {args.dir} contains no .bum, .buc, or .eventb files"
     return 1
   let rs := reports data
-  printCheckDiagnostics args data rs
+  printCheckDiagnostics data rs
   if args.machine.isSome && !rs.any (fun report =>
       report.source.name == args.machine.getD "") then
     IO.eprintln s!"eventb check: no component named {args.machine.getD ""}"
