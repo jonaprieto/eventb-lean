@@ -1,0 +1,57 @@
+CONTEXT C
+SETS D
+CONSTANTS f
+AXIOMS
+    @f_type
+    f ∈ ℕ ⇸ D
+END
+
+MACHINE Abstract
+SEES C
+VARIABLES x
+INVARIANTS
+    @inv
+    x ∈ D
+EVENTS
+    EVENT INITIALISATION
+    THEN
+        x :∈ D
+    END
+    EVENT step
+    WHERE
+        @grd
+        x ∈ D
+    THEN
+        @act
+        x := x
+    END
+END
+
+MACHINE Concrete
+REFINES Abstract
+SEES C
+VARIABLES x y
+INVARIANTS
+    @inv
+    x ∈ D
+EVENTS
+    EVENT INITIALISATION
+    REFINES INITIALISATION
+    THEN
+        x :∈ D
+        y :∈ D
+    END
+    EVENT step
+    REFINES step
+    ANY p
+    WHERE
+        @grd
+        p ∈ ℕ
+    WITH
+        @wit
+        x = f(p)
+    THEN
+        @act
+        x := f(p)
+    END
+END

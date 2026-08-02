@@ -306,3 +306,12 @@ def programsProject : Typing.Project :=
 #guard (POG.generate programsProject "ListReverse1").isEmpty == false
 #guard (POG.generate programsProject "SquareRoot1").isEmpty == false
 #guard (POG.generate programsProject "Inverse1").isEmpty == false
+
+/-! Witness coverage regression: the openETCS-style refinement shape has both a
+feasibility statement and the hypothesis-only well-definedness record. -/
+def witnessObligations := POG.generate programsProject "NotationMachine"
+
+#guard witnessObligations.map (·.name) |>.contains "witness_example/wit1/WFIS"
+#guard witnessObligations.map (·.name) |>.contains "witness_example/wit1/WWD"
+#guard (witnessObligations.find? (·.name == "witness_example/wit1/WFIS")).bind (·.goal) |>.isSome
+#guard (witnessObligations.find? (·.name == "witness_example/wit1/WWD")).bind (·.goal) |>.isNone
