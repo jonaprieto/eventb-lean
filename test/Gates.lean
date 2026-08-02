@@ -457,7 +457,7 @@ private def run (args : List String) : IO UInt32 := do
       { name := ((r.path.splitOn "/").getLast!.splitOn ".").head!, elem := m.root }
   let mut typeResults : List TypeResult := []
   for path in files do
-    let bpo := path.toString.dropRight 4 ++ ".bpo"
+    let bpo := (path.toString.dropEnd 4).toString ++ ".bpo"
     let name := ((path.toString.splitOn "/").getLast!.splitOn ".").head!
     let gold ← readGoldTypes bpo
     typeResults := typeResults ++ checkTypes project name gold
@@ -465,17 +465,17 @@ private def run (args : List String) : IO UInt32 := do
   let typeActual := typeResults.map (fun r => r.key ++ "\t" ++ r.status)
   let mut poResults : List PoResult := []
   for path in files do
-    let bpo := path.toString.dropRight 4 ++ ".bpo"
+    let bpo := (path.toString.dropEnd 4).toString ++ ".bpo"
     let name := ((path.toString.splitOn "/").getLast!.splitOn ".").head!
     poResults := poResults ++ checkPOs project name (← readGoldPOs bpo)
   let mut goalResults : List GoalResult := []
   for path in files do
-    let bpo := path.toString.dropRight 4 ++ ".bpo"
+    let bpo := (path.toString.dropEnd 4).toString ++ ".bpo"
     let name := ((path.toString.splitOn "/").getLast!.splitOn ".").head!
     goalResults := goalResults ++ checkGoals project name (← readGoldGoals bpo)
   let mut hypResults : List GoalResult := []
   for path in files do
-    let bpo := path.toString.dropRight 4 ++ ".bpo"
+    let bpo := (path.toString.dropEnd 4).toString ++ ".bpo"
     let name := ((path.toString.splitOn "/").getLast!.splitOn ".").head!
     hypResults := hypResults ++ checkHyps project name (← readGoldHyps bpo)
   let hypPassed := hypResults.countP (fun r => r.status == "PASS")
