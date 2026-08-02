@@ -2,6 +2,10 @@
 bench/results/*/raw/
 .DS_Store
 
+# Private copyrighted source kept locally for research; never distribute it.
+docs/event-b.md/
+docs/event-b.md.zip
+
 # Working documents, deliberately untracked: the working agreement, the phase plan,
 # and the generated status report. `lake exe gates --status` rewrites STATUS.md.
 AGENTS.md

@@ -316,7 +316,7 @@ Production thresholds:
   convergence examples.
 - [x] #17 Add negative controls proving that a changed or missing obligation fails the
   example test instead of merely leaving a non-empty list.
-- [ ] #18 Keep the private book export, images, and archive outside commits and release
+- [x] #18 Keep the private book export, images, and archive outside commits and release
   artifacts; retain only section references and independently authored executable
   models.
 
