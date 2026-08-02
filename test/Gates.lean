@@ -531,6 +531,25 @@ private def goalHistogram (results : List GoalResult) : List (String × Nat) :=
     []).mergeSort (fun left right =>
       if left.2 == right.2 then left.1 < right.1 else right.2 < left.2)
 
+private def termShape : Term → String
+  | .id _ => "id"
+  | .num _ => "numeral"
+  | .bin op _ _ => "bin:" ++ op
+  | .pre op _ => "pre:" ++ op
+  | .post op _ => "post:" ++ op
+  | .app _ _ => "application"
+  | .img _ _ => "image"
+  | .set _ => "set"
+  | .bind op _ _ => "binder:" ++ op
+
+private def p4Histogram (results : List P4Result) : List (String × Nat) :=
+  (results.foldl (fun counts result =>
+    if result.accepted then counts
+    else histogramAdd (match result.obligation.goal with
+      | some goal => termShape goal
+      | none => "no-goal") counts) []).mergeSort (fun left right =>
+      if left.2 == right.2 then left.1 < right.1 else right.2 < left.2)
+
 private def nonemptyLines (source : String) : List String :=
   source.splitOn "\n" |>.filter (fun line => !line.isEmpty)
 
@@ -669,6 +688,8 @@ private def run (args : List String) : IO UInt32 := do
       IO.println s!"{count}\t{reason}"
     for (reason, count) in goalHistogram hypResults do
       IO.println s!"{count}\t{reason}"
+    for (shape, count) in p4Histogram p4Results do
+      IO.println s!"{count}\tP4\t{shape}"
     for (reason, count) in coverageHistogram coverageResults do
       IO.println s!"{count}\tP3b\t{reason}"
   if args.contains "--coverage" then
