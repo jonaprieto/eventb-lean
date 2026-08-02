@@ -51,6 +51,25 @@ The GitHub workflow currently builds `EventB`, `gates`, and `Examples`, and runs
 style, manifest, gate, and soundness checks. The additional executable targets are
 part of the local full audit contract; CLI fixture checks are currently run locally.
 
+## Supported input contract
+
+All supported authoring paths lower into the same model, typing, and proof-obligation
+pipeline. “Supported” means that unsupported syntax is rejected with a diagnostic; it
+does not mean that every generated obligation is automatically proved.
+
+| Input | Supported role | Boundary |
+| --- | --- | --- |
+| Rodin `.bum` / `.buc` | Read source machines and contexts | The pinned corpus is the compatibility oracle; unsupported XML extensions are diagnosed. |
+| Rodin `.bpo` / `.bps` | Compare PO names, types, sequents, and recorded status | They are comparison/trust inputs, not a replacement for native typing or proof. |
+| Rossi `.eventb` | Read supported Rossi text projects, including components, labels, witnesses, refinements, variants, and statuses | The supported grammar subset is explicit; malformed or unsupported structure fails with a source diagnostic. |
+| Native Lean DSL | Author contexts, machines, theories, datatypes, definitions, and rules | Concrete formula translation needs explicit Lean semantic bindings. |
+| Rodin `.tuf` | Import/export the faithful theory subset with symbols, imports, datatypes, definitions, and rules | Unknown extensions and declarations without a faithful native representation are rejected. |
+
+The CLI loads a `.eventb` file directly or a project directory containing Rossi/Rodin
+source files. Theory directories are loaded in dependency order; a single theory file
+that imports an unprovided theory fails rather than inventing a dependency. Raw
+Rossi/XML source ranges are not currently promised for editor navigation.
+
 Build the executable, then point it at a Rodin project directory. `check` lists the
 generated obligations; `diff` compares their names with Rodin's `.bpo` files:
 

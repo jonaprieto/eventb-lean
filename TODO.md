@@ -267,7 +267,7 @@ and the issue is closed with that same commit SHA in the closing comment.
 
 ### V4.0 Release definition
 
-- [ ] #5 Write the supported-input contract for Rodin XML, Rossi `.eventb`, native Lean
+- [x] #5 Write the supported-input contract for Rodin XML, Rossi `.eventb`, native Lean
   DSL, native theories, and the supported `.tuf` subset.
 - [ ] #6 Define the production P3b and P4 release thresholds explicitly; do not use a
   larger percentage as a substitute for exact diagnostics or trustworthy evidence.
