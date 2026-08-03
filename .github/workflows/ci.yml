@@ -35,28 +35,17 @@ jobs:
           path: .lake
           key: lake-${{ runner.os }}-${{ hashFiles('lake-manifest.json', 'lean-toolchain') }}
           restore-keys: lake-${{ runner.os }}-
-      - name: Authenticate to the private grip dependency
+      - name: Authenticate private Lake dependencies
         env:
-          GRIP_SSH_KEY: ${{ secrets.GRIP_SSH_KEY }}
+          PRIVATE_DEPS_READ_TOKEN: ${{ secrets.PRIVATE_DEPS_READ_TOKEN }}
         run: |
-          if [ -z "$GRIP_SSH_KEY" ]; then
-            echo "::error::grip is private. Set the read-only GRIP_SSH_KEY secret."
+          if [ -z "$PRIVATE_DEPS_READ_TOKEN" ]; then
+            echo "::error::Private Lake dependencies require PRIVATE_DEPS_READ_TOKEN."
             exit 1
           fi
-          ssh_dir="$RUNNER_TEMP/eventb-lean-ssh"
-          install -m 700 -d "$ssh_dir"
-          printf '%s\n' "$GRIP_SSH_KEY" > "$ssh_dir/id_ed25519"
-          chmod 600 "$ssh_dir/id_ed25519"
-          ssh-keyscan -H github.com > "$ssh_dir/known_hosts"
-          eval "$(ssh-agent -s)"
-          ssh-add "$ssh_dir/id_ed25519"
-          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
-          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
-          git config --global core.sshCommand \
-            "ssh -o UserKnownHostsFile=$ssh_dir/known_hosts -o StrictHostKeyChecking=yes"
           git config --global \
-            url."ssh://git@github.com/jonaprieto/lean-grip".insteadOf \
-            "https://github.com/jonaprieto/lean-grip"
+            url."https://x-access-token:${PRIVATE_DEPS_READ_TOKEN}@github.com/jonaprieto/".insteadOf \
+            "https://github.com/jonaprieto/"
       - uses: leanprover/lean-action@v1
         with:
           build-args: "EventB EventBWidgets Examples gates rossi-dump eventb bench"
@@ -118,28 +107,17 @@ jobs:
           path: .lake
           key: lake-${{ runner.os }}-${{ hashFiles('lake-manifest.json', 'lean-toolchain') }}
           restore-keys: lake-${{ runner.os }}-
-      - name: Authenticate to the private grip dependency
+      - name: Authenticate private Lake dependencies
         env:
-          GRIP_SSH_KEY: ${{ secrets.GRIP_SSH_KEY }}
+          PRIVATE_DEPS_READ_TOKEN: ${{ secrets.PRIVATE_DEPS_READ_TOKEN }}
         run: |
-          if [ -z "$GRIP_SSH_KEY" ]; then
-            echo "::error::grip is private. Set the read-only GRIP_SSH_KEY secret."
+          if [ -z "$PRIVATE_DEPS_READ_TOKEN" ]; then
+            echo "::error::Private Lake dependencies require PRIVATE_DEPS_READ_TOKEN."
             exit 1
           fi
-          ssh_dir="$RUNNER_TEMP/eventb-lean-ssh"
-          install -m 700 -d "$ssh_dir"
-          printf '%s\n' "$GRIP_SSH_KEY" > "$ssh_dir/id_ed25519"
-          chmod 600 "$ssh_dir/id_ed25519"
-          ssh-keyscan -H github.com > "$ssh_dir/known_hosts"
-          eval "$(ssh-agent -s)"
-          ssh-add "$ssh_dir/id_ed25519"
-          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
-          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
-          git config --global core.sshCommand \
-            "ssh -o UserKnownHostsFile=$ssh_dir/known_hosts -o StrictHostKeyChecking=yes"
           git config --global \
-            url."ssh://git@github.com/jonaprieto/lean-grip".insteadOf \
-            "https://github.com/jonaprieto/lean-grip"
+            url."https://x-access-token:${PRIVATE_DEPS_READ_TOKEN}@github.com/jonaprieto/".insteadOf \
+            "https://github.com/jonaprieto/"
       - uses: leanprover/lean-action@v1
         with:
           build-args: "EventB"
