@@ -11,7 +11,7 @@
    "inputRev": "v0.0.87",
    "inherited": false,
    "configFile": "lakefile.lean"},
-  {"url": "https://github.com/jonaprieto/grip",
+  {"url": "https://github.com/jonaprieto/lean-grip",
    "type": "git",
    "subDir": null,
    "scope": "",

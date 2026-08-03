@@ -7,7 +7,7 @@ package «eventb» where
 -- Pinned by SHA, not `main`: corpus gate numbers are only reproducible if the
 -- parser underneath them is too.
 require grip from git
-  "https://github.com/jonaprieto/grip" @ "eb29a2331729a7087eab54838557e7490e802a29"
+  "https://github.com/jonaprieto/lean-grip" @ "eb29a2331729a7087eab54838557e7490e802a29"
 
 require "leanprover-community" / "proofwidgets" @ git "v0.0.87"
 
