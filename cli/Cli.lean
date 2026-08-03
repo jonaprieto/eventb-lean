@@ -2,6 +2,8 @@ import EventB.POG
 import EventB.Prover.Local
 import EventB.Rossi
 import EventB.Theory.Rodin
+import Argus
+import Argus.Term
 
 namespace EventB.Cli
 
@@ -9,6 +11,30 @@ open EventB
 open EventB.Formula
 open EventB.POG
 open EventB.Typing
+open Argus
+open TermColor
+
+private def linkedText (paths : List System.FilePath) (message : String) : IO TermColor.Text := do
+  let candidates := (paths.filter (fun path => !path.toString.isEmpty)).mergeSort
+    (fun left right => left.toString.length > right.toString.length)
+  match candidates.find? (fun path => (message.splitOn path.toString).length > 1) with
+  | none => pure (TermColor.Text.plain message)
+  | some path =>
+      let absolute ← try IO.FS.realPath path catch _ => pure path
+      let link := TermColor.Text.hyperlink ("file://" ++ absolute.toString)
+        (TermColor.Text.plain path.toString)
+      match message.splitOn path.toString with
+      | first :: rest =>
+          pure (TermColor.Text.concat
+            ([TermColor.Text.plain first] ++ rest.flatMap fun suffix =>
+              [link, TermColor.Text.plain suffix]))
+      | [] => pure (TermColor.Text.plain message)
+
+private def printError (paths : List System.FilePath) (message : String) : IO Unit := do
+  let stderr ← IO.getStderr
+  let target ← TermColor.targetWithTty .auto (← stderr.isTty)
+  let text ← linkedText paths message
+  stderr.putStr (TermColor.Text.render target (text ++ TermColor.Text.plain "\n"))
 
 private def isSource (path : System.FilePath) : Bool :=
   path.toString.endsWith ".bum" || path.toString.endsWith ".buc"
@@ -70,6 +96,7 @@ private structure ProjectData where
   sources : List Source
   theory : Theory.Env
   errors : List String
+  paths : List System.FilePath
 
 private def loadTheories (paths : List System.FilePath) : IO (Theory.Env × List String) := do
   let mut pending := paths
@@ -134,17 +161,21 @@ private def readRossi (path : System.FilePath) : IO (Except String (List Source)
 private def loadProject (path : System.FilePath) : IO ProjectData := do
   let mut sources : List Source := []
   let mut errors : List String := []
-  let (theory, theoryErrors) ← if ← path.isDir then
-      loadTheories (← theoryFiles path)
+  let isDir ← path.isDir
+  let theoryPaths ← if isDir then theoryFiles path else pure []
+  let sourcePaths ← if isDir then sourceFiles path else pure []
+  let rossiPaths ← if isDir then rossiFiles path else pure []
+  let (theory, theoryErrors) ← if isDir then
+      loadTheories theoryPaths
     else
       pure (Theory.empty, [])
   errors := theoryErrors
-  if ← path.isDir then
-    for sourcePath in ← sourceFiles path do
+  if isDir then
+    for sourcePath in sourcePaths do
       match ← readSource sourcePath with
       | .ok source => sources := source :: sources
       | .error reason => errors := reason :: errors
-    for sourcePath in ← rossiFiles path do
+    for sourcePath in rossiPaths do
       match ← readRossi sourcePath with
       | .ok parsed => sources := parsed.reverse ++ sources
       | .error reason => errors := reason :: errors
@@ -165,6 +196,7 @@ private def loadProject (path : System.FilePath) : IO ProjectData := do
   let roots := theory.theories.filter (·.name != Theory.core.name) |>.map (·.name)
   let project : Project := uniqueSources.map (projectComponent roots)
   return ProjectData.mk project uniqueSources theory (errors.reverse ++ duplicateErrors.reverse)
+    (path :: theoryPaths ++ sourcePaths ++ rossiPaths)
 
 private def formulaErrorLabel (model : Model) (error : String) : Option String :=
   model.formulas.find? (fun pair =>
@@ -216,94 +248,67 @@ private def parseKinds (value : String) : Except String (List String) :=
 private structure CheckArgs where
   dir : System.FilePath
   json : Bool := false
-  kinds : Option (List String) := none
+  kinds : Option String := none
   machine : Option String := none
 
 private def printCheckDiagnostics (data : ProjectData) (rs : List Report) : IO Unit := do
   for error in fatalErrors data rs do
-    IO.eprintln s!"eventb: error: {error}"
+    printError data.paths s!"eventb: error: {error}"
 
-private def parseCheckOptions : List String → CheckArgs → Except String (Option CheckArgs)
-  | [], args => .ok (some args)
-  | "--help" :: _, _ => .ok none
-  | "-h" :: _, _ => .ok none
-  | "--json" :: rest, args => parseCheckOptions rest { args with json := true }
-  | "--kind" :: [], _ => .error "--kind needs a comma-separated class list"
-  | "--kind" :: value :: rest, args => do
-      let selected ← parseKinds value
-      parseCheckOptions rest { args with kinds := some selected }
-  | "--machine" :: [], _ => .error "--machine needs a component name"
-  | "--machine" :: name :: rest, args =>
-      if name.startsWith "--" then
-        .error "--machine needs a component name"
-      else
-        parseCheckOptions rest { args with machine := some name }
-  | option :: _, _ => .error s!"unexpected argument {option}"
+private def makeCheck (dir : System.FilePath) (json : Bool) (kinds : Option String)
+    (machine : Option String) : CheckArgs :=
+  { dir, json, kinds, machine }
 
-private def parseCheck : List String → Except String (Option CheckArgs)
-  | [] => .error "check needs <project-dir-or-.eventb>"
-  | "--help" :: _ => .ok none
-  | "-h" :: _ => .ok none
-  | dir :: rest =>
-      if dir.startsWith "--" then .error "check needs <project-dir-or-.eventb>"
-      else parseCheckOptions rest { dir := dir }
+private inductive Action where
+  | check (args : CheckArgs)
+  | po (dir : System.FilePath) (name : String)
+  | summary (dir : System.FilePath) (json : Bool)
+  | report (dir : System.FilePath)
+  | theory (path : System.FilePath)
+  | prove (dir : System.FilePath)
+  | diff (dir : System.FilePath)
 
-private def parseSummary : List String → Except String (Option (System.FilePath × Bool))
-  | [] => .error "summary needs <project-dir-or-.eventb>"
-  | "--help" :: _ => .ok none
-  | "-h" :: _ => .ok none
-  | dir :: rest =>
-      if dir.startsWith "--" then .error "summary needs <project-dir-or-.eventb>"
-      else go dir rest false
-where
-  go : System.FilePath → List String → Bool →
-      Except String (Option (System.FilePath × Bool))
-    | dir, [], json => .ok (some (dir, json))
-    | _, "--help" :: _, _ => .ok none
-    | _, "-h" :: _, _ => .ok none
-    | dir, "--json" :: rest, _ => go dir rest true
-    | _, option :: _, _ => .error s!"unexpected argument {option}"
+private def pathParam : Param System.FilePath :=
+  Param.map System.FilePath.mk Param.path
 
-private def help : String :=
-  "eventb: inspect Event-B projects (Rodin XML or Rossi text)\n\n" ++
-  "Usage: eventb <command> [arguments]\n\n" ++
-  "Commands:\n" ++
-  "  check <project-dir-or-.eventb> [--json] [--kind INV,WD,...] [--machine NAME]\n" ++
-  "  po <project-dir-or-.eventb> <PO-NAME>\n" ++
-  "  summary <project-dir-or-.eventb> [--json]\n" ++
-  "  report <project-dir-or-.eventb>\n" ++
-  "  theory <project-dir-or-.tuf>\n" ++
-  "  prove <project-dir-or-.eventb>\n" ++
-  "  diff <project-dir>\n"
+private def projectArg (help : String) :=
+  Spec.arg "PROJECT" help pathParam
 
-private def checkHelp : String :=
-  "Usage: eventb check <project-dir-or-.eventb> [--json] " ++
-  "[--kind INV,WD,...] [--machine NAME]\n\n" ++
-  "Typecheck the project and list generated obligations."
+private def checkSpec :=
+  Spec.seq
+    (Spec.seq
+      (Spec.seq
+        (Spec.map makeCheck (projectArg "Project directory or .eventb file"))
+        (Spec.switch "json" none "Emit one JSON record per obligation"))
+      (Spec.opt (Spec.flag "kind" none "Comma-separated obligation classes" Param.str)))
+    (Spec.opt (Spec.flag "machine" none "Limit output to one component" Param.str))
 
-private def poHelp : String :=
-  "Usage: eventb po <project-dir-or-.eventb> <PO-NAME>\n\n" ++
-  "Print hypotheses and the generated statement for one obligation."
+private def summarySpec :=
+  Spec.map2 Action.summary (projectArg "Project directory or .eventb file")
+    (Spec.switch "json" none "Emit one JSON summary")
 
-private def summaryHelp : String :=
-  "Usage: eventb summary <project-dir-or-.eventb> [--json]\n\n" ++
-  "Count obligations by class and component."
-
-private def reportHelp : String :=
-  "Usage: eventb report <project-dir-or-.eventb>\n\n" ++
-  "Emit one JSON report containing coverage, fingerprints, and trust-ledger entries."
-
-private def diffHelp : String :=
-  "Usage: eventb diff <project-dir>\n\n" ++
-  "Compare generated obligation names with Rodin .bpo files."
-
-private def theoryHelp : String :=
-  "Usage: eventb theory <project-dir-or-.tuf>\n\n" ++
-  "Load and validate Rodin theory files in dependency order."
-
-private def proveHelp : String :=
-  "Usage: eventb prove <project-dir-or-.eventb>\n\n" ++
-  "Run the deterministic local discharge baseline and report its evidence count."
+private def command : Command Action :=
+  group "eventb" [
+    cmd "check" (Spec.map Action.check checkSpec)
+      (description := "Typecheck a project and list generated obligations."),
+    cmd "po" (Spec.map2 Action.po (projectArg "Project directory or .eventb file")
+      (Spec.arg "PO-NAME" "Proof-obligation name" Param.str))
+      (description := "Print one generated proof obligation."),
+    cmd "summary" summarySpec
+      (description := "Count obligations by class and component."),
+    cmd "report" (Spec.map Action.report (projectArg
+      "Project directory or .eventb file"))
+      (description := "Emit coverage, fingerprints, and trust-ledger JSON."),
+    cmd "theory" (Spec.map Action.theory (Spec.arg "PATH" "Theory file or directory"
+      pathParam))
+      (description := "Load and validate Rodin theory files."),
+    cmd "prove" (Spec.map Action.prove (projectArg
+      "Project directory or .eventb file"))
+      (description := "Run the deterministic local discharge baseline."),
+    cmd "diff" (Spec.map Action.diff (Spec.arg "PROJECT" "Rodin project directory"
+      pathParam))
+      (description := "Compare generated obligation names with Rodin .bpo files.")
+  ] (description := "Inspect Event-B projects from Rodin XML or Rossi text.")
 
 private def jsonEscape (value : String) : String :=
   String.ofList (value.toList.flatMap fun c =>
@@ -323,33 +328,36 @@ private def jsonBool (value : Bool) : String := if value then "true" else "false
 private def hypothesisOnly (obligation : Obligation) : Bool :=
   obligation.kind == "WWD" && obligation.goal.isNone
 
-private def selected (args : CheckArgs) (report : Report) (obligation : Obligation) : Bool :=
-  (match args.machine with
+private def selected (machine : Option String) (kinds : Option (List String)) (report : Report)
+    (obligation : Obligation) : Bool :=
+  (match machine with
    | none => true
    | some name => name == report.source.name) &&
-  (match args.kinds with
+  (match kinds with
    | none => true
    | some selectedKinds => selectedKinds.contains obligation.kind)
 
-private def filteredObligations (args : CheckArgs) (rs : List Report) :
+private def filteredObligations (args : CheckArgs) (kinds : Option (List String))
+    (rs : List Report) :
     List (String × Obligation) :=
   rs.flatMap fun report =>
-    (report.obligations.filter (selected args report)).map (fun o => (report.source.name, o))
+    (report.obligations.filter (selected args.machine kinds report)).map
+      (fun o => (report.source.name, o))
 
-private def runCheck (args : CheckArgs) : IO UInt32 := do
+private def runCheckWithKinds (args : CheckArgs) (kinds : Option (List String)) : IO UInt32 := do
   let data ← loadProject args.dir
   if data.sources.isEmpty then
     for error in data.errors do
-      IO.eprintln s!"eventb: error: {error}"
-    IO.eprintln s!"eventb check: {args.dir} contains no .bum, .buc, or .eventb files"
+      printError data.paths s!"eventb: error: {error}"
+    printError [args.dir] s!"eventb check: {args.dir} contains no .bum, .buc, or .eventb files"
     return 1
   let rs := reports data
   printCheckDiagnostics data rs
   if args.machine.isSome && !rs.any (fun report =>
       report.source.name == args.machine.getD "") then
-    IO.eprintln s!"eventb check: no component named {args.machine.getD ""}"
+    printError [] s!"eventb check: no component named {args.machine.getD ""}"
     return 1
-  for (machine, obligation) in filteredObligations args rs do
+  for (machine, obligation) in filteredObligations args kinds rs do
     let derived := obligation.goal.isSome
     let hypothesisOnly := hypothesisOnly obligation
     if args.json then
@@ -363,6 +371,16 @@ private def runCheck (args : CheckArgs) : IO UInt32 := do
         (if derived then "derived" else
           if hypothesisOnly then "hypothesis-only" else "no statement"))
   return if (fatalErrors data rs).isEmpty then 0 else 1
+
+private def runCheck (args : CheckArgs) : IO UInt32 :=
+  match args.kinds with
+  | none => runCheckWithKinds args none
+  | some value =>
+      match parseKinds value with
+      | .ok kinds => runCheckWithKinds args (some kinds)
+      | .error error => do
+          printError [] s!"eventb check: {error}"
+          return 1
 
 private def bump (key : String) : List (String × Nat) → List (String × Nat)
   | [] => [(key, 1)]
@@ -393,12 +411,12 @@ private def runSummary (dir : System.FilePath) (json : Bool) : IO UInt32 := do
   let data ← loadProject dir
   if data.sources.isEmpty then
     for error in data.errors do
-      IO.eprintln s!"eventb: error: {error}"
-    IO.eprintln s!"eventb summary: {dir} contains no .bum, .buc, or .eventb files"
+      printError data.paths s!"eventb: error: {error}"
+    printError [dir] s!"eventb summary: {dir} contains no .bum, .buc, or .eventb files"
     return 1
   let rs := reports data
   for error in fatalErrors data rs do
-    IO.eprintln s!"eventb: error: {error}"
+    printError data.paths s!"eventb: error: {error}"
   let obligations := rs.flatMap (·.obligations)
   let counts := countKinds obligations
   if json then
@@ -434,11 +452,11 @@ private def runTheory (path : System.FilePath) : IO UInt32 := do
     else if isTheory path then pure [path]
     else pure []
   if paths.isEmpty then
-    IO.eprintln s!"eventb theory: {path} contains no .tuf file"
+    printError [path] s!"eventb theory: {path} contains no .tuf file"
     return 1
   let (env, errors) ← loadTheories paths
   for error in errors do
-    IO.eprintln s!"eventb theory: error: {error}"
+    printError paths s!"eventb theory: error: {error}"
   for spec in env.theories do
     if spec.name != Theory.core.name then
       IO.println (s!"{spec.name}: {spec.symbols.length} symbols, " ++
@@ -450,12 +468,12 @@ private def runProve (dir : System.FilePath) : IO UInt32 := do
   let data ← loadProject dir
   if data.sources.isEmpty then
     for error in data.errors do
-      IO.eprintln s!"eventb: error: {error}"
-    IO.eprintln s!"eventb prove: {dir} contains no Event-B source file"
+      printError data.paths s!"eventb: error: {error}"
+    printError [dir] s!"eventb prove: {dir} contains no Event-B source file"
     return 1
   let rs := reports data
   for error in fatalErrors data rs do
-    IO.eprintln s!"eventb: error: {error}"
+    printError data.paths s!"eventb: error: {error}"
   let obligations := rs.flatMap (·.obligations)
   let results := obligations.map Prover.Local.prove
   let discharged := results.countP Prover.Local.Result.discharged
@@ -476,15 +494,15 @@ private def runPo (dir : System.FilePath) (name : String) : IO UInt32 := do
   let data ← loadProject dir
   if data.sources.isEmpty then
     for error in data.errors do
-      IO.eprintln s!"eventb: error: {error}"
-    IO.eprintln s!"eventb po: {dir} contains no .bum, .buc, or .eventb files"
+      printError data.paths s!"eventb: error: {error}"
+    printError [dir] s!"eventb po: {dir} contains no .bum, .buc, or .eventb files"
     return 1
   let rs := reports data
   for error in fatalErrors data rs do
-    IO.eprintln s!"eventb: error: {error}"
+    printError data.paths s!"eventb: error: {error}"
   match findObligation rs name with
   | none =>
-      IO.eprintln s!"eventb po: no obligation named {name}"
+      printError [] s!"eventb po: no obligation named {name}"
       return 1
   | some (machine, obligation) =>
       IO.println s!"{machine}: {obligation.name} [{obligation.kind}]"
@@ -590,18 +608,18 @@ private def runReport (dir : System.FilePath) : IO UInt32 := do
   let data ← loadProject dir
   if data.sources.isEmpty then
     for error in data.errors do
-      IO.eprintln s!"eventb: error: {error}"
-    IO.eprintln s!"eventb report: {dir} contains no Event-B source file"
+      printError data.paths s!"eventb: error: {error}"
+    printError [dir] s!"eventb report: {dir} contains no Event-B source file"
     return 1
   let rs := reports data
   for error in fatalErrors data rs do
-    IO.eprintln s!"eventb: error: {error}"
+    printError data.paths s!"eventb: error: {error}"
   let mut gold : List (String × List String) := []
   if ← dir.isDir then
     for path in ← bpoFiles dir do
       match ← readGoldPOs path with
       | .ok names => gold := (stem path, names) :: gold
-      | .error error => IO.eprintln s!"eventb report: {error}"
+      | .error error => printError [path] s!"eventb report: {error}"
   let obligations := rs.flatMap fun report =>
     report.obligations.map (fun obligation => (report.source.name, obligation))
   let ledger := localLedger (obligations.map (·.2))
@@ -622,26 +640,26 @@ private def findSource (sources : List Source) (name : String) : Option Source :
 private def runDiff (dir : System.FilePath) : IO UInt32 := do
   let data ← loadProject dir
   if data.sources.isEmpty then
-    IO.eprintln s!"eventb diff: {dir} contains no .bum or .buc files"
+    printError [dir] s!"eventb diff: {dir} contains no .bum or .buc files"
     return 1
   let bpos ← bpoFiles dir
   if bpos.isEmpty then
-    IO.eprintln s!"eventb diff: {dir} contains no .bpo files"
+    printError [dir] s!"eventb diff: {dir} contains no .bpo files"
     return 1
   let rs := reports data
   for error in fatalErrors data rs do
-    IO.eprintln s!"eventb: error: {error}"
+    printError data.paths s!"eventb: error: {error}"
   let mut failed := !(fatalErrors data rs).isEmpty
   for path in bpos do
     match findSource data.sources (stem path) with
     | none =>
         failed := true
-        IO.eprintln s!"eventb diff: {path}: no matching .bum or .buc file"
+        printError [path] s!"eventb diff: {path}: no matching .bum or .buc file"
     | some source =>
         match ← readGoldPOs path with
         | .error error =>
             failed := true
-            IO.eprintln s!"eventb diff: {path}: {error}"
+            printError [path] s!"eventb diff: {path}: {error}"
         | .ok gold =>
             let ours := (generateIn data.theory data.project source.name).map (·.name)
             let missing := gold.filter (fun name => !ours.contains name)
@@ -656,98 +674,23 @@ private def runDiff (dir : System.FilePath) : IO UInt32 := do
   for source in data.sources do
     if !bpos.any (fun path => stem path == source.name) then
       failed := true
-      IO.eprintln s!"eventb diff: {source.path}: no matching .bpo file"
+      printError [source.path] s!"eventb diff: {source.path}: no matching .bpo file"
   return if failed then 1 else 0
 
-private def runCommand (args : List String) : IO UInt32 := do
-  match args with
-  | ["--help"] | ["-h"] =>
-      IO.println help
-      return 0
-  | "check" :: rest =>
-      match parseCheck rest with
-      | .error error =>
-          IO.eprintln s!"eventb check: {error}"
-          IO.eprintln checkHelp
-          return 1
-      | .ok none =>
-          IO.println checkHelp
-          return 0
-      | .ok (some parsed) => runCheck parsed
-  | "po" :: rest =>
-      if rest.any (fun arg => arg == "--help" || arg == "-h") then
-        IO.println poHelp
-        return 0
-      match rest with
-      | [dir, name] => runPo dir name
-      | _ =>
-          IO.eprintln "eventb po: expected <project-dir> <PO-NAME>"
-          IO.eprintln poHelp
-          return 1
-  | "summary" :: rest =>
-      match parseSummary rest with
-      | .error error =>
-          IO.eprintln s!"eventb summary: {error}"
-          IO.eprintln summaryHelp
-          return 1
-      | .ok none =>
-          IO.println summaryHelp
-          return 0
-      | .ok (some (dir, json)) => runSummary dir json
-  | "report" :: rest =>
-      if rest.any (fun arg => arg == "--help" || arg == "-h") then
-        IO.println reportHelp
-        return 0
-      match rest with
-      | [dir] => runReport dir
-      | _ =>
-          IO.eprintln "eventb report: expected <project-dir-or-.eventb>"
-          IO.eprintln reportHelp
-          return 1
-  | "theory" :: rest =>
-      if rest.any (fun arg => arg == "--help" || arg == "-h") then
-        IO.println theoryHelp
-        return 0
-      match rest with
-      | [path] => runTheory path
-      | _ =>
-          IO.eprintln "eventb theory: expected <project-dir-or-.tuf>"
-          IO.eprintln theoryHelp
-          return 1
-  | "prove" :: rest =>
-      if rest.any (fun arg => arg == "--help" || arg == "-h") then
-        IO.println proveHelp
-        return 0
-      match rest with
-      | [dir] => runProve dir
-      | _ =>
-          IO.eprintln "eventb prove: expected <project-dir-or-.eventb>"
-          IO.eprintln proveHelp
-          return 1
-  | "diff" :: rest =>
-      if rest.any (fun arg => arg == "--help" || arg == "-h") then
-        IO.println diffHelp
-        return 0
-      match rest with
-      | [dir] => runDiff dir
-      | _ =>
-          IO.eprintln "eventb diff: expected <project-dir>"
-          IO.eprintln diffHelp
-          return 1
-  | command :: _ =>
-      IO.eprintln s!"eventb: unknown command {command}"
-      IO.eprintln help
-      return 1
-  | [] =>
-      IO.eprintln "eventb: a command is required"
-      IO.eprintln help
-      return 1
+private def runAction : Action → IO UInt32
+  | .check args => runCheck args
+  | .po dir name => runPo dir name
+  | .summary dir json => runSummary dir json
+  | .report dir => runReport dir
+  | .theory path => runTheory path
+  | .prove dir => runProve dir
+  | .diff dir => runDiff dir
 
 def main (args : List String) : IO UInt32 := do
   try
-    runCommand args
+    Argus.Term.main command args runAction
   catch error =>
-    IO.eprintln s!"eventb: {error}"
+    printError [] s!"eventb: {error}"
     return (1 : UInt32)
 
 end EventB.Cli
