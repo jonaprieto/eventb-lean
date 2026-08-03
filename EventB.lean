@@ -1,4 +1,5 @@
 import EventB.Semantics
+import EventB.Error
 import EventB.Model
 import EventB.Rossi
 import EventB.Formula.Parse

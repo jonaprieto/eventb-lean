@@ -33,7 +33,7 @@ def main (args : List String) : IO UInt32 := do
     | .error error =>
         failed := true
         IO.println ("{\"file\":" ++ jsonString path ++ ",\"success\":false," ++
-          "\"error\":" ++ jsonString error ++ "}")
+          "\"error\":" ++ jsonString (EventB.Error.render error) ++ "}")
   return if failed then 1 else 0
 
 end EventB.RossiDump

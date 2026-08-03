@@ -163,14 +163,18 @@ private def parseRoot (root : XmlElem) : Except String Spec := do
   let declarations := values.filterMap (fun value => value.2.2)
   pure (Theory.canonicalize { name, imports, symbols, declarations })
 
-def importSpec (env : Env) (source : String) : Except String Spec := do
-  let root ← match parseXmlString source with
-    | .ok root => pure root
-    | .error error => .error s!"invalid Rodin theory XML: {error.pretty source.toUTF8}"
-  let spec ← parseRoot root
-  let report := Validate.validateSpec env spec
-  if report.isValid then pure spec
-  else .error (report.errors.map (·.message) |>.intersperse "; " |>.foldl (· ++ ·) "")
+def importSpec (env : Env) (source : String) : Except EventB.Error Spec :=
+  match parseXmlString source with
+  | .error error => .error (EventB.Error.theory
+      s!"invalid Rodin theory XML: {error.pretty source.toUTF8}")
+  | .ok root =>
+      match parseRoot root with
+      | .error error => .error (EventB.Error.theory error)
+      | .ok spec =>
+          let report := Validate.validateSpec env spec
+          if report.isValid then .ok spec
+          else .error (EventB.Error.theory
+            (report.errors.map (·.message) |>.intersperse "; " |>.foldl (· ++ ·) ""))
 
 private def escape (source : String) : String :=
   source.toList.foldl (fun output char => output ++ match char with
@@ -264,7 +268,7 @@ private def declarationElems : Declaration → List XmlElem
           rule.premises.map fun premise =>
           XmlElem.mk (tag "premise") [("formula", Formula.print premise)] [])]
 
-def exportSpec (env : Env) (spec : Spec) : Except String String := do
+def exportSpec (env : Env) (spec : Spec) : Except EventB.Error String := do
   let report := Validate.validateSpec env spec
   if report.isValid then
     let root : XmlElem :=
@@ -272,8 +276,9 @@ def exportSpec (env : Env) (spec : Spec) : Except String String := do
         children := (spec.imports.map fun name =>
             { tag := tag "import", attrs := [("identifier", name)], children := [] }) ++
           spec.symbols.map symbolElem ++ spec.declarations.flatMap declarationElems }
-    let xml ← render 1000 root
+    let xml ← (render 1000 root).mapError EventB.Error.theory
     pure ("<?xml version=\"1.0\"?>" ++ xml)
-  else .error (report.errors.map (·.message) |>.intersperse "; " |>.foldl (· ++ ·) "")
+  else .error (EventB.Error.theory
+    (report.errors.map (·.message) |>.intersperse "; " |>.foldl (· ++ ·) ""))
 
 end EventB.Theory.Rodin

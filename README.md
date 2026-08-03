@@ -77,6 +77,10 @@ source files. Theory directories are loaded in dependency order; a single theory
 that imports an unprovided theory fails rather than inventing a dependency. Raw
 Rossi/XML source ranges are not currently promised for editor navigation.
 
+CLI diagnostics use `lean-termcolor-diagnostics`: when a source path is available and the
+terminal supports OSC-8, the rendered source location is clickable; plain output keeps the
+same diagnostic text without escape sequences.
+
 Build the executable, then point it at a Rodin project directory. `check` lists the
 generated obligations; `diff` compares their names with Rodin's `.bpo` files:
 

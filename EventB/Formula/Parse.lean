@@ -225,7 +225,7 @@ termination_by fuel _ _ => fuel
 
 end
 
-def parseTokens (toks : List Tok) : Except String Term := do
+private def parseTokensText (toks : List Tok) : Except String Term := do
   let arr := toks.toArray
   -- Consuming one token can descend `parseAt -> parsePrefix -> parsePostfix` and come
   -- back through `parseInfix`, and each of those decrements, so the budget is a small
@@ -236,7 +236,10 @@ def parseTokens (toks : List Tok) : Except String Term := do
   | none => .ok t
   | some tok => .error s!"trailing input at {tok.render}"
 
-def parse (source : String) : Except String Term := do
+def parseTokens (toks : List Tok) : Except EventB.Error Term :=
+  (parseTokensText toks).mapError EventB.Error.formula
+
+def parse (source : String) : Except EventB.Error Term := do
   parseTokens (← lex source)
 
 /-- Fully parenthesised, so the printer states the tree rather than relying on the

@@ -54,13 +54,14 @@ private def parseStatus (elem : XmlElem) : Except String Status := do
     | none => pure false
   pure { name, confidence, manual }
 
-def importStatuses (source : String) : Except String (List Status) := do
+def importStatuses (source : String) : Except EventB.Error (List Status) := do
   let root ← match parseXmlString source with
     | .ok root => pure root
-    | .error error => .error s!"invalid Rodin proof-status XML: {error.pretty source.toUTF8}"
+    | .error error => .error (EventB.Error.trust
+        s!"invalid Rodin proof-status XML: {error.pretty source.toUTF8}")
   unless root.tag == "org.eventb.core.psFile" do
-    throw s!"root is not a proof-status file: `{root.tag}`"
-  root.children.mapM parseStatus
+    throw (EventB.Error.trust s!"root is not a proof-status file: `{root.tag}`")
+  (root.children.mapM parseStatus).mapError EventB.Error.trust
 
 private def status? (statuses : List Status) (name : String) : Option Status :=
   statuses.find? (·.name == name)
@@ -79,7 +80,7 @@ def compare (obligations : List POG.Obligation) (statuses : List Status) : Compa
     stale := statuses.countP (fun status => !expected.contains status.name) }
 
 def attach (ledger : Ledger) (obligation : POG.Obligation) (source : String)
-    (status : Status) : Except String Ledger :=
+    (status : Status) : Except EventB.Error Ledger :=
   if status.discharged then
     let evidence := .rodinImported source (s!"eventb-v1-{String.hash source}") status.manual
     ledger.attach obligation evidence

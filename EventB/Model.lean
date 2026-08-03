@@ -3,6 +3,7 @@ The P0 model is deliberately shallow. XML attributes remain strings;
 formula syntax and typing are P1/P2 concerns.
 -/
 
+import EventB.Error
 import EventB.Xml
 
 namespace EventB
@@ -201,30 +202,31 @@ decreasing_by
 
 end
 
-def fromXml (xml : XmlElem) : Except String Model := do
-  let root ← mapElem xml
+def fromXml (xml : XmlElem) : Except EventB.Error Model := do
+  let root ← (mapElem xml).mapError EventB.Error.model
   match root with
   | .machineFile _ _ | .contextFile _ _ => pure { root := root }
-  | _ => .error ("expected machineFile or contextFile root, got " ++ root.tag)
+  | _ => .error (EventB.Error.model
+      ("expected machineFile or contextFile root, got " ++ root.tag))
 
-def parseModel (source : ByteArray) : Except String Model :=
+def parseModel (source : ByteArray) : Except EventB.Error Model :=
   match parseXml source with
-  | .error err => .error (err.pretty source)
+  | .error err => .error (EventB.Error.model (err.pretty source))
   | .ok xml => fromXml xml
 
-def parseMachine (source : ByteArray) : Except String Model := do
+def parseMachine (source : ByteArray) : Except EventB.Error Model := do
   let model ← parseModel source
   match model.root with
   | .machineFile _ _ => pure model
-  | _ => .error "expected machineFile root"
+  | _ => .error (EventB.Error.model "expected machineFile root")
 
-def parseContext (source : ByteArray) : Except String Model := do
+def parseContext (source : ByteArray) : Except EventB.Error Model := do
   let model ← parseModel source
   match model.root with
   | .contextFile _ _ => pure model
-  | _ => .error "expected contextFile root"
+  | _ => .error (EventB.Error.model "expected contextFile root")
 
-def readModel (path : System.FilePath) : IO (Except String Model) := do
+def readModel (path : System.FilePath) : IO (Except EventB.Error Model) := do
   pure (parseModel (← IO.FS.readBinFile path))
 
 end EventB

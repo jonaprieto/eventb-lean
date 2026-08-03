@@ -626,7 +626,7 @@ private def elabTheory : CommandElab := fun stx => do
       let spec : Theory.Spec := Theory.canonicalize
         (Theory.Spec.mk n.getId.toString importNames symbols declarations)
       match Theory.add (theoryEnvironment (← getEnv)) spec with
-      | .error message => throwErrorAt n message
+      | .error message => throwErrorAt n (EventB.Error.render message)
       | .ok _ =>
           defineTheory n (mkSpecTerm spec)
           modifyEnv (theoryExtension.addEntry · spec)

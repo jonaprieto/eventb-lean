@@ -12,6 +12,10 @@ require grip from git
 require argus from git
   "https://github.com/jonaprieto/lean-argus.git" @ "13f6936ead5d8774c5619b356ac5d8d847ec0cc4"
 
+require «termcolor-diagnostics» from git
+  "https://github.com/jonaprieto/lean-termcolor-diagnostics.git"
+  @ "9d5285a793fcad9d2ec0e14ebcd000b4d47ec488"
+
 require "leanprover-community" / "proofwidgets" @ git "v0.0.87"
 
 @[default_target]

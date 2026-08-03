@@ -59,16 +59,16 @@ private meta def checkResolvedDefinitions : TermElabM Unit := do
           { name := "pairSum", parameters := [("x", .int), ("y", .int)], result := .int,
             body := .bin "+" (.id "x") (.id "y") }] } with
     | .ok value => pure value
-    | .error error => throwError error
+    | .error error => throwError (EventB.Error.render error)
   let context ← Embed.translateDefinitions
     { theory, roots := ["Resolved"] }
   let equality ← match Formula.parse "one = 1 ∧ increment(1) = 2 ∧ pairSum(1, 2) = 3" with
     | .ok value => pure value
-    | .error error => throwError error
+    | .error error => throwError (EventB.Error.render error)
   let _ ← Embedding.translatePredicate context equality
   let application ← match Formula.parse "pairSum(1, 2)" with
     | .ok value => pure value
-    | .error error => throwError error
+    | .error error => throwError (EventB.Error.render error)
   match (EventB.Typing.inferExpr application).run
       { theory, theoryRoots := ["Resolved"] } with
   | .ok (type, state) =>
@@ -94,7 +94,7 @@ private meta def checkDatatype : TermElabM Unit := do
         [.dataType { name := "Point", constructors :=
           [{ name := "mk", arguments := [.int, .int] }] }] } with
     | .ok value => pure value
-    | .error error => throwError error
+    | .error error => throwError (EventB.Error.render error)
   let pointContext ← Embed.addDatatypeBindings
     { theory := pointTheory, roots := ["PointTheory"],
       signature := { carriers := [("Point", mkConst ``Point)] } }
@@ -102,7 +102,7 @@ private meta def checkDatatype : TermElabM Unit := do
     (mkConst ``Point) [("mk", mkConst ``Point.mk)]
   let equality ← match Formula.parse "mk(1, 2) = mk(1, 2)" with
     | .ok value => pure value
-    | .error error => throwError error
+    | .error error => throwError (EventB.Error.render error)
   let _ ← Embedding.translatePredicate pointContext equality
 
 private meta def checkRules : TermElabM Unit := do
@@ -148,7 +148,7 @@ private meta def checkKernelReplay : TermElabM Unit := do
       { name := "ReplayTheory", declarations :=
         [.definitionDecl { name := "zero", result := .int, body := .num 0 }] } with
     | .ok value => pure value
-    | .error error => throwError error
+    | .error error => throwError (EventB.Error.render error)
   let context ← Embed.translateDefinitions { theory, roots := ["ReplayTheory"] }
   let obligation : POG.Obligation :=
     { component := "ReplayTheory", name := "zero/reflexive/THM", kind := "THM"

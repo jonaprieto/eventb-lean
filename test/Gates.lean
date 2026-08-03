@@ -52,7 +52,7 @@ private def checkFile (path : System.FilePath) : IO FileResult := do
     match parsed with
     | .ok model => pure { path := path.toString, status := "PASS", model := some model }
     | .error reason =>
-        pure { path := path.toString, status := "FAIL:" ++ shortReason reason }
+        pure { path := path.toString, status := "FAIL:" ++ shortReason (EventB.Error.render reason) }
   catch err =>
     pure { path := path.toString, status := "FAIL:IO " ++ err.toString }
 
@@ -102,10 +102,11 @@ private structure FormulaResult where
 private def checkFormula (file label formula : String) : FormulaResult :=
   let key := file ++ "\t" ++ label
   match Formula.parse formula with
-  | .error reason => { key := key, status := "FAIL:" ++ reason }
+  | .error reason => { key := key, status := "FAIL:" ++ EventB.Error.render reason }
   | .ok term =>
       match Formula.parse (Formula.print term) with
-      | .error reason => { key := key, status := "FAIL:reprint " ++ reason }
+      | .error reason =>
+          { key := key, status := "FAIL:reprint " ++ EventB.Error.render reason }
       | .ok again =>
           if again == term then { key := key, status := "PASS" }
           else { key := key, status := "FAIL:round-trip differs" }
@@ -183,7 +184,9 @@ private def compareType (key inferred gold : String) : TypeResult :=
 private def checkTypes (project : Project) (file : String)
     (gold : List (String × String)) : List TypeResult :=
   match inferComponent project file with
-  | .error e => gold.map (fun (n, _) => { key := file ++ "\t" ++ n, status := "FAIL:" ++ e })
+  | .error e =>
+      gold.map (fun (n, _) =>
+        { key := file ++ "\t" ++ n, status := "FAIL:" ++ EventB.Error.render e })
   | .ok (env, _) =>
       gold.map fun (n, g) =>
         let key := file ++ "\t" ++ n

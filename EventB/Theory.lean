@@ -494,13 +494,13 @@ private def validate (env : Env) (theory : Spec) : List String :=
   | some name => errors ++ [s!"theory `{name}` is not registered"]
   | none => errors
 
-def add (env : Env) (theory : Spec) : Except String Env :=
+def add (env : Env) (theory : Spec) : Except EventB.Error Env :=
   let theory := canonicalize theory
   match validate env theory with
-  | error :: _ => .error error
+  | error :: _ => .error (EventB.Error.theory error)
   | [] => .ok { env with theories := theory :: env.theories }
 
-def register (specs : List Spec) : Except String Env :=
+def register (specs : List Spec) : Except EventB.Error Env :=
   specs.foldlM add empty
 
 /-- Compatibility lookup for callers that have no component-specific scope yet. -/

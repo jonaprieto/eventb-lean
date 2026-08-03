@@ -74,13 +74,16 @@ def Ledger.entry? (ledger : Ledger) (component name : String) : Option Entry :=
   ledger.entries.find? (fun entry => key entry.component entry.obligation == key component name)
 
 def Ledger.attach (ledger : Ledger) (obligation : POG.Obligation) (evidence : Evidence) :
-    Except String Ledger :=
+    Except EventB.Error Ledger :=
   let expected := fingerprint obligation.canonical
-  if !evidence.isWellFormed then .error "evidence metadata is incomplete"
+  if !evidence.isWellFormed then
+    .error (EventB.Error.trust "evidence metadata is incomplete")
   else if ledger.entry? obligation.component obligation.name |>.isNone then
-    .error s!"obligation `{obligation.component}:{obligation.name}` is not in the ledger"
+    .error (EventB.Error.trust
+      s!"obligation `{obligation.component}:{obligation.name}` is not in the ledger")
   else if (ledger.entry? obligation.component obligation.name |>.get!).fingerprint != expected then
-    .error s!"evidence fingerprint mismatch for `{obligation.component}:{obligation.name}`"
+    .error (EventB.Error.trust
+      s!"evidence fingerprint mismatch for `{obligation.component}:{obligation.name}`")
   else
     .ok { entries := ledger.entries.map fun entry =>
       if key entry.component entry.obligation == key obligation.component obligation.name then

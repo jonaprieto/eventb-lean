@@ -768,20 +768,21 @@ private def parseComponents : Nat → List Line → Except String (List Componen
               return component :: more
           | _ => .error (lineError line "expected CONTEXT or MACHINE")
 
-def parse (source : String) : Except String (List Component) := do
-  let source ← stripComments source
-  let result ← parseComponents ((source.length * 2) + 1) (lines source)
-  if result.isEmpty then .error "Rossi input contains no CONTEXT or MACHINE"
+def parse (source : String) : Except EventB.Error (List Component) := do
+  let source ← (stripComments source).mapError EventB.Error.rossi
+  let result ← (parseComponents ((source.length * 2) + 1) (lines source)).mapError
+    EventB.Error.rossi
+  if result.isEmpty then .error (EventB.Error.rossi "Rossi input contains no CONTEXT or MACHINE")
   else return result
 
-def parseModel (source : String) : Except String (List Model) :=
+def parseModel (source : String) : Except EventB.Error (List Model) :=
   parse source |>.map (·.map (·.model))
 
-def read (path : System.FilePath) : IO (Except String (List Component)) := do
+def read (path : System.FilePath) : IO (Except EventB.Error (List Component)) := do
   try
     let source ← IO.FS.readFile path
-    return parse source
+    return (parse source).mapError (·.withPath path.toString)
   catch error =>
-    return .error s!"{path}: could not be read: {error}"
+    return .error ((EventB.Error.io s!"could not be read: {error}").withPath path.toString)
 
 end EventB.Rossi

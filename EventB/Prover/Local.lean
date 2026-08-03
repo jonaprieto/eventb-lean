@@ -64,16 +64,18 @@ def prove (obligation : Obligation) : Result :=
   | some rule => { rule := some rule, evidence := evidence obligation rule }
   | none => {}
 
-def attach (ledger : Ledger) (obligation : Obligation) : Result → Except String Ledger
+def attach (ledger : Ledger) (obligation : Obligation) : Result → Except EventB.Error Ledger
   | { rule := some rule, evidence := .external tool version digest verifier } =>
       if tool != "eventb-local" || version != "0" || verifier != "EventB.Prover.Local" then
-        .error "local prover evidence metadata mismatch"
+        .error (EventB.Error.prover "local prover evidence metadata mismatch")
       else if digest != evidenceFingerprint obligation rule then
-        .error "local prover evidence fingerprint mismatch"
+        .error (EventB.Error.prover "local prover evidence fingerprint mismatch")
       else
         ledger.attach obligation (.external tool version digest verifier)
-  | { rule := some _, evidence := .none } => .error "local prover evidence is missing"
-  | { rule := some _, evidence := _ } => .error "local prover evidence has wrong trust mode"
+  | { rule := some _, evidence := .none } =>
+      .error (EventB.Error.prover "local prover evidence is missing")
+  | { rule := some _, evidence := _ } =>
+      .error (EventB.Error.prover "local prover evidence has wrong trust mode")
   | _ => pure ledger
 
 private def trueObligation : Obligation :=

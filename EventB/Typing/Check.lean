@@ -131,7 +131,7 @@ where
     | none => bind n t
   runPredicate (f : String) : StateT St (Except String) (List String) := do
     match Formula.parse f with
-    | .error e => return [s!"parse: {e}"]
+    | .error e => return [s!"parse: {EventB.Error.render e}"]
     | .ok term =>
       let st ← get
       match (checkPred term).run st with
@@ -141,7 +141,7 @@ where
 
 /-- Infer every identifier type visible in `name`, as Rodin would record them. -/
 def inferComponentIn (theory : Theory.Env) (p : Project) (name : String) :
-    Except String (List (String × Ty) × List String) := do
+    Except EventB.Error (List (String × Ty) × List String) :=
   let (_, order) := closure p [] name
   let roots := componentTheoryRoots p name
   let run : StateT St (Except String) (List (String × Ty) × List String) := do
@@ -156,25 +156,31 @@ def inferComponentIn (theory : Theory.Env) (p : Project) (name : String) :
       if out.all (fun q => q.1 != n) then
         out := out ++ [(n, ← zonk t)]
     return (out, errs)
-  return (← run.run' { theory, theoryRoots := roots })
+  match run.run' { theory, theoryRoots := roots } with
+  | .ok result => .ok result
+  | .error error => .error (EventB.Error.typing error)
 
 def inferComponent (p : Project) (name : String) :
-    Except String (List (String × Ty) × List String) :=
+    Except EventB.Error (List (String × Ty) × List String) :=
   inferComponentIn Theory.empty p name
 
 /-- Infer one expression against an already-built component environment. -/
-def inferTermAt (theory : Theory.Env) (roots : List String) (env : List (String × Ty))
+private def inferTermAtText (theory : Theory.Env) (roots : List String) (env : List (String × Ty))
     (t : Term) : Except String Ty := do
   let (ty, st) ← (inferExpr t).run { env, theory, theoryRoots := roots }
   let (ty, _) ← (zonk ty).run st
   return ty
 
+def inferTermAt (theory : Theory.Env) (roots : List String) (env : List (String × Ty))
+    (t : Term) : Except EventB.Error Ty :=
+  (inferTermAtText theory roots env t).mapError EventB.Error.typing
+
 def inferTermIn (theory : Theory.Env) (env : List (String × Ty)) (t : Term) :
-    Except String Ty := do
+    Except EventB.Error Ty := do
   let roots := theory.theories.map (·.name)
   inferTermAt theory roots env t
 
-def inferTerm (env : List (String × Ty)) (t : Term) : Except String Ty :=
+def inferTerm (env : List (String × Ty)) (t : Term) : Except EventB.Error Ty :=
   inferTermIn Theory.empty env t
 
 /-! Self-checks. The corpus pins the common cases; these pin the shapes it happens not

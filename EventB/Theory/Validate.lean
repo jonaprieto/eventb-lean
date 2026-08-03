@@ -339,7 +339,7 @@ private def specNameIssues (spec : Spec) : List Issue :=
 private def registrationIssues (env : Theory.Env) (spec : Spec) : List Issue :=
   match Theory.add env spec with
   | .ok _ => []
-  | .error message => [error spec.name "registration" message]
+  | .error message => [error spec.name "registration" (EventB.Error.render message)]
 
 def validateDeclaration (theory : Theory.Env) (roots : List String)
     (value : Declaration) : Report :=

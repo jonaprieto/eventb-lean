@@ -14,6 +14,6 @@ def main : IO Unit := do
   for l in lines do
     match Formula.parse l with
     | .ok _ => ok := ok + 1
-    | .error e => fails := (e ++ "  ||  " ++ l.take 70) :: fails
+    | .error e => fails := (EventB.Error.render e ++ "  ||  " ++ l.take 70) :: fails
   IO.println s!"PO predicates parsed {ok}/{lines.length}"
   for f in (fails.take 6) do IO.println s!"  {f}"

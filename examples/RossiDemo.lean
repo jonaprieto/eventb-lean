@@ -41,7 +41,7 @@ private def compactMachine : String :=
   | _ => false
 
 #guard match Rossi.parse "CONTEXT C AXIOMS @only END" with
-  | .error message => message.contains "formula"
+  | .error message => (EventB.Error.render message).contains "formula"
   | _ => false
 
 private def sourceWithRefinement : String :=

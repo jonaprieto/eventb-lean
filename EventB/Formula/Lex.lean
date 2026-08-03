@@ -8,6 +8,8 @@ the moment anyone types `:`. Longest match is what makes the two live together, 
 `<<:` must not be read as `<` then `<:`.
 -/
 
+import EventB.Error
+
 namespace EventB.Formula
 
 inductive Tok where
@@ -138,8 +140,8 @@ private def go (table : Array (List Char × String)) (acc : List Tok) :
 /-- `mod` is the only word-shaped operator Rodin treats as infix; the rest of the word
 operators (`card`, `dom`, `bool`, ...) are ordinary identifiers applied to an argument,
 so the lexer leaves them alone. -/
-def lex (s : String) : Except String (List Tok) :=
+def lex (s : String) : Except EventB.Error (List Tok) :=
   let cs := s.toList
-  go operatorTable [] cs.length cs
+  (go operatorTable [] cs.length cs).mapError EventB.Error.formula
 
 end EventB.Formula
