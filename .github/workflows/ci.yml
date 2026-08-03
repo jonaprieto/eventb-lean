@@ -55,7 +55,8 @@ jobs:
           git config --global core.sshCommand \
             "ssh -o UserKnownHostsFile=$ssh_dir/known_hosts -o StrictHostKeyChecking=yes"
           git config --global \
-            url."ssh://git@github.com/".insteadOf "https://github.com/"
+            url."ssh://git@github.com/jonaprieto/lean-grip".insteadOf \
+            "https://github.com/jonaprieto/lean-grip"
       - uses: leanprover/lean-action@v1
         with:
           build-args: "EventB EventBWidgets Examples gates rossi-dump eventb bench"
@@ -137,7 +138,8 @@ jobs:
           git config --global core.sshCommand \
             "ssh -o UserKnownHostsFile=$ssh_dir/known_hosts -o StrictHostKeyChecking=yes"
           git config --global \
-            url."ssh://git@github.com/".insteadOf "https://github.com/"
+            url."ssh://git@github.com/jonaprieto/lean-grip".insteadOf \
+            "https://github.com/jonaprieto/lean-grip"
       - uses: leanprover/lean-action@v1
         with:
           build-args: "EventB"
