@@ -10,7 +10,7 @@ require grip from git
   "https://github.com/jonaprieto/lean-grip" @ "00e7a251cdceb39c3c0b12d91b0f66e923e1c724"
 
 require argus from git
-  "https://github.com/jonaprieto/lean-argus.git" @ "13f6936"
+  "https://github.com/jonaprieto/lean-argus.git" @ "13f6936ead5d8774c5619b356ac5d8d847ec0cc4"
 
 require "leanprover-community" / "proofwidgets" @ git "v0.0.87"
 
