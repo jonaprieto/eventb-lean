@@ -359,7 +359,8 @@ private def runCheckWithKinds (args : CheckArgs) (kinds : Option (List String)) 
     for error in data.errors do
       printError data.paths error
     printError [args.dir]
-      ((EventB.Error.cli s!"eventb check: {args.dir} contains no .bum, .buc, or .eventb files").withPath
+      ((EventB.Error.cli
+        s!"eventb check: {args.dir} contains no .bum, .buc, or .eventb files").withPath
         args.dir.toString)
     return 1
   let rs := reports data
@@ -424,7 +425,8 @@ private def runSummary (dir : System.FilePath) (json : Bool) : IO UInt32 := do
     for error in data.errors do
       printError data.paths error
     printError [dir]
-      ((EventB.Error.cli s!"eventb summary: {dir} contains no .bum, .buc, or .eventb files").withPath
+      ((EventB.Error.cli
+        s!"eventb summary: {dir} contains no .bum, .buc, or .eventb files").withPath
         dir.toString)
     return 1
   let rs := reports data
@@ -484,7 +486,8 @@ private def runProve (dir : System.FilePath) : IO UInt32 := do
     for error in data.errors do
       printError data.paths error
     printError [dir]
-      ((EventB.Error.cli s!"eventb prove: {dir} contains no Event-B source file").withPath dir.toString)
+      ((EventB.Error.cli s!"eventb prove: {dir} contains no Event-B source file").withPath
+        dir.toString)
     return 1
   let rs := reports data
   for error in fatalErrors data rs do
@@ -627,7 +630,8 @@ private def runReport (dir : System.FilePath) : IO UInt32 := do
     for error in data.errors do
       printError data.paths error
     printError [dir]
-      ((EventB.Error.cli s!"eventb report: {dir} contains no Event-B source file").withPath dir.toString)
+      ((EventB.Error.cli s!"eventb report: {dir} contains no Event-B source file").withPath
+        dir.toString)
     return 1
   let rs := reports data
   for error in fatalErrors data rs do
@@ -660,7 +664,8 @@ private def runDiff (dir : System.FilePath) : IO UInt32 := do
   let data ← loadProject dir
   if data.sources.isEmpty then
     printError [dir]
-      ((EventB.Error.cli s!"eventb diff: {dir} contains no .bum or .buc files").withPath dir.toString)
+      ((EventB.Error.cli s!"eventb diff: {dir} contains no .bum or .buc files").withPath
+        dir.toString)
     return 1
   let bpos ← bpoFiles dir
   if bpos.isEmpty then

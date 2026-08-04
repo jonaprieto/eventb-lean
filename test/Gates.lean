@@ -52,7 +52,8 @@ private def checkFile (path : System.FilePath) : IO FileResult := do
     match parsed with
     | .ok model => pure { path := path.toString, status := "PASS", model := some model }
     | .error reason =>
-        pure { path := path.toString, status := "FAIL:" ++ shortReason (EventB.Error.render reason) }
+        pure { path := path.toString,
+               status := "FAIL:" ++ shortReason (EventB.Error.render reason) }
   catch err =>
     pure { path := path.toString, status := "FAIL:IO " ++ err.toString }
 
