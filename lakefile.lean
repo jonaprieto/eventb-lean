@@ -7,16 +7,16 @@ package «eventb» where
 -- Pinned by SHA, not `main`: corpus gate numbers are only reproducible if the
 -- parser underneath them is too.
 require grip from git
-  "https://github.com/jonaprieto/lean-grip" @ "00e7a251cdceb39c3c0b12d91b0f66e923e1c724"
+  "https://github.com/jonaprieto/lean-grip" @ "17bed154d8188650bf8dd458ec44385ce72d6ba4"
 
 require argus from git
-  "https://github.com/jonaprieto/lean-argus.git" @ "13f6936ead5d8774c5619b356ac5d8d847ec0cc4"
+  "https://github.com/jonaprieto/lean-argus.git" @ "52be578cc9811b6c2f03d7a22e694ff317aa1152"
 
 require «termcolor-diagnostics» from git
   "https://github.com/jonaprieto/lean-termcolor-diagnostics.git"
-  @ "9d5285a793fcad9d2ec0e14ebcd000b4d47ec488"
+  @ "dd016af716eece82535fbfd082522dbe1c5478e4"
 
-require "leanprover-community" / "proofwidgets" @ git "v0.0.87"
+require "leanprover-community" / "proofwidgets" @ git "v0.0.105"
 
 @[default_target]
 lean_lib «EventB» where

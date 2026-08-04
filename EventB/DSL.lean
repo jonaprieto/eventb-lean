@@ -191,7 +191,8 @@ private def addDefinitionInfo (id : Syntax) (symbol : String) (location : Declar
     expectedType? := none
     expr := mkStrLit symbol
     location? := some location
-    docString? := some s!"Event-B symbol `{symbol}`"
+    -- v4.32 replaced `docString?` with an `IO` action so the text is only built on hover.
+    mkDocString? := some fun _ => pure s!"Event-B symbol `{symbol}`"
   }
 
 private def addFormulaInfos (owners : List String) (stx : Syntax) : CommandElabM Unit := do
