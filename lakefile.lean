@@ -10,7 +10,7 @@ require grip from git
   "https://github.com/jonaprieto/lean-grip" @ "17bed154d8188650bf8dd458ec44385ce72d6ba4"
 
 require argus from git
-  "https://github.com/jonaprieto/lean-argus.git" @ "5cda80096305e7624561bed7eaeeb1e166bf6b77"
+  "https://github.com/jonaprieto/lean-argus.git" @ "d1db1a027768d42fbf16e6198efcb404d126dcee"
 
 require «termcolor-diagnostics» from git
   "https://github.com/jonaprieto/lean-termcolor-diagnostics.git"
