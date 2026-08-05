@@ -2,15 +2,16 @@ import Lake
 open Lake DSL
 
 package «eventb» where
+  version := v!"4.0.1"
   leanOptions := #[⟨`autoImplicit, false⟩, ⟨`relaxedAutoImplicit, false⟩]
 
--- Pinned by SHA, not `main`: corpus gate numbers are only reproducible if the
+-- Pinned release tags, not `main`: corpus gate numbers are only reproducible if the
 -- parser underneath them is too.
 require grip from git
-  "https://github.com/jonaprieto/lean-grip" @ "17bed154d8188650bf8dd458ec44385ce72d6ba4"
+  "https://github.com/jonaprieto/lean-grip" @ "v0.1.0"
 
 require argus from git
-  "https://github.com/jonaprieto/lean-argus.git" @ "c38b78d113d56fccc300d77c9707aee7a55dc719"
+  "https://github.com/jonaprieto/lean-argus.git" @ "v0.4.4"
 
 require «termcolor-diagnostics» from git
   "https://github.com/jonaprieto/lean-termcolor-diagnostics.git"
