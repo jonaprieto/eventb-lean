@@ -14,7 +14,7 @@ require argus from git
 
 require «termcolor-diagnostics» from git
   "https://github.com/jonaprieto/lean-termcolor-diagnostics.git"
-  @ "dd016af716eece82535fbfd082522dbe1c5478e4"
+  @ "315f84249c6c9874221ec20f419ad03f6c339815"
 
 require "leanprover-community" / "proofwidgets" @ git "v0.0.105"
 
