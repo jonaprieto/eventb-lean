@@ -2,7 +2,7 @@ import Lake
 open Lake DSL
 
 package «eventb» where
-  version := v!"4.0.1"
+  version := v!"4.0.2"
   leanOptions := #[⟨`autoImplicit, false⟩, ⟨`relaxedAutoImplicit, false⟩]
 
 -- Pinned release tags, not `main`: corpus gate numbers are only reproducible if the
@@ -11,11 +11,11 @@ require grip from git
   "https://github.com/jonaprieto/lean-grip" @ "v0.1.0"
 
 require argus from git
-  "https://github.com/jonaprieto/lean-argus.git" @ "v0.4.4"
+  "https://github.com/jonaprieto/lean-argus.git" @ "v0.4.6"
 
 require «termcolor-diagnostics» from git
   "https://github.com/jonaprieto/lean-termcolor-diagnostics.git"
-  @ "315f84249c6c9874221ec20f419ad03f6c339815"
+  @ "v0.1.9"
 
 require "leanprover-community" / "proofwidgets" @ git "v0.0.105"
 
