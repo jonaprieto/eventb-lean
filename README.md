@@ -8,8 +8,6 @@ Event-B models, formulas, proof obligations, refinement semantics, and Rodin com
 Lean 4. The reader accepts Rossi `.eventb` files and Rodin `.tuf` theories; the native DSL provides
 the same proof-obligation generator and checker.
 
-Version: `v4.0.3`
-
 ## Quick start
 
 ```sh
