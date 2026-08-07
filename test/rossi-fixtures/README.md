@@ -1,6 +1,6 @@
 # Rossi fixture contract
 
-These fixtures are split by purpose. `scripts/cli-fixtures.py` is the executable
+These fixtures are split by purpose. `tools/cli-fixtures.py` is the executable
 expectation file; it checks both output and exit status.
 
 | Fixture | Purpose | `eventb check` |
@@ -17,5 +17,5 @@ status is part of the test contract, not a parser failure.
 Run the complete fixture contract from the repository root:
 
 ```sh
-python3 scripts/cli-fixtures.py
+python3 tools/cli-fixtures.py
 ```

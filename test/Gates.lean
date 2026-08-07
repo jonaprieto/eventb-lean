@@ -93,7 +93,7 @@ private def histogram (results : List FileResult) : List (String × Nat) :=
 
 /-- P1 gate. Every formula must parse, and reparsing the printed form must give back the
 same tree: a printer that lost an operator, or a precedence bug that quietly rebracketed,
-would pass a parse-only check. Denominator 1102, from `scripts/manifest.py`. -/
+would pass a parse-only check. Denominator 1102, from `tools/manifest.py`. -/
 private def formulaCount : Nat := 1102
 
 private structure FormulaResult where

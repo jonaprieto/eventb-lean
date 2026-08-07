@@ -63,11 +63,11 @@ Run these from a clean checkout with no private artifacts staged:
 ```sh
 lake build EventB EventBWidgets Examples gates rossi-dump eventb bench
 lake exe gates
-python3 scripts/cli-fixtures.py
-python3 scripts/rossi-diff.py
-python3 scripts/distribution-check.py
-python3 scripts/manifest.py --check
-python3 scripts/style-check.py
+pre-commit run --all-files
+python3 tools/cli-fixtures.py
+python3 tools/rossi-diff.py
+python3 tools/distribution-check.py
+python3 tools/manifest.py --check
 git diff --check
 ```
 
@@ -75,7 +75,7 @@ The Rossi command requires the pinned official Rossi executable. CI downloads
 `v0.1.7`, verifies SHA256
 `698214d8082e2c9e0e8b638cd561ff0b6d9f1066ee5b79444f7ac54acfb7d10d`, and runs the
 complete fixture matrix. The local command may instead use
-`ROSSI_BIN=/path/to/rossi python3 scripts/rossi-diff.py`.
+`ROSSI_BIN=/path/to/rossi python3 tools/rossi-diff.py`.
 
 The final manual release gate opens `examples/WidgetDemo.lean` and `examples/LspDemo.lean`
 in VS Code with a restarted Lean server. It checks the widget panels, replayed entries,

@@ -1,4 +1,4 @@
-# Corpus pinned by upstream commit. Regenerate: scripts/manifest.py
+# Corpus pinned by upstream commit. Regenerate: tools/manifest.py
 # Never edit by hand; baseline/*.tsv numbers are only valid against these bytes.
 # origin	aman	https://github.com/hhu-stups/AMAN-abstraction-example@1376af673eab5f96c0408328ba76dde2e07b65e4 Abstraction/
 # origin	ertms	https://github.com/eventB-Soton/ERTMS-HL3@6b81638c95ab6cd2397c846ed78f78e6adb5780f developments/HL3_abz2018.zip HL3/
