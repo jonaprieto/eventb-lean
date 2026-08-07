@@ -46,10 +46,10 @@ tool, the corpus ratchet, and the repository style:
 $ lake build
 $ lake build EventBWidgets Examples gates rossi-dump eventb bench
 $ lake exe gates
-$ python3 scripts/style-check.py
-$ python3 scripts/cli-fixtures.py
-$ python3 scripts/distribution-check.py
-$ python3 scripts/manifest.py --check
+$ pre-commit run --all-files
+$ python3 tools/cli-fixtures.py
+$ python3 tools/distribution-check.py
+$ python3 tools/manifest.py --check
 $ git diff --check
 ```
 

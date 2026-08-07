@@ -222,7 +222,7 @@ The repository's executable contract is:
 lake build
 lake build Examples
 lake exe gates
-python3 scripts/style-check.py
+pre-commit run --all-files
 ```
 
 The gates compare the implementation against the pinned corpus and ratchet files:
@@ -519,7 +519,7 @@ format cannot dictate the native theory design.
 
 Each milestone is complete only when it has native examples, negative tests, explicit
 diagnostics, and updated trust reporting, while `lake build`, `lake exe gates`, and
-`scripts/style-check.py` remain green. Unsupported constructs stay data with a visible
+`pre-commit run --all-files` remain green. Unsupported constructs stay data with a visible
 diagnostic; they never become `sorry`, an implicit axiom, or an unrelated identifier.
 
 The roadmap boundaries are implemented and covered by native examples, negative checks,

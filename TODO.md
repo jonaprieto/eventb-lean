@@ -356,7 +356,7 @@ Production thresholds:
   fixtures, including their intentional semantic typechecking failures.
 - [x] #31 Separate parser-only fixtures from semantically valid project fixtures, or add
   an executable expectation file that records the intended exit code and diagnostic.
-- [x] #32 Add `witnesses.eventb` to `scripts/rossi-diff.py` once the official Rossi parser
+- [x] #32 Add `witnesses.eventb` to `tools/rossi-diff.py` once the official Rossi parser
   accepts the same construct; otherwise record the incompatibility explicitly.
 - [x] #33 Pin or provision the official Rossi executable used by the differential matrix;
   do not leave compatibility confidence dependent on an unmentioned local install.
@@ -394,7 +394,7 @@ Each implementation item is a focused commit. Every commit must pass:
 lake build
 lake build Examples
 lake exe gates
-scripts/style-check.py
+pre-commit run --all-files
 git diff --check
 ```
 

@@ -5,8 +5,8 @@ The manifest pins every vendored corpus file by size and sha256, and records the
 upstream repo and commit it came from. Every number in baseline/ is meaningless
 without it: a silently changed corpus turns a passing ratchet into a lie.
 
-    python3 scripts/manifest.py            # rewrite manifest, print gate counts
-    python3 scripts/manifest.py --check    # verify only, exit 1 on drift
+    python3 tools/manifest.py            # rewrite manifest, print gate counts
+    python3 tools/manifest.py --check    # verify only, exit 1 on drift
 """
 
 import collections
@@ -42,7 +42,7 @@ def rows():
 
 def render(rs):
     lines = [
-        "# Corpus pinned by upstream commit. Regenerate: scripts/manifest.py",
+        "# Corpus pinned by upstream commit. Regenerate: tools/manifest.py",
         "# Never edit by hand; baseline/*.tsv numbers are only valid against these bytes.",
     ]
     lines += [f"# origin\t{k}\t{v}" for k, v in sorted(ORIGINS.items())]
@@ -85,7 +85,7 @@ def main():
     if check:
         if not os.path.exists(path) or open(path, encoding="utf-8").read() != text:
             print(
-                "corpus drift: MANIFEST.tsv is stale, run scripts/manifest.py",
+                "corpus drift: MANIFEST.tsv is stale, run tools/manifest.py",
                 file=sys.stderr,
             )
             return 1
