@@ -4,7 +4,7 @@ open EventB.Formula
 
 /-- Dump the parsed form of each input line as JSON, so the spike's translator works
 from the real parser's output rather than a second implementation of it. -/
-partial def toJson : Term → String
+def toJson : Term → String
   | .id s => "[\"id\"," ++ esc s ++ "]"
   | .num n => "[\"num\"," ++ toString n ++ "]"
   | .bin o a b => "[\"bin\"," ++ esc o ++ "," ++ toJson a ++ "," ++ toJson b ++ "]"
@@ -12,9 +12,13 @@ partial def toJson : Term → String
   | .post o a => "[\"post\"," ++ esc o ++ "," ++ toJson a ++ "]"
   | .app f a => "[\"app\"," ++ toJson f ++ "," ++ toJson a ++ "]"
   | .img r a => "[\"img\"," ++ toJson r ++ "," ++ toJson a ++ "]"
-  | .set ts => "[\"set\",[" ++ String.intercalate "," (ts.map toJson) ++ "]]"
+  | .set ts => "[\"set\",[" ++ String.intercalate "," (toJsonList ts) ++ "]]"
   | .bind k p b => "[\"bind\"," ++ esc k ++ "," ++ toJson p ++ "," ++ toJson b ++ "]"
 where
+  toJsonList : List Term → List String
+  | [] => []
+  | term :: terms => toJson term :: toJsonList terms
+
   esc (s : String) : String :=
     "\"" ++ (s.replace "\\" "\\\\" |>.replace "\"" "\\\"") ++ "\""
 
@@ -25,4 +29,4 @@ def main (args : List String) : IO Unit := do
     if !l.isEmpty then
       match parse l with
       | .ok t => IO.println (toJson t)
-      | .error e => IO.println ("[\"ERROR\",\"" ++ e.replace "\"" "'" ++ "\"]")
+      | .error e => IO.println ("[\"ERROR\",\"" ++ e.message.replace "\"" "'" ++ "\"]")

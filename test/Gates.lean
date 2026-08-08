@@ -276,6 +276,8 @@ private def refName (ref : String) : String :=
     |>.replace "\\\\" "\\"
     |>.replace "\\|" "|"
 
+-- partiality: these helpers walk externally supplied Rodin XML trees; the XML representation has
+-- no indexed depth measure, and this test-only traversal is kept direct and local.
 private partial def predicateSets (e : XmlElem) : List (String × Option String × List String) :=
   let here :=
     if e.tag == "org.eventb.core.poPredicateSet" then
@@ -298,6 +300,7 @@ where
       | none => acc
       | some (_, parent, preds) => go fuel parent (preds ++ acc)
 
+-- partiality: this is the corresponding test-only XML walk for predicate-set inheritance.
 private partial def goldHyps (e : XmlElem)
     (sets : List (String × Option String × List String)) : List (String × List String) :=
   let here :=
@@ -312,6 +315,7 @@ private partial def goldHyps (e : XmlElem)
     else []
   e.children.foldl (fun acc c => acc ++ goldHyps c sets) here
 
+-- partiality: this is the corresponding test-only XML walk for recorded proof obligations.
 private partial def goldGoals (e : XmlElem) : List (String × String) :=
   let here :=
     if e.tag == "org.eventb.core.poSequent" then
