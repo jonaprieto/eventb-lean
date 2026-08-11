@@ -11,7 +11,7 @@ require grip from git
   "https://github.com/jonaprieto/lean-grip" @ "v0.1.0"
 
 require argus from git
-  "https://github.com/jonaprieto/lean-argus.git" @ "v0.4.7"
+  "https://github.com/jonaprieto/lean-argus.git" @ "v0.5.0"
 
 require «termcolor-diagnostics» from git
   "https://github.com/jonaprieto/lean-termcolor-diagnostics.git"
