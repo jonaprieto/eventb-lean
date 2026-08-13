@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.9 — 2026-08-13
+
+- Pin every first-party dependency to its newest released tag.
+
 ## 4.0.8 — 2026-08-13
 
 - Centralize lexical typing-environment scopes for binders and event parameters.
