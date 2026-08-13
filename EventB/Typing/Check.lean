@@ -78,7 +78,7 @@ def componentTheoryRoots (p : Project) (name : String) : List String :=
 /-- Declare the identifiers a component introduces, then feed every predicate it states
 to the checker. Errors are collected rather than thrown: one unsupported guard should
 cost that guard's constraints, not the whole file's types. -/
-private def addComponent (c : Component) : StateT St (Except String) (List String) := do
+private def addComponent (c : Component) : M (List String) := do
   let mut errs : List String := []
   -- Carrier sets and constants first, so axioms can refer to them in any order.
   for s in childrenOf c.elem "carrierSet" do
@@ -100,36 +100,37 @@ private def addComponent (c : Component) : StateT St (Except String) (List Strin
       errs := errs ++ (← runPredicate f)
   -- Each event's parameters are scoped to that event.
   for ev in childrenOf c.elem "event" do
-    let saved := (← get).env
-    for prm in childrenOf ev "parameter" do
-      if let some n := attrOf prm "identifier" then bind n (← fresh)
-    let withParams := (← get).env
-    for g in childrenOf ev "guard" do
-      if let some f := attrOf g "predicate" then
-        errs := errs ++ (← runPredicate f)
-    for act in childrenOf ev "action" do
-      if let some f := attrOf act "assignment" then
-        errs := errs ++ (← runPredicate f)
-    for w in childrenOf ev "witness" do
-      if let some f := attrOf w "predicate" then
-        errs := errs ++ (← runPredicate f)
+    let (eventErrors, bound) ← withEnvBindings do
+      let mut eventErrors : List String := []
+      for prm in childrenOf ev "parameter" do
+        if let some n := attrOf prm "identifier" then bind n (← fresh)
+      for g in childrenOf ev "guard" do
+        if let some f := attrOf g "predicate" then
+          eventErrors := eventErrors ++ (← runPredicate f)
+      for act in childrenOf ev "action" do
+        if let some f := attrOf act "assignment" then
+          eventErrors := eventErrors ++ (← runPredicate f)
+      for w in childrenOf ev "witness" do
+        if let some f := attrOf w "predicate" then
+          eventErrors := eventErrors ++ (← runPredicate f)
+      return eventErrors
+    errs := errs ++ eventErrors
     -- Parameters leave the environment so a later event cannot see them, but they are
     -- kept in `params` because the `.bpo` records their types alongside the variables.
-    let bound := withParams.take (withParams.length - saved.length)
-    modify fun s => { s with env := saved, params := s.params ++ bound }
+    modify fun s => { s with params := s.params ++ bound }
   return errs
 where
   /-- Reuse the existing type if the name is already declared, so a refinement does not
   discard what the abstract machine established. -/
-  freshFor (n : String) : StateT St (Except String) Ty := do
+  freshFor (n : String) : M Ty := do
     match ← lookup? n with
     | some t => return t
     | none => fresh
-  declare (n : String) (t : Ty) : StateT St (Except String) Unit := do
+  declare (n : String) (t : Ty) : M Unit := do
     match ← lookup? n with
     | some _ => return ()
     | none => bind n t
-  runPredicate (f : String) : StateT St (Except String) (List String) := do
+  runPredicate (f : String) : M (List String) := do
     match Formula.parse f with
     | .error e => return [s!"parse: {EventB.Error.render e}"]
     | .ok term =>
@@ -185,6 +186,10 @@ def inferTerm (env : List (String × Ty)) (t : Term) : Except EventB.Error Ty :=
 
 /-! Self-checks. The corpus pins the common cases; these pin the shapes it happens not
 to contain, and the printer conventions the `.bpo` comparison depends on. -/
+
+#guard match (withEnvBindings (bind "x" .int)).run {} with
+  | .ok ((_, [ ("x", .int) ]), state) => state.env.isEmpty
+  | _ => false
 
 /-- `given` are identifiers with a known type, `unknown` are the ones inference has to
 work out. Metavariables must come from `fresh` so the substitution has a slot for them. -/
