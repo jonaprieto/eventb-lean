@@ -121,6 +121,22 @@ def lookup? (name : String) : M (Option Ty) := do
 def bind (name : String) (t : Ty) : M Unit :=
   modify fun s => { s with env := (name, t) :: s.env }
 
+/-- Run a typing action in a lexical environment and restore that environment afterward. -/
+def withEnv {α : Type} (action : M α) : M α := do
+  let saved := (← get).env
+  let value ← action
+  modify fun s => { s with env := saved }
+  return value
+
+/-- Run a scoped action, returning the bindings it introduced after restoring the environment. -/
+def withEnvBindings {α : Type} (action : M α) : M (α × List (String × Ty)) := do
+  let saved := (← get).env
+  let value ← action
+  let current := (← get).env
+  let bound := current.take (current.length - saved.length)
+  modify fun s => { s with env := saved }
+  return (value, bound)
+
 /-- A relation `ℙ(A×B)`, returning the two sides. -/
 private def asRelation (t : Ty) : M (Ty × Ty) := do
   let a ← fresh
@@ -165,11 +181,10 @@ def checkPred (t : Term) : M Unit := do
   | .id "⊤" | .id "⊥" => return ()
   | .pre "¬" p => checkPred p
   | .bind k pat body =>
-      if k == "∀" || k == "∃" then do
-        let saved := (← get).env
+      if k == "∀" || k == "∃" then
+        withEnv do
         bindPattern pat
         checkPred body
-        modify fun s => { s with env := saved }
       else throw s!"binder {k} is not a predicate"
   | .bin o a b =>
       if connectives.contains o then do checkPred a; checkPred b
@@ -325,29 +340,25 @@ termination_by sizeOf f + sizeOf a
 decreasing_by
   all_goals simp_all +arith [termSizePos, Term.id.sizeOf_spec]
 
-def inferBinder (k : String) (pat body : Term) : M Ty := do
-  let saved := (← get).env
+def inferBinder (k : String) (pat body : Term) : M Ty := withEnv do
   bindPattern pat
-  let result ← do
-    match k, body with
-    | "λ", .bin "∣" p e => do
-        checkPred p
-        return .pow (.prod (← patternType pat) (← inferExpr e))
-    | "{", .bin "∣" p e => do
-        checkPred p
-        return .pow (← inferExpr e)
-    | "{", p => do
-        -- `{x · P}` with no expression part means the bound variables themselves.
-        checkPred p
-        return .pow (← patternType pat)
-    | "⋃", .bin "∣" p e | "⋂", .bin "∣" p e => do
-        checkPred p
-        let t ← inferExpr e
-        let _ ← asSet t
-        return t
-    | k, _ => throw s!"binder {k} is not an expression"
-  modify fun s => { s with env := saved }
-  return result
+  match k, body with
+  | "λ", .bin "∣" p e => do
+      checkPred p
+      return .pow (.prod (← patternType pat) (← inferExpr e))
+  | "{", .bin "∣" p e => do
+      checkPred p
+      return .pow (← inferExpr e)
+  | "{", p => do
+      -- `{x · P}` with no expression part means the bound variables themselves.
+      checkPred p
+      return .pow (← patternType pat)
+  | "⋃", .bin "∣" p e | "⋂", .bin "∣" p e => do
+      checkPred p
+      let t ← inferExpr e
+      let _ ← asSet t
+      return t
+  | k, _ => throw s!"binder {k} is not an expression"
 
 termination_by sizeOf pat + sizeOf body
 decreasing_by
