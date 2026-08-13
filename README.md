@@ -1,4 +1,4 @@
-# eventb
+# eventb-lean
 
 [![CI](https://github.com/jonaprieto/eventb-lean/actions/workflows/ci.yml/badge.svg)](https://github.com/jonaprieto/eventb-lean/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/jonaprieto/eventb-lean?display_name=tag&sort=semver)](https://github.com/jonaprieto/eventb-lean/releases)
@@ -9,6 +9,18 @@
 Event-B models, formulas, proof obligations, refinement semantics, and Rodin comparison tools in
 Lean 4. The reader accepts Rossi `.eventb` files and Rodin `.tuf` theories; the native DSL provides
 the same proof-obligation generator and checker.
+
+## Status and review
+
+These libraries are actively evolving and are developed with AI assistance and human review.
+CI and machine-checked proofs provide useful evidence, but do not guarantee correctness,
+soundness, portability, performance, or suitability for every use case. Validate behavior
+and assumptions before relying on a release.
+
+Reviewer feedback is welcome, especially on correctness, proofs, API design, usability,
+portability, performance, documentation, and real-world use. Please use the
+[issue tracker](https://github.com/jonaprieto/eventb-lean/issues) or open a PR with a
+reproducible example and the expected behavior.
 
 ## Quick start
 
