@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.8 — 2026-08-13
+
+- Centralize lexical typing-environment scopes for binders and event parameters.
+
 ## 4.0.7 — 2026-08-13
 
 - Publish the dependency-graph README cleanup.
