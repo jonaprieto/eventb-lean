@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.7 — 2026-08-13
+
+- Publish the dependency-graph README cleanup.
+
 ## 4.0.6 — 2026-08-13
 
 - Totalize the pure AST dump recursion and classify operational partiality.
