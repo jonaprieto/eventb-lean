@@ -6,7 +6,7 @@
 
 ## 4.0.5 — 2026-08-12
 
-- Adopt Lean v4.33.0, ProofWidgets v0.0.108, and precommit-lean v0.1.5.
+- Adopt Lean v4.33.0, ProofWidgets v0.0.108, and precommit-lean v0.1.6.
 
 ## 4.0.4
 
