@@ -61,6 +61,8 @@ private def sourceFiles (dir : System.FilePath) : IO (List System.FilePath) := d
       paths := entry.path :: paths
   return paths.mergeSort (fun left right => left.toString < right.toString)
 
+-- partiality: recursive directory discovery follows the filesystem, whose depth is not a kernel
+-- data bound; IO traversal is the correct operational boundary here.
 private partial def rossiFiles (dir : System.FilePath) : IO (List System.FilePath) := do
   let mut paths : List System.FilePath := []
   for entry in ← dir.readDir do
@@ -70,6 +72,8 @@ private partial def rossiFiles (dir : System.FilePath) : IO (List System.FilePat
       paths := entry.path :: paths
   return paths.mergeSort (fun left right => left.toString < right.toString)
 
+-- partiality: recursive directory discovery follows the filesystem, whose depth is not a kernel
+-- data bound; IO traversal is the correct operational boundary here.
 private partial def theoryFiles (dir : System.FilePath) : IO (List System.FilePath) := do
   let mut paths : List System.FilePath := []
   for entry in ← dir.readDir do

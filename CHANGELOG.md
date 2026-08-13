@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.6 — 2026-08-13
+
+- Totalize the pure AST dump recursion and classify operational partiality.
+
 ## 4.0.5 — 2026-08-12
 
 - Adopt Lean v4.33.0, ProofWidgets v0.0.108, and precommit-lean v0.1.5.
