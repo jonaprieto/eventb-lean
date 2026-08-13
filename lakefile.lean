@@ -2,7 +2,7 @@ import Lake
 open Lake DSL
 
 package «eventb» where
-  version := v!"4.0.6"
+  version := v!"4.0.7"
   leanOptions := #[⟨`autoImplicit, false⟩, ⟨`relaxedAutoImplicit, false⟩]
 
 -- Pinned release tags, not `main`: corpus gate numbers are only reproducible if the
