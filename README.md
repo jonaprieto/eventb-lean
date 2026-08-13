@@ -51,8 +51,10 @@ examples target.
 
 ## Related projects
 
-[`oatp`](https://github.com/jonaprieto/oatp) supplies ATP orchestration and
-[`lean-grip`](https://github.com/jonaprieto/lean-grip) supplies byte parsing.
+[`lean-grip`](https://github.com/jonaprieto/lean-grip) supplies byte parsing;
+[`lean-argus`](https://github.com/jonaprieto/lean-argus) supplies CLI parsing; and
+[`termcolor-diagnostics`](https://github.com/jonaprieto/lean-termcolor-diagnostics) supplies
+source-aware diagnostics.
 
 ## License
 
