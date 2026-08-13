@@ -2,7 +2,7 @@ import Lake
 open Lake DSL
 
 package «eventb» where
-  version := v!"4.0.4"
+  version := v!"4.0.5"
   leanOptions := #[⟨`autoImplicit, false⟩, ⟨`relaxedAutoImplicit, false⟩]
 
 -- Pinned release tags, not `main`: corpus gate numbers are only reproducible if the
@@ -17,7 +17,7 @@ require «termcolor-diagnostics» from git
   "https://github.com/jonaprieto/lean-termcolor-diagnostics.git"
   @ "v0.1.10"
 
-require "leanprover-community" / "proofwidgets" @ git "v0.0.105"
+require "leanprover-community" / "proofwidgets" @ git "v0.0.108"
 
 @[default_target]
 lean_lib «EventB» where

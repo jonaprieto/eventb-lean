@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.5 — 2026-08-12
+
+- Adopt Lean v4.33.0, ProofWidgets v0.0.108, and precommit-lean v0.1.5.
+
 ## 4.0.4
 
 - Consume Argus `v0.5.0` so command metadata and completion contracts use the
