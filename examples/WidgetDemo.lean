@@ -158,7 +158,10 @@ private def attachWidgetProof (ledger : Trust.Ledger)
   match obligations.find? (·.name == name) with
   | none => ledger
   | some obligation =>
-      match ledger.attach obligation (.kernel declaration (widgetAxioms declaration)) with
+      let evidence := Trust.Evidence.external "LeanKernel" "4.33"
+        (Trust.fingerprint (obligation.canonical ++ "\ndeclaration=" ++ declaration))
+        "Trust.Replay.validate"
+      match ledger.attach obligation evidence with
       | .ok updated => updated
       | .error _ => ledger
 
@@ -175,13 +178,13 @@ private def validateWidgetProofs (limit cars gate : Expr) : MetaM Unit := do
         , { name := "cars", ty := .int, value := cars }
         , { name := "gate", ty := .bool, value := gate }] }
   let obligations := POG.generate widgetProject "BridgeController"
-  for entry in widgetLedger.entries do
-    if entry.mode == .kernel then
-      let some obligation := obligations.find? (·.name == entry.obligation) | throwError
-        s!"missing WidgetDemo obligation `{entry.obligation}`"
-      let report ← Trust.Replay.validateEntry context obligation entry
-      unless report.replayed do
-        throwError s!"WidgetDemo proof `{entry.obligation}` was not replayed"
+  for (name, declaration) in widgetProofs do
+    let some obligation := obligations.find? (·.name == name) | throwError
+      s!"missing WidgetDemo obligation `{name}`"
+    let report ← Trust.Replay.validate context obligation
+      (.kernel declaration (widgetAxioms declaration))
+    unless report.replayed do
+      throwError s!"WidgetDemo proof `{name}` was not replayed"
 
 private meta def checkWidgetProofs : TermElabM Unit := do
   let intType := mkConst ``Int

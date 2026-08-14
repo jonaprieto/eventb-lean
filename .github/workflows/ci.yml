@@ -92,9 +92,9 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Status report generates
         run: |
-          # STATUS.md is untracked, so a `git diff` check on it would always pass.
-          # Running the generator still catches a crash in the reporting path.
           lake exe gates --status
+          git ls-files --error-unmatch STATUS.md baseline/p4.tsv baseline/wwd.tsv
+          git diff --exit-code -- STATUS.md baseline/p4.tsv baseline/wwd.tsv
 
   axioms:
     # The trust ledger. Once POG lands this enumerates, per obligation, whether it is

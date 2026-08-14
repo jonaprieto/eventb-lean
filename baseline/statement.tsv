@@ -340,6 +340,7 @@ M9_Push_Mouse_Buttons	Release_Trigger_Block_Time/click_start_zoom/INV	PASS
 M9_Push_Mouse_Buttons	Release_Trigger_Block_Time/grd3,1/GRD	PASS
 M9_Push_Mouse_Buttons	Release_Trigger_Block_Time/grd6,1/GRD	PASS
 M9_Push_Mouse_Buttons	Release_Trigger_Block_Time/act3,1/SIM	PASS
+M9_Push_Mouse_Buttons	Release_Trigger_Block_Time/time/WFIS	PASS
 M9_Push_Mouse_Buttons	Release_Abort_Time_Button/is_mouse_pressed/INV	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	Release_Abort_Time_Button/is_clicked_block/INV	PASS
 M9_Push_Mouse_Buttons	Release_Abort_Time_Button/is_clicked_block_fin/INV	PASS
@@ -357,6 +358,7 @@ M9_Push_Mouse_Buttons	Release_Trigger_Deblock_Time/click_start_zoom/INV	PASS
 M9_Push_Mouse_Buttons	Release_Trigger_Deblock_Time/grd3,1/GRD	PASS
 M9_Push_Mouse_Buttons	Release_Trigger_Deblock_Time/grd6,1/GRD	PASS
 M9_Push_Mouse_Buttons	Release_Trigger_Deblock_Time/act3,1/SIM	PASS
+M9_Push_Mouse_Buttons	Release_Trigger_Deblock_Time/time/WFIS	PASS
 M9_Push_Mouse_Buttons	changeZoom/is_mouse_pressed/INV	FAIL:no such sequent in .bpo
 M9_Push_Mouse_Buttons	changeZoom/is_clicked_block/INV	PASS
 M9_Push_Mouse_Buttons	changeZoom/block_slot_position/INV	PASS
@@ -1008,6 +1010,7 @@ MAbs_helper	stop_dragging_airplane/get_dragged_airplane_time_abstract/GRD	PASS
 MAbs_helper	stop_dragging_airplane/grd_abstrac_airplane/GRD	PASS
 MAbs_helper	stop_dragging_airplane/clicked_pos/SIM	PASS
 MAbs_helper	stop_dragging_airplane/dest_not_allowed/WD	PASS
+MAbs_helper	stop_dragging_airplane/abstract_airplane/WFIS	PASS
 MAbs_helper	drag_airplane/dragged_airplane/INV	PASS
 MAbs_helper	drag_airplane/dragged_airplane_type_glue/INV	PASS
 MAbs_helper	drag_airplane/mouse_over_airplane_when_dragged/INV	PASS

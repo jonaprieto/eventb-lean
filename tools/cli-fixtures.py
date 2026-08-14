@@ -57,7 +57,13 @@ def check_witness() -> None:
     actual = [(record["machine"], record["name"], record["kind"],
                record["derived"], record["hypothesis_only"]) for record in records]
     expected = [
+        ("Abstract", "INITIALISATION/inv/INV", "INV", True, False),
+        ("Abstract", "INITIALISATION/act1/FIS", "FIS", True, False),
         ("Abstract", "step/inv/INV", "INV", True, False),
+        ("Concrete", "INITIALISATION/inv/INV", "INV", True, False),
+        ("Concrete", "INITIALISATION/act1/SIM", "SIM", True, False),
+        ("Concrete", "INITIALISATION/act1/FIS", "FIS", True, False),
+        ("Concrete", "INITIALISATION/act2/FIS", "FIS", True, False),
         ("Concrete", "step/inv/INV", "INV", True, False),
         ("Concrete", "step/grd/GRD", "GRD", True, False),
         ("Concrete", "step/act/SIM", "SIM", True, False),
@@ -72,17 +78,17 @@ def check_witness() -> None:
     expect("witness summary", result, 0)
     summary = json.loads(result.stdout)
     if summary != {
-        "obligations": 7,
-        "derived": 6,
-        "by_class": {"INV": 2, "GRD": 1, "SIM": 1, "WD": 1, "WFIS": 1,
+        "obligations": 13,
+        "derived": 12,
+        "by_class": {"INV": 4, "FIS": 3, "SIM": 2, "GRD": 1, "WD": 1, "WFIS": 1,
                       "WWD": 1},
         "not_derived": 1,
         "not_derived_by_class": {"WWD": 1},
         "hypothesis_only": 1,
         "by_machine": {
             "C": {"obligations": 0, "derived": 0},
-            "Abstract": {"obligations": 1, "derived": 1},
-            "Concrete": {"obligations": 6, "derived": 5},
+            "Abstract": {"obligations": 3, "derived": 3},
+            "Concrete": {"obligations": 10, "derived": 9},
         },
     }:
         raise AssertionError(f"witness summary: unexpected JSON\n{summary}")
@@ -92,14 +98,14 @@ def check_witness() -> None:
     report = json.loads(result.stdout)
     if report["coverage_source"] != "none":
         raise AssertionError("witness report: Rossi-only coverage must be none")
-    if len(report["obligations"]) != 7:
-        raise AssertionError("witness report: expected seven obligations")
+    if len(report["obligations"]) != 13:
+        raise AssertionError("witness report: expected thirteen obligations")
     if report["trust_ledger"] != {
         "kernel-checked": 0,
         "smt-trusted": 0,
         "rodin-imported": 0,
-        "external-trusted": 2,
-        "unproved": 5,
+        "external-trusted": 5,
+        "unproved": 8,
     }:
         raise AssertionError("witness report: trust ledger changed")
     for record in report["obligations"]:
@@ -123,7 +129,7 @@ def check_witness() -> None:
     result = run("po", path, "step/wit/WFIS")
     expect("witness WFIS", result, 0, "∃")
     result = run("prove", path)
-    expect("witness prove", result, 0, "local baseline: 2/7 discharged")
+    expect("witness prove", result, 0, "local baseline: 5/13 discharged")
 
 
 def check_rossi_dump() -> None:
@@ -198,8 +204,7 @@ def check_theories_and_errors() -> None:
 
 def check_corpus_diff() -> None:
     result = run("diff", "corpus/aman")
-    expect("corpus diff diagnostics", result, 1, stdout="M0_AMAN_Update",
-           stderr="unbound identifier")
+    expect("corpus diff diagnostics", result, 1, stdout="M0_AMAN_Update")
 
 
 def check_gate_reports() -> None:

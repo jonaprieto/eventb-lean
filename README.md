@@ -45,7 +45,7 @@ provides machine-readable output.
 ## Verification
 
 ```sh
-lake build EventB EventB.Properties Examples
+lake build EventB Examples
 lake exe gates
 lake exe gates --status
 ```

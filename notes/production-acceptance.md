@@ -1,22 +1,17 @@
 # Production acceptance
 
-This note is the release checklist for the first production-ready eventb-lean
-commit. It describes the supported contract and the measured ceilings; it does not
-claim that every proof obligation is automatically discharged.
+This note is the release checklist for the current accuracy campaign. It describes
+the supported contract and measured ceilings; it does not claim that every proof
+obligation is automatically discharged.
 
 ## Measured baseline
 
-The acceptance run uses Lean `v4.28.0`, the pinned corpus manifest
-`84d51dbc09498d0b3c61d3a69a0d7aa700390983c53ef6dd5b8b26a9b61e4e2f`, `grip`
-`eb29a2331729a7087eab54838557e7490e802a29`, and ProofWidgets `v0.0.87`.
-The timestamped gate record in
-`bench/results/2026-08-02T21-56-30Z/gates.txt` records the measured commit and
-toolchain metadata.
-
-The complete contract was also run from a detached clean checkout at commit
-`937609f`: all 108 build jobs, gates, CLI fixtures, the official Rossi v0.1.7
-differential matrix, distribution, manifest, style, and diff checks passed. The clean
-checkout contained no private book artifacts.
+The current acceptance run uses Lean `v4.33.0`, ProofWidgets `v0.0.108`, and
+`corpus/MANIFEST.tsv` SHA256
+`c76a5dca92f0ea32f8c1e20e9da4cb88006bd048cee78d9fd66d03a20e664c45`.
+The corpus itself remains pinned to the upstream commits recorded in the manifest.
+The release candidate is accepted only after the clean-checkout command matrix below
+passes; the current worktree is intentionally still under adversarial review.
 
 | Gate | Result | Interpretation |
 | --- | ---: | --- |
@@ -24,9 +19,10 @@ checkout contained no private book artifacts.
 | P1 formulas | 1102/1102 | Formulas parse and round-trip. |
 | P2 types | 940/940 | Recorded identifier types reproduced. |
 | P3 obligations | 1133/1133 | Rodin PO names generated. |
-| P3b statements | 1129/1322 | Derived goals match the comparable corpus records. |
-| P3b hypotheses | 1129/1322 | Derived hypothesis sets match the comparable records. |
-| P3b compatibility | 200 pinned | 193 no-sequent records plus 7 WFIS name-only records. |
+| P3b statements | 1132/1325 | Derived goals and named compatibility omissions are tracked. |
+| P3b hypotheses | 1132/1325 | Derived hypothesis sets and named compatibility omissions are tracked. |
+| P3b WWD | 1/1 | Hypothesis-only witness well-definedness is scored separately. |
+| P3b compatibility | 200 pinned | Explicit, classified pinned-oracle omissions. |
 | P4 local baseline | 73/1133 | Explicit external-trusted evidence; 1060 remain unproved. |
 
 The P3b compatibility records are not silently omitted or counted as proof failures.
@@ -42,6 +38,10 @@ counts are zero for the corpus baseline; the local results remain external-trust
   variant, event-status, and formula subset.
 - Native Lean contexts, machines, theories, datatypes, definitions, and rules.
 - The faithful `.tuf` theory subset; unsupported declarations are rejected.
+- Refinement-heavy Event-B within the checked subset: inherited actions, deterministic
+  and nondeterministic assignments, witnesses, stuttering/SIM, EQL/MRG, and numeric/set
+  variants. `generateChecked` is the strict path; the corpus gate retains a documented
+  compatibility projection for pinned Rodin omissions.
 - CLI reports, proof-obligation output, trust-ledger evidence, ProofWidgets, and
   native Lean declaration ranges.
 
@@ -55,6 +55,11 @@ Every obligation has an explicit ledger mode. Kernel evidence requires replayed 
 proof terms and checked axiom metadata. SMT, Rodin-imported, and external evidence
 remain their own modes with verifier, version, input digest, and fingerprint metadata.
 Unproved obligations remain `unproved`; reports never upgrade them implicitly.
+Rodin imports additionally require model-root identity, exact BPO sequent identity,
+source-component binding, and an independently parsed proof-status record. This is
+identity/provenance validation, not a semantic re-derivation of the BPO from the model;
+the current digest primitive is an internal fingerprint, not a cryptographic
+authenticity claim.
 
 ## Acceptance commands
 
@@ -62,6 +67,7 @@ Run these from a clean checkout with no private artifacts staged:
 
 ```sh
 lake build EventB EventBWidgets Examples gates rossi-dump eventb bench
+lake exe gates --status
 lake exe gates
 pre-commit run --all-files
 python3 tools/cli-fixtures.py
@@ -87,6 +93,10 @@ Infoview's browser layout, so this gate must be recorded separately.
 - The pinned `.bpo` corpus omits the 200 P3b compatibility records described above.
 - The corpus-scale P4 baseline has 73 external-trusted results and 1060 unproved
   obligations; semantic bindings are required before claiming corpus-scale kernel proof.
+- Generality still has an explicit ceiling: strict concrete-parameter scope, full
+  frame/gluing-relation semantics, and semantic soundness proofs for every generated PO
+  class remain follow-up work. Right-oriented witnesses and basic multi-event MRG have
+  focused strict fixtures.
 - The official Rossi differential executable is provisioned in CI, not vendored.
 - Raw Rossi/XML source navigation and visual ProofWidgets acceptance require the manual
   editor gate.

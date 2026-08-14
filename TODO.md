@@ -1,9 +1,9 @@
-# Roadmap
+# Accuracy roadmap
 
-`eventb-lean` v3 is tagged and the four GitHub issues found during the audit are
-closed. The next work is production hardening, not a new parser or a second model
-representation: every supported surface must be exercised, every limitation must be
-visible, and every accepted proof result must retain its trust classification.
+The implementation is being hardened for refinement-heavy Event-B, not merely tuned
+to the pinned corpus. Unsupported syntax, unresolved references, untyped assignments,
+incomplete POG semantics, and unverifiable evidence must fail closed and remain visible
+in reports. No second model representation is planned.
 
 The architecture and dependency rules for this roadmap live in
 [`notes/architecture.md`](notes/architecture.md). This file is the execution ledger.
@@ -18,50 +18,61 @@ Run `lake exe gates --histogram` before changing a rule. The current ratchet is:
 | P1 formulas | 1102/1102 | Corpus formulas parse and round-trip. |
 | P2 types | 940/940 | Rodin's recorded identifier types are reproduced. |
 | P3 names | 1133/1133 | Every Rodin PO name is generated. Extra names remain visible. |
-| P3b statements | 1129/1322 | 193 generated targets lack `.bpo` sequents. |
-| P3b hypotheses | 1129/1322 | Comparable hypothesis sets are derived; the same 193 are unmatched. |
+| P3b statements | 1132/1325 | Derived goals are compared; 200 pinned compatibility omissions remain tracked. |
+| P3b hypotheses | 1132/1325 | Derived hypotheses are compared; 200 pinned compatibility omissions remain tracked. |
+| P3b WWD | 1/1 | Hypothesis-only witness well-definedness is scored separately. |
+| P3b compatibility | 200 pinned | Named, regression-tested omissions in the pinned `.bpo` oracle. |
 | P4 local baseline | 73/1133 | Deterministic evidence is attached as external-trusted. |
 
-The 193 P3b unmatched records are not proof failures. They remain explicit coverage
-data with diagnostics: 103 are pinned-`.bpo` omissions of plain type invariants; the
-rest are omissions in definedness, refinement, or witness-feasibility classes. Seven
-additional WFIS names are absent from the pinned `.bpo` files and remain explicit
-coverage data rather than being forced into the P3b denominator. P4 has no corpus
-kernel, SMT, or imported-Rodin entries yet; the other 1060 obligations remain unproved.
+The 200 P3b compatibility records are not proof failures. They are explicit coverage
+data classified by kind, preserved in `baseline/compatibility.tsv`, and rejected if a
+new unexplained mismatch appears. P4 has no corpus kernel, SMT, or imported-Rodin
+entries yet; the other 1060 obligations remain unproved.
 
 ## Accuracy campaign: general refinement-heavy Event-B
 
-Status: active. This campaign supersedes the older prototype-completion checkboxes
-where adversarial review found that an internally consistent gate was weaker than the
-documented semantic or trust contract. The target is fail-closed, structurally faithful
-support for a defined refinement-heavy Event-B subset; passing the pinned corpus alone is
-not completion evidence.
+Status: active. This campaign supersedes prototype-completion claims where adversarial
+review found that an internally consistent gate was weaker than the semantic or trust
+contract. The target is fail-closed, structurally faithful support for a documented
+refinement-heavy Event-B subset; passing the pinned corpus alone is not completion
+evidence.
 
 ### Current blockers
 
-- [ ] Fail on missing component/event/theory references instead of treating them as empty
+- [x] Fail on missing component/event/theory references instead of treating them as empty
   closures.
-- [ ] Keep typing and parse diagnostics attached to POG generation; never discard errors
-  through `toOption` or ignored error lists.
-- [ ] Scope refining-event abstract parameters and keep event parameter types local.
-- [ ] Type the RHS of `:∣` actions and include `:∈`/`:∣` actions in invariant semantics.
-- [ ] Generate general SIM obligations, including gluing, new events, and stuttering.
-- [ ] Make witness WFIS/WWD structurally match Rodin, including witness WD predicates.
-- [ ] Add variant, naturalness, decrease, anticipated, and convergent-event obligations.
-- [ ] Correct Event-B operator translation and WD rules, especially relation subtraction and
-  exponentiation.
-- [ ] Reject open metavariable kernel proofs and bind all external/Rodin evidence to the
-  exact obligation and verified artifact digest.
+- [x] Keep typing and parse diagnostics attached to POG generation; checked generation
+  rejects any diagnostic.
+- [x] Validate assignment arity/lvalues, primed closure in `:∣`, duplicate targets, and
+  initialization legality; strict checked generation rejects unresolved diagnostics.
+- [ ] Separate compatibility-scope inference from strict Event-B parameter scope:
+  concrete guards/actions must not inherit abstract parameters without a witness.
+- [x] Include deterministic, nondeterministic, inherited, and stuttering action semantics
+  in the strict invariant/refinement POG path; keep the pinned corpus projection isolated.
+- [x] Generate witness WFIS/WWD and FIS shapes, with witness predicates retained where
+  they are semantic hypotheses; score WWD independently.
+- [x] Add numeric/set variants, anticipated/convergent relations, and default constant
+  variants for machines containing anticipated events.
+- [x] Correct relation subtraction, strict subset, exponentiation, and corresponding WD
+  rules in the formula translator.
+- [x] Reject open metavariable kernel proofs and bind accepted evidence to the exact
+  canonical obligation; Rodin status imports must be parsed from the supplied artifact.
+- [ ] Complete the generality ceiling: strict parameter scope, full frame/gluing-relation
+  semantics, and semantic proofs for each POG class. Right-oriented witnesses and the
+  basic multi-event merge path now have focused checked fixtures.
 
 ### Vertical-slice order
 
-1. Resolution, scopes, and fail-closed diagnostics.
-2. Typed assignments and refinement event relations.
-3. Formula translation and definedness.
-4. Witnesses and complete POG classes.
-5. Semantic soundness theorems for each POG class.
-6. Trust/provenance hardening.
-7. Independent differential tests, release evidence, and adversarial review.
+1. Resolution, scopes, and fail-closed diagnostics — implemented and negative-tested.
+2. Typed assignments and refinement event relations — implemented; merge/frame edge cases
+   remain in the generality ceiling.
+3. Formula translation and definedness — implemented and corpus-gated.
+4. Witnesses and variant POG classes — implemented for the supported syntax.
+5. Semantic soundness theorems for each POG class — next correctness milestone.
+6. Trust/provenance hardening — implemented for local and parsed Rodin paths; digest
+   strength and external verifier execution remain explicit trust boundaries.
+7. Independent differential tests, release evidence, and adversarial review — active
+   until the final clean-checkout campaign passes.
 
 Each slice requires a minimal positive model, a negative model, a Rodin-shaped
 comparison, a full build, and a fresh adversarial review before its checkbox is marked.
@@ -70,13 +81,13 @@ comparison, a full build, and a fresh adversarial review before its checkbox is 
 
 | Area | Current evidence | Status |
 | --- | --- | --- |
-| Build and existing gates | 178-job build; P0/P1/P2/P3 pass | baseline only |
-| General refinement typing | AMAN CLI fails on abstract event parameters | blocker |
-| POG semantic coverage | nondeterministic actions, SIM, WWD, variants require work | blocker |
-| Kernel trust | replay negative tests pass; open-mvar path requires hardening | blocker |
-| External/Rodin provenance | metadata checks are not artifact verification | blocker |
-| Release reproducibility | acceptance note and benchmark metadata are stale | blocker |
-| Official Rossi differential | executable unavailable locally | unverified |
+| Build and existing gates | Lean 4.33 build; P0/P1/P2/P3 pass; P3b tracked | current |
+| General refinement typing | AMAN/event-scope and missing-reference negative controls pass | current |
+| POG semantic coverage | nondeterministic actions, SIM, WWD, variants, EQL/MRG implemented | strict checked path; edge ceiling remains |
+| Kernel trust | replay checks reject open mvars, stale goals, forged axioms, and context drift | current |
+| External/Rodin provenance | model/BPO/status identity, canonical/fingerprint binding, monotonic ledger update | current; semantic re-derivation and cryptographic authenticity remain outside the contract |
+| Release reproducibility | CLI fixture, gate status, and exact baseline ratchet are required | active |
+| Official Rossi differential | executable unavailable locally; CI provisions pinned v0.1.7 | local evidence unavailable |
 
 The ledger is updated after every implementation commit. A phase is not complete when
 the build is green if a counterexample, oracle comparison, or adversarial review remains
@@ -128,7 +139,8 @@ by hand; the current histogram remains reproducible.
 - [x] Add one positive and one negative corpus-shaped regression for each corrected WD
   rule, including a total theory symbol and a partial application.
 
-Progress: assignment WD now inspects only the right-hand side, and event-level
+Progress: the compatibility projection preserves the pinned right-hand-side rule;
+strict checked generation also includes function-update arguments, and event-level
 invariant WD is no longer emitted as a separate obligation. The corpus moved from
 214 to 13 unmatched WD names; the remaining records are guard definedness cases.
 `examples/Counter.lean` covers a partial `card` RHS positively and a function-update
@@ -300,7 +312,7 @@ These items depend on the P3b and P4 contracts and must not create a second chec
   and trust UX changes.
 
 The first prototype has no unowned implementation items. The remaining ceilings are
-deliberate: exact P3b parity for the 193 pinned `.bpo` omissions needs regenerated Rodin
+deliberate: exact P3b parity for the 200 pinned `.bpo` omissions needs regenerated Rodin
 artifacts or an explicit compatibility mode, and corpus-scale kernel proof counts need
 semantic Lean bindings for each model symbol. Both are reported rather than silently
 claimed as complete. The next proof increments are measured by the P4 formula-shape
@@ -375,7 +387,7 @@ Production thresholds:
 
 ### V4.3 P3b parity and compatibility
 
-- [x] #19 Resolve the 193 unmatched P3b records against regenerated Rodin `.bpo` artifacts,
+- [x] #19 Resolve the 200 unmatched P3b records against regenerated Rodin `.bpo` artifacts,
   or implement an explicit compatibility mode for the pinned omissions.
 - [x] #20 Preserve the current diagnostics for plain type invariants, definedness,
   refinement guards/actions, and witness feasibility while resolving the records.

@@ -29,6 +29,8 @@ structure St where
   /-- Event parameters, which leave `env` when their event ends but are still recorded
   in the `.bpo` and so must survive to read-back. -/
   params : List (String × Ty) := []
+  /-- Event-local parameter environments, keyed by component and event label. -/
+  eventParams : List ((String × String) × List (String × Ty)) := []
 
 abbrev M := StateT St (Except String)
 
@@ -175,6 +177,24 @@ private theorem termSizePos (t : Term) : 1 ≤ sizeOf t := by
 
 mutual
 
+private def primedBases (bound : List String) : Term → List String
+  | .id name =>
+      if name.endsWith "'" && !bound.contains name then [name.dropEnd 1 |>.copy] else []
+  | .num _ => []
+  | .bin _ a b => primedBases bound a ++ primedBases bound b
+  | .pre _ a | .post _ a => primedBases bound a
+  | .app f a | .img f a => primedBases bound f ++ primedBases bound a
+  | .set terms => primedBasesList bound terms
+  | .bind _ pattern body => primedBases (patternNames pattern ++ bound) body
+
+private def primedBasesList (bound : List String) : List Term → List String
+  | [] => []
+  | term :: rest => primedBases bound term ++ primedBasesList bound rest
+
+end
+
+mutual
+
 /-- Predicates have no type; the judgement is that the formula is well-formed. -/
 def checkPred (t : Term) : M Unit := do
   match t with
@@ -207,9 +227,26 @@ def checkPred (t : Term) : M Unit := do
       else if o == ":∈" then do
         unify (.pow (← inferExpr a)) (← inferExpr b)
       else if o == ":∣" then do
-        -- Do not accept this action until its before/after predicate has a complete
-        -- relational typing rule. Treating only the LHS as typed is unsound.
-        throw "becomes-such-that assignments require relational typing"
+        -- The predicate relates before-state names to their primed after-state names.
+        -- Check both target namespaces so a malformed assignment cannot type merely
+        -- because its relation happens to mention no target.
+        for target in Formula.flattenCommas a do
+          match target with
+          | .id name =>
+              match ← lookup? name with
+              | none => throw s!"unbound assignment target {name}"
+              | some _ => pure ()
+              match ← lookup? (name ++ "'") with
+              | none => throw s!"unbound after-state assignment target {name}'"
+              | some _ => pure ()
+              pure ()
+          | _ => throw "becomes-such-that targets must be identifiers"
+        let targets := Formula.flattenCommas a |>.filterMap fun term =>
+          match term with | .id name => some name | _ => none
+        for name in (primedBases [] b).eraseDups do
+          if !targets.contains name then
+            throw s!"after-state identifier {name}' is not an assignment target"
+        checkPred b
       else throw s!"not a predicate operator: {o}"
   | .app (.id "finite") s => do let _ ← asSet (← inferExpr s)
   | .app (.id "partition") args => do
