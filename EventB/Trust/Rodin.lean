@@ -43,16 +43,36 @@ private def parseStatus (elem : XmlElem) : Except String Status := do
   unless elem.children.isEmpty do
     throw s!"proof-status `{elem.tag}` must not have children"
   let name ← attr elem "name"
+  unless !name.isEmpty do
+    throw "proof-status name must not be empty"
   let confidenceSource ← attr elem "org.eventb.core.confidence"
   let confidence ← match natValue confidenceSource with
     | some value => pure value
     | none => .error s!"invalid confidence `{confidenceSource}`"
+  unless confidence > 0 do
+    throw "proof-status confidence must be positive"
   let manual ← match elem.attr? "org.eventb.core.psManual" with
     | some "true" => pure true
     | some "false" => pure false
     | some value => .error s!"invalid psManual `{value}`"
-    | none => pure false
+    | none => .error "missing `org.eventb.core.psManual` on proof-status"
   pure { name, confidence, manual }
+
+def validateStatuses (statuses : List Status) : Except EventB.Error Unit :=
+  let rec go : List Status → Except EventB.Error Unit
+    | [] => pure ()
+    | status :: rest =>
+        if status.name.isEmpty then
+          .error (EventB.Error.trust "proof-status name must not be empty")
+        else if status.confidence == 0 then
+          .error (EventB.Error.trust
+            s!"proof-status `{status.name}` has zero confidence")
+        else if rest.any (·.name == status.name) then
+          .error (EventB.Error.trust
+            s!"duplicate proof-status `{status.name}`")
+        else
+          go rest
+  go statuses
 
 def importStatuses (source : String) : Except EventB.Error (List Status) := do
   let root ← match parseXmlString source with
@@ -61,7 +81,9 @@ def importStatuses (source : String) : Except EventB.Error (List Status) := do
         s!"invalid Rodin proof-status XML: {error.pretty source.toUTF8}")
   unless root.tag == "org.eventb.core.psFile" do
     throw (EventB.Error.trust s!"root is not a proof-status file: `{root.tag}`")
-  (root.children.mapM parseStatus).mapError EventB.Error.trust
+  let statuses ← (root.children.mapM parseStatus).mapError EventB.Error.trust
+  validateStatuses statuses
+  pure statuses
 
 private def status? (statuses : List Status) (name : String) : Option Status :=
   statuses.find? (·.name == name)
@@ -81,11 +103,16 @@ def compare (obligations : List POG.Obligation) (statuses : List Status) : Compa
 
 def attach (ledger : Ledger) (obligation : POG.Obligation) (source : String)
     (status : Status) : Except EventB.Error Ledger :=
-  if status.discharged then
+  if status.name != obligation.name then
+    .error (EventB.Error.trust s!
+      "proof-status `{status.name}` does not identify obligation `{obligation.name}`")
+  else if status.confidence == 0 then
+    .error (EventB.Error.trust s!"proof-status `{status.name}` has zero confidence")
+  else if status.discharged then
     let evidence := .rodinImported source (s!"eventb-v1-{String.hash source}") status.manual
     ledger.attach obligation evidence
   else
-    pure ledger
+    .error (EventB.Error.trust s!"proof-status `{status.name}` is not discharged")
 
 private def sampleObligation : POG.Obligation :=
   { component := "Sample", name := "evt/inv/INV", kind := "INV", goal := some (.id "⊤") }
@@ -99,6 +126,38 @@ private def sampleSource :=
 #guard match importStatuses sampleSource with
   | .ok [status] => status.name == sampleObligation.name && status.discharged && status.manual
   | _ => false
+
+#guard match importStatuses (sampleSource.replace "name=\"evt/inv/INV\"" "name=\"\"" ) with
+  | .error _ => true
+  | .ok _ => false
+
+#guard match importStatuses (sampleSource.replace
+    "org.eventb.core.confidence=\"1000\"" "org.eventb.core.confidence=\"0\"") with
+  | .error _ => true
+  | .ok _ => false
+
+#guard match importStatuses (sampleSource.replace
+    "</org.eventb.core.psFile>" ("<org.eventb.core.psStatus " ++
+      "name=\"evt/inv/INV\" org.eventb.core.confidence=\"1000\" " ++
+      "org.eventb.core.psManual=\"true\"/></org.eventb.core.psFile>")) with
+  | .error _ => true
+  | .ok _ => false
+
+#guard match importStatuses (sampleSource.replace
+    "org.eventb.core.psManual=\"true\"" "org.eventb.core.psManual=\"maybe\"") with
+  | .error _ => true
+  | .ok _ => false
+
+#guard match importStatuses (sampleSource.replace
+    " org.eventb.core.psManual=\"true\"" "") with
+  | .error _ => true
+  | .ok _ => false
+
+#guard match attach (Ledger.ofObligations [sampleObligation])
+    sampleObligation "sample.bps"
+      { name := "other/INV", confidence := 1000, manual := false } with
+  | .error _ => true
+  | .ok _ => false
 
 #guard match importStatuses sampleSource with
   | .ok statuses =>
