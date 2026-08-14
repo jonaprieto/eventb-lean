@@ -56,10 +56,10 @@ proof terms and checked axiom metadata. SMT, Rodin-imported, and external eviden
 remain their own modes with verifier, version, input digest, and fingerprint metadata.
 Unproved obligations remain `unproved`; reports never upgrade them implicitly.
 Rodin imports additionally require model-root identity, source-component binding, the
-named BPO sequent, and equality of its canonical goal with the generated obligation,
-plus an independently parsed proof-status record. Hypothesis and model re-derivation
-remain outside this contract; the current digest primitive is an internal fingerprint,
-not a cryptographic authenticity claim.
+named BPO sequent, and equality of its canonical goal and hypothesis multiset with the
+generated obligation, plus an independently parsed proof-status record. Re-deriving
+the POG from model bytes remains outside this contract; the current digest primitive is
+an internal fingerprint, not a cryptographic authenticity claim.
 
 ## Acceptance commands
 

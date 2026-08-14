@@ -187,8 +187,8 @@ model-root, PO-sequent, source-component, and status identities, but does not re
 the BPO sequent from the model. SMT and external
 evidence remain explicit metadata boundaries and must carry solver/tool, version, input
 digest, and verifier fields. Rodin provenance retains the model, BPO, and status bytes
-for replayable structural and goal checks; it does not yet rederive all hypotheses from
-the model.
+for replayable structural, goal, and hypothesis checks; it does not yet rederive the
+POG from the model.
 
 ## User experience
 
