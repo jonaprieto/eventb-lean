@@ -188,12 +188,15 @@ private def checkTypes (project : Project) (file : String)
   | .error e =>
       gold.map (fun (n, _) =>
         { key := file ++ "\t" ++ n, status := "FAIL:" ++ EventB.Error.render e })
-  | .ok (env, _) =>
+  | .ok (env, errors) =>
       gold.map fun (n, g) =>
         let key := file ++ "\t" ++ n
-        match env.find? (fun p => p.1 == n) with
-        | none => { key := key, status := "FAIL:not inferred" }
-        | some (_, t) => compareType key t.print g
+        match errors.head? with
+        | some error => { key := key, status := "FAIL:typing " ++ error }
+        | none =>
+            match env.find? (fun p => p.1 == n) with
+            | none => { key := key, status := "FAIL:not inferred" }
+            | some (_, t) => compareType key t.print g
 
 private def typeHistogram (results : List TypeResult) : List (String × Nat) :=
   (results.foldl

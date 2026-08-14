@@ -38,10 +38,44 @@ private def childrenOf (e : Elem) (tag : String) : List Elem :=
 private def attrOf (e : Elem) (key : String) : Option String :=
   e.attr? ("org.eventb.core." ++ key)
 
+private def labelOf (e : Elem) : String := (attrOf e "label").getD ""
+
 /-- `target` is a workspace path such as `/Abstraction/M1_Landing_Sequence_Ctx`; only the
 last segment names the component. -/
 private def targetName (e : Elem) : Option String :=
   (attrOf e "target").map (fun t => (t.splitOn "/").getLast!)
+
+private def eventParentName (ev : Elem) : Option String :=
+  match (childrenOf ev "refinesEvent").filterMap targetName |>.head? with
+  | some target => some target
+  | none => if (attrOf ev "extended").getD "false" == "true" then some (labelOf ev) else none
+
+private def inheritedEventParams (p : Project) : Nat → String → String → List String
+  | 0, _, _ => []
+  | depth + 1, machine, event =>
+      match lookupComponent p machine with
+      | none => []
+      | some current =>
+          match (childrenOf current.elem "event").find? (fun candidate =>
+            labelOf candidate == event) with
+          | none => []
+          | some currentEvent =>
+              match eventParentName currentEvent with
+              | none => []
+              | some parentEventName =>
+                  match (childrenOf current.elem "refinesMachine").filterMap targetName |>.head? with
+                  | none => []
+                  | some parentName =>
+                      match lookupComponent p parentName with
+                      | none => []
+                      | some parent =>
+                          match (childrenOf parent.elem "event").find? (fun candidate =>
+                            labelOf candidate == parentEventName) with
+                          | none => []
+                          | some parentEvent =>
+                              let own := (childrenOf parentEvent "parameter").filterMap
+                                (attrOf · "identifier")
+                              own ++ inheritedEventParams p depth parentName parentEventName
 
 /-- Contexts and machines a component depends on, deepest first, without repeats.
 
@@ -78,7 +112,7 @@ def componentTheoryRoots (p : Project) (name : String) : List String :=
 /-- Declare the identifiers a component introduces, then feed every predicate it states
 to the checker. Errors are collected rather than thrown: one unsupported guard should
 cost that guard's constraints, not the whole file's types. -/
-private def addComponent (c : Component) : M (List String) := do
+private def addComponent (p : Project) (c : Component) : M (List String) := do
   let mut errs : List String := []
   -- Carrier sets and constants first, so axioms can refer to them in any order.
   for s in childrenOf c.elem "carrierSet" do
@@ -100,8 +134,18 @@ private def addComponent (c : Component) : M (List String) := do
       errs := errs ++ (← runPredicate f)
   -- Each event's parameters are scoped to that event.
   for ev in childrenOf c.elem "event" do
+    let ownParams := (childrenOf ev "parameter").filterMap (attrOf · "identifier")
+    let inheritedParams := inheritedEventParams p p.length c.name (labelOf ev)
     let (eventErrors, bound) ← withEnvBindings do
       let mut eventErrors : List String := []
+      -- A refining event's witnesses and predicates can mention the parameters of the
+      -- abstract event. They are lexical inputs to this check, not project-global names.
+      for name in inheritedParams do
+        let st ← get
+        match st.params.find? (fun pair => pair.1 == name) with
+        | some (_, ty) => bind name ty
+        | none => eventErrors := eventErrors ++
+            [s!"unresolved abstract event parameter {name}"]
       for prm in childrenOf ev "parameter" do
         if let some n := attrOf prm "identifier" then bind n (← fresh)
       for g in childrenOf ev "guard" do
@@ -117,7 +161,8 @@ private def addComponent (c : Component) : M (List String) := do
     errs := errs ++ eventErrors
     -- Parameters leave the environment so a later event cannot see them, but they are
     -- kept in `params` because the `.bpo` records their types alongside the variables.
-    modify fun s => { s with params := s.params ++ bound }
+    modify fun s =>
+      { s with params := s.params ++ bound.filter (fun pair => ownParams.contains pair.1) }
   return errs
 where
   /-- Reuse the existing type if the name is already declared, so a refinement does not
@@ -149,7 +194,7 @@ def inferComponentIn (theory : Theory.Env) (p : Project) (name : String) :
     let mut errs : List String := []
     for dep in order do
       if let some c := lookupComponent p dep then
-        errs := errs ++ (← addComponent c)
+        errs := errs ++ (← addComponent p c)
     let st ← get
     let env := st.env ++ st.params
     let mut out : List (String × Ty) := []
