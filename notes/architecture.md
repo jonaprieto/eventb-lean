@@ -186,7 +186,9 @@ records as `rodinImported`; it never upgrades them to kernel evidence. The impor
 model-root, PO-sequent, source-component, and status identities, but does not rederive
 the BPO sequent from the model. SMT and external
 evidence remain explicit metadata boundaries and must carry solver/tool, version, input
-digest, and verifier fields.
+digest, and verifier fields. Rodin provenance retains the model, BPO, and status bytes
+for replayable structural and goal checks; it does not yet rederive all hypotheses from
+the model.
 
 ## User experience
 

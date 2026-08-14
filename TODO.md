@@ -85,9 +85,9 @@ comparison, a full build, and a fresh adversarial review before its checkbox is 
 | General refinement typing | AMAN/event-scope and missing-reference negative controls pass | current |
 | POG semantic coverage | nondeterministic actions, SIM, WWD, variants, EQL/MRG implemented | strict checked path; edge ceiling remains |
 | Kernel trust | replay checks reject open mvars, stale goals, forged axioms, and context drift | current |
-| External/Rodin provenance | model/BPO/status identity, canonical/fingerprint binding, monotonic ledger update | current; semantic re-derivation and cryptographic authenticity remain outside the contract |
+| External/Rodin provenance | model/BPO/status identity, canonical goal/fingerprint binding, monotonic ledger update | current; hypothesis/model re-derivation and cryptographic authenticity remain outside the contract |
 | Release reproducibility | CLI fixture, gate status, and exact baseline ratchet are required | active |
-| Official Rossi differential | executable unavailable locally; CI provisions pinned v0.1.7 | local evidence unavailable |
+| Official Rossi differential | pinned v0.1.7 SHA verified; x86_64 guest validates all four fixtures; CI provisions the exact differential command | current; CI remains release gate |
 
 The ledger is updated after every implementation commit. A phase is not complete when
 the build is green if a counterexample, oracle comparison, or adversarial review remains

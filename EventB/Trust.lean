@@ -36,6 +36,8 @@ inductive Evidence where
   | smt (solver : String) (version : String) (inputDigest : String) (verifier : String)
   | external (tool : String) (version : String) (artifactDigest : String) (verifier : String)
   | rodinImported (source : String) (digest : String) (manual : Bool)
+  | rodinImportedProvenance (model : String) (bpo : String) (statuses : String)
+      (digest : String) (manual : Bool)
   deriving BEq, Repr, Inhabited
 
 def Evidence.mode : Evidence → Mode
@@ -44,6 +46,7 @@ def Evidence.mode : Evidence → Mode
   | .smt _ _ _ _ => .smt
   | .external _ _ _ _ => .external
   | .rodinImported _ _ _ => .rodinImported
+  | .rodinImportedProvenance _ _ _ _ _ => .rodinImported
 
 def Evidence.isWellFormed : Evidence → Bool
   | .none => false
@@ -53,6 +56,8 @@ def Evidence.isWellFormed : Evidence → Bool
   | .external tool version digest verifier =>
       !tool.isEmpty && !version.isEmpty && !digest.isEmpty && !verifier.isEmpty
   | .rodinImported source digest _ => !source.isEmpty && !digest.isEmpty
+  | .rodinImportedProvenance model bpo statuses digest _ =>
+      !model.isEmpty && !bpo.isEmpty && !statuses.isEmpty && !digest.isEmpty
 
 def fingerprint (canonical : String) : String :=
   s!"eventb-v1-{String.hash canonical}"
@@ -70,7 +75,10 @@ structure Entry where
   deriving BEq, Repr, Inhabited
 
 def Entry.isConsistent (entry : Entry) : Bool :=
-  entry.mode == entry.evidence.mode &&
+    !entry.component.isEmpty && !entry.obligation.isEmpty &&
+    !entry.canonical.isEmpty && entry.fingerprint == Trust.fingerprint entry.canonical &&
+    (entry.mode != .kernel || !entry.semanticFingerprint.isEmpty) &&
+    entry.mode == entry.evidence.mode &&
     (entry.mode == .unproved || entry.evidence.isWellFormed)
 
 structure Ledger where
@@ -89,10 +97,24 @@ private def sameEntry (entry : Entry) (component name : String) : Bool :=
 def Ledger.entry? (ledger : Ledger) (component name : String) : Option Entry :=
   ledger.entries.find? (sameEntry · component name)
 
+def Ledger.validate (ledger : Ledger) : Except EventB.Error Unit :=
+  let rec go (seen : List String) : List Entry → Except EventB.Error Unit
+    | [] => .ok ()
+    | entry :: rest =>
+        let key := entry.component ++ "\t" ++ entry.obligation
+        if seen.contains key then
+          .error (EventB.Error.trust s!"ledger has duplicate entry `{key}`")
+        else if !entry.isConsistent then
+          .error (EventB.Error.trust s!"ledger entry `{key}` is inconsistent")
+        else go (key :: seen) rest
+  go [] ledger.entries
+
 def Ledger.attach (ledger : Ledger) (obligation : POG.Obligation) (evidence : Evidence) :
     Except EventB.Error Ledger :=
   let expected := fingerprint obligation.canonical
-  if !obligation.diagnostics.isEmpty then
+  if let .error error := ledger.validate then
+    .error error
+  else if !obligation.diagnostics.isEmpty then
     .error (EventB.Error.trust
       s!"cannot attach evidence to `{obligation.component}:{obligation.name}` with diagnostics")
   else if obligation.goal.isNone then
@@ -101,7 +123,7 @@ def Ledger.attach (ledger : Ledger) (obligation : POG.Obligation) (evidence : Ev
   else if evidence matches .kernel .. then
     .error (EventB.Error.trust
       "kernel evidence must be validated by Trust.Replay before ledger attachment")
-  else if evidence matches .rodinImported .. then
+  else if evidence matches .rodinImported .. || evidence matches .rodinImportedProvenance .. then
     .error (EventB.Error.trust
       "Rodin evidence must be attached through Trust.Rodin after artifact parsing")
   else if !evidence.isWellFormed then
@@ -162,6 +184,17 @@ private def sampleLedger : Ledger := Ledger.ofObligations [sampleObligation]
 private def inconsistentLedger : Ledger :=
   { entries := [{ sampleLedger.entries.head! with evidence := .kernel "forged" }] }
 
+private def unrelatedObligation : POG.Obligation :=
+  { sampleObligation with name := "INITIALISATION/inv2/INV" }
+
+private def unrelatedInconsistentLedger : Ledger :=
+  { entries := [inconsistentLedger.entries.head!,
+      (Ledger.ofObligations [unrelatedObligation]).entries.head!] }
+
+private def forgedKernelLedger : Ledger :=
+  { entries := [{ sampleLedger.entries.head! with
+      mode := .kernel, evidence := .kernel "forged" }] }
+
 private def renamedSample : POG.Obligation :=
   { sampleObligation with name := "display-only", kind := "INV" }
 
@@ -189,6 +222,14 @@ private def renamedSample : POG.Obligation :=
 #guard match Ledger.attach
     inconsistentLedger
     sampleObligation (.external "sample" "1" "digest" "checker") with
+  | .error _ => true
+  | .ok _ => false
+#guard match Ledger.attach
+    unrelatedInconsistentLedger
+    unrelatedObligation (.external "sample" "1" "digest" "checker") with
+  | .error _ => true
+  | .ok _ => false
+#guard match forgedKernelLedger.validate with
   | .error _ => true
   | .ok _ => false
 #guard match sampleLedger.attach

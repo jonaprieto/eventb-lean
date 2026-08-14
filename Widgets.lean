@@ -49,6 +49,8 @@ private def evidenceLabel : Trust.Evidence → String
   | .external tool version _ verifier => s!"{tool} {version}, verified by {verifier}"
   | .rodinImported source _ manual =>
       s!"Rodin import {source} ({if manual then "manual" else "automatic"})"
+  | .rodinImportedProvenance _ _ _ _ manual =>
+      s!"Rodin provenance ({if manual then "manual" else "automatic"})"
 
 private def hypothesisOnly (obligation : Obligation) : Bool :=
   obligation.kind == "WWD" && obligation.goal.isNone

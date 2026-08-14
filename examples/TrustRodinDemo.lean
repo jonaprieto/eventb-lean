@@ -19,7 +19,8 @@ private def provenance : Trust.Rodin.Provenance :=
       "org.eventb.core.name=\"Demo\"/>"
     bpo := "<?xml version=\"1.0\"?>" ++
       "<org.eventb.core.poFile source=\"Demo.bum\"><org.eventb.core.poSequent " ++
-      "name=\"evt/inv/INV\"/></org.eventb.core.poFile>"
+      "name=\"evt/inv/INV\"><org.eventb.core.poPredicate " ++
+      "org.eventb.core.predicate=\"⊤\"/></org.eventb.core.poSequent></org.eventb.core.poFile>"
     statuses := source }
 
 #guard match Trust.Rodin.importStatuses source with
