@@ -24,6 +24,12 @@ def Mode.label : Mode → String
   | .external => "external-trusted"
   | .unproved => "unproved"
 
+def Mode.rank : Mode → Nat
+  | .unproved => 0
+  | .external | .rodinImported => 1
+  | .smt => 2
+  | .kernel => 3
+
 inductive Evidence where
   | none
   | kernel (declaration : String) (axioms : List String := [])
@@ -55,9 +61,17 @@ structure Entry where
   component : String := ""
   obligation : String
   fingerprint : String
+  /-- Exact canonical source retained so local attachment does not rely on hash equality. -/
+  canonical : String := ""
+  /-- Semantic context fingerprint required for kernel entries. -/
+  semanticFingerprint : String := ""
   mode : Mode
   evidence : Evidence := .none
   deriving BEq, Repr, Inhabited
+
+def Entry.isConsistent (entry : Entry) : Bool :=
+  entry.mode == entry.evidence.mode &&
+    (entry.mode == .unproved || entry.evidence.isWellFormed)
 
 structure Ledger where
   entries : List Entry := []
@@ -66,32 +80,59 @@ structure Ledger where
 def Ledger.ofObligations (obligations : List POG.Obligation) : Ledger :=
   { entries := obligations.map fun obligation =>
       { component := obligation.component, obligation := obligation.name
-        fingerprint := fingerprint obligation.canonical, mode := .unproved } }
+        fingerprint := fingerprint obligation.canonical, canonical := obligation.canonical,
+        mode := .unproved } }
 
-private def key (component name : String) : String := component ++ "\n" ++ name
+private def sameEntry (entry : Entry) (component name : String) : Bool :=
+  entry.component == component && entry.obligation == name
 
 def Ledger.entry? (ledger : Ledger) (component name : String) : Option Entry :=
-  ledger.entries.find? (fun entry => key entry.component entry.obligation == key component name)
+  ledger.entries.find? (sameEntry · component name)
 
 def Ledger.attach (ledger : Ledger) (obligation : POG.Obligation) (evidence : Evidence) :
     Except EventB.Error Ledger :=
   let expected := fingerprint obligation.canonical
-  if evidence matches .kernel .. then
+  if !obligation.diagnostics.isEmpty then
+    .error (EventB.Error.trust
+      s!"cannot attach evidence to `{obligation.component}:{obligation.name}` with diagnostics")
+  else if obligation.goal.isNone then
+    .error (EventB.Error.trust
+      s!"cannot attach evidence to statement-less obligation `{obligation.name}`")
+  else if evidence matches .kernel .. then
     .error (EventB.Error.trust
       "kernel evidence must be validated by Trust.Replay before ledger attachment")
+  else if evidence matches .rodinImported .. then
+    .error (EventB.Error.trust
+      "Rodin evidence must be attached through Trust.Rodin after artifact parsing")
   else if !evidence.isWellFormed then
     .error (EventB.Error.trust "evidence metadata is incomplete")
   else if ledger.entry? obligation.component obligation.name |>.isNone then
     .error (EventB.Error.trust
       s!"obligation `{obligation.component}:{obligation.name}` is not in the ledger")
+  else if ledger.entries.countP (sameEntry · obligation.component obligation.name) != 1 then
+    .error (EventB.Error.trust
+      s!"ledger has duplicate entries for `{obligation.component}:{obligation.name}`")
+  else if (ledger.entry? obligation.component obligation.name |>.get!).canonical !=
+      obligation.canonical then
+    .error (EventB.Error.trust
+      s!"evidence canonical mismatch for `{obligation.component}:{obligation.name}`")
   else if (ledger.entry? obligation.component obligation.name |>.get!).fingerprint != expected then
     .error (EventB.Error.trust
       s!"evidence fingerprint mismatch for `{obligation.component}:{obligation.name}`")
   else
-    .ok { entries := ledger.entries.map fun entry =>
-      if key entry.component entry.obligation == key obligation.component obligation.name then
-        { entry with mode := evidence.mode, evidence := evidence }
-      else entry }
+    let entry := ledger.entry? obligation.component obligation.name |>.get!
+    if !entry.isConsistent then
+      .error (EventB.Error.trust
+        s!"ledger entry for `{obligation.component}:{obligation.name}` is internally inconsistent")
+    else if entry.mode != .unproved && Mode.rank evidence.mode <= Mode.rank entry.mode then
+      .error (EventB.Error.trust
+        (s!"evidence for `{obligation.component}:{obligation.name}` cannot be replaced " ++
+          "by equal or weaker evidence"))
+    else
+      .ok { entries := ledger.entries.map fun current =>
+        if sameEntry current obligation.component obligation.name then
+          { current with mode := evidence.mode, evidence := evidence }
+        else current }
 
 def Ledger.count (ledger : Ledger) (mode : Mode) : Nat :=
   ledger.entries.countP (·.mode == mode)
@@ -118,18 +159,36 @@ private def sampleObligation : POG.Obligation :=
 
 private def sampleLedger : Ledger := Ledger.ofObligations [sampleObligation]
 
+private def inconsistentLedger : Ledger :=
+  { entries := [{ sampleLedger.entries.head! with evidence := .kernel "forged" }] }
+
 private def renamedSample : POG.Obligation :=
   { sampleObligation with name := "display-only", kind := "INV" }
 
-#guard sampleObligation.canonical == renamedSample.canonical
+#guard sampleObligation.canonical != renamedSample.canonical
 #guard sampleObligation.canonical !=
   { sampleObligation with goal := some (.id "⊥") }.canonical
+#guard ({ sampleObligation with diagnostics := ["a\nb"] }).canonical !=
+  ({ sampleObligation with diagnostics := ["a", "b"] }).canonical
 
 #guard match sampleLedger.attach sampleObligation
     (.external "sample" "1" "digest" "checker") with
   | .ok ledger => ledger.count .external == 1
   | .error _ => false
+
+#guard match sampleLedger.attach sampleObligation
+    (.external "sample" "1" "digest" "checker") with
+  | .ok ledger => match ledger.attach sampleObligation
+      (.external "other" "1" "digest" "checker") with
+    | .error _ => true
+    | .ok _ => false
+  | .error _ => false
 #guard match sampleLedger.attach sampleObligation (.kernel "No.Such.Declaration") with
+  | .error _ => true
+  | .ok _ => false
+#guard match Ledger.attach
+    inconsistentLedger
+    sampleObligation (.external "sample" "1" "digest" "checker") with
   | .error _ => true
   | .ok _ => false
 #guard match sampleLedger.attach
@@ -137,6 +196,10 @@ private def renamedSample : POG.Obligation :=
   | .error _ => true
   | .ok _ => false
 #guard match sampleLedger.attach sampleObligation (.kernel "") with
+  | .error _ => true
+  | .ok _ => false
+#guard match sampleLedger.attach sampleObligation
+    (.rodinImported "status.bps" "digest" false) with
   | .error _ => true
   | .ok _ => false
 

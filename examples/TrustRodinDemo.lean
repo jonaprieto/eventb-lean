@@ -14,6 +14,14 @@ private def source :=
     "org.eventb.core.confidence=\"1000\" org.eventb.core.psManual=\"false\"/>" ++
     "</org.eventb.core.psFile>"
 
+private def provenance : Trust.Rodin.Provenance :=
+  { model := "<?xml version=\"1.0\"?><org.eventb.core.machineFile " ++
+      "org.eventb.core.name=\"Demo\"/>"
+    bpo := "<?xml version=\"1.0\"?>" ++
+      "<org.eventb.core.poFile source=\"Demo.bum\"><org.eventb.core.poSequent " ++
+      "name=\"evt/inv/INV\"/></org.eventb.core.poFile>"
+    statuses := source }
+
 #guard match Trust.Rodin.importStatuses source with
   | .ok [status] =>
       let result := Trust.Rodin.compare [obligation] [status]
@@ -21,8 +29,8 @@ private def source :=
   | _ => false
 
 #guard match Trust.Rodin.importStatuses source with
-  | .ok [status] => match Trust.Rodin.attach
-      (Trust.Ledger.ofObligations [obligation]) obligation "demo.bps" status with
+  | .ok [status] => match Trust.Rodin.attachProvenance
+      (Trust.Ledger.ofObligations [obligation]) obligation provenance status with
     | .ok ledger => ledger.count .rodinImported == 1
     | .error _ => false
   | _ => false

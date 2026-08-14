@@ -88,6 +88,13 @@ private def kindClass : String → String
   | "THM" => "green"
   | "WFIS" => "light-blue"
   | "WWD" => "red"
+  | "FIS" => "light-blue"
+  | "EQL" => "purple"
+  | "MRG" => "gold"
+  | "VWD" => "teal"
+  | "FIN" => "teal"
+  | "NAT" => "teal"
+  | "VAR" => "teal"
   | _ => "grey"
 
 private def kindTitle : String → String
@@ -98,6 +105,13 @@ private def kindTitle : String → String
   | "THM" => "Theorem"
   | "WFIS" => "Witness feasibility"
   | "WWD" => "Witness well-definedness"
+  | "FIS" => "Action feasibility"
+  | "EQL" => "Preserved variable equality"
+  | "MRG" => "Merged-event guard strengthening"
+  | "VWD" => "Variant well-definedness"
+  | "FIN" => "Finite set variant"
+  | "NAT" => "Natural-number variant"
+  | "VAR" => "Variant decrease"
   | kind => kind
 
 private def fallbackEntry (obligation : Obligation) : Trust.Entry :=
@@ -120,7 +134,9 @@ private def obligationCard (ledger : Trust.Ledger) (obligation : Obligation) : H
     obligationBody obligation entry
   ]
 
-private def kinds : List String := ["INV", "WD", "GRD", "SIM", "THM", "WFIS", "WWD"]
+private def kinds : List String :=
+  ["INV", "WD", "GRD", "SIM", "THM", "WFIS", "WWD", "FIS", "EQL", "MRG",
+   "VWD", "FIN", "NAT", "VAR"]
 
 private def countKind (kind : String) (obligations : List Obligation) : Nat :=
   obligations.countP (·.kind == kind)

@@ -104,6 +104,11 @@ private def boolType : Expr := mkConst (Name.mkSimple "Bool")
 
 private def trueProp : Expr := mkConst (Name.mkSimple "True")
 
+/-- Event-B exponentiation is only defined for non-negative exponents. The embedding is
+totalized outside that domain; POG emits `0 ≤ exponent` as the corresponding WD premise. -/
+private def eventBPow (base exponent : Int) : Int :=
+  if 0 ≤ exponent then Int.pow base exponent.toNat else 0
+
 private def mkAnd (left right : Expr) : MetaM Expr := mkAppM ``And #[left, right]
 private def mkOr (left right : Expr) : MetaM Expr := mkAppM ``Or #[left, right]
 private def mkImp (left right : Expr) : MetaM Expr := mkArrow left right
@@ -432,6 +437,13 @@ private def mkRestriction (relationType set relation : Expr) (domain : Bool) : M
     let body ← mkAnd restricted (mkApp relation pair)
     mkLambdaFVars #[pair] body
 
+private def mkSubtraction (relationType set relation : Expr) (domain : Bool) : MetaM Expr := do
+  withLocalDeclD `pair relationType fun pair => do
+    let endpoint ← if domain then project ``Prod.fst pair else project ``Prod.snd pair
+    let removed := mkApp set endpoint
+    let body ← mkAnd (← mkNot removed) (mkApp relation pair)
+    mkLambdaFVars #[pair] body
+
 private def mkComposition (leftType middleType rightType left right : Expr) : MetaM Expr := do
   let pairType ← mkAppM ``Prod #[leftType, rightType]
   withLocalDeclD `pair pairType fun pair => do
@@ -751,22 +763,24 @@ private def translateExpr : Nat → KernelContext → Formula.Term → MetaM Ker
           checked context (.pow (.prod leftType rightType))
             (← mkProductSet (← typeExpr context leftType) (← typeExpr context rightType)
               left right)
-      | "◁" | "⩤" | "▷" | "⩥" =>
+      | "◁" | "▷" | "⩤" | "⩥" =>
           let left ← translateExpr fuel context left
           let right ← translateExpr fuel context right
           if op == "◁" || op == "⩤" then
             let (rightLeft, rightRight) ← relationTypes right
             let (leftType, leftSet) ← asSet left
             let _ ← sameType leftType rightLeft
+            let builder := if op == "◁" then mkRestriction else mkSubtraction
             checked context right.ty
-              (← mkRestriction (← typeExpr context (.prod rightLeft rightRight)) leftSet
+              (← builder (← typeExpr context (.prod rightLeft rightRight)) leftSet
                 right.value true)
           else
             let (leftType, leftRight) ← relationTypes left
             let (rightType, rightSet) ← asSet right
             let _ ← sameType leftRight rightType
+            let builder := if op == "▷" then mkRestriction else mkSubtraction
             checked context left.ty
-              (← mkRestriction (← typeExpr context (.prod leftType leftRight)) rightSet
+              (← builder (← typeExpr context (.prod leftType leftRight)) rightSet
                 left.value false)
       | "↔" | "" | "" | "" | "⇸" | "→" | "⤔" | "↣" | "⤀" | "↠" | "⤖" =>
           let left ← translateExpr fuel context left
@@ -789,8 +803,7 @@ private def translateExpr : Nat → KernelContext → Formula.Term → MetaM Ker
             | "mod" => ``Int.emod
             | _ => ``Int.add
           let result ← if op == "^" then
-            let exponent ← mkAppM ``Int.toNat #[right.value]
-            mkAppM ``Int.pow #[left.value, exponent]
+            mkAppM ``eventBPow #[left.value, right.value]
           else
             mkAppM function #[left.value, right.value]
           checked context .int result
@@ -898,7 +911,12 @@ private def translatePred : Nat → KernelContext → Formula.Term → MetaM Exp
             let (leftType, left) ← asSet left
             let _ ← sameType leftType rightType
             let subset ← mkSubset (← typeExpr context leftType) left right
-            if op == "⊆" then pure subset else mkNot subset
+            if op == "⊆" then pure subset
+            else if op == "⊈" then mkNot subset
+            else do
+              let reverse ← mkSubset (← typeExpr context leftType) right left
+              let strict ← mkAnd subset (← mkNot reverse)
+              if op == "⊂" then pure strict else mkNot strict
           else
             let left ← translateExpr fuel context left
             let (leftType, left) ← asSet left
@@ -909,7 +927,12 @@ private def translatePred : Nat → KernelContext → Formula.Term → MetaM Exp
             let (rightType, right) ← asSet right
             let _ ← sameType leftType rightType
             let subset ← mkSubset (← typeExpr context leftType) left right
-            if op == "⊆" then pure subset else mkNot subset
+            if op == "⊆" then pure subset
+            else if op == "⊈" then mkNot subset
+            else do
+              let reverse ← mkSubset (← typeExpr context leftType) right left
+              let strict ← mkAnd subset (← mkNot reverse)
+              if op == "⊂" then pure strict else mkNot strict
       | _ => throwError s!"unsupported Event-B predicate operator `{op}`"
   | fuel + 1, context, .app (.id name) value => do
       match context.lookupPredicate name with

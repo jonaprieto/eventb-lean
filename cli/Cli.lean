@@ -249,7 +249,9 @@ private def reports (data : ProjectData) : List Report :=
 private def fatalErrors (data : ProjectData) (rs : List Report) : List EventB.Error :=
   data.errors ++ rs.flatMap (·.errors)
 
-private def kinds : List String := ["INV", "WD", "GRD", "SIM", "THM", "WFIS", "WWD"]
+private def kinds : List String :=
+  ["INV", "WD", "GRD", "SIM", "THM", "WFIS", "WWD", "FIS", "EQL", "MRG",
+   "VWD", "FIN", "NAT", "VAR"]
 
 private def parseKinds (value : String) : Except String (List String) :=
   let values := value.splitOn ","
@@ -700,8 +702,10 @@ private def runDiff (dir : System.FilePath) : IO UInt32 := do
             IO.println (s!"{source.name}: {matching} match, " ++
               s!"{missing.length} only Rodin, {extra.length} only ours")
             if !missing.isEmpty then
+              failed := true
               IO.println s!"  only Rodin: {String.intercalate ", " missing}"
             if !extra.isEmpty then
+              failed := true
               IO.println s!"  only ours: {String.intercalate ", " extra}"
   for source in data.sources do
     if !bpos.any (fun path => stem path == source.name) then
