@@ -207,10 +207,9 @@ def checkPred (t : Term) : M Unit := do
       else if o == ":∈" then do
         unify (.pow (← inferExpr a)) (← inferExpr b)
       else if o == ":∣" then do
-        -- Becomes-such-that: the right side is a predicate over primed variables, which
-        -- P2 does not model yet. The left side still has to typecheck.
-        let _ ← inferExpr a
-        return ()
+        -- Do not accept this action until its before/after predicate has a complete
+        -- relational typing rule. Treating only the LHS as typed is unsound.
+        throw "becomes-such-that assignments require relational typing"
       else throw s!"not a predicate operator: {o}"
   | .app (.id "finite") s => do let _ ← asSet (← inferExpr s)
   | .app (.id "partition") args => do
@@ -231,8 +230,9 @@ def checkPred (t : Term) : M Unit := do
 
 termination_by sizeOf t
 decreasing_by
-  all_goals simp +arith [Term.id.sizeOf_spec, Term.bin.sizeOf_spec, Term.pre.sizeOf_spec,
+  all_goals simp_all +arith [Term.id.sizeOf_spec, Term.bin.sizeOf_spec, Term.pre.sizeOf_spec,
     Term.app.sizeOf_spec, Term.bind.sizeOf_spec]
+  all_goals omega
 
 /-- The arguments of a comma-separated application, typed left to right. Walking the
 comma spine here rather than calling `flattenCommas` keeps the recursion structural:
@@ -245,11 +245,29 @@ termination_by t => sizeOf t + 1
 decreasing_by
   all_goals simp +arith [Term.bin.sizeOf_spec]
 
-/-- Bind every identifier in a binder pattern to a fresh type. -/
-def bindPattern (t : Term) : M Unit := do
+/-- Resolve a type-set ascription without re-entering expression inference. -/
+private def ascriptionType (t : Term) : M Ty := do
+  let s ← get
+  let typeOfName (name : String) : M Ty :=
+    match Theory.typeIn? s.theory s.theoryRoots name with
+    | some (.pow element) => pure element
+    | some ty => pure ty
+    | none => throw s!"unknown binder type {name}"
   match t with
-  | .id n => do bind n (← fresh)
-  | .bin "," a b | .bin "↦" a b => do bindPattern a; bindPattern b
+  | .id name => typeOfName name
+  | .pre "ℙ" (.id name) => return .pow (← typeOfName name)
+  | .pre "ℙ1" (.id name) => return .pow (← typeOfName name)
+  | _ => throw s!"unsupported binder type: {Formula.print t}"
+
+/-- Bind every identifier in a binder pattern to a fresh or ascribed type. -/
+def bindPattern (t : Term) (expected : Option Ty := none) : M Unit := do
+  match t with
+  | .id n => bind n (expected.getD (← fresh))
+  | .bin "⦂" pattern type => bindPattern pattern (some (← ascriptionType type))
+  | .bin "," a b | .bin "↦" a b =>
+      match expected with
+      | some (.prod left right) => bindPattern a (some left); bindPattern b (some right)
+      | _ => bindPattern a; bindPattern b
   | t => throw s!"not a binder pattern: {Formula.print t}"
 
 termination_by sizeOf t
@@ -263,7 +281,8 @@ def patternType (t : Term) : M Ty := do
     match ← lookup? n with
     | some ty => return ty
     | none => throw s!"unbound {n}"
-  | .bin "↦" a b => return .prod (← patternType a) (← patternType b)
+  | .bin "⦂" _ type => ascriptionType type
+  | .bin "," a b | .bin "↦" a b => return .prod (← patternType a) (← patternType b)
   | t => throw s!"not a binder pattern: {Formula.print t}"
 
 termination_by sizeOf t

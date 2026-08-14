@@ -29,6 +29,59 @@ additional WFIS names are absent from the pinned `.bpo` files and remain explici
 coverage data rather than being forced into the P3b denominator. P4 has no corpus
 kernel, SMT, or imported-Rodin entries yet; the other 1060 obligations remain unproved.
 
+## Accuracy campaign: general refinement-heavy Event-B
+
+Status: active. This campaign supersedes the older prototype-completion checkboxes
+where adversarial review found that an internally consistent gate was weaker than the
+documented semantic or trust contract. The target is fail-closed, structurally faithful
+support for a defined refinement-heavy Event-B subset; passing the pinned corpus alone is
+not completion evidence.
+
+### Current blockers
+
+- [ ] Fail on missing component/event/theory references instead of treating them as empty
+  closures.
+- [ ] Keep typing and parse diagnostics attached to POG generation; never discard errors
+  through `toOption` or ignored error lists.
+- [ ] Scope refining-event abstract parameters and keep event parameter types local.
+- [ ] Type the RHS of `:∣` actions and include `:∈`/`:∣` actions in invariant semantics.
+- [ ] Generate general SIM obligations, including gluing, new events, and stuttering.
+- [ ] Make witness WFIS/WWD structurally match Rodin, including witness WD predicates.
+- [ ] Add variant, naturalness, decrease, anticipated, and convergent-event obligations.
+- [ ] Correct Event-B operator translation and WD rules, especially relation subtraction and
+  exponentiation.
+- [ ] Reject open metavariable kernel proofs and bind all external/Rodin evidence to the
+  exact obligation and verified artifact digest.
+
+### Vertical-slice order
+
+1. Resolution, scopes, and fail-closed diagnostics.
+2. Typed assignments and refinement event relations.
+3. Formula translation and definedness.
+4. Witnesses and complete POG classes.
+5. Semantic soundness theorems for each POG class.
+6. Trust/provenance hardening.
+7. Independent differential tests, release evidence, and adversarial review.
+
+Each slice requires a minimal positive model, a negative model, a Rodin-shaped
+comparison, a full build, and a fresh adversarial review before its checkbox is marked.
+
+### Evidence ledger
+
+| Area | Current evidence | Status |
+| --- | --- | --- |
+| Build and existing gates | 178-job build; P0/P1/P2/P3 pass | baseline only |
+| General refinement typing | AMAN CLI fails on abstract event parameters | blocker |
+| POG semantic coverage | nondeterministic actions, SIM, WWD, variants require work | blocker |
+| Kernel trust | replay negative tests pass; open-mvar path requires hardening | blocker |
+| External/Rodin provenance | metadata checks are not artifact verification | blocker |
+| Release reproducibility | acceptance note and benchmark metadata are stale | blocker |
+| Official Rossi differential | executable unavailable locally | unverified |
+
+The ledger is updated after every implementation commit. A phase is not complete when
+the build is green if a counterexample, oracle comparison, or adversarial review remains
+unresolved.
+
 ## Completed foundation
 
 - [x] Read Rodin `.bum`/`.buc` files losslessly and pin the corpus manifest.
