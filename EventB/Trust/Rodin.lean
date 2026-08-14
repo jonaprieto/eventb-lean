@@ -103,14 +103,19 @@ private def duplicateKeys (seen : List String) : List String → List String
       if seen.contains key then key :: duplicateKeys seen rest
       else duplicateKeys (key :: seen) rest
 
+def provenanceDigest (provenance : Provenance) : String :=
+  s!"eventb-v2-{String.hash
+    (provenance.model ++ "\n" ++ provenance.bpo ++ "\n" ++ provenance.statuses)}"
+
 def compare (obligations : List POG.Obligation) (statuses : List Status) : Comparison :=
   let eligible := obligations.filter fun obligation =>
     obligation.diagnostics.isEmpty && obligation.goal.isSome
   let expected := eligible.map (·.name)
   let duplicateExpected := duplicateKeys [] (eligible.map fun obligation =>
     obligation.component ++ "\t" ++ obligation.name)
+  let duplicateStatuses := duplicateKeys [] (statuses.map (·.name))
   let scopeAmbiguous := (eligible.map (·.component)).eraseDups.length > 1 ||
-    !duplicateExpected.isEmpty
+    !duplicateExpected.isEmpty || !duplicateStatuses.isEmpty
   let present := if scopeAmbiguous then [] else eligible.filterMap fun obligation =>
     match status? statuses obligation.name with
     | some status => if status.discharged then some (obligation.name, status) else none
@@ -125,8 +130,10 @@ def compare (obligations : List POG.Obligation) (statuses : List Status) : Compa
     stale := statuses.countP (fun status => !expected.contains status.name) }
 
 private def attachVerified (ledger : Ledger) (obligation : POG.Obligation)
-    (source : String) (manual : Bool) : Except EventB.Error Ledger :=
-  let evidence := .rodinImported source (s!"eventb-v1-{String.hash source}") manual
+    (provenance : Provenance) (manual : Bool) : Except EventB.Error Ledger := do
+  ledger.validate
+  let evidence := .rodinImportedProvenance provenance.model provenance.bpo provenance.statuses
+    (provenanceDigest provenance) manual
   if !obligation.diagnostics.isEmpty then
     .error (EventB.Error.trust "cannot attach Rodin evidence to an obligation with diagnostics")
   else if obligation.goal.isNone then
@@ -154,23 +161,137 @@ private def attachVerified (ledger : Ledger) (obligation : POG.Obligation)
           { current with mode := .rodinImported, evidence := evidence }
         else current }
 
-private partial def hasPoSequent : XmlElem → String → Bool
-  | elem, name =>
-      (elem.tag == "org.eventb.core.poSequent" && elem.attr? "name" == some name) ||
-        elem.children.any (fun child => hasPoSequent child name)
-
-private def rootModelName (source : String) : Except EventB.Error String := do
+private def rootModel (source : String) : Except EventB.Error (String × String) := do
   let root ← match parseXmlString source with
     | .ok root => pure root
     | .error error => .error (EventB.Error.trust
         s!"invalid model XML: {error.pretty source.toUTF8}")
+  unless root.tag == "org.eventb.core.machineFile" ||
+      root.tag == "org.eventb.core.contextFile" do
+    throw (EventB.Error.trust s!"unsupported Rodin model root `{root.tag}`")
   match root.attr? "org.eventb.core.name" with
-  | some name => pure name
+  | some name => pure (name, root.tag)
   | none => .error (EventB.Error.trust "model XML has no component name")
 
-def attachProvenance (ledger : Ledger) (obligation : POG.Obligation)
-    (provenance : Provenance) (status : Status) : Except EventB.Error Ledger := do
-  let modelName ← rootModelName provenance.model
+private partial def findPoSequent (elem : XmlElem) (name : String) : Option XmlElem :=
+  if elem.tag == "org.eventb.core.poSequent" && elem.attr? "name" == some name then
+    some elem
+  else
+    match elem.children.filterMap (fun child => findPoSequent child name) with
+    | first :: _ => some first
+    | [] => none
+
+private def predicateTexts (elem : XmlElem) : List String :=
+  elem.children.filterMap fun child =>
+    if child.tag == "org.eventb.core.poPredicate" then
+      child.attr? "org.eventb.core.predicate"
+    else none
+
+private def sequentGoal (name : String) (sequent : XmlElem) : Option String :=
+  let direct := predicateTexts sequent
+  let witness := if name.endsWith "/WFIS" then
+      sequent.children.filter (fun child => child.tag == "org.eventb.core.poPredicateSet")
+        |>.flatMap predicateTexts
+    else []
+  (direct ++ witness).getLast?
+
+private structure PredicateSet where
+  name : String
+  parent : Option String
+  predicates : List String
+
+private def refName (ref : String) : String :=
+  ((ref.splitOn "#").getLast!).replace "\\/" "/"
+    |>.replace "\\\\" "\\"
+    |>.replace "\\|" "|"
+
+private partial def predicateSets (elem : XmlElem) : List PredicateSet :=
+  let here := if elem.tag == "org.eventb.core.poPredicateSet" then
+      [{ name := (elem.attr? "name").getD ""
+         parent := (elem.attr? "org.eventb.core.parentSet").map refName
+         predicates := predicateTexts elem }]
+    else []
+  here ++ elem.children.flatMap predicateSets
+
+private def chainPredicates (sets : List PredicateSet) : Nat → Option String →
+    List String → Option (List String)
+  | 0, some _, _ => none
+  | _, none, acc => some acc
+  | fuel + 1, some name, acc =>
+      match sets.find? (fun set => set.name == name) with
+      | some set => chainPredicates sets fuel set.parent (set.predicates ++ acc)
+      | none => none
+
+private def sequentHypotheses (name : String) (sequent : XmlElem)
+    (sets : List PredicateSet) : Option (List String) :=
+  let inner := sequent.children.find? (fun child =>
+    child.tag == "org.eventb.core.poPredicateSet")
+  let parent := inner.bind (fun set =>
+    (set.attr? "org.eventb.core.parentSet").map refName)
+  let direct := if name.endsWith "/WWD" then predicateTexts sequent else []
+  chainPredicates sets (sets.length + 1) parent [] |>.map (· ++ direct)
+
+private def removeEquivalent (target : Formula.Term) : List Formula.Term →
+    Option (List Formula.Term)
+  | [] => none
+  | term :: rest =>
+      if Formula.alphaEq (Formula.stripAscriptions target)
+          (Formula.stripAscriptions term) then some rest
+      else removeEquivalent target rest |>.map (fun remaining => term :: remaining)
+
+private def hypothesisMultisetEqual : List Formula.Term → List Formula.Term → Bool
+  | [], [] => true
+  | [], _ :: _ => false
+  | _ :: _, [] => false
+  | term :: rest, other =>
+      match removeEquivalent term other with
+      | some remaining => hypothesisMultisetEqual rest remaining
+      | none => false
+
+private def validateHypotheses (obligation : POG.Obligation) (bpo : XmlElem) :
+    Except EventB.Error Unit := do
+  let sequent ← match findPoSequent bpo obligation.name with
+    | some sequent => pure sequent
+    | none => .error (EventB.Error.trust
+        s!"Rodin PO artifact has no sequent for `{obligation.name}`")
+  let texts ← match sequentHypotheses obligation.name sequent (predicateSets bpo) with
+    | some texts => pure texts
+    | none => .error (EventB.Error.trust
+        s!"Rodin hypothesis chain for `{obligation.name}` is invalid")
+  let actual ← match texts.mapM Formula.parse with
+    | .ok terms => pure terms
+    | .error error => .error (EventB.Error.trust
+        s!"Rodin hypothesis for `{obligation.name}` is not a formula: {error.message}")
+  unless hypothesisMultisetEqual obligation.hyps actual do
+    throw (EventB.Error.trust
+      "Rodin hypotheses do not match the canonical obligation context")
+
+private def validateGoal (obligation : POG.Obligation) (bpo : XmlElem) :
+    Except EventB.Error Unit := do
+  let expected ← match obligation.goal with
+    | some goal => pure goal
+    | none => .error (EventB.Error.trust
+        s!"cannot validate statement-less obligation `{obligation.name}`")
+  let sequent ← match findPoSequent bpo obligation.name with
+    | some sequent => pure sequent
+    | none => .error (EventB.Error.trust
+        s!"Rodin PO artifact has no sequent for `{obligation.name}`")
+  let source ← match sequentGoal obligation.name sequent with
+    | some source => pure source
+    | none => .error (EventB.Error.trust
+        s!"Rodin sequent `{obligation.name}` has no goal predicate")
+  let actual ← match Formula.parse source with
+    | .ok term => pure term
+    | .error error => .error (EventB.Error.trust
+        s!"Rodin goal for `{obligation.name}` is not a formula: {error.message}")
+  unless Formula.alphaEq (Formula.stripAscriptions expected)
+      (Formula.stripAscriptions actual) do
+    throw (EventB.Error.trust
+      "Rodin goal does not match the canonical obligation statement")
+
+def validateProvenance (obligation : POG.Obligation) (provenance : Provenance)
+    (status : Status) : Except EventB.Error Unit := do
+  let (modelName, modelTag) ← rootModel provenance.model
   unless modelName == obligation.component do
     throw (EventB.Error.trust s!
       "Rodin model provenance names `{modelName}`, expected `{obligation.component}`")
@@ -178,12 +299,17 @@ def attachProvenance (ledger : Ledger) (obligation : POG.Obligation)
     | .ok root => pure root
     | .error error => .error (EventB.Error.trust
         s!"invalid PO XML: {error.pretty provenance.bpo.toUTF8}")
-  unless hasPoSequent bpo obligation.name do
-    throw (EventB.Error.trust s!
-      "Rodin PO artifact has no sequent for `{obligation.name}`")
-  unless (provenance.bpo.splitOn (obligation.component ++ ".bum")).length > 1 do
-    throw (EventB.Error.trust
-      "Rodin PO artifact is not bound to the stated model component")
+  unless bpo.tag == "org.eventb.core.poFile" do
+    throw (EventB.Error.trust s!"unsupported Rodin PO root `{bpo.tag}`")
+  let expectedSource := if modelTag == "org.eventb.core.machineFile" then
+      obligation.component ++ ".bum" else obligation.component ++ ".buc"
+  let source ← match bpo.attr? "source" with
+    | some value => pure value
+    | none => .error (EventB.Error.trust "Rodin PO artifact has no source")
+  unless source == expectedSource do
+    throw (EventB.Error.trust "Rodin PO source is not the stated model component")
+  validateGoal obligation bpo
+  validateHypotheses obligation bpo
   let statuses ← importStatuses provenance.statuses
   match status? statuses obligation.name with
   | none => .error (EventB.Error.trust s!
@@ -192,12 +318,14 @@ def attachProvenance (ledger : Ledger) (obligation : POG.Obligation)
       if imported != status then
         .error (EventB.Error.trust s!
           "supplied proof status does not match the parsed artifact for `{obligation.name}`")
-      else if status.confidence == 0 then
-        .error (EventB.Error.trust s!"proof-status `{status.name}` has zero confidence")
-      else if status.discharged then
-        attachVerified ledger obligation provenance.statuses status.manual
-      else
+      else if !status.discharged then
         .error (EventB.Error.trust s!"proof-status `{status.name}` is not discharged")
+      else pure ()
+
+def attachProvenance (ledger : Ledger) (obligation : POG.Obligation)
+    (provenance : Provenance) (status : Status) : Except EventB.Error Ledger := do
+  validateProvenance obligation provenance status
+  attachVerified ledger obligation provenance status.manual
 
 def attach (_ledger : Ledger) (_obligation : POG.Obligation) (_source : String)
     (_status : Status) : Except EventB.Error Ledger :=
@@ -218,7 +346,8 @@ private def sampleProvenance : String → Provenance := fun statuses =>
       "org.eventb.core.name=\"Sample\"/>"
     bpo := "<?xml version=\"1.0\"?>" ++
       "<org.eventb.core.poFile source=\"Sample.bum\"><org.eventb.core.poSequent " ++
-      "name=\"evt/inv/INV\"/></org.eventb.core.poFile>"
+      "name=\"evt/inv/INV\"><org.eventb.core.poPredicate " ++
+      "org.eventb.core.predicate=\"⊤\"/></org.eventb.core.poSequent></org.eventb.core.poFile>"
     statuses }
 
 #guard match importStatuses sampleSource with
@@ -282,6 +411,10 @@ private def sampleProvenance : String → Provenance := fun statuses =>
       duplicate.scopeAmbiguous && duplicate.discharged == 0
   | _ => false
 
+#guard let status : Status := { name := sampleObligation.name, confidence := 1000, manual := true }
+  let comparison := compare [sampleObligation] [status, status]
+  comparison.scopeAmbiguous && comparison.discharged == 0
+
 #guard match importStatuses sampleSource with
   | .ok statuses =>
       let invalid := { sampleObligation with diagnostics := ["unresolved"] }
@@ -292,8 +425,47 @@ private def sampleProvenance : String → Provenance := fun statuses =>
 #guard match importStatuses sampleSource with
   | .ok [status] => match attachProvenance (Ledger.ofObligations [sampleObligation])
       sampleObligation (sampleProvenance sampleSource) status with
-    | .ok ledger => ledger.count .rodinImported == 1
+    | .ok ledger =>
+        match ledger.entries.head? with
+        | some entry =>
+            match entry.evidence with
+            | .rodinImportedProvenance model bpo statuses digest manual =>
+                manual && digest == provenanceDigest { model, bpo, statuses }
+            | _ => false
+        | none => false
     | .error _ => false
+  | _ => false
+
+#guard match importStatuses sampleSource with
+  | .ok [status] =>
+      let badModel := { sampleProvenance sampleSource with
+        model := (sampleProvenance sampleSource).model.replace
+          "org.eventb.core.machineFile" "org.eventb.core.fakeFile" }
+      match attachProvenance (Ledger.ofObligations [sampleObligation])
+          sampleObligation badModel status with
+      | .error _ => true
+      | .ok _ => false
+  | _ => false
+
+#guard match importStatuses sampleSource with
+  | .ok [status] =>
+      let badPo := { sampleProvenance sampleSource with
+        bpo := (sampleProvenance sampleSource).bpo.replace
+          "org.eventb.core.poFile" "org.eventb.core.fakeFile" }
+      match attachProvenance (Ledger.ofObligations [sampleObligation])
+          sampleObligation badPo status with
+      | .error _ => true
+      | .ok _ => false
+  | _ => false
+
+#guard match importStatuses sampleSource with
+  | .ok [status] =>
+      let badGoal := { sampleProvenance sampleSource with
+        bpo := (sampleProvenance sampleSource).bpo.replace "predicate=\"⊤\"" "predicate=\"⊥\"" }
+      match attachProvenance (Ledger.ofObligations [sampleObligation])
+          sampleObligation badGoal status with
+      | .error _ => true
+      | .ok _ => false
   | _ => false
 
 #guard match importStatuses sampleSource with

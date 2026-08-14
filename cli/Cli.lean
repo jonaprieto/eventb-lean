@@ -607,6 +607,14 @@ private def evidenceJson : Trust.Evidence → String
       ",\"input_digest\":" ++ jsonString digest ++
       ",\"manual\":" ++ jsonBool manual ++
       ",\"verifier\":\"Rodin .bps importer\"}"
+  | .rodinImportedProvenance model bpo statuses digest manual =>
+      "{\"mode\":" ++ jsonString Trust.Mode.rodinImported.label ++
+      ",\"model\":" ++ jsonString model ++
+      ",\"bpo\":" ++ jsonString bpo ++
+      ",\"statuses\":" ++ jsonString statuses ++
+      ",\"input_digest\":" ++ jsonString digest ++
+      ",\"manual\":" ++ jsonBool manual ++
+      ",\"verifier\":\"Rodin provenance validator\"}"
 
 private def reportEntry (gold : List (String × List String)) (ledger : Trust.Ledger)
     (machine : String) (obligation : Obligation) : String :=

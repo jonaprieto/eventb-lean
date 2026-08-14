@@ -344,13 +344,14 @@ private def frameRelations (variables : List String) (actions : List Elem) : Lis
 private def concreteStateRelations (variables : List String) (actions : List Elem) : List Term :=
   actions.flatMap actionAfterRelation ++ frameRelations variables actions
 
-private def concreteStateRelationsAccurate (variables : List String)
+private def concreteStateRelationsAccurate (initialization : Bool) (variables : List String)
     (actions : List Elem) : List Term :=
-  actions.flatMap actionAfterRelationAccurate ++ frameRelations variables actions
+  actions.flatMap actionAfterRelationAccurate ++
+    if initialization then [] else frameRelations variables actions
 
-private def concreteStateRelationsMode (strict : Bool) (variables : List String)
+private def concreteStateRelationsMode (strict initialization : Bool) (variables : List String)
     (actions : List Elem) : List Term :=
-  if strict then concreteStateRelationsAccurate variables actions
+  if strict then concreteStateRelationsAccurate initialization variables actions
   else concreteStateRelations variables actions
 
 private def actionAfterSubst (action : Elem) : List (String × Term) :=
@@ -653,6 +654,19 @@ private def assignmentWdGoal (strict : Bool) (theory : Theory.Env)
   let source ← attrOf action "assignment"
   let parsed ← Formula.parse source |>.toOption
   match parsed with
+  | .bin "≔" lhs rhs =>
+      if !strict then
+        let rhs ← assignmentRhs source
+        wdGoal theory roots totalKeywords types rhs
+      else
+        let lhsTerms := Formula.flattenCommas lhs |>.filterMap fun term =>
+          match term with
+          | .app _ _ => some term
+          | _ => none
+        let terms := lhsTerms ++ Formula.flattenCommas rhs
+        let goals ← terms.mapM fun term =>
+          wdGoal theory roots totalKeywords types (Formula.print term)
+        pure (goals.foldl wdAnd wdTop)
   | .bin ":∣" _ predicate =>
       let body ← wdGoal theory roots totalKeywords types (Formula.print predicate)
       if !strict then some body else
@@ -857,7 +871,9 @@ private def generateInMode (strict : Bool) (theory : Theory.Env) (p : Project)
       let concreteVariables := (childrenOf c.elem "variable").filterMap (attrOf · "identifier")
       let concreteActions := if strict then accurateTransitionActions p name ev
         else initializationActions p c ev
-      let concreteRelations := concreteStateRelationsMode strict concreteVariables concreteActions
+      let initialization := labelOf ev == "INITIALISATION"
+      let concreteRelations :=
+        concreteStateRelationsMode strict initialization concreteVariables concreteActions
       -- A non-extended refined event still executes its abstract actions.  Use the
       -- refinement substitution here so inherited assignments trigger preservation
       -- obligations for concrete invariants as well as for the after-state formula.
@@ -925,8 +941,9 @@ private def generateInMode (strict : Bool) (theory : Theory.Env) (p : Project)
           let concrete := concreteActions.flatMap substOf
           let concreteTargets := concreteActions.flatMap assignedBy
           let concreteAfter := concreteActions.flatMap actionAfterSubst
+          let initialization := labelOf ev == "INITIALISATION"
           let concreteRelations :=
-            concreteStateRelationsMode strict concreteVariables concreteActions
+            concreteStateRelationsMode strict initialization concreteVariables concreteActions
           for act in effectiveActions p am ae do
             let abstractRelation :=
               if strict then actionRelationAccurate act else actionRelation act
@@ -954,7 +971,8 @@ private def generateInMode (strict : Bool) (theory : Theory.Env) (p : Project)
             | some goal =>
                 let needsActionRelation := abstractRelation.isSome ||
                   (concreteActions.any (fun q => !(nondeterministicSubst q).isEmpty))
-                let frameRelations := match abstractRelation, substOf act with
+                let frameRelations := if initialization then [] else
+                  match abstractRelation, substOf act with
                   | none, abstractAssignments => abstractAssignments.filterMap fun (v, _) =>
                       if concreteVariables.contains v &&
                           !concreteTargets.contains v then
@@ -1175,6 +1193,60 @@ private def nonEqualityWitnessProject : Project :=
              , .action [("org.eventb.core.label", "set"),
                         ("org.eventb.core.assignment", "x ≔ q")] []]] }]
 
+private def extendedParameterProject : Project :=
+  [{ name := "A"
+     elem := .machineFile [("org.eventb.core.name", "A")]
+       [.variable [("org.eventb.core.identifier", "x")] []
+        , .event [("org.eventb.core.label", "INITIALISATION")] []
+        , .event [("org.eventb.core.label", "step")]
+          [.parameter [("org.eventb.core.identifier", "p")] []
+           , .guard [("org.eventb.core.label", "g"),
+                     ("org.eventb.core.predicate", "p > 0")] []
+           , .action [("org.eventb.core.label", "set"),
+                      ("org.eventb.core.assignment", "x ≔ p")] []]] }
+   , { name := "B"
+       elem := .machineFile [("org.eventb.core.name", "B")]
+         [.refinesMachine [("org.eventb.core.target", "A")] []
+          , .variable [("org.eventb.core.identifier", "x")] []
+          , .variable [("org.eventb.core.identifier", "y")] []
+          , .event [("org.eventb.core.label", "INITIALISATION")] []
+          , .event [("org.eventb.core.label", "step")]
+            [.refinesEvent [("org.eventb.core.target", "step"),
+                            ("org.eventb.core.extended", "true")] []
+             , .action [("org.eventb.core.label", "set_y"),
+                        ("org.eventb.core.assignment", "y ≔ p")] []]] }]
+
+private def initializationRefinementProject : Project :=
+  [{ name := "A"
+     elem := .machineFile [("org.eventb.core.name", "A")]
+       [.variable [("org.eventb.core.identifier", "x")] []
+        , .invariant [("org.eventb.core.label", "inv"),
+                      ("org.eventb.core.predicate", "x ∈ ℤ")] []
+        , .event [("org.eventb.core.label", "INITIALISATION")]
+          [.action [("org.eventb.core.label", "set"),
+                    ("org.eventb.core.assignment", "x ≔ 0")] []]] }
+   , { name := "B"
+       elem := .machineFile [("org.eventb.core.name", "B")]
+         [.refinesMachine [("org.eventb.core.target", "A")] []
+          , .variable [("org.eventb.core.identifier", "x")] []
+          , .event [("org.eventb.core.label", "INITIALISATION")] []] }]
+
+private def functionUpdateWdProject : Project :=
+  [{ name := "M"
+     elem := .machineFile [("org.eventb.core.name", "M")]
+       [.variable [("org.eventb.core.identifier", "f")] []
+        , .invariant [("org.eventb.core.label", "type"),
+                      ("org.eventb.core.predicate", "f ∈ ℤ ⇸ ℤ")] []
+        , .event [("org.eventb.core.label", "INITIALISATION")]
+          [.action [("org.eventb.core.label", "empty"),
+                    ("org.eventb.core.assignment", "f ≔ ∅")] []]
+        , .event [("org.eventb.core.label", "step")]
+          [.parameter [("org.eventb.core.identifier", "i")] []
+           , .guard [("org.eventb.core.label", "domain"),
+                     ("org.eventb.core.predicate", "i ∈ ℤ")] []
+           , .action [("org.eventb.core.label", "update"),
+                      ("org.eventb.core.assignment", "f(i) ≔ 1 ÷ i")] []]] }]
+
 #guard match generateChecked checkedMissingProject "M" with
   | .error _ => true
   | .ok _ => false
@@ -1205,6 +1277,23 @@ private def nonEqualityWitnessProject : Project :=
 #guard match generateChecked nonEqualityWitnessProject "B" with
   | .ok obligations => obligations.any (fun obligation =>
       obligation.name == "step/p/WFIS" && obligation.goal.isSome)
+  | .error _ => false
+
+#guard match generateChecked extendedParameterProject "B" with
+  | .ok _ => true
+  | .error _ => false
+
+#guard match generateChecked initializationRefinementProject "B" with
+  | .ok obligations => obligations.all (fun obligation =>
+      obligation.name != "INITIALISATION/set/SIM" ||
+        !obligation.hyps.any (fun hypothesis =>
+          hypothesis == .bin "=" (.id "x'") (.id "x")))
+  | .error _ => false
+
+#guard match generateChecked functionUpdateWdProject "M" with
+  | .ok obligations => obligations.any (fun obligation =>
+      obligation.name == "step/update/WD" &&
+        obligation.goal.map (fun goal => !(Formula.print goal).contains "f(i) ⇒") == some true)
   | .error _ => false
 
 end EventB.POG

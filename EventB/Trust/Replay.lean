@@ -164,6 +164,26 @@ def validate (context : Embedding.KernelContext) (obligation : POG.Obligation) :
       unless obligation.goal.isSome do
         throwError s!"obligation `{obligation.name}` has no translated goal"
       pure { mode := evidence.mode, fingerprint := proofFingerprint context obligation }
+  | evidence@(.rodinImportedProvenance model bpo statuses digest manual) => do
+      let provenance : Rodin.Provenance := { model, bpo, statuses }
+      unless digest == Rodin.provenanceDigest provenance do
+        throwError "Rodin provenance digest mismatch"
+      let parsed ← match Rodin.importStatuses statuses with
+        | .ok parsed => pure parsed
+        | .error error => throwError error.message
+      match parsed.find? (fun status => status.name == obligation.name) with
+      | none => throwError s!"Rodin evidence artifact has no status for `{obligation.name}`"
+      | some status =>
+          match Rodin.validateProvenance obligation provenance status with
+          | .ok _ => pure ()
+          | .error error => throwError error.message
+          unless status.manual == manual do
+            throwError s!"Rodin evidence manual flag mismatch for `{obligation.name}`"
+      unless obligation.diagnostics.isEmpty do
+        throwError s!"obligation `{obligation.name}` has diagnostics"
+      unless obligation.goal.isSome do
+        throwError s!"obligation `{obligation.name}` has no translated goal"
+      pure { mode := evidence.mode, fingerprint := proofFingerprint context obligation }
   | evidence => do
       unless obligation.diagnostics.isEmpty do
         throwError s!"obligation `{obligation.name}` has diagnostics"

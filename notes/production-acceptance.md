@@ -55,11 +55,11 @@ Every obligation has an explicit ledger mode. Kernel evidence requires replayed 
 proof terms and checked axiom metadata. SMT, Rodin-imported, and external evidence
 remain their own modes with verifier, version, input digest, and fingerprint metadata.
 Unproved obligations remain `unproved`; reports never upgrade them implicitly.
-Rodin imports additionally require model-root identity, exact BPO sequent identity,
-source-component binding, and an independently parsed proof-status record. This is
-identity/provenance validation, not a semantic re-derivation of the BPO from the model;
-the current digest primitive is an internal fingerprint, not a cryptographic
-authenticity claim.
+Rodin imports additionally require model-root identity, source-component binding, the
+named BPO sequent, and equality of its canonical goal with the generated obligation,
+plus an independently parsed proof-status record. Hypothesis and model re-derivation
+remain outside this contract; the current digest primitive is an internal fingerprint,
+not a cryptographic authenticity claim.
 
 ## Acceptance commands
 
@@ -82,6 +82,13 @@ The Rossi command requires the pinned official Rossi executable. CI downloads
 `698214d8082e2c9e0e8b638cd561ff0b6d9f1066ee5b79444f7ac54acfb7d10d`, and runs the
 complete fixture matrix. The local command may instead use
 `ROSSI_BIN=/path/to/rossi python3 tools/rossi-diff.py`.
+
+On 2026-08-14, the pinned archive was also executed as `rossi 0.1.7` in a
+disposable x86_64 Linux QEMU/Lima guest. Its JSON validator returned success for
+all checked-in fixtures: `actions.eventb` (1 component), `boundaries.eventb`
+(2), `identifiers.eventb` (2), and `witnesses.eventb` (3). The exact combined
+`tools/rossi-diff.py` command remains a CI gate because the local Lean executable
+is host-native while the pinned Rossi artifact is Linux x86_64.
 
 The final manual release gate opens `examples/WidgetDemo.lean` and `examples/LspDemo.lean`
 in VS Code with a restarted Lean server. It checks the widget panels, replayed entries,

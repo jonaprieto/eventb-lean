@@ -272,13 +272,15 @@ from "we invented it". -/
 private def checkPOs (project : Project) (file : String) (gold : List String) :
     List PoResult :=
   let ours := (generate project file).map (·.name)
+  let duplicateOurs := duplicateStrings [] ours
+    |>.map fun n => { key := file ++ "\t" ++ n, status := "FAIL:duplicate generated PO name" }
   let missing := gold.filter (fun n => !ours.contains n)
     |>.map fun n => { key := file ++ "\t" ++ n, status := "FAIL:not generated" }
   let spurious := ours.filter (fun n => !gold.contains n)
     |>.map fun n => { key := file ++ "\t" ++ n, status := "FAIL:not in .bpo" }
   let matched := gold.filter (fun n => ours.contains n)
     |>.map fun n => { key := file ++ "\t" ++ n, status := "PASS" }
-  matched ++ missing ++ spurious
+  duplicateOurs ++ matched ++ missing ++ spurious
 
 private def poHistogram (results : List PoResult) : List (String × Nat) :=
   (results.foldl
@@ -332,7 +334,11 @@ where
 private def predicateSetErrors
     (sets : List (String × Option String × List String)) : List String :=
   let names := sets.map (·.1)
-  let duplicateNames := duplicateStrings [] names
+  -- Names such as SEQHYP are intentionally local to a sequent. Only duplicate
+  -- top-level names are globally ambiguous in this flattened representation.
+  let rootNames := sets.filterMap fun (name, parent, _) =>
+    if parent.isNone then some name else none
+  let duplicateNames := duplicateStrings [] rootNames
   let missingParents := sets.filterMap fun (_, parent, _) =>
     match parent with
     | some name => if names.contains name then none else some name
@@ -347,9 +353,9 @@ private def predicateSetErrors
           | none => some s!"missing predicate-set `{name}`"
           | some (_, parent, _) => cycleError fuel (name :: seen) parent
   let cycleErrors := sets.filterMap fun (name, _, _) =>
-    if duplicateNames.contains name then none
-    else cycleError (sets.length + 1) [] (some name)
-  missingParents.map (fun name => s!"missing predicate-set `{name}`") ++
+    cycleError (sets.length + 1) [] (some name)
+  duplicateNames.map (fun name => s!"duplicate top-level predicate-set `{name}`") ++
+    missingParents.map (fun name => s!"missing predicate-set `{name}`") ++
     cycleErrors
 
 -- partiality: this is the corresponding test-only XML walk for predicate-set inheritance.
@@ -417,7 +423,11 @@ private def readGoldGoals (path : System.FilePath) : IO (List (String × String)
       let errors := goalShapeErrors xml
       if !errors.isEmpty then
         throw (IO.userError s!"invalid Rodin goal shape: {String.intercalate "; " errors}")
-      return goldGoals xml
+      let goals := goldGoals xml
+      let duplicates := duplicateStrings [] (goals.map (·.1))
+      if !duplicates.isEmpty then
+        throw (IO.userError s!"duplicate Rodin goal name(s): {duplicates}")
+      return goals
 
 /-- Ascriptions carry no logical content, so a generator has no reason to reproduce
 them. Nothing else is normalised: the gate's job is to notice a difference, and a
@@ -609,7 +619,11 @@ private def readGoldHyps (path : System.FilePath) : IO (List (String × List Str
       let errors := predicateSetErrors sets
       if !errors.isEmpty then
         throw (IO.userError s!"invalid Rodin predicate-set graph: {String.intercalate "; " errors}")
-      return goldHyps xml sets
+      let hypotheses := goldHyps xml sets
+      let duplicates := duplicateStrings [] (hypotheses.map (·.1))
+      if !duplicates.isEmpty then
+        throw (IO.userError s!"duplicate Rodin hypothesis name(s): {duplicates}")
+      return hypotheses
 
 /-- Hypotheses are scored as sets: Rodin's order is an artefact of how it walks the
 predicate-set chain, and a generator that produces the same assumptions in a different
@@ -700,6 +714,21 @@ private def p4BaselineLine (result : P4Result) : String :=
 
 private def nonemptyLines (source : String) : List String :=
   source.splitOn "\n" |>.filter (fun line => !line.isEmpty)
+
+private def removeExact (target : String) : List String → Option (List String)
+  | [] => none
+  | line :: rest => if line == target then some rest
+    else removeExact target rest |>.map (fun remaining => line :: remaining)
+
+private def multisetSubset : List String → List String → Bool
+  | [], _ => true
+  | line :: rest, actual =>
+      match removeExact line actual with
+      | none => false
+      | some remaining => multisetSubset rest remaining
+
+#guard multisetSubset ["a", "a"] ["a"] == false
+#guard multisetSubset ["a", "b"] ["b", "a", "c"]
 
 private def baselineDiff (baseline actual : List String) : IO Bool := do
   if baseline == actual then
@@ -890,11 +919,16 @@ private def run (args : List String) : IO UInt32 := do
   if args.contains "--bless" then
     -- P0 must be perfect to bless, since a dropped file would silently shrink the P1
     -- denominator. P1 blesses whatever it currently reaches: that is the ratchet.
-    let oldStatements ← try IO.FS.readFile "baseline/statement.tsv" catch _ => pure ""
-    let oldHypotheses ← try IO.FS.readFile "baseline/hypothesis.tsv" catch _ => pure ""
-    let noP3bShrink :=
-      (nonemptyLines oldStatements).all (fun line => goalActual.contains line) &&
-      (nonemptyLines oldHypotheses).all (fun line => hypActual.contains line)
+    let oldStatements? ← try some <$> IO.FS.readFile "baseline/statement.tsv"
+      catch _ => pure none
+    let oldHypotheses? ← try some <$> IO.FS.readFile "baseline/hypothesis.tsv"
+      catch _ => pure none
+    let baselinesPresent := oldStatements?.isSome && oldHypotheses?.isSome
+    let noP3bShrink := match oldStatements?, oldHypotheses? with
+      | some oldStatements, some oldHypotheses =>
+          multisetSubset (nonemptyLines oldStatements) goalActual &&
+            multisetSubset (nonemptyLines oldHypotheses) hypActual
+      | _, _ => false
     if coreOK && compatibilityOK && p4OK && wwdOK && noP3bShrink then
       writeBaseline "baseline/parse.tsv" actual
       writeBaseline "baseline/formula.tsv" formulaActual
@@ -906,7 +940,9 @@ private def run (args : List String) : IO UInt32 := do
       writeBaseline "baseline/compatibility.tsv" compatibilityActual
       writeBaseline "baseline/p4.tsv" p4Actual
     else
-      IO.eprintln (if noP3bShrink then
+      IO.eprintln (if !baselinesPresent then
+        "refusing to bless without existing P3b statement and hypothesis baselines"
+      else if noP3bShrink then
         "refusing to bless a failed acceptance gate"
         else "refusing to bless a reduced P3b baseline")
       return 1

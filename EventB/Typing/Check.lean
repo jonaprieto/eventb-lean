@@ -423,8 +423,9 @@ private def addComponentMode (strict : Bool) (p : Project) (c : Component) : M (
     let (eventErrors, bound) ← withEnvBindings do
       let mut eventErrors : List String := []
       -- Compatibility inference mirrors the pinned corpus. Strict inference keeps
-      -- abstract parameters available only while checking witness predicates.
-      if !strict then
+      -- abstract parameters out of ordinary refining events, except for genuinely
+      -- extended events, where Event-B makes the inherited parameters visible.
+      if !strict || isExtended ev then
         for (name, ty) in inheritedParams do bind name ty
       for prm in childrenOf ev "parameter" do
         if let some n := attrOf prm "identifier" then bind n (← fresh)
