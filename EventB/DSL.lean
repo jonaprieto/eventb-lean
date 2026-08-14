@@ -740,10 +740,9 @@ private def elabContext : CommandElab := fun stx => do
       addContextInfos (owners ++ theoryRoots) ps
   | _ => throwUnsupportedSyntax
 
-/-- `#eventb_pog M Ctx ...` prints the obligations generated for the first named
-component, resolving the rest as its project. The point of the DSL is that this is the
-same generator the corpus goes through, so what it prints here is what a `.bum` would
-get. -/
+/-- `#eventb_pog M Ctx ...` prints compatibility obligations for the first named
+component, resolving the rest as its project. Trusted integrations must use the checked
+POG entry points, which reject unresolved scope and model diagnostics. -/
 syntax (name := eventbPog) "#eventb_pog " ident+ : command
 syntax (name := eventbPogIn) "#eventb_pog_in " ident ppSpace ident+ : command
 

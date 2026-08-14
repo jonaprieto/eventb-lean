@@ -90,6 +90,12 @@ private structure St where
   toks : Array Tok
   pos  : Nat
 
+private def hasRemainingOperator (s : St) (operator : String) : Bool :=
+  (s.toks.toList.drop s.pos).any fun token =>
+    match token with
+    | .op value => value == operator
+    | _ => false
+
 private def peek (s : St) : Option Tok := s.toks[s.pos]?
 
 private def expect (s : St) (o : String) : Except String St :=
@@ -154,7 +160,8 @@ private def parsePrefix : Nat → St → Except String (Term × St)
   | some (.id name) => parsePostfix fuel (.id name) { s with pos := s.pos + 1 }
   | some (.op o) =>
     let s := { s with pos := s.pos + 1 }
-    if isBinder o then
+    if isBinder o &&
+        (o != "⋃" && o != "⋂" || hasRemainingOperator s "·") then
       -- The pattern runs up to `·`; comma and `↦` inside it are ordinary operators, so
       -- `∀a1,a2·P` and `λx↦y·P∣E` need no special cases.
       let (pat, s) ← parseAt fuel s 5
@@ -293,6 +300,12 @@ private def sameTree (a b : String) : Bool :=
 -- Binders take a comma-separated pattern, and comprehension keeps predicate and
 -- expression apart.
 #guard (parse "∀a1,a2 · a1 ∈ S ∧ a2 ∈ S ⇒ a1 = a2").isOk
+#guard match parse "⋃S" with
+  | .ok term => term == .pre "⋃" (.id "S")
+  | .error _ => false
+#guard match parse "⋂S" with
+  | .ok term => term == .pre "⋂" (.id "S")
+  | .error _ => false
 #guard (parse "{x · x ∈ S ∣ x + 1}").isOk
 -- The short form of comprehension denotes the same set as the long one.
 #guard sameTree "{x ∣ x ∈ S}" "{x · x ∈ S ∣ x}"

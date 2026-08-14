@@ -198,10 +198,10 @@ def inheritedChildren (p : Project) (tag : String) : Nat → String → Elem →
           match lookupComponent p am with
           | none => []
           | some a =>
-            match (childrenOf a.elem "event").find? (fun e =>
-              labelOf e == targetEventName ev) with
-            | none => []
-            | some ae => inheritedChildren p tag depth am ae
+            eventTargets ev |>.flatMap fun target =>
+              match (childrenOf a.elem "event").find? (fun e => labelOf e == target) with
+              | none => []
+              | some ae => inheritedChildren p tag depth am ae
         inherited ++ own
 
 def effectiveActions (p : Project) (machine : String) (ev : Elem) : List Elem :=
@@ -231,14 +231,14 @@ private def eventActions (p : Project) : Nat → String → Elem → List Elem
       match lookupComponent p machine with
       | none => []
       | some m =>
-        ((childrenOf m.elem "refinesMachine").filterMap targetName).flatMap fun am =>
-          match lookupComponent p am with
-          | none => []
-          | some a =>
-            let target := targetEventName ev
-            match (childrenOf a.elem "event").find? (fun e => labelOf e == target) with
+          ((childrenOf m.elem "refinesMachine").filterMap targetName).flatMap fun am =>
+            match lookupComponent p am with
             | none => []
-            | some ae => eventActions p depth am ae
+            | some a =>
+                eventTargets ev |>.flatMap fun target =>
+                  match (childrenOf a.elem "event").find? (fun e => labelOf e == target) with
+                  | none => []
+                  | some ae => eventActions p depth am ae
     own ++ inherited.filter (fun q =>
       !(assignedBy q).any (fun v => own.any (fun o => (assignedBy o).contains v)))
 
@@ -251,6 +251,9 @@ private def accurateTransitionActions (p : Project) (machine : String) (ev : Ele
   | some component =>
       if labelOf ev == "INITIALISATION" then initializationActions p component ev
       else effectiveActions p machine ev
+
+private def refinementTransitionActions (p : Project) (machine : String) (ev : Elem) : List Elem :=
+  eventActions p p.length machine ev
 
 def eventSubst (p : Project) : Nat → String → Elem → List (String × Term)
   | 0, machine, ev =>
@@ -318,13 +321,13 @@ private def eventRelationalHyps (p : Project) (name : String) (ev : Elem) : List
 private def eventStateSubstMode (strict : Bool) (p : Project) (name : String)
     (ev : Elem) : List (String × Term) :=
   if strict then
-    firstAssignments ((accurateTransitionActions p name ev).flatMap fun action =>
+    firstAssignments ((refinementTransitionActions p name ev).flatMap fun action =>
       substOf action ++ nondeterministicSubst action)
   else eventStateSubst p name ev
 
 private def eventRelationalHypsMode (strict : Bool) (p : Project) (name : String)
     (ev : Elem) : List Term :=
-  if strict then (accurateTransitionActions p name ev).filterMap actionRelationAccurate
+  if strict then (refinementTransitionActions p name ev).filterMap actionRelationAccurate
   else eventRelationalHyps p name ev
 
 private def deterministicAfterRelation (action : Elem) : List Term :=
@@ -469,9 +472,18 @@ private def wdFunctionType (context : WdContext) (f : Term) : Option Term :=
 
 private def wdNonempty (s : Term) : Term := .bin "≠" s (.set [])
 
+private def wdFreshName (base : String) (used : List String) : Nat → Nat → String
+  | _, 0 => base ++ s!"{used.length + 1}"
+  | index, fuel + 1 =>
+      let candidate := if index == 0 then base else base ++ s!"{index}"
+      if used.contains candidate then wdFreshName base used (index + 1) fuel else candidate
+
 private def wdBound (isMax : Bool) (s : Term) : Term :=
-  let b := .id (if (identifiers s).contains "b" then "b0" else "b")
-  let x := .id (if (identifiers s).contains "x" then "x0" else "x")
+  let used := identifiers s
+  let bName := wdFreshName "b" used 0 (used.length + 1)
+  let xName := wdFreshName "x" (bName :: used) 0 (used.length + 1)
+  let b := .id bName
+  let x := .id xName
   let order := if isMax then .bin "≥" b x else .bin "≤" b x
   .bind "∃" b (.bind "∀" x (.bin "⇒" (.bin "∈" x s) order))
 
@@ -771,7 +783,9 @@ private def generateInMode (strict : Bool) (theory : Theory.Env) (p : Project)
   | some c =>
     let isMachine := c.elem.tag == "org.eventb.core.machineFile"
     let roots := componentTheoryRoots p name
-    let (types, eventParams, diagnostics) := match inferComponentDetailsIn theory p name with
+    let (types, eventParams, diagnostics) := match
+        (if strict then inferComponentDetailsCheckedIn theory p name
+         else inferComponentDetailsIn theory p name) with
       | .ok result => (result.types, result.eventParams, result.diagnostics)
       | .error error => ([], [], [error.message])
     let finalize := fun obligations : List Obligation => obligations.map fun obligation =>
@@ -965,7 +979,8 @@ private def generateInMode (strict : Bool) (theory : Theory.Env) (p : Project)
                         if concreteVariables.contains v then
                           some (Term.bin "=" (.id (v ++ "'"))
                             (Formula.subst witnesses absRhs))
-                        else none
+                        else
+                          none
                   if goals.length == abstractAssignments.length then conjoin goals else none
             match simGoal with
             | some goal =>
@@ -1135,6 +1150,46 @@ private def rightWitnessProject : Project :=
              , .action [("org.eventb.core.label", "set"),
                         ("org.eventb.core.assignment", "x ≔ q + 1")] []]] }]
 
+private def hiddenParameterChild : Component :=
+  { name := "C"
+    elem := .machineFile [("org.eventb.core.name", "C")]
+      [.refinesMachine [("org.eventb.core.target", "B")] []
+       , .variable [("org.eventb.core.identifier", "x")] []
+       , .event [("org.eventb.core.label", "INITIALISATION")] []
+       , .event [("org.eventb.core.label", "step")]
+         [.refinesEvent [("org.eventb.core.target", "step"),
+                         ("org.eventb.core.extended", "true")] []
+          , .guard [("org.eventb.core.label", "hidden"),
+                    ("org.eventb.core.predicate", "p = 0")] []]] }
+
+private def dataRefinementProject : Project :=
+  [{ name := "A"
+     elem := .machineFile [("org.eventb.core.name", "A")]
+       [.variable [("org.eventb.core.identifier", "a")] []
+        , .invariant [("org.eventb.core.label", "type"),
+                      ("org.eventb.core.predicate", "a ∈ ℤ")] []
+        , .event [("org.eventb.core.label", "INITIALISATION")]
+          [.action [("org.eventb.core.label", "set"),
+                    ("org.eventb.core.assignment", "a ≔ 0")] []]
+        , .event [("org.eventb.core.label", "step")]
+          [.action [("org.eventb.core.label", "set"),
+                    ("org.eventb.core.assignment", "a ≔ a + 1")] []]] }
+   , { name := "B"
+       elem := .machineFile [("org.eventb.core.name", "B")]
+         [.refinesMachine [("org.eventb.core.target", "A")] []
+          , .variable [("org.eventb.core.identifier", "b")] []
+          , .invariant [("org.eventb.core.label", "type"),
+                        ("org.eventb.core.predicate", "b ∈ ℤ")] []
+          , .invariant [("org.eventb.core.label", "glue"),
+                        ("org.eventb.core.predicate", "a = b")] []
+          , .event [("org.eventb.core.label", "INITIALISATION")]
+            [.action [("org.eventb.core.label", "set"),
+                      ("org.eventb.core.assignment", "b ≔ 0")] []]
+          , .event [("org.eventb.core.label", "step")]
+            [.refinesEvent [("org.eventb.core.target", "step")] []
+             , .action [("org.eventb.core.label", "set"),
+                        ("org.eventb.core.assignment", "b ≔ b + 1")] []]] }]
+
 private def mergeProject : Project :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
@@ -1263,9 +1318,26 @@ private def functionUpdateWdProject : Project :=
 #guard match generateChecked rightWitnessProject "B" with
   | .ok obligations =>
       obligations.any (fun obligation => obligation.name == "step/p/WFIS") &&
-        obligations.any (fun obligation => obligation.name == "step/g/GRD") &&
+        obligations.any (fun obligation => obligation.name == "step/g/GRD" &&
+          obligation.goal.map (fun goal =>
+            let printed := Formula.print goal
+            printed.contains "q + 1" && !printed.contains "p >") == some true) &&
         obligations.any (fun obligation => obligation.name == "step/set/SIM")
   | .error _ => false
+
+#guard match generateChecked dataRefinementProject "B" with
+  | .ok obligations =>
+      !obligations.any (fun obligation => obligation.name == "step/set/SIM") &&
+        obligations.any (fun obligation =>
+          obligation.name == "step/glue/INV" &&
+            obligation.goal.map (fun goal =>
+              let printed := Formula.print goal
+              printed.contains "a + 1" && printed.contains "b + 1") == some true)
+  | .error _ => false
+
+#guard match generateChecked (rightWitnessProject ++ [hiddenParameterChild]) "C" with
+  | .error _ => true
+  | .ok _ => false
 
 #guard match generateChecked mergeProject "B" with
   | .ok obligations =>

@@ -16,9 +16,9 @@ private def source :=
 
 private def provenance : Trust.Rodin.Provenance :=
   { model := "<?xml version=\"1.0\"?><org.eventb.core.machineFile " ++
-      "org.eventb.core.name=\"Demo\"><org.eventb.core.event " ++
-      "org.eventb.core.label=\"evt\"><org.eventb.core.invariant " ++
-      "org.eventb.core.label=\"inv\"/></org.eventb.core.event></org.eventb.core.machineFile>"
+      "org.eventb.core.name=\"Demo\"><org.eventb.core.invariant " ++
+      "org.eventb.core.label=\"inv\"/><org.eventb.core.event " ++
+      "org.eventb.core.label=\"evt\"/></org.eventb.core.machineFile>"
     bpo := "<?xml version=\"1.0\"?>" ++
       "<org.eventb.core.poFile source=\"Demo.bum\"><org.eventb.core.poSequent " ++
       "name=\"evt/inv/INV\"><org.eventb.core.poPredicate " ++
