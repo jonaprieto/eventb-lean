@@ -76,7 +76,10 @@ def Ledger.entry? (ledger : Ledger) (component name : String) : Option Entry :=
 def Ledger.attach (ledger : Ledger) (obligation : POG.Obligation) (evidence : Evidence) :
     Except EventB.Error Ledger :=
   let expected := fingerprint obligation.canonical
-  if !evidence.isWellFormed then
+  if evidence matches .kernel .. then
+    .error (EventB.Error.trust
+      "kernel evidence must be validated by Trust.Replay before ledger attachment")
+  else if !evidence.isWellFormed then
     .error (EventB.Error.trust "evidence metadata is incomplete")
   else if ledger.entry? obligation.component obligation.name |>.isNone then
     .error (EventB.Error.trust
@@ -122,9 +125,13 @@ private def renamedSample : POG.Obligation :=
 #guard sampleObligation.canonical !=
   { sampleObligation with goal := some (.id "⊥") }.canonical
 
-#guard match sampleLedger.attach sampleObligation (.kernel "Sample.inv1") with
-  | .ok ledger => ledger.count .kernel == 1
+#guard match sampleLedger.attach sampleObligation
+    (.external "sample" "1" "digest" "checker") with
+  | .ok ledger => ledger.count .external == 1
   | .error _ => false
+#guard match sampleLedger.attach sampleObligation (.kernel "No.Such.Declaration") with
+  | .error _ => true
+  | .ok _ => false
 #guard match sampleLedger.attach
     { sampleObligation with goal := some (.id "⊥") } (.kernel "Sample.inv1") with
   | .error _ => true

@@ -110,6 +110,8 @@ def validateTerm (context : Embedding.KernelContext)
     (obligation : POG.Obligation) (proof : Expr)
     (declaration : String := "<term>")
     (declaredAxioms : List String := []) : MetaM Report := do
+  if proof.hasMVar then
+    throwError s!"kernel proof `{declaration}` contains unresolved metavariables"
   let expected ← translateStatement context obligation
   let proofType ← inferType proof
   unless ← isDefEq proofType expected do
@@ -201,6 +203,10 @@ private meta def checkReplay : TermElabM Unit := do
   unless !(← succeeds (validate context replayObligation
       (.kernel "EventB.Trust.Replay.missing" []))) do
     throwError "unresolved proof declaration was accepted"
+  let target ← translateStatement context replayObligation
+  let openProof ← mkFreshExprMVar target
+  unless !(← succeeds (validateTerm context replayObligation openProof)) do
+    throwError "open metavariable proof was accepted"
   unless ← succeeds (validate context replayObligation
       (.kernel "EventB.Trust.Replay.TestFixtures.propextTrue" ["propext"])) do
     throwError "actual axiom metadata did not replay"
