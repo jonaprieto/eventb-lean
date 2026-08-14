@@ -45,7 +45,7 @@ evidence.
   rejects any diagnostic.
 - [x] Validate assignment arity/lvalues, primed closure in `:∣`, duplicate targets, and
   initialization legality; strict checked generation rejects unresolved diagnostics.
-- [ ] Separate compatibility-scope inference from strict Event-B parameter scope:
+- [x] Separate compatibility-scope inference from strict Event-B parameter scope:
   concrete guards/actions must not inherit abstract parameters without a witness.
 - [x] Include deterministic, nondeterministic, inherited, and stuttering action semantics
   in the strict invariant/refinement POG path; keep the pinned corpus projection isolated.
@@ -57,9 +57,10 @@ evidence.
   rules in the formula translator.
 - [x] Reject open metavariable kernel proofs and bind accepted evidence to the exact
   canonical obligation; Rodin status imports must be parsed from the supplied artifact.
-- [ ] Complete the generality ceiling: strict parameter scope, full frame/gluing-relation
-  semantics, and semantic proofs for each POG class. Right-oriented witnesses and the
-  basic multi-event merge path now have focused checked fixtures.
+- [ ] Complete the generality ceiling: full frame/gluing-relation semantics and semantic
+  proofs for each POG class. Strict parameter scope, data-refinement glue after-state
+  retention, duplicate-label rejection, and right-oriented witnesses now have focused
+  checked fixtures.
 
 ### Vertical-slice order
 
@@ -82,10 +83,10 @@ comparison, a full build, and a fresh adversarial review before its checkbox is 
 | Area | Current evidence | Status |
 | --- | --- | --- |
 | Build and existing gates | Lean 4.33 build; P0/P1/P2/P3 pass; P3b tracked | current |
-| General refinement typing | AMAN/event-scope and missing-reference negative controls pass | current |
-| POG semantic coverage | nondeterministic actions, SIM, WWD, variants, EQL/MRG implemented | strict checked path; edge ceiling remains |
+| General refinement typing | AMAN/event-scope, hidden-parameter, primed-scope, duplicate-label, and missing-reference controls pass | current |
+| POG semantic coverage | nondeterministic actions, data-refinement glue, WWD, variants, EQL/MRG implemented | strict checked path; frame/gluing edge ceiling remains |
 | Kernel trust | replay checks reject open mvars, stale goals, forged axioms, and context drift | current |
-| External/Rodin provenance | model/BPO/status identity, canonical goal/hypothesis/fingerprint binding, monotonic ledger update | current; model/POG re-derivation and cryptographic authenticity remain outside the contract |
+| External/Rodin provenance | model/BPO/status identity, canonical goal/hypothesis/fingerprint binding, monotonic ledger update; legacy status-only replay rejected | current; model/POG re-derivation and cryptographic authenticity remain outside the contract |
 | Release reproducibility | CLI fixture, gate status, and exact baseline ratchet are required | active |
 | Official Rossi differential | pinned v0.1.7 SHA verified; x86_64 guest validates all four fixtures; CI provisions the exact differential command | current; CI remains release gate |
 

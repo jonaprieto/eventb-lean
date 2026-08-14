@@ -140,11 +140,14 @@ placeholder.
 
 ## Obligation generation
 
-`POG.generateIn theory project machine` is the theory-aware entry point. It produces
+`POG.generateIn theory project machine` is the compatibility entry point for the pinned
+corpus. It produces
 `POG.Obligation` records containing a Rodin-compatible name, obligation class, and,
 where derived, a goal and ordered hypotheses. The compatibility `POG.generate` entry
 point uses an empty user-theory environment for corpus models that do not use native
-theories.
+theories. Trusted front ends use `POG.generateCheckedIn` or `POG.generateChecked`; those
+paths run strict scope/refinement checks and fail closed on diagnostics before consuming
+the generated list.
 
 Well-definedness is driven by symbol metadata in the prelude and theory environment.
 Total operators do not produce unnecessary WD conditions; conditional operators carry
@@ -182,8 +185,10 @@ goal-plus-hypotheses sequent. It does not change the ledger. `Trust.Replay` acce
 kernel proof only after resolving its declaration, translating the complete POG sequent,
 checking definitional equality, and comparing its transitive axiom dependencies with
 the declared metadata. `Trust.Rodin` imports `.bps` status
-records as `rodinImported`; it never upgrades them to kernel evidence. The import binds
-model-root, PO-sequent, source-component, and status identities, but does not rederive
+records as `rodinImported`; it never upgrades them to kernel evidence. Legacy status-only
+Rodin evidence is rejected. The import binds model-root identity and source-appropriate
+event, predicate, action, witness, variable, and variant structure, plus PO-sequent,
+source-component, and status identities, but does not rederive
 the BPO sequent from the model. SMT and external
 evidence remain explicit metadata boundaries and must carry solver/tool, version, input
 digest, and verifier fields. Rodin provenance retains the model, BPO, and status bytes

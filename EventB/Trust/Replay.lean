@@ -145,25 +145,8 @@ private def replayKernel (context : Embedding.KernelContext)
 def validate (context : Embedding.KernelContext) (obligation : POG.Obligation) :
     Evidence → MetaM Report
   | evidence@(.kernel ..) => replayKernel context obligation evidence
-  | evidence@(.rodinImported source digest manual) => do
-      unless digest == s!"eventb-v1-{String.hash source}" do
-        throwError "Rodin evidence artifact digest mismatch"
-      let statuses ← match Rodin.importStatuses source with
-        | .ok statuses => pure statuses
-        | .error error => throwError error.message
-      match statuses.find? (fun status => status.name == obligation.name) with
-      | none =>
-          throwError s!"Rodin evidence artifact has no status for `{obligation.name}`"
-      | some status =>
-          unless status.discharged do
-            throwError s!"Rodin evidence status for `{obligation.name}` is not discharged"
-          unless status.manual == manual do
-            throwError s!"Rodin evidence manual flag mismatch for `{obligation.name}`"
-      unless obligation.diagnostics.isEmpty do
-        throwError s!"obligation `{obligation.name}` has diagnostics"
-      unless obligation.goal.isSome do
-        throwError s!"obligation `{obligation.name}` has no translated goal"
-      pure { mode := evidence.mode, fingerprint := proofFingerprint context obligation }
+  | .rodinImported .. =>
+      throwError "legacy status-only Rodin evidence is not trusted; attach model and PO provenance"
   | evidence@(.rodinImportedProvenance model bpo statuses digest manual) => do
       let provenance : Rodin.Provenance := { model, bpo, statuses }
       unless digest == Rodin.provenanceDigest provenance do
@@ -286,10 +269,9 @@ private meta def checkReplay : TermElabM Unit := do
   let rodinSource := "<?xml version=\"1.0\"?><org.eventb.core.psFile><org.eventb.core.psStatus " ++
     "name=\"true/THM\" org.eventb.core.confidence=\"1000\" " ++
     "org.eventb.core.psManual=\"true\"/></org.eventb.core.psFile>"
-  let rodin ← validate context replayObligation
-    (.rodinImported rodinSource (Trust.fingerprint rodinSource) true)
-  unless rodin.mode == .rodinImported && !rodin.replayed do
-    throwError "Rodin evidence was reported as replayed"
+  unless !(← succeeds (validate context replayObligation
+      (.rodinImported rodinSource (Trust.fingerprint rodinSource) true))) do
+    throwError "legacy status-only Rodin evidence was accepted"
   unless !(← succeeds (validate context replayObligation
       (.rodinImported rodinSource (Trust.fingerprint rodinSource) false))) do
     throwError "Rodin manual flag mismatch was accepted"

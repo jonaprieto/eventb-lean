@@ -162,7 +162,9 @@ private def xmlVersionAttribute : GParser conditional Unit :=
   GParser.seqR (GParser.string "version")
     (GParser.seqR GParser.ws
       (GParser.seqR (GParser.ch '=')
-        (GParser.seqR GParser.ws (GParser.map (fun _ => ()) attrValue))))
+        (GParser.seqR GParser.ws
+          (GParser.seqR (GParser.ch '"')
+            (GParser.seqL (GParser.string "1.0") (GParser.ch '"'))))))
 
 private def declaration : GParser conditional Unit :=
   GParser.map (fun _ => ())

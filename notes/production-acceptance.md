@@ -40,8 +40,10 @@ counts are zero for the corpus baseline; the local results remain external-trust
 - The faithful `.tuf` theory subset; unsupported declarations are rejected.
 - Refinement-heavy Event-B within the checked subset: inherited actions, deterministic
   and nondeterministic assignments, witnesses, stuttering/SIM, EQL/MRG, and numeric/set
-  variants. `generateChecked` is the strict path; the corpus gate retains a documented
-  compatibility projection for pinned Rodin omissions.
+  variants. `generateChecked` is the strict path: it rejects unresolved references,
+  duplicate labels, malformed component kinds, invalid primed scope, and hidden
+  parameters after non-extended refinement boundaries. The corpus gate retains a
+  documented compatibility projection for pinned Rodin omissions.
 - CLI reports, proof-obligation output, trust-ledger evidence, ProofWidgets, and
   native Lean declaration ranges.
 
@@ -59,7 +61,10 @@ Rodin imports additionally require model-root identity, source-component binding
 named BPO sequent, and equality of its canonical goal and hypothesis multiset with the
 generated obligation, plus an independently parsed proof-status record. Re-deriving
 the POG from model bytes remains outside this contract; the current digest primitive is
-an internal fingerprint, not a cryptographic authenticity claim.
+an internal fingerprint, not a cryptographic authenticity claim. Legacy status-only
+Rodin evidence is rejected; model, BPO, and status provenance are mandatory. SMT and
+external verifier fields remain caller-supplied metadata and are never presented as
+Lean-kernel replay.
 
 ## Acceptance commands
 
@@ -100,10 +105,15 @@ Infoview's browser layout, so this gate must be recorded separately.
 - The pinned `.bpo` corpus omits the 200 P3b compatibility records described above.
 - The corpus-scale P4 baseline has 73 external-trusted results and 1060 unproved
   obligations; semantic bindings are required before claiming corpus-scale kernel proof.
-- Generality still has an explicit ceiling: strict concrete-parameter scope, full
-  frame/gluing-relation semantics, and semantic soundness proofs for every generated PO
-  class remain follow-up work. Right-oriented witnesses and basic multi-event MRG have
-  focused strict fixtures.
+- Generality still has an explicit ceiling: full frame/gluing-relation semantics and
+  semantic soundness proofs for every generated PO class remain follow-up work. Strict
+  parameter scope, data-refinement glue after-state retention, right-oriented witnesses,
+  and basic multi-event MRG have focused checked fixtures.
+- `POG.generate`/`generateIn` remain compatibility APIs for the pinned corpus; trusted
+  front ends must use `generateChecked`/`generateCheckedIn` and fail on diagnostics.
+- Rodin `.bps` status names are not component-scoped; the provenance model/BPO source
+  binding supplies that scope, while cryptographic authenticity remains outside this
+  contract.
 - The official Rossi differential executable is provisioned in CI, not vendored.
 - Raw Rossi/XML source navigation and visual ProofWidgets acceptance require the manual
   editor gate.

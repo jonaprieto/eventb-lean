@@ -58,7 +58,9 @@ def Evidence.isWellFormed : Evidence → Bool
       !solver.isEmpty && !version.isEmpty && !digest.isEmpty && !verifier.isEmpty
   | .external tool version digest verifier =>
       !tool.isEmpty && !version.isEmpty && !digest.isEmpty && !verifier.isEmpty
-  | .rodinImported source digest _ => !source.isEmpty && !digest.isEmpty
+  -- Legacy status-only evidence remains a display-compatible constructor, but it is
+  -- never accepted as ledger evidence without model/BPO provenance.
+  | .rodinImported _ _ _ => false
   | .rodinImportedProvenance model bpo statuses digest _ =>
       !model.isEmpty && !bpo.isEmpty && !statuses.isEmpty &&
         digest == provenanceFingerprint model bpo statuses
@@ -204,6 +206,10 @@ private def forgedKernelLedger : Ledger :=
   { entries := [{ sampleLedger.entries.head! with
       mode := .kernel, evidence := .kernel "forged" }] }
 
+private def legacyRodinLedger : Ledger :=
+  { entries := [{ sampleLedger.entries.head! with
+      mode := .rodinImported, evidence := .rodinImported "status.bps" "digest" false }] }
+
 private def renamedSample : POG.Obligation :=
   { sampleObligation with name := "display-only", kind := "INV" }
 
@@ -239,6 +245,9 @@ private def renamedSample : POG.Obligation :=
   | .error _ => true
   | .ok _ => false
 #guard match forgedKernelLedger.validate with
+  | .error _ => true
+  | .ok _ => false
+#guard match legacyRodinLedger.validate with
   | .error _ => true
   | .ok _ => false
 #guard match sampleLedger.attach

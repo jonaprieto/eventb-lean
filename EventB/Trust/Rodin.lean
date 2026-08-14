@@ -227,22 +227,82 @@ private def chainPredicates (sets : List PredicateSet) : Nat → Option String �
       | [set] => chainPredicates sets fuel set.parent (set.predicates ++ acc)
       | _ => none
 
-private partial def hasLabel (elem : XmlElem) (label : String) : Bool :=
-  elem.attr? "org.eventb.core.label" == some label ||
-    elem.children.any (fun child => hasLabel child label)
+private def directLabel (elem : XmlElem) (tag label : String) : Bool :=
+  elem.children.any fun child =>
+    child.tag == tag && child.attr? "org.eventb.core.label" == some label
+
+private def directIdentifier (elem : XmlElem) (tag identifier : String) : Bool :=
+  elem.children.any fun child =>
+    child.tag == tag && child.attr? "org.eventb.core.identifier" == some identifier
+
+private def eventChildLabel (model : XmlElem) (event label : String)
+    (tags : List String) : Bool :=
+  model.children.any fun candidate =>
+    candidate.tag == "org.eventb.core.event" &&
+      candidate.attr? "org.eventb.core.label" == some event &&
+      candidate.children.any fun child =>
+        tags.contains child.tag && child.attr? "org.eventb.core.label" == some label
+
+private def eventLabel (model : XmlElem) (event : String) : Bool :=
+  model.children.any fun child =>
+    child.tag == "org.eventb.core.event" &&
+      child.attr? "org.eventb.core.label" == some event
+
+private def eventConvergent (model : XmlElem) (event : String) : Bool :=
+  model.children.any fun child =>
+    child.tag == "org.eventb.core.event" &&
+      child.attr? "org.eventb.core.label" == some event &&
+      ["1", "2"].contains ((child.attr? "org.eventb.core.convergence").getD "0")
 
 private def modelBindsObligation (model : XmlElem) (obligation : POG.Obligation) : Bool :=
-  let first := (obligation.name.splitOn "/").head?.getD ""
-  ["VWD", "FIN"].contains first || hasLabel model first
+  let parts := obligation.name.splitOn "/"
+  match obligation.kind, parts with
+  | "INV", [event, label, _] =>
+      eventLabel model event &&
+        (directLabel model "org.eventb.core.invariant" label ||
+          directLabel model "org.eventb.core.axiom" label)
+  | "GRD", [event, label, _] =>
+      eventChildLabel model event label ["org.eventb.core.guard"]
+  | "SIM", [event, label, _] =>
+      eventChildLabel model event label ["org.eventb.core.action"]
+  | "FIS", [event, label, _] =>
+      eventChildLabel model event label ["org.eventb.core.action"]
+  | "EQL", [event, varName, _] =>
+      eventLabel model event && directIdentifier model "org.eventb.core.variable" varName
+  | "WFIS", [event, label, _] | "WWD", [event, label, _] =>
+      eventChildLabel model event label ["org.eventb.core.witness"]
+  | "WD", [event, label, _] =>
+      eventLabel model event && eventChildLabel model event label
+        ["org.eventb.core.guard", "org.eventb.core.action", "org.eventb.core.witness"]
+  | "WD", [label, _] | "THM", [label, _] =>
+      directLabel model "org.eventb.core.invariant" label ||
+        directLabel model "org.eventb.core.axiom" label
+  | "MRG", [event, _] | "VAR", [event, _] | "NAT", [event, _] =>
+      eventLabel model event
+  | "VWD", [event, _] | "FIN", [event, _] =>
+      eventConvergent model event ||
+        (event == "variant" && model.children.any
+          (fun child => child.tag == "org.eventb.core.variant"))
+  | _, [event, label, _] =>
+      eventLabel model event && eventChildLabel model event label
+        ["org.eventb.core.guard", "org.eventb.core.action", "org.eventb.core.witness"]
+  | _, [label, _] =>
+      directLabel model "org.eventb.core.invariant" label ||
+        directLabel model "org.eventb.core.axiom" label
+  | _, _ => false
 
 private def sequentHypotheses (name : String) (sequent : XmlElem)
     (sets : List PredicateSet) : Option (List String) :=
-  let inner := sequent.children.find? (fun child =>
-    child.tag == "org.eventb.core.poPredicateSet")
-  let parent := inner.bind (fun set =>
-    (set.attr? "org.eventb.core.parentSet").map refName)
-  let direct := if name.endsWith "/WWD" then predicateTexts sequent else []
-  chainPredicates sets (sets.length + 1) parent [] |>.map (· ++ direct)
+  match sequent.children.filter (fun child =>
+      child.tag == "org.eventb.core.poPredicateSet") with
+  | [inner] =>
+      let parent := (inner.attr? "org.eventb.core.parentSet").map refName
+      let direct := predicateTexts inner ++
+        if name.endsWith "/WWD" then predicateTexts sequent else []
+      chainPredicates sets (sets.length + 1) parent [] |>.map (· ++ direct)
+  | [] =>
+      some (if name.endsWith "/WWD" then predicateTexts sequent else [])
+  | _ => none
 
 private def removeEquivalent (target : Formula.Term) : List Formula.Term →
     Option (List Formula.Term)
@@ -367,14 +427,23 @@ private def sampleSource :=
 
 private def sampleProvenance : String → Provenance := fun statuses =>
   { model := "<?xml version=\"1.0\"?><org.eventb.core.machineFile " ++
-      "org.eventb.core.name=\"Sample\"><org.eventb.core.event " ++
-      "org.eventb.core.label=\"evt\"><org.eventb.core.invariant " ++
-      "org.eventb.core.label=\"inv\"/></org.eventb.core.event></org.eventb.core.machineFile>"
+      "org.eventb.core.name=\"Sample\"><org.eventb.core.invariant " ++
+      "org.eventb.core.label=\"inv\"/><org.eventb.core.event " ++
+      "org.eventb.core.label=\"evt\"/></org.eventb.core.machineFile>"
     bpo := "<?xml version=\"1.0\"?>" ++
       "<org.eventb.core.poFile source=\"Sample.bum\"><org.eventb.core.poSequent " ++
       "name=\"evt/inv/INV\"><org.eventb.core.poPredicate " ++
       "org.eventb.core.predicate=\"⊤\"/></org.eventb.core.poSequent></org.eventb.core.poFile>"
     statuses }
+
+#guard match parseXmlString ((sampleProvenance sampleSource).model.replace
+    "</org.eventb.core.machineFile>"
+    ("<org.eventb.core.variant org.eventb.core.expression=\"v\"/>" ++
+      "</org.eventb.core.machineFile>")) with
+  | .ok model =>
+      !modelBindsObligation model
+        { sampleObligation with name := "evt/VWD", kind := "VWD" }
+  | .error _ => false
 
 #guard match importStatuses sampleSource with
   | .ok [status] => status.name == sampleObligation.name && status.discharged && status.manual
@@ -469,6 +538,19 @@ private def sampleProvenance : String → Provenance := fun statuses =>
           "org.eventb.core.machineFile" "org.eventb.core.fakeFile" }
       match attachProvenance (Ledger.ofObligations [sampleObligation])
           sampleObligation badModel status with
+      | .error _ => true
+      | .ok _ => false
+  | _ => false
+
+#guard match importStatuses sampleSource with
+  | .ok [status] =>
+      let nestedLabel := { sampleProvenance sampleSource with
+        model := (sampleProvenance sampleSource).model.replace
+          "<org.eventb.core.invariant org.eventb.core.label=\"inv\"/>"
+          "<org.eventb.core.event org.eventb.core.label=\"other\"><org.eventb.core.invariant " ++
+            "org.eventb.core.label=\"inv\"/></org.eventb.core.event>" }
+      match attachProvenance (Ledger.ofObligations [sampleObligation])
+          sampleObligation nestedLabel status with
       | .error _ => true
       | .ok _ => false
   | _ => false

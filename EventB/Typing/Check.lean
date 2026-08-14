@@ -196,16 +196,51 @@ private def componentReferenceErrors (p : Project) (c : Component) : List String
   let componentErrors := (refs.filterMap targetName).filterMap fun target =>
     if lookupComponent p target |>.isSome then none
     else some s!"unresolved component reference {target} from {c.name}"
+  let missingTargetErrors := refs.filter (fun reference => (attrOf reference "target").isNone)
+    |>.map fun reference => s!"component reference {reference.tag} from {c.name} has no target"
+  let sourceKindErrors := refs.filterMap fun reference =>
+    let legal :=
+      if c.elem.tag == "org.eventb.core.contextFile" then
+        reference.tag == "org.eventb.core.extendsContext"
+      else if c.elem.tag == "org.eventb.core.machineFile" then
+        reference.tag == "org.eventb.core.seesContext" ||
+          reference.tag == "org.eventb.core.refinesMachine"
+      else false
+    if legal then none
+    else some s!"reference tag {reference.tag} is not legal from {c.name}"
+  let referenceKindErrors := refs.filterMap fun reference =>
+    match targetName reference with
+    | some target =>
+        match lookupComponent p target with
+        | some targetComponent =>
+            let expected := if reference.tag == "org.eventb.core.refinesMachine"
+              then "org.eventb.core.machineFile" else "org.eventb.core.contextFile"
+            if targetComponent.elem.tag == expected then none
+            else some s!"component reference {target} from {c.name} has the wrong target kind"
+        | none => none
+    | none => none
+  let componentIdentityErrors :=
+    match attrOf c.elem "name" with
+    | some rootName =>
+        if rootName == c.name then []
+        else [s!"component {c.name} XML name is {rootName}"]
+    | none => []
   let parentNames := (childrenOf c.elem "refinesMachine").filterMap targetName
   let variableNames := (childrenOf c.elem "variable").filterMap (attrOf · "identifier")
   let constantNames := (childrenOf c.elem "constant").filterMap (attrOf · "identifier")
   let setNames := (childrenOf c.elem "carrierSet").filterMap (attrOf · "identifier")
   let namespaceNames := constantNames ++ setNames
   let namespaceErrors :=
-    (duplicateNames [] variableNames).map (fun name =>
-      s!"duplicate variable declaration {name} in {c.name}") ++
-    variableNames.filter (fun name => namespaceNames.contains name) |>.map (fun name =>
-      s!"variable {name} in {c.name} collides with a constant or carrier set")
+    (duplicateNames [] (variableNames ++ constantNames ++ setNames)).map (fun name =>
+      s!"duplicate declaration {name} in {c.name}")
+  let eventLabelErrors :=
+    (duplicateNames []
+      ((childrenOf c.elem "event" |>.map labelOf).filter (· != ""))).map fun name =>
+      s!"duplicate event label {name} in {c.name}"
+  let predicateLabelErrors :=
+    (duplicateNames [] (((childrenOf c.elem "axiom" ++ childrenOf c.elem "invariant")
+      |>.map labelOf).filter (· != ""))).map fun name =>
+      s!"duplicate predicate label {name} in {c.name}"
   let eventNamespaceErrors := (childrenOf c.elem "event").flatMap fun ev =>
     let params := eventParameterNames ev
     (duplicateNames [] params).map (fun name =>
@@ -213,6 +248,20 @@ private def componentReferenceErrors (p : Project) (c : Component) : List String
     params.filter (fun name => variableNames.contains name || namespaceNames.contains name)
       |>.map (fun name =>
         s!"event parameter {name} in {c.name}/{labelOf ev} collides with a declaration")
+  let eventChildLabelErrors := (childrenOf c.elem "event").flatMap fun ev =>
+    (duplicateNames [] (((childrenOf ev "guard" ++ childrenOf ev "action" ++
+      childrenOf ev "witness") |>.filterMap (attrOf · "label")).filter (· != ""))).map fun name =>
+      s!"duplicate event child label {name} in {c.name}/{labelOf ev}"
+  let convergenceValueErrors := (childrenOf c.elem "event").filterMap fun ev =>
+    let value := (attrOf ev "convergence").getD "0"
+    if ["0", "1", "2"].contains value then none
+    else some s!"event {c.name}/{labelOf ev} has invalid convergence `{value}`"
+  let variantErrors :=
+    if (childrenOf c.elem "variant").length > 1 then
+      [s!"machine {c.name} has more than one variant"] else []
+  let variantShapeErrors := (childrenOf c.elem "variant").filterMap fun variant =>
+    if (attrOf variant "expression").isSome then none
+    else some s!"variant in {c.name} has no expression"
   let initializationErrors :=
     if c.elem.tag == "org.eventb.core.machineFile" then
       let count := (childrenOf c.elem "event").countP (fun ev => labelOf ev == "INITIALISATION")
@@ -234,6 +283,9 @@ private def componentReferenceErrors (p : Project) (c : Component) : List String
           | some parent => (childrenOf parent.elem "event").any
               (fun candidate => labelOf candidate == target) then []
       else [s!"unresolved event reference {target} from {c.name}/{labelOf ev}"]
+  let duplicateRefinementErrors := childrenOf c.elem "event" |>.flatMap fun ev =>
+    (duplicateNames [] ((childrenOf ev "refinesEvent").filterMap targetName)).map fun target =>
+      s!"event {c.name}/{labelOf ev} has duplicate refinement reference {target}"
   let convergenceErrors := childrenOf c.elem "event" |>.flatMap fun ev =>
     (childrenOf ev "refinesEvent").filterMap targetName |>.flatMap fun target =>
       parentNames.flatMap fun parentName =>
@@ -266,8 +318,11 @@ private def componentReferenceErrors (p : Project) (c : Component) : List String
              else [mergePrefix ++ " refines abstract events with different actions"]) ++
             (if allEqual (abstractEvents.map eventParameterNames) then []
              else [mergePrefix ++ " refines abstract events with different parameters"])
-  componentErrors ++ namespaceErrors ++ eventNamespaceErrors ++ initializationErrors ++
-    graphErrors ++ eventErrors ++ convergenceErrors ++ mergeErrors
+  componentErrors ++ componentIdentityErrors ++ missingTargetErrors ++ sourceKindErrors ++
+    referenceKindErrors ++ namespaceErrors ++
+    eventLabelErrors ++ predicateLabelErrors ++ eventNamespaceErrors ++ eventChildLabelErrors ++
+    initializationErrors ++ variantErrors ++ variantShapeErrors ++ convergenceValueErrors ++
+    graphErrors ++ eventErrors ++ duplicateRefinementErrors ++ convergenceErrors ++ mergeErrors
 
 private def theoryReferenceErrors (theory : Theory.Env) (roots : List String) : List String :=
   let rec visit (fuel : Nat) (seen : List String) (name : String) : List String :=
@@ -311,11 +366,14 @@ private def inheritedEventBindings
                 | none => []
                 | some parent =>
                     targets.flatMap fun parentEventName =>
-                      if (childrenOf parent.elem "event").any (fun candidate =>
-                          labelOf candidate == parentEventName) then
-                        eventParamBindings records parentName parentEventName ++
-                          inheritedEventBindings p records depth parentName parentEventName
-                      else []
+                      match (childrenOf parent.elem "event").find? (fun candidate =>
+                          labelOf candidate == parentEventName) with
+                      | none => []
+                      | some parentEvent =>
+                          eventParamBindings records parentName parentEventName ++
+                            if isExtended parentEvent then
+                              inheritedEventBindings p records depth parentName parentEventName
+                            else []
               dedupBindings [] collected
 
 def visibleEventBindings
@@ -372,9 +430,9 @@ private def addComponentMode (strict : Bool) (p : Project) (c : Component) : M (
       -- A refinement redeclares the variables it keeps. Rebinding them would throw away
       -- the type the abstract machine's invariants already pinned down.
       declare n t
-      -- Rodin puts the after-state `v'` in scope with the same type as `v`, and the
-      -- `.bpo` records it, so an action assigning to `v` types both.
-      declare (n ++ "'") t
+      -- Compatibility inference historically exposed after-state names globally.
+      -- Strict inference binds them only around the action that owns the state change.
+      if !strict then declare (n ++ "'") t
   let predicates := childrenOf c.elem "axiom" ++ childrenOf c.elem "invariant"
   for a in predicates do
     if let some f := attrOf a "predicate" then
@@ -433,8 +491,12 @@ private def addComponentMode (strict : Bool) (p : Project) (c : Component) : M (
         if let some f := attrOf g "predicate" then
           eventErrors := eventErrors ++ (← runPredicate f)
       for act in initializationActions p c ev do
-        if let some f := attrOf act "assignment" then
-          eventErrors := eventErrors ++ (← runPredicate f)
+        let actionErrors ← withEnv do
+          if strict then
+            for vname in variables do
+              if let some ty := (← lookup? vname) then bind (vname ++ "'") ty
+          if let some f := attrOf act "assignment" then runPredicate f else pure []
+        eventErrors := eventErrors ++ actionErrors
       if strict then
         let witnessErrors ← withEnv do
           for (name, ty) in inheritedParams do bind name ty
@@ -513,7 +575,9 @@ private def inferComponentDetailsModeIn (strict : Bool) (theory : Theory.Env) (p
   let (_, order) := closure p [] name
   let roots := componentTheoryRoots p name
   let run : StateT St (Except String) ComponentInference := do
-    let mut errs : List String := theoryReferenceErrors theory roots
+    let projectErrors := (duplicateNames [] (p.map (·.name))).map fun name =>
+      s!"duplicate component name {name}"
+    let mut errs : List String := projectErrors ++ theoryReferenceErrors theory roots
     for dep in order do
       if let some c := lookupComponent p dep then
         errs := errs ++ componentReferenceErrors p c ++ (← addComponentMode strict p c)
@@ -633,6 +697,29 @@ private def duplicateInitializationProject : Project :=
   | .ok (_, errors) => errors.any (fun error => error.contains "exactly one INITIALISATION")
   | .error _ => false
 
+private def duplicateEventLabelProject : Project :=
+  [{ name := "M"
+     elem := .machineFile [("org.eventb.core.name", "M")]
+       [.event [("org.eventb.core.label", "INITIALISATION")] []
+        , .event [("org.eventb.core.label", "step")] []
+        , .event [("org.eventb.core.label", "step")] []] }]
+
+#guard match inferComponent duplicateEventLabelProject "M" with
+  | .ok (_, errors) => errors.any (fun error => error.contains "duplicate event label step")
+  | .error _ => false
+
+private def primedPredicateProject : Project :=
+  [{ name := "M"
+     elem := .machineFile [("org.eventb.core.name", "M")]
+       [.variable [("org.eventb.core.identifier", "x")] []
+        , .invariant [("org.eventb.core.label", "bad"),
+                      ("org.eventb.core.predicate", "x' = 0")] []
+        , .event [("org.eventb.core.label", "INITIALISATION")] []] }]
+
+#guard match inferComponentDetailsCheckedIn Theory.empty primedPredicateProject "M" with
+  | .ok result => result.diagnostics.any (fun error => error.contains "unresolved")
+  | .error _ => false
+
 private def invalidVariantProject : Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
@@ -644,6 +731,52 @@ private def invalidVariantProject : Project :=
 
 #guard match inferComponent invalidVariantProject "M" with
   | .ok (_, errors) => errors.any (fun error => error.contains "variant expression")
+  | .error _ => false
+
+private def invalidReferenceKindProject : Project :=
+  [{ name := "C"
+     elem := .contextFile [("org.eventb.core.name", "C")]
+       [.refinesMachine [("org.eventb.core.target", "M")] []] }
+   , { name := "M"
+       elem := .machineFile [("org.eventb.core.name", "M")] [] }]
+
+#guard match inferComponent invalidReferenceKindProject "C" with
+  | .ok (_, errors) => errors.any (fun error => error.contains "not legal from C")
+  | .error _ => false
+
+private def missingVariantExpressionProject : Project :=
+  [{ name := "M"
+     elem := .machineFile [("org.eventb.core.name", "M")]
+       [.variant [] [], .event [("org.eventb.core.label", "INITIALISATION")] []] }]
+
+#guard match inferComponent missingVariantExpressionProject "M" with
+  | .ok (_, errors) => errors.any (fun error => error.contains "variant in M has no expression")
+  | .error _ => false
+
+private def duplicateRefinementTargetProject : Project :=
+  [{ name := "A"
+     elem := .machineFile [("org.eventb.core.name", "A")]
+       [.event [("org.eventb.core.label", "step")] []] }
+   , { name := "B"
+       elem := .machineFile [("org.eventb.core.name", "B")]
+         [.refinesMachine [("org.eventb.core.target", "A")] []
+          , .event [("org.eventb.core.label", "INITIALISATION")] []
+          , .event [("org.eventb.core.label", "step")]
+            [.refinesEvent [("org.eventb.core.target", "step")] []
+             , .refinesEvent [("org.eventb.core.target", "step")] []]] }]
+
+#guard match inferComponent duplicateRefinementTargetProject "B" with
+  | .ok (_, errors) =>
+      errors.any (fun error => error.contains "duplicate refinement reference step")
+  | .error _ => false
+
+private def componentNameMismatchProject : Project :=
+  [{ name := "M"
+     elem := .machineFile [("org.eventb.core.name", "Other")]
+       [.event [("org.eventb.core.label", "INITIALISATION")] []] }]
+
+#guard match inferComponent componentNameMismatchProject "M" with
+  | .ok (_, errors) => errors.any (fun error => error.contains "XML name is Other")
   | .error _ => false
 
 private def primedBinderProject : Project :=
