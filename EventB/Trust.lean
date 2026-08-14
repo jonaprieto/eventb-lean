@@ -30,6 +30,9 @@ def Mode.rank : Mode → Nat
   | .smt => 2
   | .kernel => 3
 
+def provenanceFingerprint (model bpo statuses : String) : String :=
+  s!"eventb-v2-{String.hash (model ++ "\n" ++ bpo ++ "\n" ++ statuses)}"
+
 inductive Evidence where
   | none
   | kernel (declaration : String) (axioms : List String := [])
@@ -57,7 +60,8 @@ def Evidence.isWellFormed : Evidence → Bool
       !tool.isEmpty && !version.isEmpty && !digest.isEmpty && !verifier.isEmpty
   | .rodinImported source digest _ => !source.isEmpty && !digest.isEmpty
   | .rodinImportedProvenance model bpo statuses digest _ =>
-      !model.isEmpty && !bpo.isEmpty && !statuses.isEmpty && !digest.isEmpty
+      !model.isEmpty && !bpo.isEmpty && !statuses.isEmpty &&
+        digest == provenanceFingerprint model bpo statuses
 
 def fingerprint (canonical : String) : String :=
   s!"eventb-v1-{String.hash canonical}"
@@ -104,6 +108,9 @@ def Ledger.validate (ledger : Ledger) : Except EventB.Error Unit :=
         let key := entry.component ++ "\t" ++ entry.obligation
         if seen.contains key then
           .error (EventB.Error.trust s!"ledger has duplicate entry `{key}`")
+        else if entry.mode == .kernel then
+          .error (EventB.Error.trust
+            s!"kernel entry `{key}` requires Trust.Replay validation")
         else if !entry.isConsistent then
           .error (EventB.Error.trust s!"ledger entry `{key}` is inconsistent")
         else go (key :: seen) rest
@@ -174,6 +181,8 @@ def Ledger.summary (ledger : Ledger) : String :=
 #guard (Ledger.ofObligations []).total == 0
 #guard fingerprint "same" == fingerprint "same"
 #guard fingerprint "same" != fingerprint "changed"
+#guard !Evidence.isWellFormed
+  (.rodinImportedProvenance "model" "bpo" "status" "forged" false)
 
 private def sampleObligation : POG.Obligation :=
   { component := "Sample", name := "INITIALISATION/inv1/INV", kind := "INV"

@@ -104,8 +104,7 @@ private def duplicateKeys (seen : List String) : List String → List String
       else duplicateKeys (key :: seen) rest
 
 def provenanceDigest (provenance : Provenance) : String :=
-  s!"eventb-v2-{String.hash
-    (provenance.model ++ "\n" ++ provenance.bpo ++ "\n" ++ provenance.statuses)}"
+  Trust.provenanceFingerprint provenance.model provenance.bpo provenance.statuses
 
 def compare (obligations : List POG.Obligation) (statuses : List Status) : Comparison :=
   let eligible := obligations.filter fun obligation =>
@@ -181,6 +180,10 @@ private partial def findPoSequent (elem : XmlElem) (name : String) : Option XmlE
     | first :: _ => some first
     | [] => none
 
+private partial def poSequentMatches (elem : XmlElem) (name : String) : List XmlElem :=
+  (if elem.tag == "org.eventb.core.poSequent" && elem.attr? "name" == some name then
+      [elem] else []) ++ elem.children.flatMap (fun child => poSequentMatches child name)
+
 private def predicateTexts (elem : XmlElem) : List String :=
   elem.children.filterMap fun child =>
     if child.tag == "org.eventb.core.poPredicate" then
@@ -193,7 +196,9 @@ private def sequentGoal (name : String) (sequent : XmlElem) : Option String :=
       sequent.children.filter (fun child => child.tag == "org.eventb.core.poPredicateSet")
         |>.flatMap predicateTexts
     else []
-  (direct ++ witness).getLast?
+  match direct ++ witness with
+  | [goal] => some goal
+  | _ => none
 
 private structure PredicateSet where
   name : String
@@ -218,9 +223,17 @@ private def chainPredicates (sets : List PredicateSet) : Nat → Option String �
   | 0, some _, _ => none
   | _, none, acc => some acc
   | fuel + 1, some name, acc =>
-      match sets.find? (fun set => set.name == name) with
-      | some set => chainPredicates sets fuel set.parent (set.predicates ++ acc)
-      | none => none
+      match sets.filter (fun set => set.name == name) with
+      | [set] => chainPredicates sets fuel set.parent (set.predicates ++ acc)
+      | _ => none
+
+private partial def hasLabel (elem : XmlElem) (label : String) : Bool :=
+  elem.attr? "org.eventb.core.label" == some label ||
+    elem.children.any (fun child => hasLabel child label)
+
+private def modelBindsObligation (model : XmlElem) (obligation : POG.Obligation) : Bool :=
+  let first := (obligation.name.splitOn "/").head?.getD ""
+  ["VWD", "FIN"].contains first || hasLabel model first
 
 private def sequentHypotheses (name : String) (sequent : XmlElem)
     (sets : List PredicateSet) : Option (List String) :=
@@ -295,6 +308,13 @@ def validateProvenance (obligation : POG.Obligation) (provenance : Provenance)
   unless modelName == obligation.component do
     throw (EventB.Error.trust s!
       "Rodin model provenance names `{modelName}`, expected `{obligation.component}`")
+  let model ← match parseXmlString provenance.model with
+    | .ok root => pure root
+    | .error error => .error (EventB.Error.trust
+        s!"invalid model XML: {error.pretty provenance.model.toUTF8}")
+  unless modelBindsObligation model obligation do
+    throw (EventB.Error.trust
+      "Rodin model does not contain the obligation's source label")
   let bpo ← match parseXmlString provenance.bpo with
     | .ok root => pure root
     | .error error => .error (EventB.Error.trust
@@ -308,6 +328,10 @@ def validateProvenance (obligation : POG.Obligation) (provenance : Provenance)
     | none => .error (EventB.Error.trust "Rodin PO artifact has no source")
   unless source == expectedSource do
     throw (EventB.Error.trust "Rodin PO source is not the stated model component")
+  let sequentCount := (poSequentMatches bpo obligation.name).length
+  unless sequentCount == 1 do
+    throw (EventB.Error.trust s!
+      "Rodin PO artifact has {sequentCount} sequents for `{obligation.name}`")
   validateGoal obligation bpo
   validateHypotheses obligation bpo
   let statuses ← importStatuses provenance.statuses
@@ -343,7 +367,9 @@ private def sampleSource :=
 
 private def sampleProvenance : String → Provenance := fun statuses =>
   { model := "<?xml version=\"1.0\"?><org.eventb.core.machineFile " ++
-      "org.eventb.core.name=\"Sample\"/>"
+      "org.eventb.core.name=\"Sample\"><org.eventb.core.event " ++
+      "org.eventb.core.label=\"evt\"><org.eventb.core.invariant " ++
+      "org.eventb.core.label=\"inv\"/></org.eventb.core.event></org.eventb.core.machineFile>"
     bpo := "<?xml version=\"1.0\"?>" ++
       "<org.eventb.core.poFile source=\"Sample.bum\"><org.eventb.core.poSequent " ++
       "name=\"evt/inv/INV\"><org.eventb.core.poPredicate " ++
