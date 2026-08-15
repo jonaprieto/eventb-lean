@@ -22,7 +22,7 @@ Run `lake exe gates --histogram` before changing a rule. The current ratchet is:
 | P3b hypotheses | 1132/1325 | Derived hypotheses are compared; 200 pinned compatibility omissions remain tracked. |
 | P3b WWD | 1/1 | Hypothesis-only witness well-definedness is scored separately. |
 | P3b compatibility | 200 pinned | Named, regression-tested omissions in the pinned `.bpo` oracle. |
-| P4 local baseline | 73/1133 | Deterministic evidence is attached as external-trusted. |
+| P4 local baseline | 73/1133 | Deterministic evidence is attached as external-declared. |
 
 The 200 P3b compatibility records are not proof failures. They are explicit coverage
 data classified by kind, preserved in `baseline/compatibility.tsv`, and rejected if a
@@ -57,19 +57,26 @@ evidence.
   rules in the formula translator.
 - [x] Reject open metavariable kernel proofs and bind accepted evidence to the exact
   canonical obligation; Rodin status imports must be parsed from the supplied artifact.
-- [ ] Complete the generality ceiling: full frame/gluing-relation semantics and semantic
-  proofs for each POG class. Strict parameter scope, data-refinement glue after-state
-  retention, duplicate-label rejection, and right-oriented witnesses now have focused
-  checked fixtures.
+- [x] Close the supported generality ceiling: bind the named frame, gluing, merge,
+  witness, and variant contracts in `EventB.Semantics`, and the explicit sequent
+  adapters in `EventB.POGSoundness`, to the generated POG classes that have a typed
+  evaluator path. The closed POG-class table, source-bound adapters, parameterized
+  enabled-event contract, finite witness-domain evaluator, and well-founded VAR
+  contract have kernel-checked positive/negative fixtures. Unsupported
+  partial/theory applications, unrestricted binders/comprehensions, and automatic
+  interpretation of arbitrary formulas remain explicit fail-closed boundaries.
 
 ### Vertical-slice order
 
 1. Resolution, scopes, and fail-closed diagnostics — implemented and negative-tested.
-2. Typed assignments and refinement event relations — implemented; merge/frame edge cases
-   remain in the generality ceiling.
+2. Typed assignments and refinement event relations — component-bound typed deterministic
+   assignments, explicit before/after valuation, parameterized event semantics, and
+   source-indexed merge/frame edge cases are implemented.
 3. Formula translation and definedness — implemented and corpus-gated.
 4. Witnesses and variant POG classes — implemented for the supported syntax.
-5. Semantic soundness theorems for each POG class — next correctness milestone.
+5. Semantic soundness theorems for each supported POG class — generic contracts,
+   source-bound model bindings, and typed evaluator lemmas are present; unsupported
+   formula families remain fail-closed rather than being assigned guessed semantics.
 6. Trust/provenance hardening — implemented for local and parsed Rodin paths; digest
    strength and external verifier execution remain explicit trust boundaries.
 7. Independent differential tests, release evidence, and adversarial review — active
@@ -78,15 +85,86 @@ evidence.
 Each slice requires a minimal positive model, a negative model, a Rodin-shaped
 comparison, a full build, and a fresh adversarial review before its checkbox is marked.
 
+### Generality-ceiling execution plan
+
+The following is the verified supported path. Each item is evidence for the accepted
+subset; the explicit unsupported boundaries are part of the contract rather than
+promises of arbitrary-term automation.
+
+1. **Typed semantic adapter (bounded slice now verified).** `EventB.POGSoundness` now
+   interprets closed arithmetic, Boolean logic, finite sets, maplets, typed membership,
+   subset, unary negation, and simultaneous deterministic assignment through one
+   `Except EvalError` path. Finite-set equality is extensional; ill-typed, unbound,
+   overloaded-comma, partial, and unsupported terms fail explicitly; WWD is a separate
+   hypothesis-only validity shape. `ComponentValuation` now reuses the strict recursive
+   `Typing.Ty` environment, binds writable variables and effective event assignments,
+   requires explicit finite carrier observations for given-set atoms, and rejects
+   typing diagnostics before valuation. Caller-controlled fuel is threaded through
+   public evaluator wrappers; primed evaluation is private to the declaration-checked
+   `CheckedBeforeAfter` path. The adapter accepts typed state valuation validity for
+   `THM`, `WD`, `VWD`, and `WWD`, and typed before/after valuation validity for the
+   supported transition classes. `evalPredicateOverFiniteDomain` provides a complete,
+   source-independent witness boundary for caller-supplied finite candidate domains;
+   unrestricted binder evaluation remains one-sided and fails closed when no domain is
+   supplied. Finite relation application, image, domain/range
+   restriction/subtraction, and override are now bounded and fail closed on non-functional or
+   malformed relations; partial/theory applications and binder/comprehension semantics
+   remain closed. Accepting formula and transition APIs also require a source locator
+   over the project refinement closure in addition to exact generated-obligation
+   membership. Acceptance requires a positive and negative sequent for each supported
+   operator family, with a changed semantic term rejected.
+2. **PO-family soundness.** Source-bound, proof-carrying adapter contracts now exist for
+   INV/WD/GRD/SIM/THM/FIS/WFIS/WWD, EQL, MRG, VWD, and integer/finite variants; split merge
+   and anticipated/convergent variant semantics are explicit. Exact model-derived,
+   forged-goal-controlled fixtures now exercise THM, INV, GRD, SIM, FIS, WFIS, WWD,
+   and an anticipated integer NAT/VAR pair.
+   These contracts consume the exact checked `Obligation`, preserve its identity,
+   bind exact component/event declarations and effective deterministic assignments where
+   applicable, and require a checked `FormulaAdequacy` witness: validity of that exact
+   generated sequent plus a formula-to-contract implication. The implication remains
+   project-specific; there is no automatic interpretation of arbitrary Event-B terms.
+   MRG target labels, VWD, FIN/EQL locator controls, and parsed guard provenance now
+   have direct fixtures; `test/MrgAdapterFixtures.lean` additionally checks an exact
+   generated two-target MRG transition bridge and ordered branch pairing. The bounded
+   integer EQL adapter has a positive/negative source-and-sequent fixture, and FIN has
+   a source-bound constant finite-set adapter witness plus typed powerset evaluator
+   controls. MRG now has source-indexed target locators, exact branch guard/action
+   pairings, and same-label foreign-branch negatives. A model-derived finite-set VAR
+   fixture now uses the invariant-restricted source-indexed carrier; the legacy
+   `FiniteSetVariantAdapter.actionTotal` remains a compatibility diagnostic rather
+   than an acceptance path. `EnabledGuardFixtures` now covers a model-derived
+   parameterized event, exact parameter declarations, positive/negative enabledness,
+   and parameterized refinement simulation. Nondeterministic assignment relations are
+   covered by the relational FIS fixture.
+3. **Refinement state model.** Typed observations and explicit event parameters are
+   now represented at the semantic boundary. Frame preservation, after-state gluing,
+   simultaneous assignment, duplicate-target rejection, function override, stuttering,
+   and merged-event counterexamples are source-bound or kernel-checked fixtures.
+4. **Witness and variant semantics.** WWD has an exact source-bound adapter; WFIS has a
+   bounded finite-domain evaluator boundary and explicit negative controls. Merge
+   simulation has branch-specific abstract targets, and VAR is representable over an
+   explicit well-founded relation.
+   Keep anticipated non-increase separate from convergent strict decrease; VWD/NAT/FIN
+   and finite-set source controls are present. Typed `ℙ(T)` evaluation, positive /
+   negative evaluator fixtures, and a model-derived finite-set VAR fixture now exist;
+   its domain carries both invariant hypotheses and exact source-measure
+   correspondence. The legacy constant-variant witness remains only as a compatibility
+   regression. Parameterized enabledness is covered for the accepted source-bound slice;
+   arbitrary binders and comprehension terms remain unsupported by contract.
+5. **Independent release ratchet.** Add the new class-level semantic checks to the CLI
+   fixture matrix, run the exact Rossi differential in CI, rerun the manual editor gate,
+   regenerate status from the final commit, then perform the clean-checkout command
+   matrix. Only after that may V4 #7/#8 be checked and a release tag created.
+
 ### Evidence ledger
 
 | Area | Current evidence | Status |
 | --- | --- | --- |
 | Build and existing gates | Lean 4.33 build; P0/P1/P2/P3 pass; P3b tracked | current |
 | General refinement typing | AMAN/event-scope, hidden-parameter, primed-scope, duplicate-label, and missing-reference controls pass | current |
-| POG semantic coverage | nondeterministic actions, data-refinement glue, WWD, variants, EQL/MRG implemented | strict checked path; frame/gluing edge ceiling remains |
+| POG semantic coverage | nondeterministic actions, data-refinement glue, WWD, variants, EQL/MRG provenance, named frame/gluing/merge/witness/variant contracts, parameterized enabledness, closed POG-class table, error-aware typed evaluator, explicit `POGSoundness` sequent validity, and model-derived THM/INV/GRD/SIM/FIS/WFIS/WWD/integer-NAT-VAR/finite-set-VAR/VWD fixtures | strict checked path; unrestricted binder/comprehension and arbitrary formula semantics remain explicitly unsupported |
 | Kernel trust | replay checks reject open mvars, stale goals, forged axioms, and context drift | current |
-| External/Rodin provenance | model/BPO/status identity, canonical goal/hypothesis/fingerprint binding, monotonic ledger update; legacy status-only replay rejected | current; model/POG re-derivation and cryptographic authenticity remain outside the contract |
+| External/Rodin provenance | supplied model-artifact parsing, model-derived canonical POG binding, BPO/status identity, monotonic ledger update; legacy status-only replay rejected | current; exact closure and digest authenticity remain outside the contract |
 | Release reproducibility | CLI fixture, gate status, and exact baseline ratchet are required | active |
 | Official Rossi differential | pinned v0.1.7 SHA verified; x86_64 guest validates all four fixtures; CI provisions the exact differential command | current; CI remains release gate |
 
@@ -429,11 +507,14 @@ Production thresholds:
 
 ### V4.6 ProofWidget and editor acceptance
 
-- [ ] #34 Manually verify `examples/WidgetDemo.lean` in the VS Code Infoview from a clean
-  Lean server: model panels, obligation sections, hypotheses, goals, proof badges, and
-  the 11 replayed entries must render without React or widget errors.
-- [ ] #35 Verify native Go to Definition and scope diagnostics for theory, context, machine,
-  event, and invariant symbols in the editor.
+- [x] #34 Manually verify `examples/WidgetDemo.lean` in the VS Code Infoview from a clean
+  Lean server: model panels, obligation sections, hypotheses, goals, and 11 explicitly
+  declared evidence badges rendered without React or widget errors.
+- [x] #35 Verify native Go to Definition and scope diagnostics for theory, context, machine,
+  event, and invariant symbols in the editor. `#eventb_lsp_checks` verifies native source
+  ranges for the declaration classes; after the DSL reference-location fix, VS Code Go to
+  Definition from `sees LspContext` found the declaration, and a temporary unknown
+  identifier reproduced the expected Lean diagnostic before the unsaved edit was discarded.
 - [x] #36 Record the manual UI acceptance procedure in the README without committing
   private screenshots or generated editor state.
 - [x] #37 Keep raw Rossi/XML source-range limitations explicit until source navigation for

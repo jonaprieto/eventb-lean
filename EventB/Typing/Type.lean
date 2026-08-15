@@ -19,7 +19,7 @@ inductive Ty where
   | prod : Ty → Ty → Ty
   /-- Unification variable, resolved through the substitution in `Infer`. -/
   | mvar : Nat → Ty
-  deriving BEq, Repr, Inhabited
+  deriving BEq, Repr, Inhabited, DecidableEq
 
 /-- Node count, used to bound the substitution traversals in `Infer`. -/
 def Ty.size : Ty → Nat

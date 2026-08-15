@@ -195,6 +195,19 @@ private def addDefinitionInfo (id : Syntax) (symbol : String) (location : Declar
     mkDocString? := some fun _ => pure s!"Event-B symbol `{symbol}`"
   }
 
+private def nativeSymbolLocation? (id : Ident) : CommandElabM (Option DeclarationLocation) := do
+  let module ← currentModule
+  match ← Lean.findDeclarationRanges? id.getId with
+  | some ranges => pure <| some { module, range := ranges.selectionRange }
+  | none => pure none
+
+private def addReferenceInfo (owners : List String) (id : Ident) : CommandElabM Unit := do
+  let location ← match ← nativeSymbolLocation? id with
+    | some location => pure <| some location
+    | none => symbolLocation? owners id.getId.toString
+  if let some location := location then
+    addDefinitionInfo id.raw id.getId.toString location
+
 private def addFormulaInfos (owners : List String) (stx : Syntax) : CommandElabM Unit := do
   for id in formulaIdentifiers stx do
     if let some location ← symbolLocation? owners id.getId.toString then
@@ -239,6 +252,7 @@ private def eventParts (theoryRoots owners : List String) (parts : Array (TSynta
   for p in parts do
     match p with
     | `(ebEventPart| refines $r:ident) =>
+        addReferenceInfo owners r
         out := out.push (mkElem "refinesEvent" (targetAttrs r.getId.toString) noKids)
     | `(ebEventPart| extends $r:ident) =>
         out := out.push
@@ -662,13 +676,16 @@ private def elabMachine : CommandElab := fun stx => do
       for p in ps do
         match p with
         | `(ebMachinePart| refines $r:ident) =>
+            addReferenceInfo owners r
             kids := kids.push
               (mkElem "refinesMachine" (targetAttrs r.getId.toString) noKids)
         | `(ebMachinePart| sees $ss:ident*) =>
             for sc in ss do
+              addReferenceInfo owners sc
               kids := kids.push
                 (mkElem "seesContext" (targetAttrs sc.getId.toString) noKids)
-        | `(ebMachinePart| uses $_:ident*) => pure ()
+        | `(ebMachinePart| uses $ts:ident*) =>
+            for theory in ts do addReferenceInfo owners theory
         | `(ebMachinePart| variables $xs:ident*) =>
             for x in xs do
               kids := kids.push
@@ -718,9 +735,11 @@ private def elabContext : CommandElab := fun stx => do
         match p with
         | `(ebContextPart| extends $es:ident*) =>
             for e in es do
+              addReferenceInfo owners e
               kids := kids.push
                 (mkElem "extendsContext" (targetAttrs e.getId.toString) noKids)
-        | `(ebContextPart| uses $_:ident*) => pure ()
+        | `(ebContextPart| uses $ts:ident*) =>
+            for theory in ts do addReferenceInfo owners theory
         | `(ebContextPart| sets $xs:ident*) =>
             for x in xs do
               kids := kids.push

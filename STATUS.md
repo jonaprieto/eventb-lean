@@ -22,9 +22,10 @@ up. This status includes only evidence accepted through the local ledger; it is 
 | status | count |
 | --- | --- |
 | kernel-checked | 0 |
-| smt-trusted | 0 |
-| rodin-imported | 0 |
-| external-trusted | 73 |
+| kernel-checked-with-axioms | 0 |
+| smt-declared | 0 |
+| rodin-structurally-checked | 0 |
+| external-declared | 73 |
 | unproved | 1060 |
 
 Rodin discharged all 1133 of its obligations: 1088 automatically, 45 by hand.

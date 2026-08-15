@@ -586,7 +586,7 @@ private def evidenceJson : Trust.Evidence → String
   | .none =>
       "{\"mode\":\"unproved\",\"declaration\":\"\",\"verifier\":\"\",\"dependencies\":[]}"
   | .kernel declaration axioms =>
-      "{\"mode\":" ++ jsonString Trust.Mode.kernel.label ++
+      "{\"mode\":" ++ jsonString (Trust.Evidence.kernel declaration axioms).mode.label ++
       ",\"declaration\":" ++ jsonString declaration ++
       ",\"verifier\":\"Lean kernel\",\"dependencies\":" ++ jsonArray axioms ++ "}"
   | .smt solver version inputDigest verifier =>
@@ -594,12 +594,14 @@ private def evidenceJson : Trust.Evidence → String
       ",\"tool\":" ++ jsonString solver ++
       ",\"version\":" ++ jsonString version ++
       ",\"input_digest\":" ++ jsonString inputDigest ++
+      ",\"metadata_only\":true" ++
       ",\"verifier\":" ++ jsonString verifier ++ "}"
   | .external tool version artifactDigest verifier =>
       "{\"mode\":" ++ jsonString Trust.Mode.external.label ++
       ",\"tool\":" ++ jsonString tool ++
       ",\"version\":" ++ jsonString version ++
       ",\"input_digest\":" ++ jsonString artifactDigest ++
+      ",\"metadata_only\":true" ++
       ",\"verifier\":" ++ jsonString verifier ++ "}"
   | .rodinImported source digest manual =>
       "{\"mode\":" ++ jsonString Trust.Mode.rodinImported.label ++
@@ -607,19 +609,23 @@ private def evidenceJson : Trust.Evidence → String
       ",\"input_digest\":" ++ jsonString digest ++
       ",\"manual\":" ++ jsonBool manual ++
       ",\"verifier\":\"Rodin .bps importer\"}"
-  | .rodinImportedProvenance model bpo statuses digest manual =>
+  | .rodinImportedProvenance models bpo statuses digest manual =>
       "{\"mode\":" ++ jsonString Trust.Mode.rodinImported.label ++
-      ",\"model\":" ++ jsonString model ++
+      ",\"models\":" ++ jsonArray (models.map (·.component)) ++
       ",\"bpo\":" ++ jsonString bpo ++
       ",\"statuses\":" ++ jsonString statuses ++
       ",\"input_digest\":" ++ jsonString digest ++
       ",\"manual\":" ++ jsonBool manual ++
       ",\"verifier\":\"Rodin provenance validator\"}"
 
+#guard (evidenceJson (.kernel "proof" ["propext"])).contains "kernel-checked-with-axioms"
+#guard (evidenceJson (.external "tool" "1" "claim" "checker")).contains
+  "\"metadata_only\":true"
+
 private def reportEntry (gold : List (String × List String)) (ledger : Trust.Ledger)
     (machine : String) (obligation : Obligation) : String :=
   let fallback := (Trust.Ledger.ofObligations [obligation]).entries.head!
-  let entry := (ledger.entry? machine obligation.name).getD fallback
+  let entry := (ledger.displayEntry? machine obligation.name).getD fallback
   let mode := entry.mode.label
   let rule := Prover.Local.prove obligation |>.rule.map Prover.Local.Rule.label |>.getD "none"
   let goal := obligation.goal.map Formula.print |>.getD ""
@@ -662,7 +668,8 @@ private def runReport (dir : System.FilePath) : IO UInt32 := do
   let ledger := localLedger (obligations.map (·.2))
   let records := obligations.map fun (machine, obligation) =>
     reportEntry gold ledger machine obligation
-  let modes := [Trust.Mode.kernel, .smt, .rodinImported, .external, .unproved]
+  let modes := [Trust.Mode.kernel, .kernelAxiomatized, .smt, .rodinImported, .external,
+    .unproved]
   let counts := modes.map fun mode =>
     jsonString mode.label ++ ":" ++ toString (ledger.count mode)
   IO.println ("{\"coverage_source\":" ++

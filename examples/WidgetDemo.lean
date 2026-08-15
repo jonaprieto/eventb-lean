@@ -10,8 +10,9 @@ A self-contained Infoview demo: a small bridge controller and one refinement.
 
 Open this file in VS Code, restart the Lean server after changing widget code, and
 inspect the expandable obligation dashboard produced by the final command. The
-ledger below contains kernel-replayed proofs for this deliberately small model, so
-the panel demonstrates both generated obligations and trusted evidence.
+ledger below contains explicitly declared evidence for this deliberately small model;
+the separate `#eventb_widget_proof_checks` command performs kernel replay, so the
+panel does not overstate the ledger's trust mode.
 -/
 
 eventb_context WidgetCtx where
@@ -160,7 +161,7 @@ private def attachWidgetProof (ledger : Trust.Ledger)
   | some obligation =>
       let evidence := Trust.Evidence.external "LeanKernel" "4.33"
         (Trust.fingerprint (obligation.canonical ++ "\ndeclaration=" ++ declaration))
-        "Trust.Replay.validate"
+        "separate Trust.Replay check"
       match ledger.attach obligation evidence with
       | .ok updated => updated
       | .error _ => ledger

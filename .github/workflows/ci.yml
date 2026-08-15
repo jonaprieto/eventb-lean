@@ -54,7 +54,30 @@ jobs:
             "https://github.com/jonaprieto/"
       - uses: leanprover/lean-action@v1
         with:
-          build-args: "EventB EventBWidgets Examples gates rossi-dump eventb bench"
+          build-args: "EventB EventBWidgets Examples VariantFixtures gates rossi-dump eventb bench"
+      - name: Kernel-checked refinement adapters
+        run: |
+          lake env lean EventB/POGSoundness.lean
+          lake env lean EventB/POG/RefinementAdapters.lean
+          lake env lean test/EqlFixtures.lean
+          lake env lean test/GuardFixtures.lean
+          lake env lean test/EnabledGuardFixtures.lean
+          lake env lean test/FiniteSetEvaluatorFixtures.lean
+          lake env lean test/FiniteVariantFixtures.lean
+          lake env lean test/FiniteVariantModelFixtures.lean
+          lake env lean test/VwdFixtures.lean
+          lake env lean test/MrgFixtures.lean
+          lake env lean test/MrgSemanticFixtures.lean
+          lake env lean test/MrgAdapterFixtures.lean
+          lake env lean EventB/POG/EQLAdapter.lean
+      - name: Adapter axiom audit
+        run: |
+          audit=$(lake env lean test/AdapterAxiomAudit.lean 2>&1)
+          echo "$audit"
+          if echo "$audit" | grep -Eq 'sorryAx|native_decide'; then
+            echo "::error::acceptance theorem depends on a forbidden proof shortcut"
+            exit 1
+          fi
       - name: CLI and fixture matrix
         run: python3 tools/cli-fixtures.py
       - name: Install pinned Rossi
@@ -93,8 +116,8 @@ jobs:
       - name: Status report generates
         run: |
           lake exe gates --status
-          git ls-files --error-unmatch STATUS.md baseline/p4.tsv baseline/wwd.tsv
-          git diff --exit-code -- STATUS.md baseline/p4.tsv baseline/wwd.tsv
+          git ls-files --error-unmatch STATUS.md baseline/*.tsv
+          git diff --exit-code -- STATUS.md baseline
 
   axioms:
     # The trust ledger. Once POG lands this enumerates, per obligation, whether it is
