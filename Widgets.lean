@@ -45,8 +45,8 @@ private def evidenceLabel : Trust.Evidence → String
   | .kernel declaration axioms =>
       if axioms.isEmpty then s!"Lean declaration {declaration}"
       else s!"Lean declaration {declaration} (axioms: {String.intercalate ", " axioms})"
-  | .smt solver version _ verifier => s!"{solver} {version}, verified by {verifier}"
-  | .external tool version _ verifier => s!"{tool} {version}, verified by {verifier}"
+  | .smt solver version _ verifier => s!"{solver} {version}, declared by {verifier}"
+  | .external tool version _ verifier => s!"{tool} {version}, declared by {verifier}"
   | .rodinImported source _ manual =>
       s!"Rodin import {source} ({if manual then "manual" else "automatic"})"
   | .rodinImportedProvenance _ _ _ _ manual =>
@@ -120,7 +120,7 @@ private def fallbackEntry (obligation : Obligation) : Trust.Entry :=
   (Trust.Ledger.ofObligations [obligation]).entries.head!
 
 private def entryFor (ledger : Trust.Ledger) (obligation : Obligation) : Trust.Entry :=
-  (ledger.entry? obligation.component obligation.name).getD (fallbackEntry obligation)
+  (ledger.displayEntry? obligation.component obligation.name).getD (fallbackEntry obligation)
 
 private def obligationCard (ledger : Trust.Ledger) (obligation : Obligation) : Html :=
   let entry := entryFor ledger obligation

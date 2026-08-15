@@ -35,7 +35,20 @@ structure Obligation where
   hyps : List Term := []
   /-- Typechecking and model-resolution errors discovered before generation. -/
   diagnostics : List String := []
-  deriving BEq, Repr, Inhabited
+  deriving BEq, Repr, Inhabited, DecidableEq
+
+/-- The only checked obligation without a translated statement is witness WD: Rodin
+records its definedness formula as a hypothesis of the sequent. Every other checked
+obligation must carry exactly one goal. -/
+def Obligation.shapeValid (obligation : Obligation) : Bool :=
+  match obligation.kind, obligation.goal with
+  | "WWD", none => !obligation.hyps.isEmpty
+  | "WWD", some _ => false
+  | _, some _ => true
+  | _, none => false
+
+#guard ({ name := "w/WWD", kind := "WWD", hyps := [.id "defined"] } : Obligation).shapeValid
+#guard !({ name := "i/INV", kind := "INV" } : Obligation).shapeValid
 
 def formulaLanguageVersion : String := "eventb-formula-v2"
 
@@ -70,6 +83,48 @@ private def targetName (e : Elem) : Option String :=
 private def eventTargets (ev : Elem) : List String :=
   if labelOf ev == "INITIALISATION" then ["INITIALISATION"]
   else (childrenOf ev "refinesEvent").filterMap targetName
+
+/-- Exact abstract events named by a concrete event's `refinesEvent` children. -/
+def eventRefinementTargets (p : Project) (machine event : String) : List String :=
+  match lookupComponent p machine with
+  | none => []
+  | some component =>
+      match (childrenOf component.elem "event").find?
+          (fun candidate => labelOf candidate == event) with
+      | none => []
+      | some current => eventTargets current
+
+/- Keep the source machine together with each refined-event label.  The older
+   `eventRefinementTargets` API remains the compatibility label projection; checked
+   refinement adapters use this locator-preserving view. -/
+def eventRefinementTargetLocators (p : Project) (machine event : String) :
+    List (String × String) :=
+  match lookupComponent p machine with
+  | none => []
+  | some component =>
+      let abstractMachine :=
+        (childrenOf component.elem "refinesMachine").filterMap targetName |>.head?.getD ""
+      match (childrenOf component.elem "event").find?
+          (fun candidate => labelOf candidate == event) with
+      | none => []
+      | some current =>
+          (childrenOf current "refinesEvent").filterMap fun target =>
+            (attrOf target "target").map fun raw =>
+              let parts := raw.splitOn "/"
+              let targetEvent := parts.getLast!
+              let targetMachine :=
+                if parts.length > 1 then parts.dropLast.getLast!
+                else abstractMachine
+              (targetMachine, targetEvent)
+
+/-- Exact convergence attribute of a source event.  Semantic adapters use this
+    instead of inferring anticipated/convergent semantics from a VAR name. -/
+def eventConvergenceMode? (p : Project) (machine event : String) : Option String :=
+  match lookupComponent p machine with
+  | none => none
+  | some component =>
+      (childrenOf component.elem "event").find?
+        (fun candidate => labelOf candidate == event) |>.bind (attrOf · "convergence")
 
 private def isExtended (ev : Elem) : Bool :=
   (attrOf ev "extended").getD "false" == "true" ||
@@ -210,6 +265,25 @@ def effectiveActions (p : Project) (machine : String) (ev : Elem) : List Elem :=
 def effectiveGuards (p : Project) (machine : String) (ev : Elem) : List Elem :=
   inheritedChildren p "guard" p.length machine ev
 
+private def parseGuardPredicates? : List Elem → Option (List Term)
+  | [] => some []
+  | guard :: guards => do
+      let source ← guard.attr? "org.eventb.core.predicate"
+      let predicate ← (Formula.parse source).toOption
+      let rest ← parseGuardPredicates? guards
+      pure (predicate :: rest)
+
+/-- Exact parsed guard predicates of an event, including inherited guards.  A missing
+    event or malformed guard is rejected instead of being converted to an empty list. -/
+def eventGuardPredicates (p : Project) (machine event : String) : Option (List Term) :=
+  match lookupComponent p machine with
+  | none => none
+  | some component =>
+      match (childrenOf component.elem "event").find?
+          (fun candidate => labelOf candidate == event) with
+      | none => none
+      | some current => parseGuardPredicates? (effectiveGuards p machine current)
+
 /-- The substitution an event performs, including what the abstract machine still does
 to variables the concrete event does not touch.
 
@@ -253,7 +327,7 @@ private def accurateTransitionActions (p : Project) (machine : String) (ev : Ele
       else effectiveActions p machine ev
 
 private def refinementTransitionActions (p : Project) (machine : String) (ev : Elem) : List Elem :=
-  eventActions p p.length machine ev
+  accurateTransitionActions p machine ev
 
 def eventSubst (p : Project) : Nat → String → Elem → List (String × Term)
   | 0, machine, ev =>
@@ -356,6 +430,24 @@ private def concreteStateRelationsMode (strict initialization : Bool) (variables
     (actions : List Elem) : List Term :=
   if strict then concreteStateRelationsAccurate initialization variables actions
   else concreteStateRelations variables actions
+
+/-- Exact after-state relations selected by the strict transition path.  This is
+    public so source-bound semantic adapters can consume the same action slice as
+    strict POG generation, including nondeterministic assignments and frames. -/
+def eventStateRelations (p : Project) (machine event : String)
+    (variables : List String) : List Term :=
+  match lookupComponent p machine with
+  | none => []
+  | some component =>
+      match (childrenOf component.elem "event").find?
+          (fun candidate => labelOf candidate == event) with
+      | none => []
+      | some current =>
+          let actions := if event == "INITIALISATION" then
+              EventB.Typing.initializationActions p component current
+            else effectiveActions p machine current
+          actions.flatMap actionAfterRelationAccurate ++
+            if event == "INITIALISATION" then [] else frameRelations variables actions
 
 private def actionAfterSubst (action : Elem) : List (String × Term) :=
   ((substOf action).map fun (v, rhs) => (v ++ "'", rhs)) ++
@@ -888,9 +980,10 @@ private def generateInMode (strict : Bool) (theory : Theory.Env) (p : Project)
       let initialization := labelOf ev == "INITIALISATION"
       let concreteRelations :=
         concreteStateRelationsMode strict initialization concreteVariables concreteActions
-      -- A non-extended refined event still executes its abstract actions.  Use the
-      -- refinement substitution here so inherited assignments trigger preservation
-      -- obligations for concrete invariants as well as for the after-state formula.
+      -- The concrete before-after predicate is the event's effective action list:
+      -- parent actions are inherited only when the event is explicitly extended.
+      -- Using `eventActions` here would fabricate parent updates for an ordinary
+      -- refinement and make a frame/gluing INV or SIM obligation vacuous.
       let assigned := (eventStateSubstMode strict p name ev).map (·.1)
       -- An invariant needs re-proving only if the event can change something it
       -- mentions. This filter is what keeps the INV count at Rodin's 934 rather than
@@ -1087,16 +1180,337 @@ def generateCheckedIn (theory : Theory.Env) (p : Project) (name : String) :
             let obligations := generateInMode true theory p name
             match obligations.find? (fun obligation => !obligation.diagnostics.isEmpty) with
             | none =>
-                match obligations.find? (fun obligation =>
-                    obligation.kind == "WFIS" && obligation.goal.isNone) with
+                match obligations.find? (fun obligation => !obligation.shapeValid) with
                 | none => .ok obligations
                 | some obligation => .error (EventB.Error.typing (s!
-                    "cannot generate trusted obligations for {name}: witness " ++
-                      obligation.name ++ " has no feasible translated goal"))
+                    "cannot generate trusted obligations for {name}: malformed " ++
+                      obligation.kind ++ " obligation " ++ obligation.name))
             | some obligation =>
                 .error (EventB.Error.typing (s!
                   "cannot generate trusted obligations for {name}: " ++
                     String.intercalate "; " obligation.diagnostics))
+
+/-- Exact provenance for a generated EQL obligation.  This retains the source
+    elements used by the generator instead of reconstructing them from the PO name
+    at a later trust boundary. -/
+structure EqlOrigin where
+  component : String
+  event : String
+  eqlVariable : String
+  concreteEvent : Elem
+  abstractMachine : String
+  abstractRefs : List (String × Elem)
+  effectiveActions : List Elem
+  actionHyps : List Formula.Term
+  deriving BEq, Repr
+
+private def directVariables (component : Component) : List String :=
+  (childrenOf component.elem "variable").filterMap (attrOf · "identifier")
+
+private def exactEqlGoal (varName : String) : Formula.Term :=
+  .bin "=" (.id (varName ++ "'")) (.id varName)
+
+/-- Locate the exact EQL record and the exact source event/action slice that caused
+    it. `none` means this event/variable pair does not satisfy Rodin's EQL condition;
+    malformed or unchecked projects return an error. -/
+def locateEql? (theory : Theory.Env) (p : Project)
+    (component event eqlVariable : String) :
+    Except EventB.Error (Option (EqlOrigin × Obligation)) := do
+  let generated ← generateCheckedIn theory p component
+  let concrete ← match lookupComponent p component with
+    | some value => pure value
+    | none => throw (EventB.Error.typing
+        s!"cannot locate EQL source in missing component {component}")
+  let concreteEvent ← match (childrenOf concrete.elem "event").find?
+      (fun candidate => labelOf candidate == event) with
+    | some value => pure value
+    | none => throw (EventB.Error.typing
+        s!"cannot locate EQL source event {component}/{event}")
+  let abstractRefs := abstractEvents p component concreteEvent
+  let abstractMachineName : Option String :=
+    match abstractRefs.head? with
+    | some (machine, _) => some machine
+    | none => (childrenOf concrete.elem "refinesMachine").filterMap targetName |>.head?
+  let abstractMachine ← match abstractMachineName.bind (lookupComponent p ·) with
+    | some value => pure value
+    | none => throw (EventB.Error.typing
+        s!"cannot locate EQL abstract machine for {component}/{event}")
+  let concreteActions := accurateTransitionActions p component concreteEvent
+  let concreteVariables := directVariables concrete
+  let abstractVariables := directVariables abstractMachine
+  let concreteTargets := concreteActions.flatMap assignedBy
+  let abstractTargets := abstractRefs.flatMap fun (machine, abstractEvent) =>
+    match lookupComponent p machine with
+    | some _ => (effectiveActions p machine abstractEvent).flatMap assignedBy
+    | none => []
+  unless concreteVariables.contains eqlVariable && abstractVariables.contains eqlVariable &&
+      concreteTargets.contains eqlVariable && !abstractTargets.contains eqlVariable do
+    return none
+  let name := event ++ "/" ++ eqlVariable ++ "/EQL"
+  let goal := exactEqlGoal eqlVariable
+  let obligation ← match generated.find? (fun candidate =>
+      candidate.kind == "EQL" && candidate.name == name && candidate.goal == some goal) with
+    | some value => pure value
+    | none => throw (EventB.Error.typing
+        s!"checked generator has no exact EQL obligation {component}/{name}")
+  let actionHyps := concreteActions.filter (fun action =>
+    (assignedBy action).contains eqlVariable) |>.flatMap actionAfterRelation
+  let origin : EqlOrigin :=
+    { component := component
+      event := event
+      eqlVariable := eqlVariable
+      concreteEvent := concreteEvent
+      abstractMachine := abstractMachine.name
+      abstractRefs := abstractRefs
+      effectiveActions := concreteActions
+      actionHyps := actionHyps }
+  pure (some (origin, obligation))
+
+/- The witness and simulation locators below deliberately sit on the same private
+   selectors as generateInMode. A PO name is only accepted after its source
+   element has been selected uniquely and the checked generator has emitted the
+   corresponding obligation. -/
+
+def exactWitnessBinding? (witness : Elem) : Option (String × Formula.Term) :=
+  witnessBinding witness
+
+def exactWitnessVariable? (witness : Elem) : Option String :=
+  witnessVariable witness
+
+def exactWitnessPredicate? (witness : Elem) : Option Formula.Term :=
+  (attrOf witness "predicate").bind (Formula.parse · |>.toOption)
+
+structure WitnessOrigin where
+  component : String
+  event : String
+  witnessLabel : String
+  concreteEvent : Elem
+  witness : Elem
+  witnessVariable : String
+  predicate : Formula.Term
+  binding : Option (String × Formula.Term)
+  deriving BEq, Repr
+
+private def uniqueChildByLabel (parent : Elem) (tag label : String) : Option Elem :=
+  match (childrenOf parent tag).filter (fun child => labelOf child == label) with
+  | [child] => some child
+  | _ => none
+
+private def checkedWitnessOrigin (component event witnessLabel : String)
+    (concreteEvent witness : Elem) (predicate : Formula.Term)
+    (witnessName : String) : WitnessOrigin :=
+  { component
+    event
+    witnessLabel
+    concreteEvent
+    witness
+    witnessVariable := witnessName
+    predicate
+    binding := exactWitnessBinding? witness }
+
+/-- Locate a uniquely named witness and its checked WFIS/WWD obligation.
+
+    kind is explicit because the same witness can generate both WFIS and WWD, while
+    the source identity is shared. Ambiguous source labels and duplicate generated
+    names fail closed. -/
+def locateWitness? (theory : Theory.Env) (p : Project)
+    (component event witnessLabel kind : String) :
+    Except EventB.Error (Option (WitnessOrigin × Obligation)) := do
+  if kind != "WFIS" && kind != "WWD" then
+    throw (EventB.Error.typing s!"unsupported witness obligation kind {kind}")
+  let generated ← generateCheckedIn theory p component
+  let concrete ← match lookupComponent p component with
+    | some value => pure value
+    | none => throw (EventB.Error.typing
+        s!"cannot locate witness source in missing component {component}")
+  let concreteEvent ← match uniqueChildByLabel concrete.elem "event" event with
+    | some value => pure value
+    | none => throw (EventB.Error.typing
+        s!"cannot locate unique witness source event {component}/{event}")
+  let witness ← match uniqueChildByLabel concreteEvent "witness" witnessLabel with
+    | some value => pure value
+    | none => throw (EventB.Error.typing
+        s!"cannot locate unique witness {component}/{event}/{witnessLabel}")
+  let predicate ← match exactWitnessPredicate? witness with
+    | some value => pure value
+    | none => throw (EventB.Error.typing
+        s!"cannot parse witness predicate {component}/{event}/{witnessLabel}")
+  let witnessName ← match exactWitnessVariable? witness with
+    | some value => pure value
+    | none => throw (EventB.Error.typing
+        s!"cannot resolve witness variable {component}/{event}/{witnessLabel}")
+  let details ← inferComponentDetailsCheckedIn theory p component
+  let visibleParams := visibleEventBindings p details.eventParams component event
+  let expectedGoal :=
+    if kind == "WFIS" then
+      (witnessFeasibility details.types visibleParams witness).map
+        (Theory.normalize theory (componentTheoryRoots p component))
+    else none
+  let name := event ++ "/" ++ witnessLabel ++ "/" ++ kind
+  let candidates := generated.filter (fun obligation =>
+    obligation.kind == kind && obligation.name == name && obligation.goal == expectedGoal)
+  let obligation ← match candidates with
+    | [] => return none
+    | [value] => pure value
+    | _ => throw (EventB.Error.typing
+        s!"checked generator emitted duplicate witness obligation {component}/{name}")
+  if kind == "WFIS" && expectedGoal.isNone then
+    throw (EventB.Error.typing
+      s!"witness feasibility has no typed goal {component}/{event}/{witnessLabel}")
+  if kind == "WWD" && expectedGoal.isSome then
+    throw (EventB.Error.typing
+      s!"witness definedness unexpectedly has a goal {component}/{event}/{witnessLabel}")
+  pure (some (checkedWitnessOrigin component event witnessLabel concreteEvent witness
+    predicate witnessName, obligation))
+
+structure SimOrigin where
+  component : String
+  event : String
+  concreteEvent : Elem
+  abstractMachine : String
+  abstractEvent : Elem
+  abstractRefs : List (String × Elem)
+  abstractAction : Elem
+  concreteActions : List Elem
+  deriving BEq, Repr
+
+/-- Locate the exact abstract event/action behind one generated SIM obligation.
+
+    The selected abstract action is unique by label in the effective action slice;
+    this rejects a name-only match when malformed input would produce duplicate PO
+    names. -/
+def locateSim? (theory : Theory.Env) (p : Project)
+    (component event abstractActionLabel : String) :
+    Except EventB.Error (Option (SimOrigin × Obligation)) := do
+  let generated ← generateCheckedIn theory p component
+  let concrete ← match lookupComponent p component with
+    | some value => pure value
+    | none => throw (EventB.Error.typing
+        s!"cannot locate SIM source in missing component {component}")
+  let concreteEvent ← match uniqueChildByLabel concrete.elem "event" event with
+    | some value => pure value
+    | none => throw (EventB.Error.typing
+        s!"cannot locate unique SIM source event {component}/{event}")
+  if isExtended concreteEvent then return none
+  let refs := abstractEvents p component concreteEvent
+  let (abstractMachine, abstractEvent) ← match refs with
+    | [(machine, value)] => pure (machine, value)
+    | _ => return none
+  match lookupComponent p abstractMachine with
+  | none => throw (EventB.Error.typing
+      s!"cannot locate SIM abstract component {abstractMachine}")
+  | some _ => pure ()
+  let abstractActions := effectiveActions p abstractMachine abstractEvent
+  let matchingActions := abstractActions.filter
+    (fun action => labelOf action == abstractActionLabel)
+  let abstractAction ← match matchingActions with
+    | [value] => pure value
+    | [] => return none
+    | _ => throw (EventB.Error.typing
+        s!"ambiguous SIM abstract action {abstractMachine}/{abstractActionLabel}")
+  let name := event ++ "/" ++ abstractActionLabel ++ "/SIM"
+  let candidates := generated.filter (fun obligation =>
+    obligation.kind == "SIM" && obligation.name == name)
+  let obligation ← match candidates with
+    | [] => return none
+    | [value] => pure value
+    | _ => throw (EventB.Error.typing
+        s!"checked generator emitted duplicate SIM obligation {component}/{name}")
+  pure (some
+    ({ component
+       event
+       concreteEvent
+       abstractMachine
+       abstractEvent
+       abstractRefs := refs
+       abstractAction := abstractAction
+       concreteActions := accurateTransitionActions p component concreteEvent }, obligation))
+
+def simSourceBound (theory : Theory.Env) (p : Project)
+    (component event abstractActionLabel : String) (target : Obligation) : Bool :=
+  match locateSim? theory p component event abstractActionLabel with
+  | .ok (some (_, obligation)) => obligation == target
+  | _ => false
+
+/-- Bind generated names to the source slice selected by the generator.  In
+    particular, GRD and SIM labels come from the selected abstract event, while
+    FIS/WD labels come from the concrete transition action slice. -/
+def generatedSourceBound (p : Project) (obligation : Obligation) : Bool :=
+  let directComponent := lookupComponent p obligation.component
+  let directEvent (event : String) : Option Elem :=
+    directComponent.bind fun component =>
+      (childrenOf component.elem "event").find? (fun candidate => labelOf candidate == event)
+  let hasDirectLabel (tag label : String) : Bool :=
+    directComponent.any fun component =>
+      (childrenOf component.elem tag).any (fun child => labelOf child == label)
+  let hasEventChild (event tag label : String) : Bool :=
+    (directEvent event).any fun current =>
+      (childrenOf current tag).any (fun child => labelOf child == label)
+  let hasVariant := directComponent.any fun component =>
+    (childrenOf component.elem "variant").any (fun _ => true)
+  let parts := obligation.name.splitOn "/"
+  match obligation.kind, parts with
+  | "INV", [event, label, _] =>
+      (directEvent event).isSome &&
+        (let (_, closure) := EventB.Typing.closure p [] obligation.component
+         closure.any fun name =>
+           (lookupComponent p name).any fun component =>
+             (childrenOf component.elem "invariant").any
+               (fun child => labelOf child == label) ||
+             (childrenOf component.elem "axiom").any
+               (fun child => labelOf child == label))
+  | "GRD", [event, label, _] =>
+      (directEvent event).any fun concrete =>
+        !isExtended concrete &&
+        (abstractEvents p obligation.component concrete).length <= 1 &&
+        (abstractEvent p obligation.component concrete).any fun (machine, target) =>
+          (effectiveGuards p machine target).any (fun guard => labelOf guard == label)
+  | "SIM", [event, label, _] =>
+      (directEvent event).any fun concrete =>
+        !isExtended concrete &&
+        (abstractEvents p obligation.component concrete).length <= 1 &&
+        (abstractEvent p obligation.component concrete).any fun (machine, target) =>
+          (effectiveActions p machine target).any (fun action => labelOf action == label)
+  | "FIS", [event, label, _] =>
+      (directEvent event).any fun concrete =>
+        (accurateTransitionActions p obligation.component concrete).any
+          (fun action => labelOf action == label)
+  | "WFIS", [event, label, _] | "WWD", [event, label, _] =>
+      hasEventChild event "witness" label
+  | "EQL", [event, eqlVariable, _] =>
+      (directEvent event).any fun concrete =>
+        let abstractRefs := abstractEvents p obligation.component concrete
+        let abstractMachineName : Option String :=
+          match abstractRefs.head? with
+          | some (machine, _) => some machine
+          | none => (childrenOf concrete "refinesMachine").filterMap targetName |>.head?
+        let abstractVariables := abstractMachineName.bind (lookupComponent p ·) |>.any
+          (fun machine => directVariables machine |>.contains eqlVariable)
+        let concreteActions := accurateTransitionActions p obligation.component concrete
+        let concreteVariables := directComponent.any
+          (fun component => directVariables component |>.contains eqlVariable)
+        let concreteTargets := concreteActions.flatMap assignedBy
+        let abstractTargets := abstractRefs.flatMap fun (machine, target) =>
+          (effectiveActions p machine target).flatMap assignedBy
+        abstractVariables && concreteVariables && concreteTargets.contains eqlVariable &&
+          !abstractTargets.contains eqlVariable
+  | "WD", [event, label, _] =>
+      hasEventChild event "guard" label ||
+        hasEventChild event "action" label ||
+        hasEventChild event "witness" label ||
+        (directEvent event).any fun concrete =>
+          (accurateTransitionActions p obligation.component concrete).any
+            (fun action => labelOf action == label)
+  | "WD", [label, _] | "THM", [label, _] => hasDirectLabel "invariant" label ||
+      hasDirectLabel "axiom" label
+  | "MRG", [event, _] =>
+      (directEvent event).any fun concrete =>
+        !isExtended concrete &&
+          (eventRefinementTargets p obligation.component event).length > 1
+  | "VAR", [event, _] | "NAT", [event, _] =>
+      (directEvent event).isSome
+  | "VWD", ["VWD"] | "FIN", ["FIN"] => hasVariant
+  | _, _ => false
 
 /-- Compatibility entry point for Rodin corpus projects without user theories. -/
 def generate (p : Project) (name : String) : List Obligation :=
@@ -1328,11 +1742,11 @@ private def functionUpdateWdProject : Project :=
 #guard match generateChecked dataRefinementProject "B" with
   | .ok obligations =>
       !obligations.any (fun obligation => obligation.name == "step/set/SIM") &&
-        obligations.any (fun obligation =>
+      obligations.any (fun obligation =>
           obligation.name == "step/glue/INV" &&
             obligation.goal.map (fun goal =>
               let printed := Formula.print goal
-              printed.contains "a + 1" && printed.contains "b + 1") == some true)
+              !printed.contains "a + 1" && printed.contains "b + 1") == some true)
   | .error _ => false
 
 #guard match generateChecked (rightWitnessProject ++ [hiddenParameterChild]) "C" with
@@ -1367,5 +1781,23 @@ private def functionUpdateWdProject : Project :=
       obligation.name == "step/update/WD" &&
         obligation.goal.map (fun goal => !(Formula.print goal).contains "f(i) ⇒") == some true)
   | .error _ => false
+
+#guard match locateWitness? Theory.empty rightWitnessProject "B" "step" "p" "WFIS" with
+  | .ok (some (origin, obligation)) =>
+      origin.witnessVariable == "p" &&
+        (Formula.print origin.predicate).contains "q + 1" &&
+        obligation.name == "step/p/WFIS"
+  | _ => false
+
+#guard match locateSim? Theory.empty rightWitnessProject "B" "step" "set" with
+  | .ok (some (origin, obligation)) =>
+      origin.abstractMachine == "A" &&
+        origin.abstractAction.attr? "org.eventb.core.assignment" == some "x ≔ p" &&
+        obligation.name == "step/set/SIM"
+  | _ => false
+
+#guard match locateSim? Theory.empty rightWitnessProject "B" "step" "missing" with
+  | .ok none => true
+  | _ => false
 
 end EventB.POG

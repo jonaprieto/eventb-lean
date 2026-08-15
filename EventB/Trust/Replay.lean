@@ -133,7 +133,8 @@ def validateTerm (context : Embedding.KernelContext)
     throwError s!"axiom metadata mismatch for `{declaration}`: declared " ++
       s!"[{String.intercalate ", " declared}], found " ++
       s!"[{String.intercalate ", " actualAxioms}]"
-  pure (Report.mk .kernel true declaration (proofFingerprint context obligation) actualAxioms)
+  let mode := if declaredAxioms.isEmpty then .kernel else .kernelAxiomatized
+  pure (Report.mk mode true declaration (proofFingerprint context obligation) actualAxioms)
 
 private def replayKernel (context : Embedding.KernelContext)
     (obligation : POG.Obligation) (evidence : Evidence) : MetaM Report := do
@@ -147,8 +148,8 @@ def validate (context : Embedding.KernelContext) (obligation : POG.Obligation) :
   | evidence@(.kernel ..) => replayKernel context obligation evidence
   | .rodinImported .. =>
       throwError "legacy status-only Rodin evidence is not trusted; attach model and PO provenance"
-  | evidence@(.rodinImportedProvenance model bpo statuses digest manual) => do
-      let provenance : Rodin.Provenance := { model, bpo, statuses }
+  | evidence@(.rodinImportedProvenance models bpo statuses digest manual) => do
+      let provenance : Rodin.Provenance := { models, bpo, statuses }
       unless digest == Rodin.provenanceDigest provenance do
         throwError "Rodin provenance digest mismatch"
       let parsed ← match Rodin.importStatuses statuses with
@@ -157,7 +158,7 @@ def validate (context : Embedding.KernelContext) (obligation : POG.Obligation) :
       match parsed.find? (fun status => status.name == obligation.name) with
       | none => throwError s!"Rodin evidence artifact has no status for `{obligation.name}`"
       | some status =>
-          match Rodin.validateProvenance obligation provenance status with
+          match Rodin.validateProvenanceIn context.theory obligation provenance status with
           | .ok _ => pure ()
           | .error error => throwError error.message
           unless status.manual == manual do
@@ -186,7 +187,7 @@ def validateEntry (context : Embedding.KernelContext) (obligation : POG.Obligati
     throwError s!"evidence canonical mismatch for `{obligation.component}:{obligation.name}`"
   unless entry.mode == entry.evidence.mode do
     throwError s!"evidence mode mismatch for `{obligation.component}:{obligation.name}`"
-  if entry.mode == .kernel then
+  if entry.mode == .kernel || entry.mode == .kernelAxiomatized then
     unless entry.semanticFingerprint == proofFingerprint context obligation do
       throwError s!"kernel evidence context mismatch for `{obligation.component}:{obligation.name}`"
   validate context obligation entry.evidence
@@ -257,6 +258,10 @@ private meta def checkReplay : TermElabM Unit := do
   unless ← succeeds (validate context replayObligation
       (.kernel "EventB.Trust.Replay.TestFixtures.propextTrue" ["propext"])) do
     throwError "actual axiom metadata did not replay"
+  let axiomatized ← validate context replayObligation
+    (.kernel "EventB.Trust.Replay.TestFixtures.propextTrue" ["propext"])
+  unless axiomatized.mode == .kernelAxiomatized && axiomatized.replayed do
+    throwError "axiomatized kernel evidence was not labelled explicitly"
   let trusted := validate context replayObligation
     (.smt "z3" "4" "sha256:input" "checker")
   let report ← trusted

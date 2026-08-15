@@ -36,7 +36,8 @@ flowchart LR
   P["Prelude + Theory.Env<br/>imports and scope"] --> T["Typing.Infer + Check"]
   F --> T
   T --> G["POG<br/>obligation data"]
-  G --> S["Semantics<br/>Machine / Proved / Refines"]
+  G --> Z["POGSoundness<br/>typed valuation boundary"]
+  Z -. "explicit model bindings still required" .-> S["Semantics<br/>Machine / Proved / Refines"]
   G --> L["Trust.Ledger"]
   T --> U["CLI + ProofWidgets"]
   G --> U
@@ -76,6 +77,7 @@ remains the authority for `.eventb` component structure.
 | Theories | `EventB.Theory`, `Theory.Validate`, `Theory.Embed` | User theories, validation, and Lean denotations. |
 | Typing | `EventB.Typing.Type`, `Infer`, `Check` | Infer types and validate component scope. |
 | POG | `EventB.POG` | Generate named obligations, goals, and hypotheses. |
+| POG semantic boundary | `EventB.POGSoundness` | Closed PO-class table, error-aware typed valuation checks, and explicit WWD shape; not automatic model soundness. |
 | Semantics | `EventB.Semantics` | Machines, reachability, proof, and refinement soundness. |
 | Trust and embedding | `EventB.Trust`, `Trust.Replay`, `Trust.Rodin`, `Embedding`, `Formula.Translate` | Proof provenance, status import, and kernel translation. |
 | Front ends | `EventB.DSL`, `Widgets.lean`, `Main.lean` | Author, check, and display models. |
@@ -114,6 +116,13 @@ therefore not visible merely because it was declared somewhere in the Lean modul
 The same scope is used by native formula elaboration, `Typing.inferComponentIn`, and
 `POG.generateIn`. This is important: scope is a property of the model component, not a
 global parser setting.
+
+`EventB.POGSoundness` is deliberately a boundary rather than a hidden second checker.
+Its bounded evaluator rejects unsupported or ill-typed terms with explicit errors and
+checks valuation-level sequents only after definedness; it does not infer the meaning of
+an arbitrary identifier, assignment, witness, variant, or refinement contract. Binding a
+generated INV/GRD/SIM/WFIS/VAR obligation to `EventB.Semantics` remains an explicit
+model-specific proof step.
 
 ## Formula and typing pipeline
 
@@ -155,9 +164,15 @@ the definedness facts they require. A user-defined predicate or expression there
 uses the same POG path as a core symbol.
 
 Generating an obligation is not the same as proving it. The obligation data is the
-boundary between analysis and proof. `EventB.Semantics` supplies the kernel-native
-machine, invariant, and refinement propositions; later proof backends can attach
-evidence without changing the model checker.
+boundary between analysis and proof. `EventB.Semantics` supplies kernel-native machine,
+invariant, frame, gluing, merge, split-merge, witness, variant, and refinement contracts.
+`EventB.POG.RefinementAdapters` supplies source-bound proof-carrying adapters for the
+refinement-heavy PO families, while `EventB.POG.EQLAdapter` binds the exact deterministic
+integer EQL action to the checked before/after evaluator. The generic
+`FormulaModel.valid` entry point is fail-closed because a caller-defined interpretation
+is not semantic adequacy; `validUnchecked` helpers remain local evaluator fixtures.
+Later proof backends can attach evidence without changing the model checker; missing
+model-specific formula bindings remain unproved rather than being inferred.
 
 Theory validation also emits declaration obligations. Structural rewrite termination is
 marked `checked` only for the conservative decreasing case; rewrite soundness and
@@ -186,14 +201,14 @@ kernel proof only after resolving its declaration, translating the complete POG 
 checking definitional equality, and comparing its transitive axiom dependencies with
 the declared metadata. `Trust.Rodin` imports `.bps` status
 records as `rodinImported`; it never upgrades them to kernel evidence. Legacy status-only
-Rodin evidence is rejected. The import binds model-root identity and source-appropriate
+Rodin evidence is rejected. The import binds explicit artifact/source identity and
+source-appropriate
 event, predicate, action, witness, variable, and variant structure, plus PO-sequent,
-source-component, and status identities, but does not rederive
-the BPO sequent from the model. SMT and external
-evidence remain explicit metadata boundaries and must carry solver/tool, version, input
-digest, and verifier fields. Rodin provenance retains the model, BPO, and status bytes
-for replayable structural, goal, and hypothesis checks; it does not yet rederive the
-POG from the model.
+source-component, and status identities, and strictly regenerates the model-derived POG
+with the supplied theory environment before comparing the target canonical obligation.
+SMT and external evidence remain metadata-only boundaries and must carry solver/tool,
+version, input digest, and verifier claims. Rodin provenance retains the model, BPO, and
+status bytes for replayable structural, goal, hypothesis, and model-derived POG checks.
 
 ## User experience
 
@@ -247,7 +262,7 @@ The gates compare the implementation against the pinned corpus and ratchet files
   broad filtering is unsound because the corpus retains other static-looking invariant
   sequents.
 - P4: the gates run the deterministic local baseline over the 1133 P3-matched
-  obligations; the current result is 73 external-trusted and the rest unproved.
+  obligations; the current result is 73 external-declared and the rest unproved.
 
 The semantic boundary is explicit: theory definitions and constructors require
 caller-supplied Lean denotations; translation can be measured independently; only a
@@ -459,8 +474,8 @@ environment, and the prover configuration. A stale or forged result must not sil
 move an obligation out of `unproved`. In particular:
 
 - a Lean proof term is accepted only after kernel replay;
-- an SMT result records its solver, version, input digest, and trust mode;
-- an external proof records the verifier and evidence location;
+- an SMT result records its solver, version, input digest, and metadata-only trust mode;
+- an external proof records the verifier claim, evidence location, and metadata-only mode;
 - an imported Rodin result is labelled `rodinImported`, never `kernel`;
 - missing, stale, or unverifiable evidence leaves the entry `unproved`.
 
@@ -475,8 +490,10 @@ kernel proof coverage.
 Acceptance criteria:
 
 - every accepted result has a stable obligation fingerprint and explicit mode;
-- evidence can be replayed or rejected in a clean build;
-- changing the obligation, model, theory, or prover input invalidates the evidence;
+- kernel evidence can be replayed or rejected in a clean build, while Rodin evidence is
+  structurally/model-derived checked and metadata-only external evidence remains declared;
+- changing inputs invalidates evidence when that input is included in its canonical or
+  provenance fingerprint binding;
 - the widget shows the obligation's mode and evidence status without conflating them;
 - negative tests prove that unverifiable and mislabelled evidence is rejected;
 - P4 records discharge results without weakening P0 through P3b.

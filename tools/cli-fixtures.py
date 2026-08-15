@@ -102,9 +102,10 @@ def check_witness() -> None:
         raise AssertionError("witness report: expected thirteen obligations")
     if report["trust_ledger"] != {
         "kernel-checked": 0,
-        "smt-trusted": 0,
-        "rodin-imported": 0,
-        "external-trusted": 5,
+        "kernel-checked-with-axioms": 0,
+        "smt-declared": 0,
+        "rodin-structurally-checked": 0,
+        "external-declared": 5,
         "unproved": 8,
     }:
         raise AssertionError("witness report: trust ledger changed")
@@ -112,10 +113,12 @@ def check_witness() -> None:
         if not record["fingerprint"].startswith("eventb-v1-"):
             raise AssertionError("witness report: missing obligation fingerprint")
         evidence = record["evidence"]
-        if record["proof_mode"] == "external-trusted":
-            required = {"mode", "tool", "version", "input_digest", "verifier"}
-            if not required <= evidence.keys() or evidence["mode"] != "external-trusted":
+        if record["proof_mode"] == "external-declared":
+            required = {"mode", "tool", "version", "input_digest", "metadata_only", "verifier"}
+            if not required <= evidence.keys() or evidence["mode"] != "external-declared":
                 raise AssertionError("witness report: incomplete external provenance")
+            if evidence["metadata_only"] is not True:
+                raise AssertionError("witness report: external metadata was presented as verified")
             if record["rule"] == "none":
                 raise AssertionError("witness report: discharged record has no rule")
         elif record["proof_mode"] == "unproved":

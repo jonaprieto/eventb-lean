@@ -6,11 +6,13 @@ explicit so front ends can report what was checked and by whom.
 -/
 
 import EventB.POG
+import EventB.Project
 
 namespace EventB.Trust
 
 inductive Mode where
   | kernel
+  | kernelAxiomatized
   | smt
   | rodinImported
   | external
@@ -19,19 +21,37 @@ inductive Mode where
 
 def Mode.label : Mode → String
   | .kernel => "kernel-checked"
-  | .smt => "smt-trusted"
-  | .rodinImported => "rodin-imported"
-  | .external => "external-trusted"
+  | .kernelAxiomatized => "kernel-checked-with-axioms"
+  | .smt => "smt-declared"
+  | .rodinImported => "rodin-structurally-checked"
+  | .external => "external-declared"
   | .unproved => "unproved"
 
 def Mode.rank : Mode → Nat
   | .unproved => 0
   | .external | .rodinImported => 1
   | .smt => 2
-  | .kernel => 3
+  | .kernel | .kernelAxiomatized => 3
 
-def provenanceFingerprint (model bpo statuses : String) : String :=
-  s!"eventb-v2-{String.hash (model ++ "\n" ++ bpo ++ "\n" ++ statuses)}"
+private def provenanceField (value : String) : String := s!"{value.length}:{value}"
+
+private def provenanceList (values : List String) : String :=
+  s!"{values.length}[{String.intercalate "" (values.map provenanceField)}]"
+
+private def modelProvenanceText (model : ModelArtifact) : String :=
+  String.intercalate "\n"
+    ["component=" ++ provenanceField model.component
+    , "kind=" ++ provenanceField model.kind.label
+    , "theories=" ++ provenanceList model.theories
+    , "bytes=" ++ provenanceField model.byteString]
+
+def provenanceFingerprintOf (models : List ModelArtifact) (bpo statuses : String) : String :=
+  s!"eventb-v3-{String.hash (String.intercalate "\n---model---\n"
+    (models.map modelProvenanceText) ++
+    "\n---bpo---\n" ++ bpo ++ "\n---statuses---\n" ++ statuses)}"
+
+def provenanceFingerprint (model : ModelArtifact) (bpo statuses : String) : String :=
+  provenanceFingerprintOf [model] bpo statuses
 
 inductive Evidence where
   | none
@@ -39,13 +59,13 @@ inductive Evidence where
   | smt (solver : String) (version : String) (inputDigest : String) (verifier : String)
   | external (tool : String) (version : String) (artifactDigest : String) (verifier : String)
   | rodinImported (source : String) (digest : String) (manual : Bool)
-  | rodinImportedProvenance (model : String) (bpo : String) (statuses : String)
+  | rodinImportedProvenance (models : List ModelArtifact) (bpo : String) (statuses : String)
       (digest : String) (manual : Bool)
   deriving BEq, Repr, Inhabited
 
 def Evidence.mode : Evidence → Mode
   | .none => .unproved
-  | .kernel _ _ => .kernel
+  | .kernel _ axioms => if axioms.isEmpty then .kernel else .kernelAxiomatized
   | .smt _ _ _ _ => .smt
   | .external _ _ _ _ => .external
   | .rodinImported _ _ _ => .rodinImported
@@ -61,9 +81,10 @@ def Evidence.isWellFormed : Evidence → Bool
   -- Legacy status-only evidence remains a display-compatible constructor, but it is
   -- never accepted as ledger evidence without model/BPO provenance.
   | .rodinImported _ _ _ => false
-  | .rodinImportedProvenance model bpo statuses digest _ =>
-      !model.isEmpty && !bpo.isEmpty && !statuses.isEmpty &&
-        digest == provenanceFingerprint model bpo statuses
+  | .rodinImportedProvenance models bpo statuses digest _ =>
+      !models.isEmpty && !bpo.isEmpty && !statuses.isEmpty &&
+        models.all (fun model => !model.component.isEmpty && !model.bytes.isEmpty) &&
+        digest == provenanceFingerprintOf models bpo statuses
 
 def fingerprint (canonical : String) : String :=
   s!"eventb-v1-{String.hash canonical}"
@@ -83,7 +104,8 @@ structure Entry where
 def Entry.isConsistent (entry : Entry) : Bool :=
     !entry.component.isEmpty && !entry.obligation.isEmpty &&
     !entry.canonical.isEmpty && entry.fingerprint == Trust.fingerprint entry.canonical &&
-    (entry.mode != .kernel || !entry.semanticFingerprint.isEmpty) &&
+    ((entry.mode != .kernel && entry.mode != .kernelAxiomatized) ||
+      !entry.semanticFingerprint.isEmpty) &&
     entry.mode == entry.evidence.mode &&
     (entry.mode == .unproved || entry.evidence.isWellFormed)
 
@@ -110,13 +132,18 @@ def Ledger.validate (ledger : Ledger) : Except EventB.Error Unit :=
         let key := entry.component ++ "\t" ++ entry.obligation
         if seen.contains key then
           .error (EventB.Error.trust s!"ledger has duplicate entry `{key}`")
-        else if entry.mode == .kernel then
+        else if entry.mode == .kernel || entry.mode == .kernelAxiomatized then
           .error (EventB.Error.trust
             s!"kernel entry `{key}` requires Trust.Replay validation")
         else if !entry.isConsistent then
           .error (EventB.Error.trust s!"ledger entry `{key}` is inconsistent")
         else go (key :: seen) rest
   go [] ledger.entries
+
+def Ledger.displayEntry? (ledger : Ledger) (component name : String) : Option Entry :=
+  match ledger.validate with
+  | .ok _ => ledger.entry? component name
+  | .error _ => none
 
 def Ledger.attach (ledger : Ledger) (obligation : POG.Obligation) (evidence : Evidence) :
     Except EventB.Error Ledger :=
@@ -166,25 +193,41 @@ def Ledger.attach (ledger : Ledger) (obligation : POG.Obligation) (evidence : Ev
         else current }
 
 def Ledger.count (ledger : Ledger) (mode : Mode) : Nat :=
-  ledger.entries.countP (·.mode == mode)
+  match ledger.validate with
+  | .ok _ => ledger.entries.countP (·.mode == mode)
+  | .error _ => 0
 
 def Ledger.total (ledger : Ledger) : Nat :=
   ledger.entries.length
 
 def Ledger.summary (ledger : Ledger) : String :=
-  let modes := [Mode.kernel, .smt, .rodinImported, .external, .unproved]
-  modes.foldl (fun result mode =>
-    let count := ledger.count mode
-    if count == 0 then result
-    else if result.isEmpty then s!"{mode.label}: {count}"
-    else result ++ s!", {mode.label}: {count}") ""
+  match ledger.validate with
+  | .error error => "invalid-ledger: " ++ error.message
+  | .ok _ =>
+      let modes := [Mode.kernel, .kernelAxiomatized, .smt, .rodinImported, .external,
+        .unproved]
+      modes.foldl (fun result mode =>
+        let count := ledger.entries.countP (·.mode == mode)
+        if count == 0 then result
+        else if result.isEmpty then s!"{mode.label}: {count}"
+        else result ++ s!", {mode.label}: {count}") ""
 
 #guard Mode.kernel.label == "kernel-checked"
+#guard Mode.kernelAxiomatized.label == "kernel-checked-with-axioms"
+#guard (Evidence.kernel "proof" ["propext"]).mode == .kernelAxiomatized
+#guard Mode.smt.label == "smt-declared"
+#guard Mode.external.label == "external-declared"
+#guard Mode.rodinImported.label == "rodin-structurally-checked"
 #guard (Ledger.ofObligations []).total == 0
 #guard fingerprint "same" == fingerprint "same"
 #guard fingerprint "same" != fingerprint "changed"
+#guard provenanceFingerprintOf
+    [{ component := "M", kind := .machine, bytes := "<m/>".toUTF8 }]
+    "bpo" "status" != provenanceFingerprintOf
+    [{ component := "M", kind := .machine, theories := ["T"], bytes := "<m/>".toUTF8 }]
+    "bpo" "status"
 #guard !Evidence.isWellFormed
-  (.rodinImportedProvenance "model" "bpo" "status" "forged" false)
+  (.rodinImportedProvenance [] "bpo" "status" "forged" false)
 
 private def sampleObligation : POG.Obligation :=
   { component := "Sample", name := "INITIALISATION/inv1/INV", kind := "INV"
@@ -194,6 +237,11 @@ private def sampleLedger : Ledger := Ledger.ofObligations [sampleObligation]
 
 private def inconsistentLedger : Ledger :=
   { entries := [{ sampleLedger.entries.head! with evidence := .kernel "forged" }] }
+
+private def inconsistentAxiomatizedEntry : Entry :=
+  { sampleLedger.entries.head! with
+      mode := .kernelAxiomatized
+      evidence := .kernel "forged" ["propext"] }
 
 private def unrelatedObligation : POG.Obligation :=
   { sampleObligation with name := "INITIALISATION/inv2/INV" }
@@ -212,6 +260,12 @@ private def legacyRodinLedger : Ledger :=
 
 private def renamedSample : POG.Obligation :=
   { sampleObligation with name := "display-only", kind := "INV" }
+
+#guard match inconsistentLedger.validate with | .error _ => true | .ok _ => false
+#guard inconsistentLedger.displayEntry? sampleObligation.component sampleObligation.name |>.isNone
+#guard inconsistentLedger.count .kernel == 0
+#guard inconsistentLedger.summary.startsWith "invalid-ledger:"
+#guard !inconsistentAxiomatizedEntry.isConsistent
 
 #guard sampleObligation.canonical != renamedSample.canonical
 #guard sampleObligation.canonical !=

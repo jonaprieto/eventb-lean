@@ -12,7 +12,12 @@ import EventB.Embedding
 import EventB.Formula.Translate
 import EventB.Typing.Infer
 import EventB.Typing.Check
+import EventB.Project
 import EventB.POG
+import EventB.POGSoundness
+import EventB.POGBridge
+import EventB.POG.EQLAdapter
+import EventB.POG.RefinementAdapters
 import EventB.Trust
 import EventB.Trust.Replay
 import EventB.Trust.Rodin

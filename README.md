@@ -49,6 +49,15 @@ The CLI reports parsed models, generated obligations, proof status, trust mode, 
 fingerprints. `eventb diff` compares generated obligations with Rodin artifacts; `eventb report`
 provides machine-readable output.
 
+The current pinned-corpus snapshot is 38/38 reader, 1102/1102 formula, 940/940 typing,
+1133/1133 obligation-name, 1132/1325 derived-statement, and 73/1133 external-declared
+baseline checks. Remaining obligations stay visibly unproved; imported Rodin status is accepted
+only after supplied-artifact POG regeneration and canonical BPO comparison.
+`EventB.Semantics` provides proof-carrying invariant/refinement contracts, including
+frame, gluing, merged-event, witness, and variant contracts. `EventB.POGSoundness`
+provides explicit translated-sequent validity; formula interpretations remain
+caller-supplied and are never guessed.
+
 ## Verification
 
 ```sh
@@ -60,6 +69,11 @@ lake exe gates --status
 The corpus gate is pinned by `corpus/MANIFEST.tsv`. The checked-in Rossi fixtures cover parser
 boundaries and a typecheckable witness project. Optional ProofWidgets views are built with the
 examples target.
+
+For the manual editor gate, open `examples/WidgetDemo.lean` and `examples/LspDemo.lean` in VS
+Code with the Lean server restarted. Confirm the Infoview model/PO sections, derived goals,
+explicit trust badges, Go to Definition, and an unknown-identifier diagnostic; discard any
+temporary diagnostic edit before closing the files.
 
 ## Related projects
 

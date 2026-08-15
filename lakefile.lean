@@ -2,7 +2,7 @@ import Lake
 open Lake DSL
 
 package «eventb» where
-  version := v!"4.0.9"
+  version := v!"4.0.10"
   leanOptions := #[⟨`autoImplicit, false⟩, ⟨`relaxedAutoImplicit, false⟩]
 
 -- Pinned release tags, not `main`: corpus gate numbers are only reproducible if the
@@ -38,6 +38,10 @@ lean_lib «Examples» where
 lean_exe «gates» where
   root := `Gates
   srcDir := "test"
+
+lean_lib «VariantFixtures» where
+  srcDir := "test"
+  globs := #[.one `VariantFixtures]
 
 lean_exe «rossi-dump» where
   root := `RossiDump

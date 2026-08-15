@@ -781,8 +781,9 @@ private def writeStatus (results : List FileResult) (formulas : List FormulaResu
       "what is actually holding it\nup. This status includes only evidence accepted " ++
       "through the local ledger; it is not kernel proof.\n\n" ++
       "| status | count |\n| --- | --- |\n" ++
-      s!"| kernel-checked | 0 |\n| smt-trusted | 0 |\n" ++
-      s!"| rodin-imported | 0 |\n| external-trusted | {p4pass} |\n" ++
+      s!"| kernel-checked | 0 |\n| kernel-checked-with-axioms | 0 |\n" ++
+      s!"| smt-declared | 0 |\n| rodin-structurally-checked | 0 |\n" ++
+      s!"| external-declared | {p4pass} |\n" ++
       s!"| unproved | {p4.length - p4pass} |\n\n" ++
       s!"Rodin discharged all {rodinAuto + rodinManual} of its obligations: " ++
       s!"{rodinAuto} automatically, {rodinManual} by hand.\n" ++

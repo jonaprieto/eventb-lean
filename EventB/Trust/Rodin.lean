@@ -6,6 +6,7 @@ import EventB.Xml
 namespace EventB.Trust.Rodin
 
 open EventB
+open EventB.Typing
 
 structure Status where
   name : String
@@ -16,7 +17,7 @@ structure Status where
 def Status.discharged (status : Status) : Bool := status.confidence > 0
 
 structure Provenance where
-  model : String
+  models : List ModelArtifact
   bpo : String
   statuses : String
   deriving BEq, Repr, Inhabited
@@ -104,7 +105,7 @@ private def duplicateKeys (seen : List String) : List String → List String
       else duplicateKeys (key :: seen) rest
 
 def provenanceDigest (provenance : Provenance) : String :=
-  Trust.provenanceFingerprint provenance.model provenance.bpo provenance.statuses
+  Trust.provenanceFingerprintOf provenance.models provenance.bpo provenance.statuses
 
 def compare (obligations : List POG.Obligation) (statuses : List Status) : Comparison :=
   let eligible := obligations.filter fun obligation =>
@@ -131,7 +132,7 @@ def compare (obligations : List POG.Obligation) (statuses : List Status) : Compa
 private def attachVerified (ledger : Ledger) (obligation : POG.Obligation)
     (provenance : Provenance) (manual : Bool) : Except EventB.Error Ledger := do
   ledger.validate
-  let evidence := .rodinImportedProvenance provenance.model provenance.bpo provenance.statuses
+  let evidence := .rodinImportedProvenance provenance.models provenance.bpo provenance.statuses
     (provenanceDigest provenance) manual
   if !obligation.diagnostics.isEmpty then
     .error (EventB.Error.trust "cannot attach Rodin evidence to an obligation with diagnostics")
@@ -160,7 +161,8 @@ private def attachVerified (ledger : Ledger) (obligation : POG.Obligation)
           { current with mode := .rodinImported, evidence := evidence }
         else current }
 
-private def rootModel (source : String) : Except EventB.Error (String × String) := do
+private def rootModel (artifact : ModelArtifact) : Except EventB.Error (String × String) := do
+  let source := artifact.byteString
   let root ← match parseXmlString source with
     | .ok root => pure root
     | .error error => .error (EventB.Error.trust
@@ -170,7 +172,30 @@ private def rootModel (source : String) : Except EventB.Error (String × String)
     throw (EventB.Error.trust s!"unsupported Rodin model root `{root.tag}`")
   match root.attr? "org.eventb.core.name" with
   | some name => pure (name, root.tag)
-  | none => .error (EventB.Error.trust "model XML has no component name")
+  | none => pure (artifact.component, root.tag)
+
+private def parseModelProject (provenance : Provenance) : Except EventB.Error Project := do
+  match projectFromArtifacts provenance.models with
+  | .ok project => pure project
+  | .error error => .error error
+
+private def generatedModelObligation (theory : Theory.Env) (obligation : POG.Obligation)
+    (provenance : Provenance) : Except EventB.Error Unit := do
+  let project ← parseModelProject provenance
+  let generated ← match POG.generateCheckedIn theory project obligation.component with
+    | .ok obligations => pure obligations
+    | .error error => .error (EventB.Error.trust
+        s!"model-derived POG rejected `{obligation.component}`: {error.message}")
+  let candidates := generated.filter (fun candidate => candidate.name == obligation.name)
+  match candidates with
+  | [candidate] =>
+      unless candidate.canonical == obligation.canonical && candidate.diagnostics.isEmpty do
+        throw (EventB.Error.trust
+          "model-derived POG does not match the supplied obligation")
+  | [] => .error (EventB.Error.trust
+      s!"model-derived POG has no obligation `{obligation.name}`")
+  | _ => .error (EventB.Error.trust
+      s!"model-derived POG has duplicate obligation `{obligation.name}`")
 
 private partial def findPoSequent (elem : XmlElem) (name : String) : Option XmlElem :=
   if elem.tag == "org.eventb.core.poSequent" && elem.attr? "name" == some name then
@@ -362,16 +387,22 @@ private def validateGoal (obligation : POG.Obligation) (bpo : XmlElem) :
     throw (EventB.Error.trust
       "Rodin goal does not match the canonical obligation statement")
 
-def validateProvenance (obligation : POG.Obligation) (provenance : Provenance)
+def validateProvenanceIn (theory : Theory.Env) (obligation : POG.Obligation)
+    (provenance : Provenance)
     (status : Status) : Except EventB.Error Unit := do
-  let (modelName, modelTag) ← rootModel provenance.model
+  let target ← match provenance.models with
+    | target :: _ => pure target
+    | [] => .error (EventB.Error.trust "Rodin provenance has no model artifacts")
+  let (modelName, modelTag) ← rootModel target
   unless modelName == obligation.component do
     throw (EventB.Error.trust s!
       "Rodin model provenance names `{modelName}`, expected `{obligation.component}`")
-  let model ← match parseXmlString provenance.model with
+  generatedModelObligation theory obligation provenance
+  let modelSource := target.byteString
+  let model ← match parseXmlString modelSource with
     | .ok root => pure root
     | .error error => .error (EventB.Error.trust
-        s!"invalid model XML: {error.pretty provenance.model.toUTF8}")
+        s!"invalid model XML: {error.pretty target.bytes}")
   unless modelBindsObligation model obligation do
     throw (EventB.Error.trust
       "Rodin model does not contain the obligation's source label")
@@ -406,10 +437,18 @@ def validateProvenance (obligation : POG.Obligation) (provenance : Provenance)
         .error (EventB.Error.trust s!"proof-status `{status.name}` is not discharged")
       else pure ()
 
-def attachProvenance (ledger : Ledger) (obligation : POG.Obligation)
+def validateProvenance (obligation : POG.Obligation) (provenance : Provenance)
+    (status : Status) : Except EventB.Error Unit :=
+  validateProvenanceIn Theory.empty obligation provenance status
+
+def attachProvenanceIn (theory : Theory.Env) (ledger : Ledger) (obligation : POG.Obligation)
     (provenance : Provenance) (status : Status) : Except EventB.Error Ledger := do
-  validateProvenance obligation provenance status
+  validateProvenanceIn theory obligation provenance status
   attachVerified ledger obligation provenance status.manual
+
+def attachProvenance (ledger : Ledger) (obligation : POG.Obligation)
+    (provenance : Provenance) (status : Status) : Except EventB.Error Ledger :=
+  attachProvenanceIn Theory.empty ledger obligation provenance status
 
 def attach (_ledger : Ledger) (_obligation : POG.Obligation) (_source : String)
     (_status : Status) : Except EventB.Error Ledger :=
@@ -417,39 +456,50 @@ def attach (_ledger : Ledger) (_obligation : POG.Obligation) (_source : String)
     "Rodin.attach requires model, PO, and proof-status provenance; use attachProvenance")
 
 private def sampleObligation : POG.Obligation :=
-  { component := "Sample", name := "evt/inv/INV", kind := "INV", goal := some (.id "⊤") }
+  { component := "Sample", name := "INITIALISATION/inv/INV", kind := "INV"
+    goal := some (.bin "∈" (.num 0) (.id "ℤ")) }
 
 private def sampleSource :=
   "<?xml version=\"1.0\"?><org.eventb.core.psFile><org.eventb.core.psStatus " ++
-    "name=\"evt/inv/INV\" " ++
+    "name=\"INITIALISATION/inv/INV\" " ++
     "org.eventb.core.confidence=\"1000\" org.eventb.core.psManual=\"true\"/>" ++
     "</org.eventb.core.psFile>"
 
-private def sampleProvenance : String → Provenance := fun statuses =>
-  { model := "<?xml version=\"1.0\"?><org.eventb.core.machineFile " ++
-      "org.eventb.core.name=\"Sample\"><org.eventb.core.invariant " ++
-      "org.eventb.core.label=\"inv\"/><org.eventb.core.event " ++
-      "org.eventb.core.label=\"evt\"/></org.eventb.core.machineFile>"
-    bpo := "<?xml version=\"1.0\"?>" ++
-      "<org.eventb.core.poFile source=\"Sample.bum\"><org.eventb.core.poSequent " ++
-      "name=\"evt/inv/INV\"><org.eventb.core.poPredicate " ++
-      "org.eventb.core.predicate=\"⊤\"/></org.eventb.core.poSequent></org.eventb.core.poFile>"
-    statuses }
+private def sampleModel : ModelArtifact :=
+  { component := "Sample"
+    kind := .machine
+    bytes := ("<?xml version=\"1.0\"?><org.eventb.core.machineFile " ++
+      "org.eventb.core.name=\"Sample\"><org.eventb.core.variable " ++
+      "org.eventb.core.identifier=\"x\"/><org.eventb.core.invariant " ++
+      "org.eventb.core.label=\"inv\" org.eventb.core.predicate=\"x ∈ ℤ\"/>" ++
+      "<org.eventb.core.event org.eventb.core.label=\"INITIALISATION\"><org.eventb.core.action " ++
+      "org.eventb.core.label=\"set\" org.eventb.core.assignment=\"x ≔ 0\"/>" ++
+      "</org.eventb.core.event></org.eventb.core.machineFile>").toUTF8 }
 
-#guard match parseXmlString ((sampleProvenance sampleSource).model.replace
+private def sampleBpo :=
+  "<?xml version=\"1.0\"?><org.eventb.core.poFile " ++
+    "source=\"Sample.bum\"><org.eventb.core.poSequent " ++
+    "name=\"INITIALISATION/inv/INV\"><org.eventb.core.poPredicate " ++
+    "org.eventb.core.predicate=\"(0 ∈ ℤ)\"/></org.eventb.core.poSequent></org.eventb.core.poFile>"
+
+private def sampleProvenance : String → Provenance := fun statuses =>
+  { models := [sampleModel], bpo := sampleBpo, statuses := statuses }
+
+#guard match parseXmlString ((sampleProvenance sampleSource).models.head!.byteString.replace
     "</org.eventb.core.machineFile>"
     ("<org.eventb.core.variant org.eventb.core.expression=\"v\"/>" ++
       "</org.eventb.core.machineFile>")) with
   | .ok model =>
       !modelBindsObligation model
-        { sampleObligation with name := "evt/VWD", kind := "VWD" }
+        { sampleObligation with name := "INITIALISATION/VWD", kind := "VWD" }
   | .error _ => false
 
 #guard match importStatuses sampleSource with
   | .ok [status] => status.name == sampleObligation.name && status.discharged && status.manual
   | _ => false
 
-#guard match importStatuses (sampleSource.replace "name=\"evt/inv/INV\"" "name=\"\"" ) with
+#guard match importStatuses (sampleSource.replace
+    "name=\"INITIALISATION/inv/INV\"" "name=\"\"" ) with
   | .error _ => true
   | .ok _ => false
 
@@ -460,7 +510,7 @@ private def sampleProvenance : String → Provenance := fun statuses =>
 
 #guard match importStatuses (sampleSource.replace
     "</org.eventb.core.psFile>" ("<org.eventb.core.psStatus " ++
-      "name=\"evt/inv/INV\" org.eventb.core.confidence=\"1000\" " ++
+      "name=\"INITIALISATION/inv/INV\" org.eventb.core.confidence=\"1000\" " ++
       "org.eventb.core.psManual=\"true\"/></org.eventb.core.psFile>")) with
   | .error _ => true
   | .ok _ => false
@@ -524,8 +574,8 @@ private def sampleProvenance : String → Provenance := fun statuses =>
         match ledger.entries.head? with
         | some entry =>
             match entry.evidence with
-            | .rodinImportedProvenance model bpo statuses digest manual =>
-                manual && digest == provenanceDigest { model, bpo, statuses }
+            | .rodinImportedProvenance models bpo statuses digest manual =>
+                manual && digest == provenanceDigest { models, bpo, statuses }
             | _ => false
         | none => false
     | .error _ => false
@@ -533,9 +583,33 @@ private def sampleProvenance : String → Provenance := fun statuses =>
 
 #guard match importStatuses sampleSource with
   | .ok [status] =>
+      let noXmlName := { sampleProvenance sampleSource with
+        models := [{ sampleModel with
+          bytes := sampleModel.byteString.replace
+            "org.eventb.core.name=\"Sample\"" "" |>.toUTF8 }] }
+      match attachProvenance (Ledger.ofObligations [sampleObligation])
+          sampleObligation noXmlName status with
+      | .ok _ => true
+      | .error _ => false
+  | _ => false
+
+#guard match importStatuses sampleSource with
+  | .ok [status] =>
+      let changedAction := { sampleProvenance sampleSource with
+        models := [{ sampleModel with
+          bytes := sampleModel.byteString.replace "x ≔ 0" "x ≔ 1" |>.toUTF8 }] }
+      match attachProvenance (Ledger.ofObligations [sampleObligation])
+          sampleObligation changedAction status with
+      | .error _ => true
+      | .ok _ => false
+  | _ => false
+
+#guard match importStatuses sampleSource with
+  | .ok [status] =>
       let badModel := { sampleProvenance sampleSource with
-        model := (sampleProvenance sampleSource).model.replace
-          "org.eventb.core.machineFile" "org.eventb.core.fakeFile" }
+        models := [{ sampleModel with
+          bytes := sampleModel.byteString.replace
+            "org.eventb.core.machineFile" "org.eventb.core.fakeFile" |>.toUTF8 }] }
       match attachProvenance (Ledger.ofObligations [sampleObligation])
           sampleObligation badModel status with
       | .error _ => true
@@ -545,10 +619,11 @@ private def sampleProvenance : String → Provenance := fun statuses =>
 #guard match importStatuses sampleSource with
   | .ok [status] =>
       let nestedLabel := { sampleProvenance sampleSource with
-        model := (sampleProvenance sampleSource).model.replace
-          "<org.eventb.core.invariant org.eventb.core.label=\"inv\"/>"
-          "<org.eventb.core.event org.eventb.core.label=\"other\"><org.eventb.core.invariant " ++
-            "org.eventb.core.label=\"inv\"/></org.eventb.core.event>" }
+        models := [{ sampleModel with
+          bytes := (sampleModel.byteString.replace
+            "<org.eventb.core.invariant org.eventb.core.label=\"inv\"/>"
+            "<org.eventb.core.event org.eventb.core.label=\"other\"><org.eventb.core.invariant " ++
+              "org.eventb.core.label=\"inv\"/></org.eventb.core.event>").toUTF8 }] }
       match attachProvenance (Ledger.ofObligations [sampleObligation])
           sampleObligation nestedLabel status with
       | .error _ => true
@@ -569,7 +644,8 @@ private def sampleProvenance : String → Provenance := fun statuses =>
 #guard match importStatuses sampleSource with
   | .ok [status] =>
       let badGoal := { sampleProvenance sampleSource with
-        bpo := (sampleProvenance sampleSource).bpo.replace "predicate=\"⊤\"" "predicate=\"⊥\"" }
+        bpo := (sampleProvenance sampleSource).bpo.replace
+          "predicate=\"(0 ∈ ℤ)\"" "predicate=\"⊥\"" }
       match attachProvenance (Ledger.ofObligations [sampleObligation])
           sampleObligation badGoal status with
       | .error _ => true
