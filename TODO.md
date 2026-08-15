@@ -79,8 +79,8 @@ evidence.
    formula families remain fail-closed rather than being assigned guessed semantics.
 6. Trust/provenance hardening — implemented for local and parsed Rodin paths; digest
    strength and external verifier execution remain explicit trust boundaries.
-7. Independent differential tests, release evidence, and adversarial review — active
-   until the final clean-checkout campaign passes.
+7. Independent differential tests, release evidence, and adversarial review — complete
+   for the supported path after the final clean-checkout campaign passed.
 
 Each slice requires a minimal positive model, a negative model, a Rodin-shaped
 comparison, a full build, and a fresh adversarial review before its checkbox is marked.
@@ -415,10 +415,11 @@ and the issue is closed with that same commit SHA in the closing comment.
   DSL, native theories, and the supported `.tuf` subset.
 - [x] #6 Define the production P3b and P4 release thresholds explicitly; do not use a
   larger percentage as a substitute for exact diagnostics or trustworthy evidence.
-- [ ] #7 Update README badges, `STATUS.md`, `notes/architecture.md`, and release notes
-  from the final measured commit before tagging.
-- [ ] #8 Tag the release only after every V4 checklist item is checked and the complete
-  verification command succeeds from a clean checkout.
+- [x] #7 Update README badges, `STATUS.md`, `notes/architecture.md`, and release notes
+  from the final measured commit before tagging; the release snapshot is `dc5dfc7`.
+- [x] #8 Tag the release only after every V4 checklist item is checked and the complete
+  verification command succeeds from a clean checkout; the clean snapshot passed before
+  release tagging.
 
 Production thresholds:
 

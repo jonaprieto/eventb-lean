@@ -10,8 +10,8 @@ The current acceptance run uses Lean `v4.33.0`, ProofWidgets `v0.0.108`, and
 `corpus/MANIFEST.tsv` SHA256
 `c76a5dca92f0ea32f8c1e20e9da4cb88006bd048cee78d9fd66d03a20e664c45`.
 The corpus itself remains pinned to the upstream commits recorded in the manifest.
-The release candidate is accepted only after the clean-checkout command matrix below
-passes; the current worktree is intentionally still under adversarial review.
+The v4.0.10 release candidate was accepted after the clean-checkout command matrix below
+passed against the final committed snapshot; the supported-path ceilings remain explicit.
 
 | Gate | Result | Interpretation |
 | --- | ---: | --- |
