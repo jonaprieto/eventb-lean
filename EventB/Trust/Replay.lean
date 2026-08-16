@@ -8,6 +8,7 @@ explicitly trusted metadata; it is never reported as kernel replay.
 -/
 
 import EventB.Trust
+import EventB.Trust.Rodin
 import EventB.Formula.Translate
 
 namespace EventB.Trust.Replay
@@ -51,6 +52,8 @@ def proofFingerprint (context : Embedding.KernelContext) (obligation : POG.Oblig
 private def proofTerm (declaration : String) : MetaM Expr := do
   let name := declarationName declaration
   let info ← getConstInfo name
+  if info.isUnsafe then
+    throwError s!"proof declaration `{declaration}` is unsafe"
   let proof ← mkConstWithLevelParams name
   let type ← inferType proof
   unless ← isDefEq type info.type do
@@ -87,6 +90,8 @@ private def axiomNames (initial : List Name) : MetaM NameSet := do
     if !seen.contains name then
       seen := seen.insert name
       let info ← getConstInfo name
+      if info.isUnsafe then
+        throwError s!"kernel evidence depends on unsafe declaration `{name}`"
       if info matches .axiomInfo _ then
         axioms := axioms.insert name
       pending := pending ++ (declarationDependencies info).toList
@@ -110,17 +115,26 @@ def validateTerm (context : Embedding.KernelContext)
     (obligation : POG.Obligation) (proof : Expr)
     (declaration : String := "<term>")
     (declaredAxioms : List String := []) : MetaM Report := do
+  unless obligation.diagnostics.isEmpty do
+    throwError s!"obligation `{obligation.name}` has diagnostics"
+  unless obligation.goal.isSome do
+    throwError s!"obligation `{obligation.name}` has no translated goal"
+  if proof.hasMVar then
+    throwError s!"kernel proof `{declaration}` contains unresolved metavariables"
   let expected ← translateStatement context obligation
   let proofType ← inferType proof
   unless ← isDefEq proofType expected do
     throwError s!"proof term does not prove `{obligation.name}`"
   let actualAxioms ← actualAxioms proof
+  unless !actualAxioms.contains "sorryAx" do
+    throwError s!"kernel proof `{declaration}` depends on forbidden axiom `sorryAx`"
   let declared := declaredAxioms.map fun name => (name.toName).toString false
   unless actualAxioms == declared.mergeSort (· < ·) do
     throwError s!"axiom metadata mismatch for `{declaration}`: declared " ++
       s!"[{String.intercalate ", " declared}], found " ++
       s!"[{String.intercalate ", " actualAxioms}]"
-  pure (Report.mk .kernel true declaration (proofFingerprint context obligation) actualAxioms)
+  let mode := if declaredAxioms.isEmpty then .kernel else .kernelAxiomatized
+  pure (Report.mk mode true declaration (proofFingerprint context obligation) actualAxioms)
 
 private def replayKernel (context : Embedding.KernelContext)
     (obligation : POG.Obligation) (evidence : Evidence) : MetaM Report := do
@@ -132,7 +146,33 @@ private def replayKernel (context : Embedding.KernelContext)
 def validate (context : Embedding.KernelContext) (obligation : POG.Obligation) :
     Evidence → MetaM Report
   | evidence@(.kernel ..) => replayKernel context obligation evidence
+  | .rodinImported .. =>
+      throwError "legacy status-only Rodin evidence is not trusted; attach model and PO provenance"
+  | evidence@(.rodinImportedProvenance models bpo statuses digest manual) => do
+      let provenance : Rodin.Provenance := { models, bpo, statuses }
+      unless digest == Rodin.provenanceDigest provenance do
+        throwError "Rodin provenance digest mismatch"
+      let parsed ← match Rodin.importStatuses statuses with
+        | .ok parsed => pure parsed
+        | .error error => throwError error.message
+      match parsed.find? (fun status => status.name == obligation.name) with
+      | none => throwError s!"Rodin evidence artifact has no status for `{obligation.name}`"
+      | some status =>
+          match Rodin.validateProvenanceIn context.theory obligation provenance status with
+          | .ok _ => pure ()
+          | .error error => throwError error.message
+          unless status.manual == manual do
+            throwError s!"Rodin evidence manual flag mismatch for `{obligation.name}`"
+      unless obligation.diagnostics.isEmpty do
+        throwError s!"obligation `{obligation.name}` has diagnostics"
+      unless obligation.goal.isSome do
+        throwError s!"obligation `{obligation.name}` has no translated goal"
+      pure { mode := evidence.mode, fingerprint := proofFingerprint context obligation }
   | evidence => do
+      unless obligation.diagnostics.isEmpty do
+        throwError s!"obligation `{obligation.name}` has diagnostics"
+      unless obligation.goal.isSome do
+        throwError s!"obligation `{obligation.name}` has no translated goal"
       unless evidence.isWellFormed do
         throwError "evidence metadata is incomplete"
       pure { mode := evidence.mode, fingerprint := proofFingerprint context obligation }
@@ -143,8 +183,13 @@ def validateEntry (context : Embedding.KernelContext) (obligation : POG.Obligati
     throwError s!"evidence entry does not identify `{obligation.component}:{obligation.name}`"
   unless entry.fingerprint == Trust.fingerprint obligation.canonical do
     throwError s!"evidence fingerprint mismatch for `{obligation.component}:{obligation.name}`"
+  unless entry.canonical == obligation.canonical do
+    throwError s!"evidence canonical mismatch for `{obligation.component}:{obligation.name}`"
   unless entry.mode == entry.evidence.mode do
     throwError s!"evidence mode mismatch for `{obligation.component}:{obligation.name}`"
+  if entry.mode == .kernel || entry.mode == .kernelAxiomatized then
+    unless entry.semanticFingerprint == proofFingerprint context obligation do
+      throwError s!"kernel evidence context mismatch for `{obligation.component}:{obligation.name}`"
   validate context obligation entry.evidence
 
 #guard ({ mode := .kernel, replayed := true, declaration := "proof" } : Report).replayed
@@ -159,6 +204,8 @@ theorem propextTrue : True := by
   exact Eq.mp h True.intro
 
 def testInt : Int := 0
+
+unsafe def unsafeTrue : True := True.intro
 
 theorem reflexive (value : Int) : value = value := rfl
 
@@ -201,9 +248,20 @@ private meta def checkReplay : TermElabM Unit := do
   unless !(← succeeds (validate context replayObligation
       (.kernel "EventB.Trust.Replay.missing" []))) do
     throwError "unresolved proof declaration was accepted"
+  unless !(← succeeds (validate context replayObligation
+      (.kernel "EventB.Trust.Replay.TestFixtures.unsafeTrue" []))) do
+    throwError "unsafe proof declaration was accepted"
+  let target ← translateStatement context replayObligation
+  let openProof ← mkFreshExprMVar target
+  unless !(← succeeds (validateTerm context replayObligation openProof)) do
+    throwError "open metavariable proof was accepted"
   unless ← succeeds (validate context replayObligation
       (.kernel "EventB.Trust.Replay.TestFixtures.propextTrue" ["propext"])) do
     throwError "actual axiom metadata did not replay"
+  let axiomatized ← validate context replayObligation
+    (.kernel "EventB.Trust.Replay.TestFixtures.propextTrue" ["propext"])
+  unless axiomatized.mode == .kernelAxiomatized && axiomatized.replayed do
+    throwError "axiomatized kernel evidence was not labelled explicitly"
   let trusted := validate context replayObligation
     (.smt "z3" "4" "sha256:input" "checker")
   let report ← trusted
@@ -213,19 +271,33 @@ private meta def checkReplay : TermElabM Unit := do
     (.external "alt-ergo" "2" "sha256:po" "eventb-checker")
   unless external.mode == .external && !external.replayed do
     throwError "external evidence was reported as replayed"
-  let rodin ← validate context replayObligation
-    (.rodinImported "model.bps" "sha256:status" true)
-  unless rodin.mode == .rodinImported && !rodin.replayed do
-    throwError "Rodin evidence was reported as replayed"
+  let rodinSource := "<?xml version=\"1.0\"?><org.eventb.core.psFile><org.eventb.core.psStatus " ++
+    "name=\"true/THM\" org.eventb.core.confidence=\"1000\" " ++
+    "org.eventb.core.psManual=\"true\"/></org.eventb.core.psFile>"
+  unless !(← succeeds (validate context replayObligation
+      (.rodinImported rodinSource (Trust.fingerprint rodinSource) true))) do
+    throwError "legacy status-only Rodin evidence was accepted"
+  unless !(← succeeds (validate context replayObligation
+      (.rodinImported rodinSource (Trust.fingerprint rodinSource) false))) do
+    throwError "Rodin manual flag mismatch was accepted"
+  unless !(← succeeds (validate context replayObligation
+      (.rodinImported rodinSource "forged" true))) do
+    throwError "forged Rodin artifact digest was accepted"
   let entry : Entry :=
     { component := replayObligation.component
       obligation := replayObligation.name
       fingerprint := Trust.fingerprint replayObligation.canonical
+      canonical := replayObligation.canonical
+      semanticFingerprint := proofFingerprint context replayObligation
       mode := .kernel
       evidence := evidence }
   let entryReport ← validateEntry context replayObligation entry
   unless entryReport.replayed do
     throwError "valid ledger evidence did not replay"
+  unless !(← succeeds (validateEntry
+      { bindings := [{ name := "different", ty := .int, value := mkConst ``TestFixtures.testInt }] }
+      replayObligation entry)) do
+    throwError "kernel evidence accepted a different semantic context"
   unless !(← succeeds (validateEntry context
       { replayObligation with goal := some (.id "⊥") } entry)) do
     throwError "stale ledger evidence was accepted"
@@ -235,6 +307,10 @@ private meta def checkReplay : TermElabM Unit := do
   unless !(← succeeds (validate context replayObligation
       (.external "" "1" "digest" "checker"))) do
     throwError "incomplete external metadata was accepted"
+  unless !(← succeeds (validate context
+      { replayObligation with goal := none }
+      (.external "checker" "1" "digest" "verifier"))) do
+    throwError "statement-less external evidence was accepted"
   unless !(← succeeds (validate context replayObligation
       (.rodinImported "" "digest" false))) do
     throwError "incomplete Rodin metadata was accepted"

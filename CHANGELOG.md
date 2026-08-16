@@ -1,5 +1,23 @@
 # Changelog
 
+## 4.0.10 — 2026-08-15
+
+- Re-derive strict POG obligations from the complete Rodin model-artifact closure,
+  including theory environments, before accepting imported status evidence.
+- Label declared external/SMT metadata, structurally checked Rodin imports, and
+  axiom-bearing kernel replay separately from unproved obligations.
+- Add compositional invariant and refinement contracts for event-local simulation and
+  pre-state parallel assignment semantics.
+- Add explicit frame, gluing, merged-event, witness, variant, and translated-sequent
+  semantic contracts with positive and negative kernel-checked fixtures.
+- Extend the bounded typed evaluator with finite relation application, image,
+  domain/range restriction/subtraction, and override, with malformed and
+  duplicate-function cases failing closed.
+- Add source-bound parameterized enabled-event semantics, finite witness-domain
+  completeness, and well-founded variant contracts with focused positive and negative
+  fixtures; retain explicit fail-closed boundaries for unbounded binders and arbitrary
+  formula interpretation.
+
 ## 4.0.9 — 2026-08-13
 
 - Pin every first-party dependency to its newest released tag.

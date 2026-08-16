@@ -165,10 +165,30 @@ private def dedupFirst : List (String × String) → List (String × String) →
       if acc.any (fun p => p.1 == n) then dedupFirst rest acc
       else dedupFirst rest ((n, t) :: acc)
 
+private def duplicateStrings (seen : List String) : List String → List String
+  | [] => []
+  | name :: rest =>
+      if seen.contains name then name :: duplicateStrings seen rest
+      else duplicateStrings (name :: seen) rest
+
+private def conflictingIdentifiers (seen : List (String × String)) :
+    List (String × String) → List String
+  | [] => []
+  | (name, type) :: rest =>
+      let conflicts := match seen.find? (fun pair => pair.1 == name) with
+        | some (_, previous) => if previous == type then [] else [name]
+        | none => []
+      conflicts ++ conflictingIdentifiers ((name, type) :: seen) rest
+
 private def readGoldTypes (path : System.FilePath) : IO (List (String × String)) := do
   match parseXml (← IO.FS.readBinFile path) with
-  | .error _ => return []
-  | .ok xml => return dedupFirst (rawIdentifiers xml) []
+  | .error _ => throw (IO.userError s!"cannot parse Rodin type oracle {path}")
+  | .ok xml =>
+      let identifiers := rawIdentifiers xml
+      let conflicts := conflictingIdentifiers [] identifiers
+      if !conflicts.isEmpty then
+        throw (IO.userError s!"conflicting Rodin type identifier(s): {conflicts}")
+      return dedupFirst identifiers []
 
 private structure TypeResult where
   key    : String
@@ -188,12 +208,15 @@ private def checkTypes (project : Project) (file : String)
   | .error e =>
       gold.map (fun (n, _) =>
         { key := file ++ "\t" ++ n, status := "FAIL:" ++ EventB.Error.render e })
-  | .ok (env, _) =>
+  | .ok (env, errors) =>
       gold.map fun (n, g) =>
         let key := file ++ "\t" ++ n
-        match env.find? (fun p => p.1 == n) with
-        | none => { key := key, status := "FAIL:not inferred" }
-        | some (_, t) => compareType key t.print g
+        match errors.head? with
+        | some error => { key := key, status := "FAIL:typing " ++ error }
+        | none =>
+            match env.find? (fun p => p.1 == n) with
+            | none => { key := key, status := "FAIL:not inferred" }
+            | some (_, t) => compareType key t.print g
 
 private def typeHistogram (results : List TypeResult) : List (String × Nat) :=
   (results.foldl
@@ -212,6 +235,7 @@ private def sequentCount : Nat := 1133
 a human. That is the P4 bar, and the number any prover backend is measured against. -/
 private def rodinAuto : Nat := 1088
 private def rodinManual : Nat := 45
+private def p4Minimum : Nat := 73
 
 mutual
 
@@ -231,8 +255,13 @@ end
 
 private def readGoldPOs (path : System.FilePath) : IO (List String) := do
   match parseXml (← IO.FS.readBinFile path) with
-  | .error _ => return []
-  | .ok xml => return poNames xml
+  | .error _ => throw (IO.userError s!"cannot parse Rodin PO oracle {path}")
+  | .ok xml =>
+      let names := poNames xml
+      let duplicates := duplicateStrings [] names
+      if !duplicates.isEmpty then
+        throw (IO.userError s!"duplicate Rodin PO name(s): {duplicates}")
+      return names
 
 private structure PoResult where
   key    : String
@@ -243,13 +272,15 @@ from "we invented it". -/
 private def checkPOs (project : Project) (file : String) (gold : List String) :
     List PoResult :=
   let ours := (generate project file).map (·.name)
+  let duplicateOurs := duplicateStrings [] ours
+    |>.map fun n => { key := file ++ "\t" ++ n, status := "FAIL:duplicate generated PO name" }
   let missing := gold.filter (fun n => !ours.contains n)
     |>.map fun n => { key := file ++ "\t" ++ n, status := "FAIL:not generated" }
   let spurious := ours.filter (fun n => !gold.contains n)
     |>.map fun n => { key := file ++ "\t" ++ n, status := "FAIL:not in .bpo" }
   let matched := gold.filter (fun n => ours.contains n)
     |>.map fun n => { key := file ++ "\t" ++ n, status := "PASS" }
-  matched ++ missing ++ spurious
+  duplicateOurs ++ matched ++ missing ++ spurious
 
 private def poHistogram (results : List PoResult) : List (String × Nat) :=
   (results.foldl
@@ -300,6 +331,33 @@ where
       | none => acc
       | some (_, parent, preds) => go fuel parent (preds ++ acc)
 
+private def predicateSetErrors
+    (sets : List (String × Option String × List String)) : List String :=
+  let names := sets.map (·.1)
+  -- Names such as SEQHYP are intentionally local to a sequent. Only duplicate
+  -- top-level names are globally ambiguous in this flattened representation.
+  let rootNames := sets.filterMap fun (name, parent, _) =>
+    if parent.isNone then some name else none
+  let duplicateNames := duplicateStrings [] rootNames
+  let missingParents := sets.filterMap fun (_, parent, _) =>
+    match parent with
+    | some name => if names.contains name then none else some name
+    | none => none
+  let rec cycleError : Nat → List String → Option String → Option String
+    | 0, _, some name => some s!"predicate-set parent chain exceeds bound at `{name}`"
+    | _, _, none => none
+    | fuel + 1, seen, some name =>
+        if seen.contains name then some s!"cycle in predicate-set parent chain at `{name}`"
+        else
+          match sets.find? (fun set => set.1 == name) with
+          | none => some s!"missing predicate-set `{name}`"
+          | some (_, parent, _) => cycleError fuel (name :: seen) parent
+  let cycleErrors := sets.filterMap fun (name, _, _) =>
+    cycleError (sets.length + 1) [] (some name)
+  duplicateNames.map (fun name => s!"duplicate top-level predicate-set `{name}`") ++
+    missingParents.map (fun name => s!"missing predicate-set `{name}`") ++
+    cycleErrors
+
 -- partiality: this is the corresponding test-only XML walk for predicate-set inheritance.
 private partial def goldHyps (e : XmlElem)
     (sets : List (String × Option String × List String)) : List (String × List String) :=
@@ -310,7 +368,11 @@ private partial def goldHyps (e : XmlElem)
         let inner := e.children.find? (fun c => c.tag == "org.eventb.core.poPredicateSet")
         let parent := inner.bind (fun i =>
           (i.attr? "org.eventb.core.parentSet").map refName)
-        [(n, chainHyps sets parent)]
+        let direct := if n.endsWith "/WWD" then
+          e.children.filter (fun c => c.tag == "org.eventb.core.poPredicate")
+            |>.filterMap (fun c => c.attr? "org.eventb.core.predicate")
+        else []
+        [(n, chainHyps sets parent ++ direct)]
       | none => []
     else []
   e.children.foldl (fun acc c => acc ++ goldHyps c sets) here
@@ -338,10 +400,34 @@ private partial def goldGoals (e : XmlElem) : List (String × String) :=
     else []
   e.children.foldl (fun acc c => acc ++ goldGoals c) here
 
+private partial def goalShapeErrors (e : XmlElem) : List String :=
+  let here :=
+    if e.tag == "org.eventb.core.poSequent" then
+      match e.attr? "name" with
+      | none => ["proof sequent has no name"]
+      | some name =>
+          let direct := e.children.filter (fun c => c.tag == "org.eventb.core.poPredicate")
+          if name.endsWith "/WWD" then
+            if direct.length == 1 then [] else
+              [s!"WWD `{name}` has {direct.length} direct predicates"]
+          else if name.endsWith "/WFIS" then []
+          else if direct.length == 1 then []
+          else [s!"sequent `{name}` has {direct.length} goal predicates"]
+    else []
+  here ++ e.children.flatMap goalShapeErrors
+
 private def readGoldGoals (path : System.FilePath) : IO (List (String × String)) := do
   match parseXml (← IO.FS.readBinFile path) with
-  | .error _ => return []
-  | .ok xml => return goldGoals xml
+  | .error _ => throw (IO.userError s!"cannot parse Rodin goal oracle {path}")
+  | .ok xml =>
+      let errors := goalShapeErrors xml
+      if !errors.isEmpty then
+        throw (IO.userError s!"invalid Rodin goal shape: {String.intercalate "; " errors}")
+      let goals := goldGoals xml
+      let duplicates := duplicateStrings [] (goals.map (·.1))
+      if !duplicates.isEmpty then
+        throw (IO.userError s!"duplicate Rodin goal name(s): {duplicates}")
+      return goals
 
 /-- Ascriptions carry no logical content, so a generator has no reason to reproduce
 them. Nothing else is normalised: the gate's job is to notice a difference, and a
@@ -350,6 +436,24 @@ private def comparable (t : Term) : Term := Formula.stripAscriptions t
 
 private def equivalent (left right : Term) : Bool :=
   Formula.alphaEq (comparable left) (comparable right)
+
+private def removeEquivalent (target : Term) : List Term → Option (List Term)
+  | [] => none
+  | term :: rest =>
+      if equivalent target term then some rest
+      else (removeEquivalent target rest).map (fun remaining => term :: remaining)
+
+private def multisetEqual : List Term → List Term → Bool
+  | [], [] => true
+  | [], _ :: _ => false
+  | _ :: _, [] => false
+  | term :: rest, other =>
+      match removeEquivalent term other with
+      | none => false
+      | some remaining => multisetEqual rest remaining
+
+private def hypothesesMatch (ours wanted : List Term) : Bool :=
+  multisetEqual (ours.map comparable) (wanted.map comparable)
 
 private structure GoalResult where
   key    : String
@@ -365,7 +469,7 @@ private structure CoverageResult where
 
 private def coverageReasonFor (hasName hasGoal derived goalOK hypsOK : Bool) : String :=
   if !hasName then "no-sequent"
-  else if !derived then "matched"
+  else if !derived then "not-derived"
   else if !hasGoal then "no-sequent"
   else if !goalOK then "goal-differs"
   else if !hypsOK then "hypotheses-differ"
@@ -397,7 +501,7 @@ private def omittedInvariant (project : Project) (file name : String) : Bool :=
 
 private def coverageDiagnostic (project : Project) (file : String)
     (obligation : Obligation) (reason : String) : String :=
-  if reason != "no-sequent" then "none"
+  if reason != "no-sequent" && reason != "not-derived" then "none"
   else if obligation.kind == "INV" && omittedInvariant project file obligation.name then
     "pinned-bpo-omits-plain-type-invariant"
   else
@@ -425,11 +529,9 @@ private def hypothesesAgree (obligation : Obligation)
   match gold.find? (fun p => p.1 == obligation.name) with
   | none => false
   | some (_, wanted) =>
-      let want := wanted.filterMap (fun text => (Formula.parse text).toOption.map comparable)
-      let ours := obligation.hyps.map comparable
-      let missing := want.filter (fun w => !ours.any (equivalent w ·))
-      let extra := ours.filter (fun h => !want.any (equivalent h ·))
-      missing.isEmpty && extra.isEmpty
+      match wanted.mapM (fun text => (Formula.parse text).map comparable) with
+      | .error _ => false
+      | .ok want => hypothesesMatch obligation.hyps want
 
 private def coverage (project : Project) (file : String) (names : List String)
     (goals : List (String × String)) (hyps : List (String × List String)) :
@@ -440,13 +542,15 @@ private def coverage (project : Project) (file : String) (names : List String)
     let derived := obligation.goal.isSome
     let goalOK := goalAgrees obligation goals
     let hypsOK := hypothesesAgree obligation hyps
+    let reason := if obligation.kind == "WWD" && !derived then
+        if hypsOK then "matched" else "hypotheses-differ"
+      else coverageReasonFor hasName hasGoal derived goalOK hypsOK
     { component := file
       kind := obligation.kind
       name := obligation.name
       derivation := if derived then "derived" else "not-derived"
-      reason := coverageReasonFor hasName hasGoal derived goalOK hypsOK
-      diagnostic := coverageDiagnostic project file obligation
-        (coverageReasonFor hasName hasGoal derived goalOK hypsOK) }
+      reason := reason
+      diagnostic := coverageDiagnostic project file obligation reason }
 
 private def coverageLine (record : CoverageResult) : String :=
   String.intercalate "\t"
@@ -471,13 +575,15 @@ private def compatibilityDiagnosticNames : List String :=
    "pinned-bpo-omits-witness-feasibility-sequent"]
 
 private def isKnownCompatibilityRecord (record : CoverageResult) : Bool :=
-  record.reason == "no-sequent" && compatibilityDiagnosticNames.contains record.diagnostic
+  (record.reason == "no-sequent" || record.reason == "not-derived") &&
+    compatibilityDiagnosticNames.contains record.diagnostic
 
 private def compatibilityRecords (records : List CoverageResult) : List CoverageResult :=
-  records.filter (fun record => record.reason == "no-sequent")
+  records.filter isKnownCompatibilityRecord
 
 #guard coverageReasonFor true true true false true == "goal-differs"
 #guard coverageReasonFor true true true true false == "hypotheses-differ"
+#guard coverageReasonFor true true false true true == "not-derived"
 #guard compatibilityDiagnosticNames.contains "pinned-bpo-omits-definedness-sequent"
 #guard !compatibilityDiagnosticNames.contains "pinned-bpo-omits-sequent"
 
@@ -507,8 +613,17 @@ private def checkGoals (project : Project) (file : String)
 
 private def readGoldHyps (path : System.FilePath) : IO (List (String × List String)) := do
   match parseXml (← IO.FS.readBinFile path) with
-  | .error _ => return []
-  | .ok xml => return goldHyps xml (predicateSets xml)
+  | .error _ => throw (IO.userError s!"cannot parse Rodin hypothesis oracle {path}")
+  | .ok xml =>
+      let sets := predicateSets xml
+      let errors := predicateSetErrors sets
+      if !errors.isEmpty then
+        throw (IO.userError s!"invalid Rodin predicate-set graph: {String.intercalate "; " errors}")
+      let hypotheses := goldHyps xml sets
+      let duplicates := duplicateStrings [] (hypotheses.map (·.1))
+      if !duplicates.isEmpty then
+        throw (IO.userError s!"duplicate Rodin hypothesis name(s): {duplicates}")
+      return hypotheses
 
 /-- Hypotheses are scored as sets: Rodin's order is an artefact of how it walks the
 predicate-set chain, and a generator that produces the same assumptions in a different
@@ -525,13 +640,27 @@ private def checkHyps (project : Project) (file : String)
         if o.kind == "WFIS" then none
         else some { key := key, status := "FAIL:no such sequent in .bpo" }
     | some (_, gs) =>
-      let want := gs.filterMap (fun t => (Formula.parse t).toOption.map comparable)
-      let ours := o.hyps.map comparable
-      let missing := want.filter (fun w => !ours.any (equivalent w ·))
-      let extra := ours.filter (fun h => !want.any (equivalent h ·))
-      if missing.isEmpty && extra.isEmpty then some { key := key, status := "PASS" }
-      else some { key := key,
-                  status := s!"FAIL:missing {missing.length} extra {extra.length}" }
+      match gs.mapM (fun t => (Formula.parse t).map comparable) with
+      | .error _ => some { key := key, status := "FAIL:gold hypothesis unparsable" }
+      | .ok want =>
+          if hypothesesMatch o.hyps want then some { key := key, status := "PASS" }
+          else some { key := key,
+                      status := "FAIL:hypothesis multiset differs" }
+
+private def checkWWD (project : Project) (file : String)
+    (gold : List (String × List String)) : List GoalResult :=
+  (generate project file).filterMap fun o =>
+    if o.kind != "WWD" then none
+    else
+      let key := file ++ "\t" ++ o.name
+      match gold.find? (fun p => p.1 == o.name) with
+      | none => some { key := key, status := "FAIL:no such sequent in .bpo" }
+      | some (_, gs) =>
+          match gs.mapM (fun t => (Formula.parse t).map comparable) with
+          | .error _ => some { key := key, status := "FAIL:gold hypothesis unparsable" }
+          | .ok want =>
+              if hypothesesMatch o.hyps want then some { key := key, status := "PASS" }
+              else some { key := key, status := "FAIL:hypothesis multiset differs" }
 
 private structure P4Result where
   obligation : Obligation
@@ -576,8 +705,30 @@ private def p4Histogram (results : List P4Result) : List (String × Nat) :=
       | none => "no-goal") counts) []).mergeSort (fun left right =>
       if left.2 == right.2 then left.1 < right.1 else right.2 < left.2)
 
+private def p4BaselineLine (result : P4Result) : String :=
+  let rule := result.result.rule.map Rule.label |>.getD "unproved"
+  String.intercalate "\t"
+    [result.obligation.component, result.obligation.name,
+     Trust.fingerprint result.obligation.canonical,
+     result.result.evidence.mode.label, rule]
+
 private def nonemptyLines (source : String) : List String :=
   source.splitOn "\n" |>.filter (fun line => !line.isEmpty)
+
+private def removeExact (target : String) : List String → Option (List String)
+  | [] => none
+  | line :: rest => if line == target then some rest
+    else removeExact target rest |>.map (fun remaining => line :: remaining)
+
+private def multisetSubset : List String → List String → Bool
+  | [], _ => true
+  | line :: rest, actual =>
+      match removeExact line actual with
+      | none => false
+      | some remaining => multisetSubset rest remaining
+
+#guard multisetSubset ["a", "a"] ["a"] == false
+#guard multisetSubset ["a", "b"] ["b", "a", "c"]
 
 private def baselineDiff (baseline actual : List String) : IO Bool := do
   if baseline == actual then
@@ -596,7 +747,8 @@ private def writeBaseline (path : String) (lines : List String) : IO Unit := do
   IO.FS.writeFile path (String.intercalate "\n" lines ++ "\n")
 
 private def writeStatus (results : List FileResult) (formulas : List FormulaResult)
-    (types : List TypeResult) (pos : List PoResult) (goals hyps : List GoalResult)
+    (types : List TypeResult) (pos : List PoResult)
+    (goals hyps wwd : List GoalResult)
     (compatibilityCount : Nat) (p4 : List P4Result) (inventory : List (String × Nat)) :
     IO Unit := do
   let passed := results.countP (fun result => result.status == "PASS")
@@ -605,6 +757,7 @@ private def writeStatus (results : List FileResult) (formulas : List FormulaResu
   let ppass := pos.countP (fun result => result.status == "PASS")
   let gpass := goals.countP (fun result => result.status == "PASS")
   let hpass := hyps.countP (fun result => result.status == "PASS")
+  let wpass := wwd.countP (fun result => result.status == "PASS")
   let p4pass := p4.countP (·.accepted)
   let counts := inventory.map (fun (name, count) => s!"| {name} | {count} |")
   IO.FS.writeFile "STATUS.md"
@@ -620,15 +773,17 @@ private def writeStatus (results : List FileResult) (formulas : List FormulaResu
         s!" {sequentCount} |\n" ++
       s!"| P3b statements | goals derived | {gpass}/{goals.length} | tracked |\n" ++
       s!"| P3b hypotheses | hypotheses derived | {hpass}/{hyps.length} | tracked |\n" ++
+      s!"| P3b WWD | {wpass}/{wwd.length} hypotheses | tracked |\n" ++
       s!"| P3b compatibility | pinned omissions | {compatibilityCount} | tracked |\n" ++
       s!"| P4 provers | local evidence vs Rodin `.bps` | {p4pass}/{p4.length} |" ++
-        " measured evidence baseline |\n" ++
+        s!" ratchet ≥ {p4Minimum} accepted |\n" ++
       "\n## Trust ledger\n\nThe artifact Rodin cannot produce: for each obligation, " ++
       "what is actually holding it\nup. This status includes only evidence accepted " ++
       "through the local ledger; it is not kernel proof.\n\n" ++
       "| status | count |\n| --- | --- |\n" ++
-      s!"| kernel-checked | 0 |\n| smt-trusted | 0 |\n" ++
-      s!"| rodin-imported | 0 |\n| external-trusted | {p4pass} |\n" ++
+      s!"| kernel-checked | 0 |\n| kernel-checked-with-axioms | 0 |\n" ++
+      s!"| smt-declared | 0 |\n| rodin-structurally-checked | 0 |\n" ++
+      s!"| external-declared | {p4pass} |\n" ++
       s!"| unproved | {p4.length - p4pass} |\n\n" ++
       s!"Rodin discharged all {rodinAuto + rodinManual} of its obligations: " ++
       s!"{rodinAuto} automatically, {rodinManual} by hand.\n" ++
@@ -638,6 +793,11 @@ private def writeStatus (results : List FileResult) (formulas : List FormulaResu
       String.intercalate "\n" counts ++ "\n")
 
 private def run (args : List String) : IO UInt32 := do
+  let knownArgs := ["--histogram", "--coverage", "--status", "--bless"]
+  let unknownArgs := args.filter (fun arg => !knownArgs.contains arg)
+  if !unknownArgs.isEmpty then
+    IO.eprintln s!"unknown gates argument(s): {String.intercalate ", " unknownArgs}"
+    return 2
   let files ← sourceFiles
   let mut acc : List FileResult := []
   for path in files do
@@ -673,6 +833,11 @@ private def run (args : List String) : IO UInt32 := do
     let bpo := (path.toString.dropEnd 4).toString ++ ".bpo"
     let name := ((path.toString.splitOn "/").getLast!.splitOn ".").head!
     hypResults := hypResults ++ checkHyps project name (← readGoldHyps bpo)
+  let mut wwdResults : List GoalResult := []
+  for path in files do
+    let bpo := (path.toString.dropEnd 4).toString ++ ".bpo"
+    let name := ((path.toString.splitOn "/").getLast!.splitOn ".").head!
+    wwdResults := wwdResults ++ checkWWD project name (← readGoldHyps bpo)
   let mut coverageResults : List CoverageResult := []
   for path in files do
     let bpo := (path.toString.dropEnd 4).toString ++ ".bpo"
@@ -683,11 +848,16 @@ private def run (args : List String) : IO UInt32 := do
     coverageResults := coverageResults ++ coverage project name names goals hyps
   let hypPassed := hypResults.countP (fun r => r.status == "PASS")
   let hypActual := hypResults.map (fun r => r.key ++ "\t" ++ r.status)
+  let wwdPassed := wwdResults.countP (fun r => r.status == "PASS")
+  let wwdActual := wwdResults.map (fun r => r.key ++ "\t" ++ r.status)
   let goalPassed := goalResults.countP (fun r => r.status == "PASS")
   let goalActual := goalResults.map (fun r => r.key ++ "\t" ++ r.status)
   let poPassed := poResults.countP (fun r => r.status == "PASS")
   let p4Results := localResults project poResults
   let p4Passed := p4Results.countP (·.accepted)
+  let p4OK := p4Results.length == sequentCount && p4Passed >= p4Minimum
+  let p4Actual := p4Results.filter (·.accepted) |>.map p4BaselineLine
+  let wwdOK := wwdPassed == wwdResults.length
   let poActual := poResults.map (fun r => r.key ++ "\t" ++ r.status)
   let compatibility := compatibilityRecords coverageResults
   let compatibilityActual := compatibility.map coverageLine
@@ -697,14 +867,21 @@ private def run (args : List String) : IO UInt32 := do
   let formulaPassed := formulas.countP (fun result => result.status == "PASS")
   let formulaActual := formulas.map (fun result => result.key ++ "\t" ++ result.status)
   let formulaCountOK := formulas.length == formulaCount
+  let coreOK := results.all (fun result => result.status == "PASS") && inventoryOK &&
+    formulaCountOK &&
+    formulaPassed == formulas.length && typeResults.length == typeCount &&
+    typePassed == typeResults.length && poPassed == sequentCount
   IO.println s!"P0 reader: {filesPassed}/{results.length}"
   IO.println s!"P1 formulas: {formulaPassed}/{formulas.length}"
   IO.println s!"P2 types: {typePassed}/{typeResults.length}"
   if typeResults.length != typeCount then
     IO.eprintln s!"type assertion count {typeResults.length}, expected {typeCount}"
   IO.println s!"P3 obligations: {poPassed}/{sequentCount}"
+  IO.println (s!"P3 extras/missing: {poResults.countP (·.status == "FAIL:not in .bpo")}/" ++
+    s!"{poResults.countP (·.status == "FAIL:not generated")}")
   IO.println s!"P3b statements: {goalPassed}/{goalResults.length} derived"
   IO.println s!"P3b hypotheses: {hypPassed}/{hypResults.length} derived"
+  IO.println s!"P3b WWD hypotheses: {wwdPassed}/{wwdResults.length}"
   IO.println s!"P3b compatibility: {compatibility.length} pinned omissions"
   IO.println s!"P4 local baseline: {p4Passed}/{p4Results.length} discharged"
   if !compatibilityOK then
@@ -726,6 +903,8 @@ private def run (args : List String) : IO UInt32 := do
       IO.println s!"{count}\t{reason}"
     for (reason, count) in goalHistogram hypResults do
       IO.println s!"{count}\t{reason}"
+    for (reason, count) in goalHistogram wwdResults do
+      IO.println s!"{count}\tWWD\t{reason}"
     for (shape, count) in p4Histogram p4Results do
       IO.println s!"{count}\tP4\t{shape}"
     for (reason, count) in coverageHistogram coverageResults do
@@ -735,22 +914,38 @@ private def run (args : List String) : IO UInt32 := do
     for record in coverageResults do
       IO.println (coverageLine record)
   if args.contains "--status" then
-    writeStatus results formulas typeResults poResults goalResults hypResults compatibility.length
+    writeStatus results formulas typeResults poResults goalResults hypResults wwdResults
+      compatibility.length
       p4Results inventory
-  let parseOK := results.all (fun result => result.status == "PASS")
   if args.contains "--bless" then
     -- P0 must be perfect to bless, since a dropped file would silently shrink the P1
     -- denominator. P1 blesses whatever it currently reaches: that is the ratchet.
-    if parseOK && inventoryOK && formulaCountOK && compatibilityOK then
+    let oldStatements? ← try some <$> IO.FS.readFile "baseline/statement.tsv"
+      catch _ => pure none
+    let oldHypotheses? ← try some <$> IO.FS.readFile "baseline/hypothesis.tsv"
+      catch _ => pure none
+    let baselinesPresent := oldStatements?.isSome && oldHypotheses?.isSome
+    let noP3bShrink := match oldStatements?, oldHypotheses? with
+      | some oldStatements, some oldHypotheses =>
+          multisetSubset (nonemptyLines oldStatements) goalActual &&
+            multisetSubset (nonemptyLines oldHypotheses) hypActual
+      | _, _ => false
+    if coreOK && compatibilityOK && p4OK && wwdOK && noP3bShrink then
       writeBaseline "baseline/parse.tsv" actual
       writeBaseline "baseline/formula.tsv" formulaActual
       writeBaseline "baseline/typecheck.tsv" typeActual
       writeBaseline "baseline/pog.tsv" poActual
       writeBaseline "baseline/statement.tsv" goalActual
       writeBaseline "baseline/hypothesis.tsv" hypActual
+      writeBaseline "baseline/wwd.tsv" wwdActual
       writeBaseline "baseline/compatibility.tsv" compatibilityActual
+      writeBaseline "baseline/p4.tsv" p4Actual
     else
-      IO.eprintln "refusing to bless a failed P0 gate"
+      IO.eprintln (if !baselinesPresent then
+        "refusing to bless without existing P3b statement and hypothesis baselines"
+      else if noP3bShrink then
+        "refusing to bless a failed acceptance gate"
+        else "refusing to bless a reduced P3b baseline")
       return 1
     return 0
   let baseline ← try IO.FS.readFile "baseline/parse.tsv" catch _ => pure ""
@@ -765,13 +960,18 @@ private def run (args : List String) : IO UInt32 := do
   let gbaselineOK ← baselineDiff (nonemptyLines gbaseline) goalActual
   let hbaseline ← try IO.FS.readFile "baseline/hypothesis.tsv" catch _ => pure ""
   let hbaselineOK ← baselineDiff (nonemptyLines hbaseline) hypActual
+  let wbaseline ← try IO.FS.readFile "baseline/wwd.tsv" catch _ => pure ""
+  let wbaselineOK ← baselineDiff (nonemptyLines wbaseline) wwdActual
   let cbaseline ← try IO.FS.readFile "baseline/compatibility.tsv" catch _ => pure ""
   let cbaselineOK ← baselineDiff (nonemptyLines cbaseline) compatibilityActual
+  let p4baseline ← try IO.FS.readFile "baseline/p4.tsv" catch _ => pure ""
+  let p4baselineOK ← baselineDiff (nonemptyLines p4baseline) p4Actual
   if !baselineOK || !fbaselineOK || !tbaselineOK || !pbaselineOK || !gbaselineOK
-      || !hbaselineOK || !cbaselineOK || !compatibilityOK then
+      || !hbaselineOK || !wbaselineOK || !cbaselineOK || !p4baselineOK ||
+      !compatibilityOK || !wwdOK then
     return 1
-  if parseOK && inventoryOK && formulaCountOK then
-    if p4Results.length == sequentCount then return 0 else return 1
+  if coreOK && p4OK && wwdOK then
+    return 0
   return 1
 
 end EventB.Gates

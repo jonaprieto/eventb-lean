@@ -78,6 +78,27 @@ private meta def checkLambda : TermElabM Unit := do
       let term ← parseFormula source
       let _ ← Embedding.translatePredicate context term
 
+private meta def checkRelationSubtraction : MetaM Unit := do
+  let intType := mkConst ``Int
+  let prop := mkSort .zero
+  let setType ← mkArrow intType prop
+  let pairType ← mkAppM ``Prod #[intType, intType]
+  let relationType ← mkArrow pairType prop
+  withLocalDeclD `set setType fun set =>
+    withLocalDeclD `relation relationType fun relation => do
+      let context : Embedding.KernelContext :=
+        { bindings :=
+            [{ name := "S", ty := .pow .int, value := set }
+            , { name := "r", ty := .pow (.prod .int .int), value := relation }] }
+      let some restrictionTerm := (Formula.parse "S ◁ r").toOption |
+        throwError "restriction did not parse"
+      let some subtractionTerm := (Formula.parse "S ⩤ r").toOption | throwError
+        "subtraction did not parse"
+      let restriction ← Embedding.translateExpression context restrictionTerm
+      let subtraction ← Embedding.translateExpression context subtractionTerm
+      unless !(← isDefEq restriction.value subtraction.value) do
+        throwError "relation subtraction translated as domain restriction"
+
 syntax (name := eventbTranslateChecks) "#eventb_translate_checks" : command
 
 @[command_elab eventbTranslateChecks]
@@ -107,6 +128,7 @@ meta def elabTranslateChecks : CommandElab := fun stx =>
       checkRejectsWrongBinding
       checkSemanticFunction
       checkLambda
+      liftMetaM checkRelationSubtraction
   | _ => throwUnsupportedSyntax
 
 #eventb_translate_checks

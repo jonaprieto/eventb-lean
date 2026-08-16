@@ -77,6 +77,7 @@ eventb_machine SimpleProgram where
   variables x y
   invariant inv0_1 : "x ∈ ℕ"
   invariant inv0_2 : "y ∈ ℕ"
+  variant variant1 : "y − x"
   event INITIALISATION where
     action act1 : "x, y ≔ 0, 0"
   event final where
@@ -309,6 +310,22 @@ private def hasPO (machine name : String) : Bool :=
 #guard hasPO "ListReverse1" "INITIALISATION/inv1_1/INV"
 #guard hasPO "SquareRoot1" "INITIALISATION/inv1_1/INV"
 #guard hasPO "Inverse1" "INITIALISATION/inv1_1/INV"
+#guard hasPO "BinarySearch1" "dec/NAT"
+#guard hasPO "BinarySearch1" "dec/VAR"
+#guard hasPO "BinarySearch1" "inc/NAT"
+#guard hasPO "BinarySearch1" "inc/VAR"
+#guard hasPO "SimpleProgram" "progress/NAT"
+#guard hasPO "SimpleProgram" "progress/VAR"
+
+private def goalText (machine name : String) : Option String :=
+  (POG.generate programsProject machine).find? (·.name == name) |>.bind
+    (·.goal.map Formula.print)
+
+#guard goalText "BinarySearch1" "dec/VAR" == some "(((x − 1) − p) < (q − p))"
+#guard goalText "NotationMachine" "nondeterministic_value/act1/FIS" ==
+  some "((0 ‥ n) ≠ {})"
+#guard goalText "NotationMachine" "nondeterministic_relation/act1/FIS" ==
+  some "(∃ (x' ⦂ ℤ) · ((x' = y') ∧ (y' = (x' + z))))"
 
 /-! Witness coverage regression: the openETCS-style refinement shape has both a
 feasibility statement and the hypothesis-only well-definedness record. -/

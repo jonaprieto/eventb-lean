@@ -36,7 +36,8 @@ flowchart LR
   P["Prelude + Theory.Env<br/>imports and scope"] --> T["Typing.Infer + Check"]
   F --> T
   T --> G["POG<br/>obligation data"]
-  G --> S["Semantics<br/>Machine / Proved / Refines"]
+  G --> Z["POGSoundness<br/>typed valuation boundary"]
+  Z -. "explicit model bindings still required" .-> S["Semantics<br/>Machine / Proved / Refines"]
   G --> L["Trust.Ledger"]
   T --> U["CLI + ProofWidgets"]
   G --> U
@@ -76,6 +77,7 @@ remains the authority for `.eventb` component structure.
 | Theories | `EventB.Theory`, `Theory.Validate`, `Theory.Embed` | User theories, validation, and Lean denotations. |
 | Typing | `EventB.Typing.Type`, `Infer`, `Check` | Infer types and validate component scope. |
 | POG | `EventB.POG` | Generate named obligations, goals, and hypotheses. |
+| POG semantic boundary | `EventB.POGSoundness` | Closed PO-class table, error-aware typed valuation checks, and explicit WWD shape; not automatic model soundness. |
 | Semantics | `EventB.Semantics` | Machines, reachability, proof, and refinement soundness. |
 | Trust and embedding | `EventB.Trust`, `Trust.Replay`, `Trust.Rodin`, `Embedding`, `Formula.Translate` | Proof provenance, status import, and kernel translation. |
 | Front ends | `EventB.DSL`, `Widgets.lean`, `Main.lean` | Author, check, and display models. |
@@ -115,6 +117,13 @@ The same scope is used by native formula elaboration, `Typing.inferComponentIn`,
 `POG.generateIn`. This is important: scope is a property of the model component, not a
 global parser setting.
 
+`EventB.POGSoundness` is deliberately a boundary rather than a hidden second checker.
+Its bounded evaluator rejects unsupported or ill-typed terms with explicit errors and
+checks valuation-level sequents only after definedness; it does not infer the meaning of
+an arbitrary identifier, assignment, witness, variant, or refinement contract. Binding a
+generated INV/GRD/SIM/WFIS/VAR obligation to `EventB.Semantics` remains an explicit
+model-specific proof step.
+
 ## Formula and typing pipeline
 
 Rodin formulas remain strings until `Formula.parse` turns them into `Term` values. The
@@ -140,11 +149,14 @@ placeholder.
 
 ## Obligation generation
 
-`POG.generateIn theory project machine` is the theory-aware entry point. It produces
+`POG.generateIn theory project machine` is the compatibility entry point for the pinned
+corpus. It produces
 `POG.Obligation` records containing a Rodin-compatible name, obligation class, and,
 where derived, a goal and ordered hypotheses. The compatibility `POG.generate` entry
 point uses an empty user-theory environment for corpus models that do not use native
-theories.
+theories. Trusted front ends use `POG.generateCheckedIn` or `POG.generateChecked`; those
+paths run strict scope/refinement checks and fail closed on diagnostics before consuming
+the generated list.
 
 Well-definedness is driven by symbol metadata in the prelude and theory environment.
 Total operators do not produce unnecessary WD conditions; conditional operators carry
@@ -152,9 +164,15 @@ the definedness facts they require. A user-defined predicate or expression there
 uses the same POG path as a core symbol.
 
 Generating an obligation is not the same as proving it. The obligation data is the
-boundary between analysis and proof. `EventB.Semantics` supplies the kernel-native
-machine, invariant, and refinement propositions; later proof backends can attach
-evidence without changing the model checker.
+boundary between analysis and proof. `EventB.Semantics` supplies kernel-native machine,
+invariant, frame, gluing, merge, split-merge, witness, variant, and refinement contracts.
+`EventB.POG.RefinementAdapters` supplies source-bound proof-carrying adapters for the
+refinement-heavy PO families, while `EventB.POG.EQLAdapter` binds the exact deterministic
+integer EQL action to the checked before/after evaluator. The generic
+`FormulaModel.valid` entry point is fail-closed because a caller-defined interpretation
+is not semantic adequacy; `validUnchecked` helpers remain local evaluator fixtures.
+Later proof backends can attach evidence without changing the model checker; missing
+model-specific formula bindings remain unproved rather than being inferred.
 
 Theory validation also emits declaration obligations. Structural rewrite termination is
 marked `checked` only for the conservative decreasing case; rewrite soundness and
@@ -182,9 +200,15 @@ goal-plus-hypotheses sequent. It does not change the ledger. `Trust.Replay` acce
 kernel proof only after resolving its declaration, translating the complete POG sequent,
 checking definitional equality, and comparing its transitive axiom dependencies with
 the declared metadata. `Trust.Rodin` imports `.bps` status
-records as `rodinImported`; it never upgrades them to kernel evidence. SMT and external
-evidence remain explicit metadata boundaries and must carry solver/tool, version, input
-digest, and verifier fields.
+records as `rodinImported`; it never upgrades them to kernel evidence. Legacy status-only
+Rodin evidence is rejected. The import binds explicit artifact/source identity and
+source-appropriate
+event, predicate, action, witness, variable, and variant structure, plus PO-sequent,
+source-component, and status identities, and strictly regenerates the model-derived POG
+with the supplied theory environment before comparing the target canonical obligation.
+SMT and external evidence remain metadata-only boundaries and must carry solver/tool,
+version, input digest, and verifier claims. Rodin provenance retains the model, BPO, and
+status bytes for replayable structural, goal, hypothesis, and model-derived POG checks.
 
 ## User experience
 
@@ -199,8 +223,8 @@ not a second checker, so presentation changes cannot alter generated obligations
 
 The corpus gate also exposes `lake exe gates --coverage`. It emits stable tab-separated
 records with component, obligation class, name, derivation status, reason, and a
-diagnostic. Reasons are `matched`, `no-sequent`, `goal-differs`, or
-`hypotheses-differ`; missing targets are further classified as pinned-`.bpo` omissions
+diagnostic. Reasons are `matched`, `no-sequent`, `goal-differs`,
+`hypotheses-differ`, or `not-derived`; missing targets are further classified as pinned-`.bpo` omissions
 of plain type invariants, definedness, refinement guards/actions, or witness
 feasibility. A missing Rodin target therefore remains visible instead of shrinking a
 denominator. WFIS and WWD records with no generated goal retain `not-derived` status;
@@ -231,15 +255,14 @@ The gates compare the implementation against the pinned corpus and ratchet files
 - P1: 1102 formula strings parse and round-trip;
 - P2: 940 distinct inferred types match;
 - P3: generated obligation names are compared with Rodin;
-- P3b: 1129 of 1322 comparable goals and hypothesis sets are derived; 193 generated
-  targets have no matching `.bpo` sequent and remain explicit coverage data with
-  diagnostics. The 103 plain type-invariant omissions are a selective pinned-corpus
-  compatibility difference; broad filtering is unsound because the corpus retains
-  other static-looking invariant sequents.
-  Seven additional WFIS names are also recorded as name-only coverage when Rodin does
-  not serialize a target predicate, for 200 pinned compatibility records in total;
+- P3b: 1132 of 1325 tracked goals and hypothesis sets are derived. The 200 pinned
+  compatibility records have no comparable serialized `.bpo` target and remain
+  explicit coverage data with named diagnostics. WWD is scored in its own 1/1 gate. The plain
+  type-invariant omissions are a selective pinned-corpus compatibility difference;
+  broad filtering is unsound because the corpus retains other static-looking invariant
+  sequents.
 - P4: the gates run the deterministic local baseline over the 1133 P3-matched
-  obligations; the current result is 73 external-trusted and the rest unproved.
+  obligations; the current result is 73 external-declared and the rest unproved.
 
 The semantic boundary is explicit: theory definitions and constructors require
 caller-supplied Lean denotations; translation can be measured independently; only a
@@ -276,9 +299,9 @@ record:
 1. whether the PO name exists in the `.bpo` corpus;
 2. whether the generated goal and ordered hypotheses match the recorded sequent.
 
-The current 193 unmatched records are concentrated in WD, INV, SIM, and GRD, with seven
-additional WFIS name-only records. They are
-not to be removed by broadening the comparison or by blessing a smaller denominator.
+The current 200 compatibility records are concentrated in WD, INV, SIM, GRD, and
+witness-feasibility classes. They are not to be removed by broadening the comparison or
+by blessing a smaller denominator.
 The correction belongs in the shared POG conditions: total versus partial symbols,
 assigned-variable filtering, refinement inheritance, witness substitution, and
 abstract/concrete event matching. WFIS is derived when Rodin supplies its existential
@@ -451,8 +474,8 @@ environment, and the prover configuration. A stale or forged result must not sil
 move an obligation out of `unproved`. In particular:
 
 - a Lean proof term is accepted only after kernel replay;
-- an SMT result records its solver, version, input digest, and trust mode;
-- an external proof records the verifier and evidence location;
+- an SMT result records its solver, version, input digest, and metadata-only trust mode;
+- an external proof records the verifier claim, evidence location, and metadata-only mode;
 - an imported Rodin result is labelled `rodinImported`, never `kernel`;
 - missing, stale, or unverifiable evidence leaves the entry `unproved`.
 
@@ -467,8 +490,10 @@ kernel proof coverage.
 Acceptance criteria:
 
 - every accepted result has a stable obligation fingerprint and explicit mode;
-- evidence can be replayed or rejected in a clean build;
-- changing the obligation, model, theory, or prover input invalidates the evidence;
+- kernel evidence can be replayed or rejected in a clean build, while Rodin evidence is
+  structurally/model-derived checked and metadata-only external evidence remains declared;
+- changing inputs invalidates evidence when that input is included in its canonical or
+  provenance fingerprint binding;
 - the widget shows the obligation's mode and evidence status without conflating them;
 - negative tests prove that unverifiable and mislabelled evidence is rejected;
 - P4 records discharge results without weakening P0 through P3b.

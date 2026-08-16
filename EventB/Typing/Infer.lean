@@ -29,6 +29,8 @@ structure St where
   /-- Event parameters, which leave `env` when their event ends but are still recorded
   in the `.bpo` and so must survive to read-back. -/
   params : List (String × Ty) := []
+  /-- Event-local parameter environments, keyed by component and event label. -/
+  eventParams : List ((String × String) × List (String × Ty)) := []
 
 abbrev M := StateT St (Except String)
 
@@ -175,6 +177,24 @@ private theorem termSizePos (t : Term) : 1 ≤ sizeOf t := by
 
 mutual
 
+private def primedBases (bound : List String) : Term → List String
+  | .id name =>
+      if name.endsWith "'" && !bound.contains name then [name.dropEnd 1 |>.copy] else []
+  | .num _ => []
+  | .bin _ a b => primedBases bound a ++ primedBases bound b
+  | .pre _ a | .post _ a => primedBases bound a
+  | .app f a | .img f a => primedBases bound f ++ primedBases bound a
+  | .set terms => primedBasesList bound terms
+  | .bind _ pattern body => primedBases (patternNames pattern ++ bound) body
+
+private def primedBasesList (bound : List String) : List Term → List String
+  | [] => []
+  | term :: rest => primedBases bound term ++ primedBasesList bound rest
+
+end
+
+mutual
+
 /-- Predicates have no type; the judgement is that the formula is well-formed. -/
 def checkPred (t : Term) : M Unit := do
   match t with
@@ -207,10 +227,26 @@ def checkPred (t : Term) : M Unit := do
       else if o == ":∈" then do
         unify (.pow (← inferExpr a)) (← inferExpr b)
       else if o == ":∣" then do
-        -- Becomes-such-that: the right side is a predicate over primed variables, which
-        -- P2 does not model yet. The left side still has to typecheck.
-        let _ ← inferExpr a
-        return ()
+        -- The predicate relates before-state names to their primed after-state names.
+        -- Check both target namespaces so a malformed assignment cannot type merely
+        -- because its relation happens to mention no target.
+        for target in Formula.flattenCommas a do
+          match target with
+          | .id name =>
+              match ← lookup? name with
+              | none => throw s!"unbound assignment target {name}"
+              | some _ => pure ()
+              match ← lookup? (name ++ "'") with
+              | none => throw s!"unbound after-state assignment target {name}'"
+              | some _ => pure ()
+              pure ()
+          | _ => throw "becomes-such-that targets must be identifiers"
+        let targets := Formula.flattenCommas a |>.filterMap fun term =>
+          match term with | .id name => some name | _ => none
+        for name in (primedBases [] b).eraseDups do
+          if !targets.contains name then
+            throw s!"after-state identifier {name}' is not an assignment target"
+        checkPred b
       else throw s!"not a predicate operator: {o}"
   | .app (.id "finite") s => do let _ ← asSet (← inferExpr s)
   | .app (.id "partition") args => do
@@ -231,8 +267,9 @@ def checkPred (t : Term) : M Unit := do
 
 termination_by sizeOf t
 decreasing_by
-  all_goals simp +arith [Term.id.sizeOf_spec, Term.bin.sizeOf_spec, Term.pre.sizeOf_spec,
+  all_goals simp_all +arith [Term.id.sizeOf_spec, Term.bin.sizeOf_spec, Term.pre.sizeOf_spec,
     Term.app.sizeOf_spec, Term.bind.sizeOf_spec]
+  all_goals omega
 
 /-- The arguments of a comma-separated application, typed left to right. Walking the
 comma spine here rather than calling `flattenCommas` keeps the recursion structural:
@@ -245,11 +282,29 @@ termination_by t => sizeOf t + 1
 decreasing_by
   all_goals simp +arith [Term.bin.sizeOf_spec]
 
-/-- Bind every identifier in a binder pattern to a fresh type. -/
-def bindPattern (t : Term) : M Unit := do
+/-- Resolve a type-set ascription without re-entering expression inference. -/
+private def ascriptionType (t : Term) : M Ty := do
+  let s ← get
+  let typeOfName (name : String) : M Ty :=
+    match Theory.typeIn? s.theory s.theoryRoots name with
+    | some (.pow element) => pure element
+    | some ty => pure ty
+    | none => throw s!"unknown binder type {name}"
   match t with
-  | .id n => do bind n (← fresh)
-  | .bin "," a b | .bin "↦" a b => do bindPattern a; bindPattern b
+  | .id name => typeOfName name
+  | .pre "ℙ" (.id name) => return .pow (← typeOfName name)
+  | .pre "ℙ1" (.id name) => return .pow (← typeOfName name)
+  | _ => throw s!"unsupported binder type: {Formula.print t}"
+
+/-- Bind every identifier in a binder pattern to a fresh or ascribed type. -/
+def bindPattern (t : Term) (expected : Option Ty := none) : M Unit := do
+  match t with
+  | .id n => bind n (expected.getD (← fresh))
+  | .bin "⦂" pattern type => bindPattern pattern (some (← ascriptionType type))
+  | .bin "," a b | .bin "↦" a b =>
+      match expected with
+      | some (.prod left right) => bindPattern a (some left); bindPattern b (some right)
+      | _ => bindPattern a; bindPattern b
   | t => throw s!"not a binder pattern: {Formula.print t}"
 
 termination_by sizeOf t
@@ -263,7 +318,8 @@ def patternType (t : Term) : M Ty := do
     match ← lookup? n with
     | some ty => return ty
     | none => throw s!"unbound {n}"
-  | .bin "↦" a b => return .prod (← patternType a) (← patternType b)
+  | .bin "⦂" _ type => ascriptionType type
+  | .bin "," a b | .bin "↦" a b => return .prod (← patternType a) (← patternType b)
   | t => throw s!"not a binder pattern: {Formula.print t}"
 
 termination_by sizeOf t

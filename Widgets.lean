@@ -45,10 +45,12 @@ private def evidenceLabel : Trust.Evidence → String
   | .kernel declaration axioms =>
       if axioms.isEmpty then s!"Lean declaration {declaration}"
       else s!"Lean declaration {declaration} (axioms: {String.intercalate ", " axioms})"
-  | .smt solver version _ verifier => s!"{solver} {version}, verified by {verifier}"
-  | .external tool version _ verifier => s!"{tool} {version}, verified by {verifier}"
+  | .smt solver version _ verifier => s!"{solver} {version}, declared by {verifier}"
+  | .external tool version _ verifier => s!"{tool} {version}, declared by {verifier}"
   | .rodinImported source _ manual =>
       s!"Rodin import {source} ({if manual then "manual" else "automatic"})"
+  | .rodinImportedProvenance _ _ _ _ manual =>
+      s!"Rodin provenance ({if manual then "manual" else "automatic"})"
 
 private def hypothesisOnly (obligation : Obligation) : Bool :=
   obligation.kind == "WWD" && obligation.goal.isNone
@@ -88,6 +90,13 @@ private def kindClass : String → String
   | "THM" => "green"
   | "WFIS" => "light-blue"
   | "WWD" => "red"
+  | "FIS" => "light-blue"
+  | "EQL" => "purple"
+  | "MRG" => "gold"
+  | "VWD" => "teal"
+  | "FIN" => "teal"
+  | "NAT" => "teal"
+  | "VAR" => "teal"
   | _ => "grey"
 
 private def kindTitle : String → String
@@ -98,13 +107,20 @@ private def kindTitle : String → String
   | "THM" => "Theorem"
   | "WFIS" => "Witness feasibility"
   | "WWD" => "Witness well-definedness"
+  | "FIS" => "Action feasibility"
+  | "EQL" => "Preserved variable equality"
+  | "MRG" => "Merged-event guard strengthening"
+  | "VWD" => "Variant well-definedness"
+  | "FIN" => "Finite set variant"
+  | "NAT" => "Natural-number variant"
+  | "VAR" => "Variant decrease"
   | kind => kind
 
 private def fallbackEntry (obligation : Obligation) : Trust.Entry :=
   (Trust.Ledger.ofObligations [obligation]).entries.head!
 
 private def entryFor (ledger : Trust.Ledger) (obligation : Obligation) : Trust.Entry :=
-  (ledger.entry? obligation.component obligation.name).getD (fallbackEntry obligation)
+  (ledger.displayEntry? obligation.component obligation.name).getD (fallbackEntry obligation)
 
 private def obligationCard (ledger : Trust.Ledger) (obligation : Obligation) : Html :=
   let entry := entryFor ledger obligation
@@ -120,7 +136,9 @@ private def obligationCard (ledger : Trust.Ledger) (obligation : Obligation) : H
     obligationBody obligation entry
   ]
 
-private def kinds : List String := ["INV", "WD", "GRD", "SIM", "THM", "WFIS", "WWD"]
+private def kinds : List String :=
+  ["INV", "WD", "GRD", "SIM", "THM", "WFIS", "WWD", "FIS", "EQL", "MRG",
+   "VWD", "FIN", "NAT", "VAR"]
 
 private def countKind (kind : String) (obligations : List Obligation) : Nat :=
   obligations.countP (·.kind == kind)

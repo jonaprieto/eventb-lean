@@ -33,7 +33,140 @@ inductive Term where
   /-- Binder: `∀`, `∃`, `λ`, `⋂`, `⋃`, and `{pat · body}` set comprehension, whose kind
   is `"{"`. The body of a comprehension or lambda is `bin "∣" pred expr`. -/
   | bind : String → Term → Term → Term
-  deriving BEq, Repr, Inhabited
+  deriving Repr, Inhabited
+
+mutual
+
+  def termBeq : Term → Term → Bool
+    | .id left, .id right => left == right
+    | .num left, .num right => left == right
+    | .bin leftOp left₁ left₂, .bin rightOp right₁ right₂ =>
+        leftOp == rightOp && termBeq left₁ right₁ && termBeq left₂ right₂
+    | .pre leftOp left, .pre rightOp right
+    | .post leftOp left, .post rightOp right => leftOp == rightOp && termBeq left right
+    | .app leftFunction leftArgument, .app rightFunction rightArgument
+    | .img leftFunction leftArgument, .img rightFunction rightArgument =>
+        termBeq leftFunction rightFunction && termBeq leftArgument rightArgument
+    | .set left, .set right => termListBeq left right
+    | .bind leftKind leftBinder leftBody, .bind rightKind rightBinder rightBody =>
+        leftKind == rightKind && termBeq leftBinder rightBinder && termBeq leftBody rightBody
+    | _, _ => false
+
+  def termListBeq : List Term → List Term → Bool
+    | [], [] => true
+    | left :: lefts, right :: rights => termBeq left right && termListBeq lefts rights
+    | _, _ => false
+
+end
+
+instance : BEq Term := ⟨termBeq⟩
+
+private theorem congrArg₂' {α β γ : Type} (f : α → β → γ)
+    {left left' : α} {right right' : β}
+    (leftEq : left = left') (rightEq : right = right') :
+    f left right = f left' right' := by
+  cases leftEq
+  cases rightEq
+  rfl
+
+theorem Term.eq_of_beq {left right : Term} (equal : left == right) : left = right := by
+  change termBeq left right = true at equal
+  exact (Term.rec
+    (motive_1 := fun left => ∀ right, termBeq left right = true → left = right)
+    (motive_2 := fun left => ∀ right, termListBeq left right = true → left = right)
+    (id := fun name right equal => by
+      cases right with
+      | id other => simp [termBeq] at equal; subst other; rfl
+      | num | bin | pre | post | app | img | set | bind => simp [termBeq] at equal)
+    (num := fun value right equal => by
+      cases right with
+      | num other => simp [termBeq] at equal; subst other; rfl
+      | id | bin | pre | post | app | img | set | bind => simp [termBeq] at equal)
+    (bin := fun op left₁ right₁ ihLeft ihRight right equal => by
+      cases right with
+      | bin otherOp otherLeft otherRight =>
+          simp [termBeq] at equal
+          rcases equal with ⟨⟨opEq, leftEq⟩, rightEq⟩
+          subst otherOp
+          exact congrArg₂' (Term.bin op) (ihLeft otherLeft leftEq) (ihRight otherRight rightEq)
+      | id | num | pre | post | app | img | set | bind => simp [termBeq] at equal)
+    (pre := fun op value ih right equal => by
+      cases right with
+      | pre otherOp otherValue =>
+          simp [termBeq] at equal
+          rcases equal with ⟨opEq, valueEq⟩
+          subst otherOp
+          exact congrArg (Term.pre op) (ih otherValue valueEq)
+      | id | num | bin | post | app | img | set | bind => simp [termBeq] at equal)
+    (post := fun op value ih right equal => by
+      cases right with
+      | post otherOp otherValue =>
+          simp [termBeq] at equal
+          rcases equal with ⟨opEq, valueEq⟩
+          subst otherOp
+          exact congrArg (Term.post op) (ih otherValue valueEq)
+      | id | num | bin | pre | app | img | set | bind => simp [termBeq] at equal)
+    (app := fun function argument ihFunction ihArgument right equal => by
+      cases right with
+      | app otherFunction otherArgument =>
+          simp [termBeq] at equal
+          exact congrArg₂' Term.app (ihFunction otherFunction equal.1)
+            (ihArgument otherArgument equal.2)
+      | id | num | bin | pre | post | img | set | bind => simp [termBeq] at equal)
+    (img := fun relation argument ihRelation ihArgument right equal => by
+      cases right with
+      | img otherRelation otherArgument =>
+          simp [termBeq] at equal
+          exact congrArg₂' Term.img (ihRelation otherRelation equal.1)
+            (ihArgument otherArgument equal.2)
+      | id | num | bin | pre | post | app | set | bind => simp [termBeq] at equal)
+    (set := fun values ih right equal => by
+      cases right with
+      | set otherValues => exact congrArg Term.set (ih otherValues equal)
+      | id | num | bin | pre | post | app | img | bind => simp [termBeq] at equal)
+    (bind := fun quantifier binder body ihBinder ihBody right equal => by
+      cases right with
+      | bind otherQuantifier otherBinder otherBody =>
+          simp [termBeq] at equal
+          rcases equal with ⟨⟨quantifierEq, binderEq⟩, bodyEq⟩
+          subst otherQuantifier
+          exact congrArg₂' (Term.bind quantifier)
+            (ihBinder otherBinder binderEq) (ihBody otherBody bodyEq)
+      | id | num | bin | pre | post | app | img | set => simp [termBeq] at equal)
+    (nil := fun right equal => by
+      cases right with
+      | nil => rfl
+      | cons => simp [termListBeq] at equal)
+    (cons := fun head tail ihHead ihTail right equal => by
+      cases right with
+      | nil => simp [termListBeq] at equal
+      | cons otherHead otherTail =>
+          simp [termListBeq] at equal
+          exact congrArg₂' List.cons (ihHead otherHead equal.1) (ihTail otherTail equal.2))
+    left) right equal
+
+theorem Term.beq_self (term : Term) : termBeq term term = true := by
+  exact Term.rec
+    (motive_1 := fun term => termBeq term term = true)
+    (motive_2 := fun terms => termListBeq terms terms = true)
+    (id := fun _ => by simp [termBeq])
+    (num := fun _ => by simp [termBeq])
+    (bin := fun _ _ _ ihLeft ihRight => by simp [termBeq, ihLeft, ihRight])
+    (pre := fun _ _ ih => by simp [termBeq, ih])
+    (post := fun _ _ ih => by simp [termBeq, ih])
+    (app := fun _ _ ihFunction ihArgument => by simp [termBeq, ihFunction, ihArgument])
+    (img := fun _ _ ihRelation ihArgument => by simp [termBeq, ihRelation, ihArgument])
+    (set := fun _ ih => ih)
+    (bind := fun _ _ _ ihBinder ihBody => by simp [termBeq, ihBinder, ihBody])
+    (nil := by rfl)
+    (cons := fun _ _ ihHead ihTail => by simp [termListBeq, ihHead, ihTail])
+    term
+
+instance : LawfulBEq Term where
+  rfl := Term.beq_self _
+  eq_of_beq := Term.eq_of_beq
+
+instance : DecidableEq Term := instDecidableEqOfLawfulBEq
 
 /-- Binding power, and whether the operator associates. Non-associating operators reject
 `a ∈ b ∈ c` the way Rodin does, rather than silently bracketing it. -/
@@ -89,6 +222,12 @@ def flattenCommas : Term → List Term
 private structure St where
   toks : Array Tok
   pos  : Nat
+
+private def hasRemainingOperator (s : St) (operator : String) : Bool :=
+  (s.toks.toList.drop s.pos).any fun token =>
+    match token with
+    | .op value => value == operator
+    | _ => false
 
 private def peek (s : St) : Option Tok := s.toks[s.pos]?
 
@@ -154,7 +293,8 @@ private def parsePrefix : Nat → St → Except String (Term × St)
   | some (.id name) => parsePostfix fuel (.id name) { s with pos := s.pos + 1 }
   | some (.op o) =>
     let s := { s with pos := s.pos + 1 }
-    if isBinder o then
+    if isBinder o &&
+        (o != "⋃" && o != "⋂" || hasRemainingOperator s "·") then
       -- The pattern runs up to `·`; comma and `↦` inside it are ordinary operators, so
       -- `∀a1,a2·P` and `λx↦y·P∣E` need no special cases.
       let (pat, s) ← parseAt fuel s 5
@@ -293,6 +433,12 @@ private def sameTree (a b : String) : Bool :=
 -- Binders take a comma-separated pattern, and comprehension keeps predicate and
 -- expression apart.
 #guard (parse "∀a1,a2 · a1 ∈ S ∧ a2 ∈ S ⇒ a1 = a2").isOk
+#guard match parse "⋃S" with
+  | .ok term => term == .pre "⋃" (.id "S")
+  | .error _ => false
+#guard match parse "⋂S" with
+  | .ok term => term == .pre "⋂" (.id "S")
+  | .error _ => false
 #guard (parse "{x · x ∈ S ∣ x + 1}").isOk
 -- The short form of comprehension denotes the same set as the long one.
 #guard sameTree "{x ∣ x ∈ S}" "{x · x ∈ S ∣ x}"
