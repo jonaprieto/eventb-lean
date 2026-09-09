@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.0.11 — 2026-09-08
+
+- Reconcile Lean v4.33.1 with the trust and refinement work from the preserved v4.0.10 branch.
+- Refresh Grip, Argus, and TermColor Diagnostics to their newest releases.
+
 ## 4.0.10 — 2026-08-15
 
 - Re-derive strict POG obligations from the complete Rodin model-artifact closure,
