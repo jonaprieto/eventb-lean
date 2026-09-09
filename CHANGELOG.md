@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.13 — 2026-09-09
+
+- Refresh dependencies and document the contribution policy and package problem.
+
 ## 4.0.12 — 2026-09-09
 
 - Mark the public project as under active development and provide a contact address.
