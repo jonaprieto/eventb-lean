@@ -10,6 +10,11 @@ Event-B models, formulas, proof obligations, refinement semantics, and Rodin com
 Lean 4. The reader accepts Rossi `.eventb` files and Rodin `.tuf` theories; the native DSL provides
 the same proof-obligation generator and checker.
 
+## Problem
+
+Event-B tooling is often tied to Rodin and separate analysis tools; this project brings its reader,
+checker, proof obligations, and refinement semantics into Lean 4.
+
 ## Development
 
 This project is maintained by its author with AI-assisted development tools.
