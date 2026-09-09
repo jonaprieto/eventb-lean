@@ -14,6 +14,8 @@ the same proof-obligation generator and checker.
 
 This project is maintained by its author with AI-assisted development tools.
 Changes are reviewed, tested, and remain the maintainer's responsibility.
+Event-B support is under active development; APIs, corpus coverage, and trust boundaries may
+change. Email prieto.jona@gmail.com if you are interested in trying it or contributing.
 
 ## Quick start
 
