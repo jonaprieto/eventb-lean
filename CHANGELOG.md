@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.0.12 — 2026-09-09
+
+- Mark the public project as under active development and provide a contact address.
+
 ## 4.0.11 — 2026-09-08
 
 - Reconcile Lean v4.33.1 with the trust and refinement work from the preserved v4.0.10 branch.
