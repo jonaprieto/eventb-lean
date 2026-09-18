@@ -11,16 +11,25 @@ namespace EventB.POG
 
 universe u v
 
-structure CheckedPO (theory : EventB.Theory.Env) (project : EventB.Typing.Project) where
+structure CheckedPO
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    where
   obligation : Obligation
   checked : obligation.checkedIn theory project
 
-private structure MemberResult (obligations : List Obligation) where
+private
+structure MemberResult
+    (obligations : List Obligation)
+    where
   obligation : Obligation
   member : obligation ∈ obligations
 
-private def findMember (predicate : Obligation → Bool) (obligations : List Obligation) :
-    Option (MemberResult obligations) :=
+private
+def findMember
+    (predicate : Obligation → Bool)
+    (obligations : List Obligation)
+    : Option (MemberResult obligations) :=
   match obligations with
   | [] => none
   | obligation :: rest =>
@@ -31,9 +40,12 @@ private def findMember (predicate : Obligation → Bool) (obligations : List Obl
         | none => none
         | some result => some { obligation := result.obligation, member := by simp [result.member] }
 
-def CheckedPO.fromGenerated? (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (component : String)
-    (predicate : Obligation → Bool) : Option (CheckedPO theory project) :=
+def CheckedPO.fromGenerated?
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (component : String)
+    (predicate : Obligation → Bool)
+    : Option (CheckedPO theory project) :=
   match generated : generateCheckedIn theory project component with
   | .error _ => none
   | .ok obligations =>
@@ -51,12 +63,19 @@ def CheckedPO.fromGenerated? (theory : EventB.Theory.Env)
           else none
           else none
 
-private structure ExactMember (target : Obligation) (obligations : List Obligation) where
+private
+structure ExactMember
+    (target : Obligation)
+    (obligations : List Obligation)
+    where
   payload : Unit
   member : target ∈ obligations
 
-private def exactMember (target : Obligation) : (obligations : List Obligation) →
-    Option (ExactMember target obligations)
+private
+def exactMember
+    (target : Obligation)
+    : (obligations : List Obligation) →
+      Option (ExactMember target obligations)
   | [] => none
   | candidate :: rest =>
       if same : candidate = target then
@@ -69,9 +88,11 @@ private def exactMember (target : Obligation) : (obligations : List Obligation) 
         | none => none
         | some result => some { payload := (), member := by simp [result.member] }
 
-def CheckedPO.fromGeneratedExact? (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (obligation : Obligation) :
-    Option (CheckedPO theory project) :=
+def CheckedPO.fromGeneratedExact?
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (obligation : Obligation)
+    : Option (CheckedPO theory project) :=
   match generated : generateCheckedIn theory project obligation.component with
   | .error _ => none
   | .ok obligations =>
@@ -86,29 +107,39 @@ def CheckedPO.fromGeneratedExact? (theory : EventB.Theory.Env)
                   exact member.member }
           else none
 
-def exactComponentDeclarations? (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (component : String) :
-    Option (List (String × EventB.Typing.Ty)) :=
+def exactComponentDeclarations?
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (component : String)
+    : Option (List (String × EventB.Typing.Ty)) :=
   match EventB.Typing.inferComponentDetailsCheckedIn theory project component with
   | .ok details => some details.types
   | .error _ => none
 
-def exactEventDeclarations? (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (component event : String) :
-    Option (List (String × EventB.Typing.Ty)) :=
+def exactEventDeclarations?
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (component event : String)
+    : Option (List (String × EventB.Typing.Ty)) :=
   match ComponentValuation.fromProject theory project component with
   | .ok valuation => some (valuation.declarationsForEvent project event)
   | .error _ => none
 
-def exactScopedDeclarations? (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (component : String)
-    (event : Option String) : Option (List (String × EventB.Typing.Ty)) :=
+def exactScopedDeclarations?
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (component : String)
+    (event : Option String)
+    : Option (List (String × EventB.Typing.Ty)) :=
   match event with
   | none => exactComponentDeclarations? theory project component
   | some label => exactEventDeclarations? theory project component label
 
-structure CheckedEventSource (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (component event : String) where
+structure CheckedEventSource
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (component event : String)
+    where
   valuation : ComponentValuation
   valuationChecked :
     ComponentValuation.fromProject theory project component = .ok valuation
@@ -118,9 +149,11 @@ structure CheckedEventSource (theory : EventB.Theory.Env)
   updates : List (String × EventB.Formula.Term)
   updatesExact : valuation.eventAssignments project event = .ok updates
 
-def CheckedEventSource.fromProject (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (component event : String) :
-    Option (CheckedEventSource theory project component event) :=
+def CheckedEventSource.fromProject
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (component event : String)
+    : Option (CheckedEventSource theory project component event) :=
   match valuationChecked : ComponentValuation.fromProject theory project component with
   | .error _ => none
   | .ok valuation =>
@@ -136,13 +169,20 @@ def CheckedEventSource.fromProject (theory : EventB.Theory.Env)
               updatesExact := updatesExact }
 
 def CheckedEventSource.assignmentAction
-    {theory : EventB.Theory.Env} {project : EventB.Typing.Project}
-    {component event : String} (source : CheckedEventSource theory project component event)
-    (fuel : Nat) (transition : CheckedBeforeAfter) : Prop :=
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {component event : String}
+    (source : CheckedEventSource theory project component event)
+    (fuel : Nat)
+    (transition : CheckedBeforeAfter)
+    : Prop :=
   assignmentRelation fuel source.declarations transition source.updates
 
-structure CheckedGuardSource (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (component event : String) where
+structure CheckedGuardSource
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (component event : String)
+    where
   valuation : ComponentValuation
   valuationChecked :
     ComponentValuation.fromProject theory project component = .ok valuation
@@ -152,9 +192,11 @@ structure CheckedGuardSource (theory : EventB.Theory.Env)
   predicates : List EventB.Formula.Term
   predicatesExact : EventB.POG.eventGuardPredicates project component event = some predicates
 
-def CheckedGuardSource.fromProject (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (component event : String) :
-    Option (CheckedGuardSource theory project component event) :=
+def CheckedGuardSource.fromProject
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (component event : String)
+    : Option (CheckedGuardSource theory project component event) :=
   match valuationChecked : ComponentValuation.fromProject theory project component with
   | .error _ => none
   | .ok valuation =>
@@ -170,9 +212,13 @@ def CheckedGuardSource.fromProject (theory : EventB.Theory.Env)
               predicatesExact }
 
 def CheckedGuardSource.holds
-    {theory : EventB.Theory.Env} {project : EventB.Typing.Project}
-    {component event : String} (source : CheckedGuardSource theory project component event)
-    (fuel : Nat) (transition : CheckedBeforeAfter) : Prop :=
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {component event : String}
+    (source : CheckedGuardSource theory project component event)
+    (fuel : Nat)
+    (transition : CheckedBeforeAfter)
+    : Prop :=
   transition.declarations = source.declarations ∧
     ValueEnv.validationOk fuel source.declarations transition.before = true ∧
     ValueEnv.validationOk fuel source.declarations transition.after = true ∧
@@ -181,8 +227,11 @@ def CheckedGuardSource.holds
 
 /- Relational actions are a separate source type so deterministic assignment proofs
    cannot accidentally be weakened when a project uses :∈ or :∣. -/
-structure CheckedRelationalEventSource (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (component event : String) where
+structure CheckedRelationalEventSource
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (component event : String)
+    where
   valuation : ComponentValuation
   valuationChecked :
     ComponentValuation.fromProject theory project component = .ok valuation
@@ -194,9 +243,11 @@ structure CheckedRelationalEventSource (theory : EventB.Theory.Env)
     relations = EventB.POG.eventStateRelations project component event valuation.variables
   relationsNonempty : relations ≠ []
 
-def CheckedRelationalEventSource.fromProject (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (component event : String) :
-    Option (CheckedRelationalEventSource theory project component event) :=
+def CheckedRelationalEventSource.fromProject
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (component event : String)
+    : Option (CheckedRelationalEventSource theory project component event) :=
   match valuationChecked : ComponentValuation.fromProject theory project component with
   | .error _ => none
   | .ok valuation =>
@@ -213,28 +264,39 @@ def CheckedRelationalEventSource.fromProject (theory : EventB.Theory.Env)
             relationsNonempty := by simpa using h }
 
 def CheckedRelationalEventSource.relationAction
-    {theory : EventB.Theory.Env} {project : EventB.Typing.Project}
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
     {component event : String}
     (source : CheckedRelationalEventSource theory project component event)
-    (fuel : Nat) (transition : CheckedBeforeAfter) : Prop :=
+    (fuel : Nat)
+    (transition : CheckedBeforeAfter)
+    : Prop :=
   transition.declarations = source.declarations ∧
     ValueEnv.validationOk fuel source.declarations transition.before = true ∧
     ValueEnv.validationOk fuel source.declarations transition.after = true ∧
     ∀ relation ∈ source.relations,
       assignmentPredicateWithFuel fuel transition relation
 
-def relationalEventActionExact {τ : Type u}
-    {theory : EventB.Theory.Env} {project : EventB.Typing.Project}
+def relationalEventActionExact
+    {τ : Type u}
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
     {component event : String}
     (source : CheckedRelationalEventSource theory project component event)
-    (fuel : Nat) (encode : τ → CheckedBeforeAfter) (action : τ → Prop) : Prop :=
+    (fuel : Nat)
+    (encode : τ → CheckedBeforeAfter)
+    (action : τ → Prop)
+    : Prop :=
   ∀ state, action state ↔ source.relationAction fuel (encode state)
 
 /- MRG is source-sensitive in a different way from ordinary actions: one concrete
    event must name multiple abstract events.  Keep that target list tied to the
    parsed event so a caller cannot turn a single-event proof into a merge proof. -/
-structure CheckedMergeSource (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (component event : String) where
+structure CheckedMergeSource
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (component event : String)
+    where
   eventSource : CheckedEventSource theory project component event
   targets : List String
   targetsExact : targets = EventB.POG.eventRefinementTargets project component event
@@ -243,9 +305,11 @@ structure CheckedMergeSource (theory : EventB.Theory.Env)
     targetLocators = EventB.POG.eventRefinementTargetLocators project component event
   targetCount : targets.length > 1
 
-def CheckedMergeSource.fromProject (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (component event : String) :
-    Option (CheckedMergeSource theory project component event) :=
+def CheckedMergeSource.fromProject
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (component event : String)
+    : Option (CheckedMergeSource theory project component event) :=
   match CheckedEventSource.fromProject theory project component event with
   | none => none
   | some eventSource =>
@@ -261,8 +325,10 @@ def CheckedMergeSource.fromProject (theory : EventB.Theory.Env)
             targetCount := h }
       else none
 
-def exactWitnessSource? (project : EventB.Typing.Project)
-    (component event witness : String) : Option (String × EventB.Formula.Term) :=
+def exactWitnessSource?
+    (project : EventB.Typing.Project)
+    (component event witness : String)
+    : Option (String × EventB.Formula.Term) :=
   match EventB.Typing.lookupComponent project component with
   | none => none
   | some current =>
@@ -282,8 +348,11 @@ def exactWitnessSource? (project : EventB.Typing.Project)
 
 /- Witness source identity is separate from the concrete event assignment source:
    an abstract parameter witness is not a deterministic concrete update. -/
-structure CheckedWitnessSource (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (component event witness : String) where
+structure CheckedWitnessSource
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (component event witness : String)
+    where
   valuation : ComponentValuation
   valuationChecked :
     ComponentValuation.fromProject theory project component = .ok valuation
@@ -295,9 +364,11 @@ structure CheckedWitnessSource (theory : EventB.Theory.Env)
   sourceExact : exactWitnessSource? project component event witness = some
     (witnessVariable, predicate)
 
-def CheckedWitnessSource.fromProject (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (component event witness : String) :
-    Option (CheckedWitnessSource theory project component event witness) :=
+def CheckedWitnessSource.fromProject
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (component event witness : String)
+    : Option (CheckedWitnessSource theory project component event witness) :=
   match valuationChecked : ComponentValuation.fromProject theory project component with
   | .error _ => none
   | .ok valuation =>
@@ -313,15 +384,18 @@ def CheckedWitnessSource.fromProject (theory : EventB.Theory.Env)
               predicate
               sourceExact }
 
-theorem witnessSourceExact {theory : EventB.Theory.Env}
-    {project : EventB.Typing.Project} {component event witness : String}
-    (source : CheckedWitnessSource theory project component event witness) :
-    exactWitnessSource? project component event witness = some
-      (source.witnessVariable, source.predicate) :=
+theorem witnessSourceExact
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {component event witness : String}
+    (source : CheckedWitnessSource theory project component event witness)
+    : exactWitnessSource? project component event witness = some (source.witnessVariable, source.predicate) :=
   source.sourceExact
 
-def exactVariantExpression? (project : EventB.Typing.Project) (component : String) :
-    Option EventB.Formula.Term :=
+def exactVariantExpression?
+    (project : EventB.Typing.Project)
+    (component : String)
+    : Option EventB.Formula.Term :=
   match EventB.Typing.lookupComponent project component with
   | none => none
   | some current =>
@@ -333,27 +407,41 @@ def exactVariantExpression? (project : EventB.Typing.Project) (component : Strin
           | some source => (EventB.Formula.parse source).toOption
       | _ => none
 
-structure CheckedVariantSource (project : EventB.Typing.Project) (component : String) where
+structure CheckedVariantSource
+    (project : EventB.Typing.Project)
+    (component : String)
+    where
   expression : EventB.Formula.Term
   expressionExact : exactVariantExpression? project component = some expression
 
-def CheckedVariantSource.fromProject (project : EventB.Typing.Project) (component : String) :
-    Option (CheckedVariantSource project component) :=
+def CheckedVariantSource.fromProject
+    (project : EventB.Typing.Project)
+    (component : String)
+    : Option (CheckedVariantSource project component) :=
   match expressionExact : exactVariantExpression? project component with
   | some expression => some { expression, expressionExact }
   | none => none
 
-def eventActionExact {τ : Type u}
-    {theory : EventB.Theory.Env} {project : EventB.Typing.Project}
-    {component event : String} (source : CheckedEventSource theory project component event)
-    (fuel : Nat) (encode : τ → CheckedBeforeAfter) (action : τ → Prop) : Prop :=
+def eventActionExact
+    {τ : Type u}
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {component event : String}
+    (source : CheckedEventSource theory project component event)
+    (fuel : Nat)
+    (encode : τ → CheckedBeforeAfter)
+    (action : τ → Prop)
+    : Prop :=
   ∀ state, action state ↔ source.assignmentAction fuel (encode state)
 
 /- One merge branch is accepted only when its abstract semantic event is connected to
    the exact parsed source event.  The semantic event remains a Lean value, but its
    guard and action must use the checked abstract source through the supplied encoder. -/
-structure CheckedMergeBranch (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (α : Type u) where
+structure CheckedMergeBranch
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (α : Type u)
+    where
   locator : String × String
   eventSource : CheckedEventSource theory project locator.1 locator.2
   guardSource : CheckedGuardSource theory project locator.1 locator.2
@@ -369,9 +457,13 @@ structure CheckedMergeBranch (theory : EventB.Theory.Env)
    declarations to strict component inference, validates the exact generated formula,
    and carries only the project-specific implication from that evaluator meaning to
    the semantic contract. -/
-structure FormulaAdequacy {theory : EventB.Theory.Env}
-    {project : EventB.Typing.Project} (binding : CheckedPO theory project)
-    (τ : Type u) (semantic : Prop) where
+structure FormulaAdequacy
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    (binding : CheckedPO theory project)
+    (τ : Type u)
+    (semantic : Prop)
+    where
   evaluator : TypedFormulaModel
   encode : τ → ValueEnv
   declarationScope : Option String
@@ -384,26 +476,39 @@ structure FormulaAdequacy {theory : EventB.Theory.Env}
   adequate : FormulaModel.validUnchecked
       (evaluator.on encode) binding.obligation → semantic
 
-theorem FormulaAdequacy.valid {theory : EventB.Theory.Env}
-    {project : EventB.Typing.Project} {binding : CheckedPO theory project}
-    {τ : Type u} {semantic : Prop} (formula : FormulaAdequacy binding τ semantic) :
-    FormulaModel.validUnchecked (formula.evaluator.on formula.encode) binding.obligation :=
+theorem FormulaAdequacy.valid
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {binding : CheckedPO theory project}
+    {τ : Type u}
+    {semantic : Prop}
+    (formula : FormulaAdequacy binding τ semantic)
+    : FormulaModel.validUnchecked (formula.evaluator.on formula.encode) binding.obligation :=
   formula.evaluator.valid_on formula.encode binding.obligation
     formula.evaluatorValid formula.stateValid
 
-theorem FormulaAdequacy.validWithCoverage {theory : EventB.Theory.Env}
-    {project : EventB.Typing.Project} {binding : CheckedPO theory project}
-    {τ : Type u} {semantic : Prop} (formula : FormulaAdequacy binding τ semantic) :
-    FormulaModel.validUnchecked (formula.evaluator.on formula.encode) binding.obligation ∧
+theorem FormulaAdequacy.validWithCoverage
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {binding : CheckedPO theory project}
+    {τ : Type u}
+    {semantic : Prop}
+    (formula : FormulaAdequacy binding τ semantic)
+    : FormulaModel.validUnchecked (formula.evaluator.on formula.encode) binding.obligation ∧
       (∀ env, formula.evaluator.wellFormed env → ∃ state, formula.encode state = env) :=
   ⟨formula.valid, formula.stateComplete⟩
 
 /- Adequacy for an invariant/reachability-restricted semantic state domain. The
    domain is explicit and coverage is required only over that domain; this is the
    missing counterpart to transition source coverage for non-total VAR actions. -/
-structure DomainFormulaAdequacy {theory : EventB.Theory.Env}
-    {project : EventB.Typing.Project} (binding : CheckedPO theory project)
-    (τ : Type u) (semantic : Prop) (domain : ValueEnv → Prop) where
+structure DomainFormulaAdequacy
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    (binding : CheckedPO theory project)
+    (τ : Type u)
+    (semantic : Prop)
+    (domain : ValueEnv → Prop)
+    where
   evaluator : TypedFormulaModel
   encode : τ → ValueEnv
   declarationScope : Option String
@@ -416,25 +521,38 @@ structure DomainFormulaAdequacy {theory : EventB.Theory.Env}
   adequate : FormulaModel.validUnchecked
       (evaluator.on encode) binding.obligation → semantic
 
-theorem DomainFormulaAdequacy.valid {theory : EventB.Theory.Env}
-    {project : EventB.Typing.Project} {binding : CheckedPO theory project}
-    {τ : Type u} {semantic : Prop} {domain : ValueEnv → Prop}
-    (formula : DomainFormulaAdequacy binding τ semantic domain) :
-    FormulaModel.validUnchecked (formula.evaluator.on formula.encode) binding.obligation :=
+theorem DomainFormulaAdequacy.valid
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {binding : CheckedPO theory project}
+    {τ : Type u}
+    {semantic : Prop}
+    {domain : ValueEnv → Prop}
+    (formula : DomainFormulaAdequacy binding τ semantic domain)
+    : FormulaModel.validUnchecked (formula.evaluator.on formula.encode) binding.obligation :=
   formula.evaluator.validOnDomain_on domain formula.encode binding.obligation
     formula.evaluatorValid formula.stateValid
 
-theorem DomainFormulaAdequacy.validWithCoverage {theory : EventB.Theory.Env}
-    {project : EventB.Typing.Project} {binding : CheckedPO theory project}
-    {τ : Type u} {semantic : Prop} {domain : ValueEnv → Prop}
-    (formula : DomainFormulaAdequacy binding τ semantic domain) :
-    FormulaModel.validUnchecked (formula.evaluator.on formula.encode) binding.obligation ∧
+theorem DomainFormulaAdequacy.validWithCoverage
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {binding : CheckedPO theory project}
+    {τ : Type u}
+    {semantic : Prop}
+    {domain : ValueEnv → Prop}
+    (formula : DomainFormulaAdequacy binding τ semantic domain)
+    : FormulaModel.validUnchecked (formula.evaluator.on formula.encode) binding.obligation ∧
       (∀ env, domain env → ∃ state, formula.encode state = env) :=
   ⟨formula.valid, formula.stateComplete⟩
 
-structure TransitionFormulaAdequacy {theory : EventB.Theory.Env}
-    {project : EventB.Typing.Project} (binding : CheckedPO theory project)
-    (τ : Type u) (semantic : Prop) (source : CheckedBeforeAfter → Prop) where
+structure TransitionFormulaAdequacy
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    (binding : CheckedPO theory project)
+    (τ : Type u)
+    (semantic : Prop)
+    (source : CheckedBeforeAfter → Prop)
+    where
   evaluator : TypedTransitionModel
   encode : τ → CheckedBeforeAfter
   declarations : List (String × EventB.Typing.Ty)
@@ -451,73 +569,117 @@ structure TransitionFormulaAdequacy {theory : EventB.Theory.Env}
   adequate : FormulaModel.validUnchecked
       (evaluator.on encode) binding.obligation → semantic
 
-theorem TransitionFormulaAdequacy.valid {theory : EventB.Theory.Env}
-    {project : EventB.Typing.Project} {binding : CheckedPO theory project}
-    {τ : Type u} {semantic : Prop} {source : CheckedBeforeAfter → Prop}
-  (formula : TransitionFormulaAdequacy binding τ semantic source) :
-    FormulaModel.validUnchecked
-        (formula.evaluator.on formula.encode) binding.obligation :=
+theorem TransitionFormulaAdequacy.valid
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {binding : CheckedPO theory project}
+    {τ : Type u}
+    {semantic : Prop}
+    {source : CheckedBeforeAfter → Prop}
+    (formula : TransitionFormulaAdequacy binding τ semantic source)
+    : FormulaModel.validUnchecked (formula.evaluator.on formula.encode) binding.obligation :=
   formula.evaluator.validOnDomain_on source formula.encode
     binding.obligation formula.evaluatorValid formula.sourceValid
 
 theorem TransitionFormulaAdequacy.sourceTransition
-    {theory : EventB.Theory.Env} {project : EventB.Typing.Project}
-    {binding : CheckedPO theory project} {τ : Type u} {semantic : Prop}
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {binding : CheckedPO theory project}
+    {τ : Type u}
+    {semantic : Prop}
     {source : CheckedBeforeAfter → Prop}
     (formula : TransitionFormulaAdequacy binding τ semantic source)
-    (transition : CheckedBeforeAfter) (hsource : source transition) :
-    ∃ state, formula.encode state = transition :=
+    (transition : CheckedBeforeAfter)
+    (hsource : source transition)
+    : ∃ state,
+      formula.encode state = transition :=
   formula.sourceComplete transition hsource
 
 theorem TransitionFormulaAdequacy.validWithCoverage
-    {theory : EventB.Theory.Env} {project : EventB.Typing.Project}
-    {binding : CheckedPO theory project} {τ : Type u} {semantic : Prop}
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {binding : CheckedPO theory project}
+    {τ : Type u}
+    {semantic : Prop}
     {source : CheckedBeforeAfter → Prop}
-    (formula : TransitionFormulaAdequacy binding τ semantic source) :
-    FormulaModel.validUnchecked
+    (formula : TransitionFormulaAdequacy binding τ semantic source)
+    : FormulaModel.validUnchecked
         (formula.evaluator.on formula.encode) binding.obligation ∧
       (∀ transition, source transition → ∃ state, formula.encode state = transition) :=
   ⟨formula.valid, formula.sourceComplete⟩
 
-def invariantSemantic {σ : Type u} (event : Event σ) (invariant : σ → Prop) : Prop :=
+def invariantSemantic
+    {σ : Type u}
+    (event : Event σ)
+    (invariant : σ → Prop)
+    : Prop :=
   ∀ before after, invariant before → event.grd before → event.act before after →
     invariant after
 
-def guardSemantic {γ α : Type u} (gluing : γ → α → Prop)
-    (concrete : Event γ) (abstract : Event α) : Prop :=
+def guardSemantic
+    {γ α : Type u}
+    (gluing : γ → α → Prop)
+    (concrete : Event γ)
+    (abstract : Event α)
+    : Prop :=
   guardStrengthened gluing concrete abstract
 
-def actionSemantic {γ α : Type u} (gluing : γ → α → Prop)
-    (concrete : Event γ) (abstract : Event α) : Prop :=
+def actionSemantic
+    {γ α : Type u}
+    (gluing : γ → α → Prop)
+    (concrete : Event γ)
+    (abstract : Event α)
+    : Prop :=
   actionSimulates gluing concrete abstract
 
-def feasibilitySemantic {σ : Type u} (pre : σ → Prop) (action : σ → σ → Prop) : Prop :=
+def feasibilitySemantic
+    {σ : Type u}
+    (pre : σ → Prop)
+    (action : σ → σ → Prop)
+    : Prop :=
   ∀ before, pre before → ∃ after, action before after
 
-def witnessFeasibilitySemantic {σ α : Type u} (pre : σ → Prop)
-    (predicate : σ → α → Prop) : Prop :=
+def witnessFeasibilitySemantic
+    {σ α : Type u}
+    (pre : σ → Prop)
+    (predicate : σ → α → Prop)
+    : Prop :=
   ∀ state, pre state → ∃ witness, predicate state witness
 
-def witnessDefinednessSemantic {σ : Type u} (pre defined : σ → Prop) : Prop :=
+def witnessDefinednessSemantic
+    {σ : Type u}
+    (pre defined : σ → Prop)
+    : Prop :=
   ∀ state, pre state → defined state
 
-def implicationSemantic {σ : Type u} (hypotheses goal : σ → Prop) : Prop :=
+def implicationSemantic
+    {σ : Type u}
+    (hypotheses goal : σ → Prop)
+    : Prop :=
   ∀ state, hypotheses state → goal state
 
 /- A source-bound split conclusion names the selected abstract branch itself.
    `A.step` is intentionally not enough here: it could be discharged by an
    unrelated abstract event.  The positional `branchEvents` list is paired with
    `CheckedMergeSource.targets` by `MergeAdapter.branchLabelsExact`. -/
-def splitSimulationSemantic {γ α : Type u} {C : Machine γ} {A : Machine α}
-    {J : γ → α → Prop} (contract : SplitSimulation C A J)
-    (branchEvents : List (String × Event α)) : Prop :=
+def splitSimulationSemantic
+    {γ α : Type u}
+    {C : Machine γ}
+    {A : Machine α}
+    {J : γ → α → Prop}
+    (contract : SplitSimulation C A J)
+    (branchEvents : List (String × Event α))
+    : Prop :=
   ∀ c c' a, J c a → contract.concreteEvent.grd c →
     contract.concreteEvent.act c c' →
       ∃ label branch a', (label, branch) ∈ branchEvents ∧
         branch.grd a ∧ branch.act a a' ∧ J c' a'
 
-structure InvAdapter (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (σ : Type u) where
+structure InvAdapter
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (σ : Type u)
+    where
   binding : CheckedPO theory project
   eventLabel : String
   invariantLabel : String
@@ -537,13 +699,19 @@ structure InvAdapter (theory : EventB.Theory.Env)
     guardSource.holds fuel (formula.encode state)
   nonempty : ∃ before after, event.grd before ∧ event.act before after
 
-theorem InvAdapter.sound {theory : EventB.Theory.Env} {project : EventB.Typing.Project}
-    {σ : Type u} (adapter : InvAdapter theory project σ) :
-    invariantSemantic adapter.event adapter.invariant :=
+theorem InvAdapter.sound
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {σ : Type u}
+    (adapter : InvAdapter theory project σ)
+    : invariantSemantic adapter.event adapter.invariant :=
   adapter.formula.adequate adapter.formula.valid
 
-structure GrdAdapter (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (γ α : Type u) where
+structure GrdAdapter
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (γ α : Type u)
+    where
   binding : CheckedPO theory project
   concreteLabel : String
   abstractLabel : String
@@ -566,13 +734,19 @@ structure GrdAdapter (theory : EventB.Theory.Env)
   nonempty : ∃ concreteState abstractState,
     gluing concreteState abstractState ∧ concrete.grd concreteState
 
-theorem GrdAdapter.sound {theory : EventB.Theory.Env} {project : EventB.Typing.Project}
-    {γ α : Type u} (adapter : GrdAdapter theory project γ α) :
-    guardSemantic adapter.gluing adapter.concrete adapter.abstract :=
+theorem GrdAdapter.sound
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {γ α : Type u}
+    (adapter : GrdAdapter theory project γ α)
+    : guardSemantic adapter.gluing adapter.concrete adapter.abstract :=
   adapter.formula.adequate adapter.formula.valid
 
-structure SimAdapter (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (γ α : Type u) where
+structure SimAdapter
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (γ α : Type u)
+    where
   binding : CheckedPO theory project
   concreteLabel : String
   abstractLabel : String
@@ -599,13 +773,19 @@ structure SimAdapter (theory : EventB.Theory.Env)
     gluing concreteState abstractState ∧ concrete.grd concreteState ∧
       concrete.act concreteState concreteAfter
 
-theorem SimAdapter.sound {theory : EventB.Theory.Env} {project : EventB.Typing.Project}
-    {γ α : Type u} (adapter : SimAdapter theory project γ α) :
-    actionSemantic adapter.gluing adapter.concrete adapter.abstract :=
+theorem SimAdapter.sound
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {γ α : Type u}
+    (adapter : SimAdapter theory project γ α)
+    : actionSemantic adapter.gluing adapter.concrete adapter.abstract :=
   adapter.formula.adequate adapter.formula.valid
 
-structure FisAdapter (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (σ : Type u) where
+structure FisAdapter
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (σ : Type u)
+    where
   binding : CheckedPO theory project
   eventLabel : String
   actionLabel : String
@@ -622,13 +802,19 @@ structure FisAdapter (theory : EventB.Theory.Env)
     (fun state => action state.1 state.2)
   nonempty : ∃ before, pre before
 
-theorem FisAdapter.sound {theory : EventB.Theory.Env} {project : EventB.Typing.Project}
-    {σ : Type u} (adapter : FisAdapter theory project σ) :
-    feasibilitySemantic adapter.pre adapter.action :=
+theorem FisAdapter.sound
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {σ : Type u}
+    (adapter : FisAdapter theory project σ)
+    : feasibilitySemantic adapter.pre adapter.action :=
   adapter.formula.adequate adapter.formula.valid
 
-structure WfisAdapter (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (σ α : Type u) where
+structure WfisAdapter
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (σ α : Type u)
+    where
   binding : CheckedPO theory project
   eventLabel : String
   witnessLabel : String
@@ -646,13 +832,19 @@ structure WfisAdapter (theory : EventB.Theory.Env)
     (witnessFeasibilitySemantic pre predicate)
   nonempty : ∃ state, pre state
 
-theorem WfisAdapter.sound {theory : EventB.Theory.Env} {project : EventB.Typing.Project}
-    {σ α : Type u} (adapter : WfisAdapter theory project σ α) :
-    witnessFeasibilitySemantic adapter.pre adapter.predicate :=
+theorem WfisAdapter.sound
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {σ α : Type u}
+    (adapter : WfisAdapter theory project σ α)
+    : witnessFeasibilitySemantic adapter.pre adapter.predicate :=
   adapter.formula.adequate adapter.formula.valid
 
-structure WwdAdapter (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (σ α : Type u) where
+structure WwdAdapter
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (σ α : Type u)
+    where
   binding : CheckedPO theory project
   eventLabel : String
   witnessLabel : String
@@ -669,13 +861,19 @@ structure WwdAdapter (theory : EventB.Theory.Env)
   formula : FormulaAdequacy binding σ
     (witnessDefinednessSemantic pre defined)
 
-theorem WwdAdapter.sound {theory : EventB.Theory.Env} {project : EventB.Typing.Project}
-    {σ α : Type u} (adapter : WwdAdapter theory project σ α) :
-  witnessDefinednessSemantic adapter.pre adapter.defined :=
+theorem WwdAdapter.sound
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {σ α : Type u}
+    (adapter : WwdAdapter theory project σ α)
+    : witnessDefinednessSemantic adapter.pre adapter.defined :=
   adapter.formula.adequate adapter.formula.valid
 
-structure VwdAdapter (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (σ : Type u) where
+structure VwdAdapter
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (σ : Type u)
+    where
   binding : CheckedPO theory project
   kind : binding.obligation.kind = "VWD"
   sourceName : binding.obligation.name = "VWD"
@@ -685,13 +883,19 @@ structure VwdAdapter (theory : EventB.Theory.Env)
   formula : FormulaAdequacy binding σ (witnessDefinednessSemantic pre defined)
   nonempty : ∃ state, pre state
 
-theorem VwdAdapter.sound {theory : EventB.Theory.Env} {project : EventB.Typing.Project}
-    {σ : Type u} (adapter : VwdAdapter theory project σ) :
-    witnessDefinednessSemantic adapter.pre adapter.defined :=
+theorem VwdAdapter.sound
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {σ : Type u}
+    (adapter : VwdAdapter theory project σ)
+    : witnessDefinednessSemantic adapter.pre adapter.defined :=
   adapter.formula.adequate adapter.formula.valid
 
-structure WdAdapter (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (σ : Type u) where
+structure WdAdapter
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (σ : Type u)
+    where
   binding : CheckedPO theory project
   sourceLabel : String
   kind : binding.obligation.kind = "WD"
@@ -701,13 +905,19 @@ structure WdAdapter (theory : EventB.Theory.Env)
   defined : σ → Prop
   formula : FormulaAdequacy binding σ (witnessDefinednessSemantic pre defined)
 
-theorem WdAdapter.sound {theory : EventB.Theory.Env} {project : EventB.Typing.Project}
-    {σ : Type u} (adapter : WdAdapter theory project σ) :
-    witnessDefinednessSemantic adapter.pre adapter.defined :=
+theorem WdAdapter.sound
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {σ : Type u}
+    (adapter : WdAdapter theory project σ)
+    : witnessDefinednessSemantic adapter.pre adapter.defined :=
   adapter.formula.adequate adapter.formula.valid
 
-structure ThmAdapter (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (σ : Type u) where
+structure ThmAdapter
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (σ : Type u)
+    where
   binding : CheckedPO theory project
   sourceLabel : String
   kind : binding.obligation.kind = "THM"
@@ -716,14 +926,22 @@ structure ThmAdapter (theory : EventB.Theory.Env)
   goal : σ → Prop
   formula : FormulaAdequacy binding σ (implicationSemantic hypotheses goal)
 
-theorem ThmAdapter.sound {theory : EventB.Theory.Env} {project : EventB.Typing.Project}
-    {σ : Type u} (adapter : ThmAdapter theory project σ) :
-    implicationSemantic adapter.hypotheses adapter.goal :=
+theorem ThmAdapter.sound
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {σ : Type u}
+    (adapter : ThmAdapter theory project σ)
+    : implicationSemantic adapter.hypotheses adapter.goal :=
   adapter.formula.adequate adapter.formula.valid
 
-structure MergeAdapter (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) {γ α : Type u}
-    {C : Machine γ} {A : Machine α} (J : γ → α → Prop) where
+structure MergeAdapter
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    {γ α : Type u}
+    {C : Machine γ}
+    {A : Machine α}
+    (J : γ → α → Prop)
+    where
   binding : CheckedPO theory project
   eventLabel : String
   kind : binding.obligation.kind = "MRG"
@@ -760,8 +978,11 @@ theorem MergeAdapter.sound {theory : EventB.Theory.Env} {project : EventB.Typing
         branch.grd a ∧ branch.act a a' ∧ J c' a' := by
   exact adapter.formula.adequate adapter.formula.valid
 
-structure IntegerVariantAdapter (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (σ : Type u) where
+structure IntegerVariantAdapter
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (σ : Type u)
+    where
   natBinding : CheckedPO theory project
   varBinding : CheckedPO theory project
   natKind : natBinding.obligation.kind = "NAT"
@@ -785,16 +1006,21 @@ structure IntegerVariantAdapter (theory : EventB.Theory.Env)
   varActionExact : eventActionExact eventSource fuel varFormula.encode
     (fun state => contract.action state.1 state.2)
 
-theorem IntegerVariantAdapter.sound {theory : EventB.Theory.Env}
-    {project : EventB.Typing.Project} {σ : Type u}
-    (adapter : IntegerVariantAdapter theory project σ) :
-    integerVariantNaturality adapter.contract ∧
+theorem IntegerVariantAdapter.sound
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {σ : Type u}
+    (adapter : IntegerVariantAdapter theory project σ)
+    : integerVariantNaturality adapter.contract ∧
       integerVariantProgressSemantic adapter.contract :=
   ⟨adapter.natFormula.adequate adapter.natFormula.valid,
     adapter.varFormula.adequate adapter.varFormula.valid⟩
 
-structure NaturalVariantAdapter (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (σ : Type u) where
+structure NaturalVariantAdapter
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (σ : Type u)
+    where
   natBinding : CheckedPO theory project
   varBinding : CheckedPO theory project
   natKind : natBinding.obligation.kind = "NAT"
@@ -819,20 +1045,25 @@ structure NaturalVariantAdapter (theory : EventB.Theory.Env)
   varActionExact : eventActionExact eventSource fuel varFormula.encode
     (fun state => action state.1 state.2)
 
-theorem NaturalVariantAdapter.sound {theory : EventB.Theory.Env}
-    {project : EventB.Typing.Project} {σ : Type u}
-    (adapter : NaturalVariantAdapter theory project σ) :
-    (∀ state, 0 ≤ adapter.measure state) ∧
-      (∀ before after, adapter.action before after →
-        adapter.measure after < adapter.measure before) :=
+theorem NaturalVariantAdapter.sound
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {σ : Type u}
+    (adapter : NaturalVariantAdapter theory project σ)
+    : (∀ state, 0 ≤ adapter.measure state) ∧
+      (∀ before after, adapter.action before after → adapter.measure after < adapter.measure before) :=
   ⟨adapter.natFormula.adequate adapter.natFormula.valid,
     adapter.varFormula.adequate adapter.varFormula.valid⟩
 
 /-- Source-bound VAR adapter for variants whose well-founded order is supplied by
     the semantic model rather than guessed from the surface expression. -/
-structure WellFoundedVariantAdapter (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (σ : Type u) (α : Type v)
-    (contract : WellFoundedVariant σ α) where
+structure WellFoundedVariantAdapter
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (σ : Type u)
+    (α : Type v)
+    (contract : WellFoundedVariant σ α)
+    where
   binding : CheckedPO theory project
   kind : binding.obligation.kind = "VAR"
   eventLabel : String
@@ -847,16 +1078,24 @@ structure WellFoundedVariantAdapter (theory : EventB.Theory.Env)
   actionExact : eventActionExact eventSource fuel formula.encode
     (fun state => contract.action state.1 state.2)
 
-theorem WellFoundedVariantAdapter.sound {theory : EventB.Theory.Env}
-    {project : EventB.Typing.Project} {σ : Type u} {α : Type v}
+theorem WellFoundedVariantAdapter.sound
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {σ : Type u}
+    {α : Type v}
     {contract : WellFoundedVariant σ α}
-    (adapter : WellFoundedVariantAdapter theory project σ α contract) :
-    wellFoundedVariantProgressSemantic contract :=
+    (adapter : WellFoundedVariantAdapter theory project σ α contract)
+    : wellFoundedVariantProgressSemantic contract :=
   adapter.formula.adequate adapter.formula.valid
 
-structure FiniteSetVariantAdapter (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) {σ : Type u} {α : Type v} {γ : Type u}
-    (contract : FiniteSetVariant σ α) where
+structure FiniteSetVariantAdapter
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    {σ : Type u}
+    {α : Type v}
+    {γ : Type u}
+    (contract : FiniteSetVariant σ α)
+    where
   finBinding : CheckedPO theory project
   varBinding : CheckedPO theory project
   finKind : finBinding.obligation.kind = "FIN"
@@ -912,9 +1151,15 @@ theorem FiniteSetVariantAdapter.sound {theory : EventB.Theory.Env}
    VAR carrier. Unlike the legacy adapter above, the VAR formula is not quantified over
    every semantic pair; only states in `η` whose encoding is a checked source transition
    are admitted. -/
-structure RestrictedFiniteSetVariantAdapter (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) {σ : Type u} {α : Type v} {γ : Type u}
-    {η : Type u} (contract : FiniteSetVariant σ α) where
+structure RestrictedFiniteSetVariantAdapter
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    {σ : Type u}
+    {α : Type v}
+    {γ : Type u}
+    {η : Type u}
+    (contract : FiniteSetVariant σ α)
+    where
   finBinding : CheckedPO theory project
   varBinding : CheckedPO theory project
   finKind : finBinding.obligation.kind = "FIN"
@@ -971,12 +1216,17 @@ structure RestrictedFiniteSetVariantAdapter (theory : EventB.Theory.Env)
       varSource (varFormula.encode state)
   fuelExact : finFormula.evaluator.fuel = fuel ∧ varFormula.evaluator.fuel = fuel
 
-theorem RestrictedFiniteSetVariantAdapter.sound {theory : EventB.Theory.Env}
-    {project : EventB.Typing.Project} {σ : Type u} {α : Type v} {γ : Type u}
-    {η : Type u} {contract : FiniteSetVariant σ α}
-    (adapter : RestrictedFiniteSetVariantAdapter (η := η) (γ := γ)
-      theory project contract) :
-    finiteVariantFiniteness contract ∧ finiteVariantProgressSemantic contract := by
+theorem RestrictedFiniteSetVariantAdapter.sound
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {σ : Type u}
+    {α : Type v}
+    {γ : Type u}
+    {η : Type u}
+    {contract : FiniteSetVariant σ α}
+    (adapter : RestrictedFiniteSetVariantAdapter (η := η) (γ := γ) theory project contract)
+    : finiteVariantFiniteness contract ∧
+      finiteVariantProgressSemantic contract := by
   constructor
   · exact adapter.finFormula.adequate adapter.finFormula.valid
   · intro before after action
@@ -1011,11 +1261,17 @@ theorem FiniteSetVariantAdapter.actionTotal {theory : EventB.Theory.Env}
 
 /- The source equalities are intentionally redundant with the names above: they make
    the NAT/VAR pairing a checked identity, rather than a caller convention. -/
-def finiteVariantSourceMatch (source : String) (nat var : Obligation) : Bool :=
+def finiteVariantSourceMatch
+    (source : String)
+    (nat var : Obligation)
+    : Bool :=
   nat.kind == "NAT" && var.kind == "VAR" &&
     nat.name == source ++ "/NAT" && var.name == source ++ "/VAR"
 
-def finiteSetVariantSourceMatch (source : String) (fin var : Obligation) : Bool :=
+def finiteSetVariantSourceMatch
+    (source : String)
+    (fin var : Obligation)
+    : Bool :=
   fin.kind == "FIN" && var.kind == "VAR" &&
     fin.name == "FIN" && var.name == source ++ "/VAR"
 
@@ -1026,7 +1282,9 @@ def finiteSetVariantSourceMatch (source : String) (fin var : Obligation) : Bool 
   { name := "other/NAT", kind := "NAT" }
   { name := "step/VAR", kind := "VAR" }
 
-private def finiteVariantProject : EventB.Typing.Project :=
+private
+def finiteVariantProject
+    : EventB.Typing.Project :=
   [{ name := "M"
      elem := .machineFile [ ("org.eventb.core.name", "M") ]
        [ .variable [ ("org.eventb.core.identifier", "x") ] []
@@ -1041,7 +1299,9 @@ private def finiteVariantProject : EventB.Typing.Project :=
            [ .action [ ("org.eventb.core.label", "set")
                      , ("org.eventb.core.assignment", "x ≔ x") ] [] ] ] }]
 
-private def theoremFixtureProject : EventB.Typing.Project :=
+private
+def theoremFixtureProject
+    : EventB.Typing.Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [ .invariant [("org.eventb.core.label", "taut"),
@@ -1061,26 +1321,32 @@ private def theoremFixtureProject : EventB.Typing.Project :=
 #guard (CheckedPO.fromGenerated? EventB.Theory.empty theoremFixtureProject "M"
   (fun obligation => obligation.kind == "THM" && obligation.name == "taut/THM")).isSome
 
-private def positiveThmObligation : Obligation :=
+private
+def positiveThmObligation
+    : Obligation :=
   { component := "M", name := "taut/THM", kind := "THM"
     goal := some (.bin "=" (.num 1) (.num 1)) }
 
 #guard (CheckedPO.fromGeneratedExact? EventB.Theory.empty theoremFixtureProject
   positiveThmObligation).isSome
 
-private def positiveThmPO : CheckedPO EventB.Theory.empty theoremFixtureProject :=
+private
+def positiveThmPO
+    : CheckedPO EventB.Theory.empty theoremFixtureProject :=
   (CheckedPO.fromGeneratedExact? EventB.Theory.empty theoremFixtureProject
     positiveThmObligation).get (by native_decide)
 
-private theorem positiveThmPO_obligation :
-    positiveThmPO.obligation = positiveThmObligation := by
+private
+theorem positiveThmPO_obligation
+    : positiveThmPO.obligation = positiveThmObligation := by
   native_decide
 
 private abbrev theoremState :=
   { env : ValueEnv // ValueEnv.validationOk 128 [] env = true }
 
-private def positiveThmAdapter :
-    ThmAdapter EventB.Theory.empty theoremFixtureProject theoremState :=
+private
+def positiveThmAdapter
+    : ThmAdapter EventB.Theory.empty theoremFixtureProject theoremState :=
   { binding := positiveThmPO
     sourceLabel := "taut"
     kind := by native_decide
@@ -1109,41 +1375,53 @@ private def positiveThmAdapter :
           intro _ _ _
           trivial } }
 
-example : implicationSemantic positiveThmAdapter.hypotheses positiveThmAdapter.goal :=
+example
+    : implicationSemantic positiveThmAdapter.hypotheses positiveThmAdapter.goal :=
   positiveThmAdapter.sound
 
-private def invariantFixtureProject : EventB.Typing.Project :=
+private
+def invariantFixtureProject
+    : EventB.Typing.Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [ .invariant [("org.eventb.core.label", "taut"),
                     ("org.eventb.core.predicate", "1 = 1")] []
        , .event [("org.eventb.core.label", "INITIALISATION")] [] ] }]
 
-private def positiveInvObligation : Obligation :=
+private
+def positiveInvObligation
+    : Obligation :=
   { component := "M", name := "INITIALISATION/taut/INV", kind := "INV"
     goal := some (.bin "=" (.num 1) (.num 1)) }
 
 #guard (CheckedPO.fromGeneratedExact? EventB.Theory.empty invariantFixtureProject
   positiveInvObligation).isSome
 
-private def positiveInvPO : CheckedPO EventB.Theory.empty invariantFixtureProject :=
+private
+def positiveInvPO
+    : CheckedPO EventB.Theory.empty invariantFixtureProject :=
   (CheckedPO.fromGeneratedExact? EventB.Theory.empty invariantFixtureProject
     positiveInvObligation).get (by native_decide)
 
-private theorem positiveInvPO_obligation :
-    positiveInvPO.obligation = positiveInvObligation := by
+private
+theorem positiveInvPO_obligation
+    : positiveInvPO.obligation = positiveInvObligation := by
   native_decide
 
-private def invariantFixtureSource : CheckedEventSource EventB.Theory.empty
-    invariantFixtureProject "M" "INITIALISATION" :=
+private
+def invariantFixtureSource
+    : CheckedEventSource EventB.Theory.empty invariantFixtureProject "M" "INITIALISATION" :=
   (CheckedEventSource.fromProject EventB.Theory.empty invariantFixtureProject "M"
     "INITIALISATION").get (by native_decide)
 
-private def invariantFixtureTransition : CheckedBeforeAfter :=
+private
+def invariantFixtureTransition
+    : CheckedBeforeAfter :=
   { before := {}, after := {}, declarations := [] }
 
-private theorem invariantFixtureAssignment :
-    assignmentRelation 128 [] invariantFixtureTransition [] := by
+private
+theorem invariantFixtureAssignment
+    : assignmentRelation 128 [] invariantFixtureTransition [] := by
   constructor
   · rfl
   constructor
@@ -1152,14 +1430,16 @@ private theorem invariantFixtureAssignment :
   · native_decide
   · rfl
 
-private def positiveInvSource : CheckedEventSource EventB.Theory.empty
-    invariantFixtureProject positiveInvPO.obligation.component "INITIALISATION" := by
+private
+def positiveInvSource
+    : CheckedEventSource EventB.Theory.empty invariantFixtureProject positiveInvPO.obligation.component "INITIALISATION" := by
   have component : positiveInvPO.obligation.component = "M" := by native_decide
   rw [component]
   exact invariantFixtureSource
 
-private def positiveInvGuardSource : CheckedGuardSource EventB.Theory.empty
-    invariantFixtureProject positiveInvPO.obligation.component "INITIALISATION" := by
+private
+def positiveInvGuardSource
+    : CheckedGuardSource EventB.Theory.empty invariantFixtureProject positiveInvPO.obligation.component "INITIALISATION" := by
   have component : positiveInvPO.obligation.component = "M" := by native_decide
   rw [component]
   exact (CheckedGuardSource.fromProject EventB.Theory.empty invariantFixtureProject
@@ -1169,7 +1449,9 @@ private abbrev invariantSourceState :=
   { transition : CheckedBeforeAfter //
       positiveInvSource.assignmentAction 128 transition }
 
-private def invariantSourceModel : TypedTransitionModel :=
+private
+def invariantSourceModel
+    : TypedTransitionModel :=
   { fuel := 128
     wellFormed := positiveInvSource.assignmentAction 128
     inhabited := ⟨invariantFixtureTransition, by
@@ -1181,8 +1463,9 @@ private def invariantSourceModel : TypedTransitionModel :=
       exact invariantFixtureAssignment⟩
     supports := fun _ => true }
 
-private def positiveInvAdapter : InvAdapter EventB.Theory.empty invariantFixtureProject
-    invariantSourceState :=
+private
+def positiveInvAdapter
+    : InvAdapter EventB.Theory.empty invariantFixtureProject invariantSourceState :=
   { binding := positiveInvPO
     eventLabel := "INITIALISATION"
     invariantLabel := "taut"
@@ -1270,10 +1553,13 @@ private def positiveInvAdapter : InvAdapter EventB.Theory.empty invariantFixture
         exact invariantFixtureAssignment⟩
       exact ⟨state, state, trivial, trivial⟩ }
 
-example : invariantSemantic positiveInvAdapter.event positiveInvAdapter.invariant :=
+example
+    : invariantSemantic positiveInvAdapter.event positiveInvAdapter.invariant :=
   positiveInvAdapter.sound
 
-private def grdFixtureProject : EventB.Typing.Project :=
+private
+def grdFixtureProject
+    : EventB.Typing.Project :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [ .event [("org.eventb.core.label", "INITIALISATION")] []
@@ -1292,7 +1578,9 @@ private def grdFixtureProject : EventB.Typing.Project :=
       obligation.kind == "GRD" && obligation.name == "step/g/GRD")
   | .error _ => false
 
-private def positiveGrdObligation : Obligation :=
+private
+def positiveGrdObligation
+    : Obligation :=
   { component := "C", name := "step/g/GRD", kind := "GRD"
     goal := some (.bin "=" (.num 1) (.num 1)) }
 
@@ -1303,19 +1591,23 @@ private def positiveGrdObligation : Obligation :=
 #guard !(CheckedPO.fromGeneratedExact? EventB.Theory.empty grdFixtureProject
   { positiveGrdObligation with component := "A" }).isSome
 
-private def positiveGrdPO : CheckedPO EventB.Theory.empty grdFixtureProject :=
+private
+def positiveGrdPO
+    : CheckedPO EventB.Theory.empty grdFixtureProject :=
   (CheckedPO.fromGeneratedExact? EventB.Theory.empty grdFixtureProject
     positiveGrdObligation).get (by native_decide)
 
-private def positiveGrdSource : CheckedEventSource EventB.Theory.empty
-    grdFixtureProject positiveGrdPO.obligation.component "step" := by
+private
+def positiveGrdSource
+    : CheckedEventSource EventB.Theory.empty grdFixtureProject positiveGrdPO.obligation.component "step" := by
   have component : positiveGrdPO.obligation.component = "C" := by native_decide
   rw [component]
   exact (CheckedEventSource.fromProject EventB.Theory.empty grdFixtureProject "C" "step").get
     (by native_decide)
 
-private def positiveGrdGuardSource : CheckedGuardSource EventB.Theory.empty
-    grdFixtureProject positiveGrdPO.obligation.component "step" := by
+private
+def positiveGrdGuardSource
+    : CheckedGuardSource EventB.Theory.empty grdFixtureProject positiveGrdPO.obligation.component "step" := by
   have component : positiveGrdPO.obligation.component = "C" := by native_decide
   rw [component]
   exact (CheckedGuardSource.fromProject EventB.Theory.empty grdFixtureProject
@@ -1325,7 +1617,9 @@ private abbrev grdSourceState :=
   { transition : CheckedBeforeAfter //
       positiveGrdSource.assignmentAction 128 transition }
 
-private def grdSourceModel : TypedTransitionModel :=
+private
+def grdSourceModel
+    : TypedTransitionModel :=
   { fuel := 128
     wellFormed := positiveGrdSource.assignmentAction 128
     inhabited := ⟨invariantFixtureTransition, by
@@ -1337,8 +1631,9 @@ private def grdSourceModel : TypedTransitionModel :=
       exact invariantFixtureAssignment⟩
     supports := fun _ => true }
 
-private def positiveGrdAdapter : GrdAdapter EventB.Theory.empty grdFixtureProject
-    grdSourceState Unit :=
+private
+def positiveGrdAdapter
+    : GrdAdapter EventB.Theory.empty grdFixtureProject grdSourceState Unit :=
   { binding := positiveGrdPO
     concreteLabel := "step"
     abstractLabel := "g"
@@ -1422,11 +1717,13 @@ private def positiveGrdAdapter : GrdAdapter EventB.Theory.empty grdFixtureProjec
         exact invariantFixtureAssignment⟩
       exact ⟨state, (), trivial, trivial⟩ }
 
-example : guardSemantic positiveGrdAdapter.gluing
-    positiveGrdAdapter.concrete positiveGrdAdapter.abstract :=
+example
+    : guardSemantic positiveGrdAdapter.gluing positiveGrdAdapter.concrete positiveGrdAdapter.abstract :=
   positiveGrdAdapter.sound
 
-private def simFixtureProject : EventB.Typing.Project :=
+private
+def simFixtureProject
+    : EventB.Typing.Project :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [ .variable [("org.eventb.core.identifier", "x")] []
@@ -1448,7 +1745,9 @@ private def simFixtureProject : EventB.Typing.Project :=
              , .action [("org.eventb.core.label", "set"),
                         ("org.eventb.core.assignment", "x ≔ 1")] [] ] ] }]
 
-private def positiveSimObligation : Obligation :=
+private
+def positiveSimObligation
+    : Obligation :=
   { component := "C", name := "step/set/SIM", kind := "SIM"
     hyps := []
     goal := some (.bin "=" (.num 1) (.num 1)) }
@@ -1460,31 +1759,38 @@ private def positiveSimObligation : Obligation :=
 #guard !(CheckedPO.fromGeneratedExact? EventB.Theory.empty simFixtureProject
   { positiveSimObligation with component := "A" }).isSome
 
-private def positiveSimPO : CheckedPO EventB.Theory.empty simFixtureProject :=
+private
+def positiveSimPO
+    : CheckedPO EventB.Theory.empty simFixtureProject :=
   (CheckedPO.fromGeneratedExact? EventB.Theory.empty simFixtureProject
     positiveSimObligation).get (by native_decide)
 
-private def positiveSimSource : CheckedEventSource EventB.Theory.empty
-    simFixtureProject positiveSimPO.obligation.component "step" := by
+private
+def positiveSimSource
+    : CheckedEventSource EventB.Theory.empty simFixtureProject positiveSimPO.obligation.component "step" := by
   have component : positiveSimPO.obligation.component = "C" := by native_decide
   rw [component]
   exact (CheckedEventSource.fromProject EventB.Theory.empty simFixtureProject "C" "step").get
     (by native_decide)
 
-private def positiveSimGuardSource : CheckedGuardSource EventB.Theory.empty
-    simFixtureProject positiveSimPO.obligation.component "step" := by
+private
+def positiveSimGuardSource
+    : CheckedGuardSource EventB.Theory.empty simFixtureProject positiveSimPO.obligation.component "step" := by
   have component : positiveSimPO.obligation.component = "C" := by native_decide
   rw [component]
   exact (CheckedGuardSource.fromProject EventB.Theory.empty simFixtureProject
     "C" "step").get (by native_decide)
 
-private def simFixtureTransition : CheckedBeforeAfter :=
+private
+def simFixtureTransition
+    : CheckedBeforeAfter :=
   { before := { values := [("x", .integer 1)] }
     after := { values := [("x", .integer 1)] }
     declarations := [("x", .int)] }
 
-private theorem simFixtureAssignment :
-    assignmentRelation 128 [("x", .int)] simFixtureTransition [("x", .num 1)] := by
+private
+theorem simFixtureAssignment
+    : assignmentRelation 128 [("x", .int)] simFixtureTransition [("x", .num 1)] := by
   exact assignmentRelation_x_one
 
 private abbrev simSourceState :=
@@ -1501,14 +1807,17 @@ private def simFixtureState : simSourceState := ⟨simFixtureTransition, by
   rw [declarations, updates]
   exact simFixtureAssignment⟩
 
-private def simSourceModel : TypedTransitionModel :=
+private
+def simSourceModel
+    : TypedTransitionModel :=
   { fuel := 128
     wellFormed := positiveSimSource.assignmentAction 128
     inhabited := ⟨simFixtureTransition, simFixtureState.property⟩
     supports := fun _ => true }
 
-private def positiveSimAdapter : SimAdapter EventB.Theory.empty simFixtureProject
-    simSourceState Unit :=
+private
+def positiveSimAdapter
+    : SimAdapter EventB.Theory.empty simFixtureProject simSourceState Unit :=
   { binding := positiveSimPO
     concreteLabel := "step"
     abstractLabel := "set"
@@ -1594,13 +1903,15 @@ private def positiveSimAdapter : SimAdapter EventB.Theory.empty simFixtureProjec
       exact ⟨simFixtureState, simFixtureState, (), trivial, trivial,
         simFixtureState.property⟩ }
 
-example : actionSemantic positiveSimAdapter.gluing
-    positiveSimAdapter.concrete positiveSimAdapter.abstract :=
+example
+    : actionSemantic positiveSimAdapter.gluing positiveSimAdapter.concrete positiveSimAdapter.abstract :=
   positiveSimAdapter.sound
 
 /- Nondeterministic actions use the relational source binder below. -/
 
-private def nondeterministicFixtureProject : EventB.Typing.Project :=
+private
+def nondeterministicFixtureProject
+    : EventB.Typing.Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [ .variable [("org.eventb.core.identifier", "x")] []
@@ -1617,7 +1928,9 @@ private def nondeterministicFixtureProject : EventB.Typing.Project :=
 #guard (CheckedEventSource.fromProject EventB.Theory.empty nondeterministicFixtureProject
   "M" "INITIALISATION").isNone
 
-private def positiveFisObligation : Obligation :=
+private
+def positiveFisObligation
+    : Obligation :=
   { component := "M", name := "INITIALISATION/choose/FIS", kind := "FIS"
     goal := some (.bin "≠" (.set [.num 0]) (.set [])) }
 
@@ -1628,13 +1941,15 @@ private def positiveFisObligation : Obligation :=
 #guard !(CheckedPO.fromGeneratedExact? EventB.Theory.empty nondeterministicFixtureProject
   { positiveFisObligation with component := "N" }).isSome
 
-private def positiveFisPO :
-    CheckedPO EventB.Theory.empty nondeterministicFixtureProject :=
+private
+def positiveFisPO
+    : CheckedPO EventB.Theory.empty nondeterministicFixtureProject :=
   (CheckedPO.fromGeneratedExact? EventB.Theory.empty nondeterministicFixtureProject
     positiveFisObligation).get (by native_decide)
 
-private def positiveFisSource : CheckedRelationalEventSource EventB.Theory.empty
-    nondeterministicFixtureProject positiveFisPO.obligation.component "INITIALISATION" := by
+private
+def positiveFisSource
+    : CheckedRelationalEventSource EventB.Theory.empty nondeterministicFixtureProject positiveFisPO.obligation.component "INITIALISATION" := by
   have component : positiveFisPO.obligation.component = "M" := by native_decide
   rw [component]
   exact (CheckedRelationalEventSource.fromProject EventB.Theory.empty
@@ -1643,13 +1958,16 @@ private def positiveFisSource : CheckedRelationalEventSource EventB.Theory.empty
 #guard positiveFisSource.relations ==
   [.bin "∈" (.id "x'") (.set [.num 0])]
 
-private def fisFixtureTransition : CheckedBeforeAfter :=
+private
+def fisFixtureTransition
+    : CheckedBeforeAfter :=
   { before := { values := [("x", .integer 0)] }
     after := { values := [("x", .integer 0)] }
     declarations := [("x", .int)] }
 
-private theorem fisFixtureRelation :
-    positiveFisSource.relationAction 128 fisFixtureTransition := by
+private
+theorem fisFixtureRelation
+    : positiveFisSource.relationAction 128 fisFixtureTransition := by
   have declarations : positiveFisSource.declarations = [("x", .int)] := by
     native_decide
   have relations : positiveFisSource.relations =
@@ -1673,14 +1991,17 @@ private abbrev fisSourceState :=
 
 private def fisFixtureState : fisSourceState := ⟨fisFixtureTransition, fisFixtureRelation⟩
 
-private def fisSourceModel : TypedTransitionModel :=
+private
+def fisSourceModel
+    : TypedTransitionModel :=
   { fuel := 128
     wellFormed := positiveFisSource.relationAction 128
     inhabited := ⟨fisFixtureTransition, fisFixtureRelation⟩
     supports := fun _ => true }
 
-private def positiveFisAdapter : FisAdapter EventB.Theory.empty
-    nondeterministicFixtureProject fisSourceState :=
+private
+def positiveFisAdapter
+    : FisAdapter EventB.Theory.empty nondeterministicFixtureProject fisSourceState :=
   { binding := positiveFisPO
     eventLabel := "INITIALISATION"
     actionLabel := "choose"
@@ -1751,14 +2072,17 @@ private def positiveFisAdapter : FisAdapter EventB.Theory.empty
         trivial
     nonempty := ⟨fisFixtureState, trivial⟩ }
 
-example : feasibilitySemantic positiveFisAdapter.pre positiveFisAdapter.action :=
+example
+    : feasibilitySemantic positiveFisAdapter.pre positiveFisAdapter.action :=
   positiveFisAdapter.sound
 
 /- Minimal model-derived witness matrix.  The denominator is the literal one so
    WFIS remains executable while WWD still exercises the generated definedness
    obligation; the adapter's semantic witness bridge remains a later boundary. -/
 
-private def witnessFixtureProject : EventB.Typing.Project :=
+private
+def witnessFixtureProject
+    : EventB.Typing.Project :=
   [ { name := "A"
       elem := .machineFile [("org.eventb.core.name", "A")] [
         .variable [("org.eventb.core.identifier", "x")] [],
@@ -1789,13 +2113,17 @@ private def witnessFixtureProject : EventB.Typing.Project :=
       ] }
   ]
 
-private def positiveWfisObligation : Obligation :=
+private
+def positiveWfisObligation
+    : Obligation :=
   { component := "B", name := "step/p/WFIS", kind := "WFIS"
     hyps := [.bin "=" (.num 1) (.num 1)]
     goal := some (.bind "∃" (.bin "⦂" (.id "p") (.id "ℤ"))
       (.bin "=" (.id "p") (.bin "÷" (.num 0) (.num 1)))) }
 
-private def positiveWwdObligation : Obligation :=
+private
+def positiveWwdObligation
+    : Obligation :=
   { component := "B", name := "step/p/WWD", kind := "WWD"
     hyps := [.bin "=" (.num 1) (.num 1),
       .bin "≠" (.num 1) (.num 0)] }
@@ -1811,18 +2139,21 @@ private def positiveWwdObligation : Obligation :=
 #guard !(CheckedPO.fromGeneratedExact? EventB.Theory.empty witnessFixtureProject
   { positiveWwdObligation with component := "A" }).isSome
 
-private def positiveWfisPO :
-    CheckedPO EventB.Theory.empty witnessFixtureProject :=
+private
+def positiveWfisPO
+    : CheckedPO EventB.Theory.empty witnessFixtureProject :=
   (CheckedPO.fromGeneratedExact? EventB.Theory.empty witnessFixtureProject
     positiveWfisObligation).get (by native_decide)
 
-private def positiveWwdPO :
-    CheckedPO EventB.Theory.empty witnessFixtureProject :=
+private
+def positiveWwdPO
+    : CheckedPO EventB.Theory.empty witnessFixtureProject :=
   (CheckedPO.fromGeneratedExact? EventB.Theory.empty witnessFixtureProject
     positiveWwdObligation).get (by native_decide)
 
-private def positiveWitnessEventSource : CheckedEventSource EventB.Theory.empty
-    witnessFixtureProject positiveWfisPO.obligation.component "step" := by
+private
+def positiveWitnessEventSource
+    : CheckedEventSource EventB.Theory.empty witnessFixtureProject positiveWfisPO.obligation.component "step" := by
   have component : positiveWfisPO.obligation.component = "B" := by native_decide
   rw [component]
   exact (CheckedEventSource.fromProject EventB.Theory.empty witnessFixtureProject
@@ -1836,12 +2167,15 @@ private def positiveWitnessEventSource : CheckedEventSource EventB.Theory.empty
 #guard positiveWfisPO.obligation.name == "step/p/WFIS"
 #guard positiveWwdPO.obligation.name == "step/p/WWD"
 
-private def positiveWitnessSource : CheckedWitnessSource EventB.Theory.empty
-    witnessFixtureProject "B" "step" "p" :=
+private
+def positiveWitnessSource
+    : CheckedWitnessSource EventB.Theory.empty witnessFixtureProject "B" "step" "p" :=
   (CheckedWitnessSource.fromProject EventB.Theory.empty witnessFixtureProject
     "B" "step" "p").get (by native_decide)
 
-private def witnessFormulaModel : TypedFormulaModel :=
+private
+def witnessFormulaModel
+    : TypedFormulaModel :=
   { declarations := [("x", .int), ("q", .int), ("p", .int)]
     fuel := 128
     wellFormed := fun env =>
@@ -1856,8 +2190,9 @@ private abbrev witnessState :=
   { env : ValueEnv //
       ValueEnv.validationOk 128 [("x", .int), ("q", .int), ("p", .int)] env = true }
 
-private theorem witnessFormulaModel_wfis_valid :
-    TypedFormulaModel.validUnchecked witnessFormulaModel positiveWfisObligation := by
+private
+theorem witnessFormulaModel_wfis_valid
+    : TypedFormulaModel.validUnchecked witnessFormulaModel positiveWfisObligation := by
   constructor
   · native_decide
   constructor
@@ -1875,8 +2210,9 @@ private theorem witnessFormulaModel_wfis_valid :
     · intro _
       exact evalWitnessIntegerZeroDivOne env
 
-private theorem witnessFormulaModel_wwd_valid :
-    TypedFormulaModel.validUnchecked witnessFormulaModel positiveWwdObligation := by
+private
+theorem witnessFormulaModel_wwd_valid
+    : TypedFormulaModel.validUnchecked witnessFormulaModel positiveWwdObligation := by
   constructor
   · native_decide
   · intro env _ hypothesis member
@@ -1897,20 +2233,23 @@ private theorem witnessFormulaModel_wwd_valid :
 private def positiveWwdSource : CheckedWitnessSource EventB.Theory.empty
     witnessFixtureProject "B" "step" "p" := positiveWitnessSource
 
-private def positiveWfisAdapterSource : CheckedWitnessSource EventB.Theory.empty
-    witnessFixtureProject positiveWfisPO.obligation.component "step" "p" := by
+private
+def positiveWfisAdapterSource
+    : CheckedWitnessSource EventB.Theory.empty witnessFixtureProject positiveWfisPO.obligation.component "step" "p" := by
   have component : positiveWfisPO.obligation.component = "B" := by native_decide
   rw [component]
   exact positiveWitnessSource
 
-private def positiveWwdAdapterSource : CheckedWitnessSource EventB.Theory.empty
-    witnessFixtureProject positiveWwdPO.obligation.component "step" "p" := by
+private
+def positiveWwdAdapterSource
+    : CheckedWitnessSource EventB.Theory.empty witnessFixtureProject positiveWwdPO.obligation.component "step" "p" := by
   have component : positiveWwdPO.obligation.component = "B" := by native_decide
   rw [component]
   exact positiveWitnessSource
 
-private def positiveWfisAdapter : WfisAdapter EventB.Theory.empty
-    witnessFixtureProject witnessState Int :=
+private
+def positiveWfisAdapter
+    : WfisAdapter EventB.Theory.empty witnessFixtureProject witnessState Int :=
   { binding := positiveWfisPO
     eventLabel := "step"
     witnessLabel := "p"
@@ -1956,8 +2295,9 @@ private def positiveWfisAdapter : WfisAdapter EventB.Theory.empty
         by native_decide⟩,
         trivial⟩ }
 
-private def positiveWwdAdapter : WwdAdapter EventB.Theory.empty
-    witnessFixtureProject witnessState Int :=
+private
+def positiveWwdAdapter
+    : WwdAdapter EventB.Theory.empty witnessFixtureProject witnessState Int :=
   { binding := positiveWwdPO
     eventLabel := "step"
     witnessLabel := "p"
@@ -1999,13 +2339,17 @@ private def positiveWwdAdapter : WwdAdapter EventB.Theory.empty
           intro _ _ _
           trivial } }
 
-example : witnessFeasibilitySemantic positiveWfisAdapter.pre positiveWfisAdapter.predicate :=
+example
+    : witnessFeasibilitySemantic positiveWfisAdapter.pre positiveWfisAdapter.predicate :=
   positiveWfisAdapter.sound
 
-example : witnessDefinednessSemantic positiveWwdAdapter.pre positiveWwdAdapter.defined :=
+example
+    : witnessDefinednessSemantic positiveWwdAdapter.pre positiveWwdAdapter.defined :=
   positiveWwdAdapter.sound
 
-private def constantVariantProject : EventB.Typing.Project :=
+private
+def constantVariantProject
+    : EventB.Typing.Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [ .variable [("org.eventb.core.identifier", "x")] []
@@ -2018,11 +2362,15 @@ private def constantVariantProject : EventB.Typing.Project :=
            [ .action [("org.eventb.core.label", "set"),
                      ("org.eventb.core.assignment", "x ≔ x")] [] ] ] }]
 
-private def constantNatObligation : Obligation :=
+private
+def constantNatObligation
+    : Obligation :=
   { component := "M", name := "step/NAT", kind := "NAT"
     goal := some (.bin "∈" (.num 0) (.id "ℕ")) }
 
-private def constantVarObligation : Obligation :=
+private
+def constantVarObligation
+    : Obligation :=
   { component := "M", name := "step/VAR", kind := "VAR"
     goal := some (.bin "≤" (.num 0) (.num 0)) }
 
@@ -2032,41 +2380,53 @@ private def constantVarObligation : Obligation :=
   constantVarObligation).isSome
 #guard (CheckedVariantSource.fromProject constantVariantProject "M").isSome
 
-private def constantNatPO : CheckedPO EventB.Theory.empty constantVariantProject :=
+private
+def constantNatPO
+    : CheckedPO EventB.Theory.empty constantVariantProject :=
   (CheckedPO.fromGeneratedExact? EventB.Theory.empty constantVariantProject
     constantNatObligation).get (by native_decide)
 
-private def constantVarPO : CheckedPO EventB.Theory.empty constantVariantProject :=
+private
+def constantVarPO
+    : CheckedPO EventB.Theory.empty constantVariantProject :=
   (CheckedPO.fromGeneratedExact? EventB.Theory.empty constantVariantProject
     constantVarObligation).get (by native_decide)
 
-private def constantVariantEventSource : CheckedEventSource EventB.Theory.empty
-    constantVariantProject "M" "step" :=
+private
+def constantVariantEventSource
+    : CheckedEventSource EventB.Theory.empty constantVariantProject "M" "step" :=
   (CheckedEventSource.fromProject EventB.Theory.empty constantVariantProject "M" "step").get
     (by native_decide)
 
-private def constantVariantSource : CheckedVariantSource constantVariantProject "M" :=
+private
+def constantVariantSource
+    : CheckedVariantSource constantVariantProject "M" :=
   (CheckedVariantSource.fromProject constantVariantProject "M").get (by native_decide)
 
-private def constantNatEventSource : CheckedEventSource EventB.Theory.empty
-    constantVariantProject constantNatPO.obligation.component "step" := by
+private
+def constantNatEventSource
+    : CheckedEventSource EventB.Theory.empty constantVariantProject constantNatPO.obligation.component "step" := by
   have component : constantNatPO.obligation.component = "M" := by native_decide
   rw [component]
   exact constantVariantEventSource
 
-private def constantNatVariantSource : CheckedVariantSource constantVariantProject
-    constantNatPO.obligation.component := by
+private
+def constantNatVariantSource
+    : CheckedVariantSource constantVariantProject constantNatPO.obligation.component := by
   have component : constantNatPO.obligation.component = "M" := by native_decide
   rw [component]
   exact constantVariantSource
 
-private def constantVariantTransition : CheckedBeforeAfter :=
+private
+def constantVariantTransition
+    : CheckedBeforeAfter :=
   { before := { values := [("x", .integer 0)] }
     after := { values := [("x", .integer 0)] }
     declarations := [("x", .int)] }
 
-private theorem constantVariantAssignment :
-    constantNatEventSource.assignmentAction 128 constantVariantTransition := by
+private
+theorem constantVariantAssignment
+    : constantNatEventSource.assignmentAction 128 constantVariantTransition := by
   change assignmentRelation 128 constantNatEventSource.declarations
     constantVariantTransition constantNatEventSource.updates
   have declarations : constantNatEventSource.declarations = [("x", .int)] := by
@@ -2080,16 +2440,22 @@ private abbrev constantVariantState :=
   { transition : CheckedBeforeAfter //
       constantNatEventSource.assignmentAction 128 transition }
 
-private def constantVariantStateValue : constantVariantState :=
+private
+def constantVariantStateValue
+    : constantVariantState :=
   ⟨constantVariantTransition, constantVariantAssignment⟩
 
-private def constantVariantModel : TypedTransitionModel :=
+private
+def constantVariantModel
+    : TypedTransitionModel :=
   { fuel := 128
     wellFormed := constantNatEventSource.assignmentAction 128
     inhabited := ⟨constantVariantTransition, constantVariantAssignment⟩
     supports := fun _ => true }
 
-private def constantIntegerVariant : IntegerVariant constantVariantState :=
+private
+def constantIntegerVariant
+    : IntegerVariant constantVariantState :=
   { source := "step"
     mode := .anticipated
     measure := fun _ => 0
@@ -2099,8 +2465,9 @@ private def constantIntegerVariant : IntegerVariant constantVariantState :=
       intro before after _
       simp [integerVariantProgress] }
 
-private def constantIntegerVariantAdapter :
-    IntegerVariantAdapter EventB.Theory.empty constantVariantProject constantVariantState :=
+private
+def constantIntegerVariantAdapter
+    : IntegerVariantAdapter EventB.Theory.empty constantVariantProject constantVariantState :=
   { natBinding := constantNatPO
     varBinding := constantVarPO
     natKind := by native_decide
@@ -2208,18 +2575,23 @@ private def constantIntegerVariantAdapter :
     natActionExact := by intro state; exact Iff.rfl
     varActionExact := by intro state; exact Iff.rfl }
 
-example : integerVariantNaturality constantIntegerVariantAdapter.contract ∧
-    integerVariantProgressSemantic constantIntegerVariantAdapter.contract :=
+example
+    : integerVariantNaturality constantIntegerVariantAdapter.contract ∧
+      integerVariantProgressSemantic constantIntegerVariantAdapter.contract :=
   constantIntegerVariantAdapter.sound
 
 /- A disjoint acceptance matrix.  These rows deliberately do not reuse the larger
    variant/event fixtures below: each mutation changes one provenance field while
    still going through the checked generator and source binders. -/
-private def theoremMatrixGoal : EventB.Formula.Term :=
+private
+def theoremMatrixGoal
+    : EventB.Formula.Term :=
   .bin "=" (.num 1) (.num 1)
 
-private def theoremMatrixChecked? (goal : EventB.Formula.Term) :
-    Option (CheckedPO EventB.Theory.empty theoremFixtureProject) :=
+private
+def theoremMatrixChecked?
+    (goal : EventB.Formula.Term)
+    : Option (CheckedPO EventB.Theory.empty theoremFixtureProject) :=
   CheckedPO.fromGenerated? EventB.Theory.empty theoremFixtureProject "M"
     (fun obligation => obligation.component == "M" &&
       obligation.kind == "THM" && obligation.name == "taut/THM" &&
@@ -2232,7 +2604,9 @@ private def theoremMatrixChecked? (goal : EventB.Formula.Term) :
     obligation.kind == "THM" && obligation.name == "taut/THM" &&
     obligation.goal == some theoremMatrixGoal)).isSome
 
-private def sourceMatrixProject : EventB.Typing.Project :=
+private
+def sourceMatrixProject
+    : EventB.Typing.Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [ .variable [("org.eventb.core.identifier", "x")] []
@@ -2259,8 +2633,10 @@ private def sourceMatrixProject : EventB.Typing.Project :=
              [ .action [("org.eventb.core.label", "set"),
                         ("org.eventb.core.assignment", "x ≔ 2")] [] ] ] }]
 
-private def sourceMatrixUpdates? (component event : String) :
-    Option (List (String × EventB.Formula.Term)) :=
+private
+def sourceMatrixUpdates?
+    (component event : String)
+    : Option (List (String × EventB.Formula.Term)) :=
   (CheckedEventSource.fromProject EventB.Theory.empty sourceMatrixProject component event).map
     (·.updates)
 
@@ -2270,7 +2646,9 @@ private def sourceMatrixUpdates? (component event : String) :
 #guard (sourceMatrixUpdates? "M" "missing").isNone
 #guard !(sourceMatrixUpdates? "M" "step" == sourceMatrixUpdates? "N" "step")
 
-private def variantMatrixProject : EventB.Typing.Project :=
+private
+def variantMatrixProject
+    : EventB.Typing.Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [ .variable [("org.eventb.core.identifier", "x")] []
@@ -2280,7 +2658,10 @@ private def variantMatrixProject : EventB.Typing.Project :=
          [ .variable [("org.eventb.core.identifier", "y")] []
          , .variant [("org.eventb.core.expression", "y")] [] ] }]
 
-private def variantMatrixExpression? (component : String) : Option EventB.Formula.Term :=
+private
+def variantMatrixExpression?
+    (component : String)
+    : Option EventB.Formula.Term :=
   (CheckedVariantSource.fromProject variantMatrixProject component).map (·.expression)
 
 #guard variantMatrixExpression? "M" == some (.id "x")
@@ -2302,7 +2683,9 @@ private def variantMatrixExpression? (component : String) : Option EventB.Formul
       | _, _ => false
   | .error _ => false
 
-private def finiteSetVariantProject : EventB.Typing.Project :=
+private
+def finiteSetVariantProject
+    : EventB.Typing.Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [ .variable [("org.eventb.core.identifier", "S")] []

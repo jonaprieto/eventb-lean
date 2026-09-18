@@ -19,14 +19,17 @@ inductive Tok where
   | op  : String → Tok
   deriving BEq, Repr, Inhabited
 
-def Tok.render : Tok → String
+def Tok.render
+    : Tok →
+      String
   | .id s  => s
   | .num n => toString n
   | .op s  => s
 
 /-- Alias to canonical spelling. Longest match wins, so order here does not matter, but
 every canonical operator must also map to itself. -/
-def operators : List (String × String) :=
+def operators
+    : List (String × String) :=
   -- Predicate calculus.
   [("⇔", "⇔"), ("<=>", "⇔"), ("⇒", "⇒"), ("=>", "⇒"),
    ("∧", "∧"), ("&", "∧"), ("∨", "∨"), ("or", "∨"), ("¬", "¬"), ("not", "¬"),
@@ -75,7 +78,8 @@ def operators : List (String × String) :=
 /-- Longest first, so `<<:` is never read as `<` followed by `<:`. Held as a `Char`
 list per alias because the scanner works on `List Char`, and sorted once: re-sorting a
 130-entry table on every token turned the corpus scan into minutes. -/
-def operatorTable : Array (List Char × String) :=
+def operatorTable
+    : Array (List Char × String) :=
   (operators.mergeSort (fun a b => b.1.length < a.1.length)).map
     (fun (alias, canon) => (alias.toList, canon)) |>.toArray
 
@@ -84,7 +88,10 @@ private def isIdentRest (c : Char) : Bool := c.isAlphanum || c == '_' || c == '\
 
 /-- Operator aliases spelled with letters (`or`, `mod`, `NAT`) must not swallow the head
 of an identifier: `order` is one name, not `or` followed by `der`. -/
-private def aliasFits (alias rest : List Char) : Bool :=
+private
+def aliasFits
+    (alias rest : List Char)
+    : Bool :=
   if alias.all isIdentRest then
     match rest.drop alias.length with
     | c :: _ => !isIdentRest c
@@ -92,8 +99,11 @@ private def aliasFits (alias rest : List Char) : Bool :=
   else
     true
 
-private def matchOperator (table : Array (List Char × String)) (cs : List Char) :
-    Option (String × List Char) :=
+private
+def matchOperator
+    (table : Array (List Char × String))
+    (cs : List Char)
+    : Option (String × List Char) :=
   table.findSome? fun (a, canon) =>
     -- `!a.isEmpty` is load-bearing: an empty alias matches everywhere and consumes
     -- nothing, so the scanner would spin forever on the first character.
@@ -113,8 +123,13 @@ private def matchOperator (table : Array (List Char × String)) (cs : List Char)
 -- This is the obligation grip discharges by construction: its graded parsers track in
 -- the type whether a parser can consume nothing, so `many (pure x)` fails to compile
 -- rather than hanging. A lexer built on grip would need no fuel here.
-private def go (table : Array (List Char × String)) (acc : List Tok) :
-    Nat → List Char → Except String (List Tok)
+private
+def go
+    (table : Array (List Char × String))
+    (acc : List Tok)
+    : Nat →
+      List Char →
+      Except String (List Tok)
   | _, [] => .ok acc.reverse
   | 0, _ => .error "lexer made no progress"
   | fuel + 1, c :: cs =>
@@ -140,7 +155,9 @@ private def go (table : Array (List Char × String)) (acc : List Tok) :
 /-- `mod` is the only word-shaped operator Rodin treats as infix; the rest of the word
 operators (`card`, `dom`, `bool`, ...) are ordinary identifiers applied to an argument,
 so the lexer leaves them alone. -/
-def lex (s : String) : Except EventB.Error (List Tok) :=
+def lex
+    (s : String)
+    : Except EventB.Error (List Tok) :=
   let cs := s.toList
   (go operatorTable [] cs.length cs).mapError EventB.Error.formula
 

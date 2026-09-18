@@ -29,30 +29,53 @@ structure Component where
 
 abbrev Project := List Component
 
-def lookupComponent (p : Project) (name : String) : Option Component :=
+def lookupComponent
+    (p : Project)
+    (name : String)
+    : Option Component :=
   List.find? (fun c => c.name == name) p
 
-private def childrenOf (e : Elem) (tag : String) : List Elem :=
+private
+def childrenOf
+    (e : Elem)
+    (tag : String)
+    : List Elem :=
   e.children.filter (fun c => c.tag == "org.eventb.core." ++ tag)
 
-private def attrOf (e : Elem) (key : String) : Option String :=
+private
+def attrOf
+    (e : Elem)
+    (key : String)
+    : Option String :=
   e.attr? ("org.eventb.core." ++ key)
 
 private def labelOf (e : Elem) : String := (attrOf e "label").getD ""
 
-private def targetName (e : Elem) : Option String :=
+private
+def targetName
+    (e : Elem)
+    : Option String :=
   (attrOf e "target").map (fun t => (t.splitOn "/").getLast!)
 
-private def eventTargets (ev : Elem) : List String :=
+private
+def eventTargets
+    (ev : Elem)
+    : List String :=
   if labelOf ev == "INITIALISATION" then ["INITIALISATION"]
   else (childrenOf ev "refinesEvent").filterMap targetName
 
-private def isExtended (ev : Elem) : Bool :=
+private
+def isExtended
+    (ev : Elem)
+    : Bool :=
   (attrOf ev "extended").getD "false" == "true" ||
     (childrenOf ev "refinesEvent").any
       (fun reference => (attrOf reference "extended").getD "false" == "true")
 
-private def assignmentTargets (action : Elem) : List String :=
+private
+def assignmentTargets
+    (action : Elem)
+    : List String :=
   match attrOf action "assignment" with
   | none => []
   | some source =>
@@ -73,7 +96,10 @@ private def assignmentTargets (action : Elem) : List String :=
           else []
       | .ok _ => []
 
-private def assignmentShapeErrors (action : Elem) : List String :=
+private
+def assignmentShapeErrors
+    (action : Elem)
+    : List String :=
   match attrOf action "assignment" with
   | none => []
   | some source =>
@@ -97,13 +123,23 @@ private def assignmentShapeErrors (action : Elem) : List String :=
       | .ok _ => ["assignment is not a binary Event-B assignment"]
       | .error error => [s!"assignment parse: {EventB.Error.render error}"]
 
-private def duplicateNames (seen : List String) : List String → List String
+private
+def duplicateNames
+    (seen : List String)
+    : List String →
+      List String
   | [] => []
   | name :: rest =>
       if seen.contains name then name :: duplicateNames seen rest
       else duplicateNames (name :: seen) rest
 
-private def rawInitializationActions (p : Project) : Nat → String → Elem → List Elem
+private
+def rawInitializationActions
+    (p : Project)
+    : Nat →
+      String →
+      Elem →
+      List Elem
   | 0, _, ev => childrenOf ev "action"
   | depth + 1, machine, ev =>
       let own := childrenOf ev "action"
@@ -116,7 +152,11 @@ private def rawInitializationActions (p : Project) : Nat → String → Elem →
                 |>.toList.flatMap (rawInitializationActions p depth parentName)
       inherited ++ own
 
-def initializationActions (p : Project) (c : Component) (ev : Elem) : List Elem :=
+def initializationActions
+    (p : Project)
+    (c : Component)
+    (ev : Elem)
+    : List Elem :=
   let actions := childrenOf ev "action"
   if labelOf ev != "INITIALISATION" then actions
   else
@@ -126,23 +166,41 @@ def initializationActions (p : Project) (c : Component) (ev : Elem) : List Elem 
       .action [("org.eventb.core.label", "__default_" ++ v),
         ("org.eventb.core.assignment", v ++ " :∣ ⊤")] []
 
-private def eventParameterNames (ev : Elem) : List String :=
+private
+def eventParameterNames
+    (ev : Elem)
+    : List String :=
   (childrenOf ev "parameter").filterMap (attrOf · "identifier")
 
-private def validVariantType : Ty → Bool
+private
+def validVariantType
+    : Ty →
+      Bool
   | .int => true
   | .pow (.mvar _) => false
   | .pow _ => true
   | _ => false
 
-private def actionTexts (actions : List Elem) : List String :=
+private
+def actionTexts
+    (actions : List Elem)
+    : List String :=
   actions.filterMap (attrOf · "assignment")
 
-private def allEqual : List (List String) → Bool
+private
+def allEqual
+    : List (List String) →
+      Bool
   | [] => true
   | first :: rest => rest.all (· == first)
 
-private def refinementCycle (p : Project) : Nat → List String → String → Bool
+private
+def refinementCycle
+    (p : Project)
+    : Nat →
+      List String →
+      String →
+      Bool
   | 0, _, _ => true
   | fuel + 1, seen, name =>
       if seen.contains name then true
@@ -155,7 +213,13 @@ private def refinementCycle (p : Project) : Nat → List String → String → B
             | [parent] => refinementCycle p fuel (name :: seen) parent
             | _ => false
 
-private def dependencyCycle (p : Project) : Nat → List String → String → Bool
+private
+def dependencyCycle
+    (p : Project)
+    : Nat →
+      List String →
+      String →
+      Bool
   | 0, _, _ => true
   | fuel + 1, seen, name =>
       if seen.contains name then true
@@ -169,7 +233,13 @@ private def dependencyCycle (p : Project) : Nat → List String → String → B
                 childrenOf component.elem "refinesMachine").filterMap targetName
             dependencies.any (dependencyCycle p fuel (name :: seen))
 
-private def effectiveEventActions (p : Project) : Nat → String → Elem → List Elem
+private
+def effectiveEventActions
+    (p : Project)
+    : Nat →
+      String →
+      Elem →
+      List Elem
   | 0, machine, ev =>
       match lookupComponent p machine with
       | some component => initializationActions p component ev
@@ -190,7 +260,11 @@ private def effectiveEventActions (p : Project) : Nat → String → Elem → Li
                   |>.toList.flatMap (effectiveEventActions p depth parentName)
         own ++ inherited
 
-private def componentReferenceErrors (p : Project) (c : Component) : List String :=
+private
+def componentReferenceErrors
+    (p : Project)
+    (c : Component)
+    : List String :=
   let refs := childrenOf c.elem "extendsContext" ++ childrenOf c.elem "seesContext" ++
     childrenOf c.elem "refinesMachine"
   let componentErrors := (refs.filterMap targetName).filterMap fun target =>
@@ -324,7 +398,11 @@ private def componentReferenceErrors (p : Project) (c : Component) : List String
     initializationErrors ++ variantErrors ++ variantShapeErrors ++ convergenceValueErrors ++
     graphErrors ++ eventErrors ++ duplicateRefinementErrors ++ convergenceErrors ++ mergeErrors
 
-private def theoryReferenceErrors (theory : Theory.Env) (roots : List String) : List String :=
+private
+def theoryReferenceErrors
+    (theory : Theory.Env)
+    (roots : List String)
+    : List String :=
   let rec visit (fuel : Nat) (seen : List String) (name : String) : List String :=
     match fuel with
     | 0 => []
@@ -335,21 +413,32 @@ private def theoryReferenceErrors (theory : Theory.Env) (roots : List String) : 
           | some spec => spec.imports.flatMap (visit fuel (name :: seen))
   roots.flatMap (visit (theory.theories.length + roots.length + 1) [])
 
-private def eventParamBindings
+private
+def eventParamBindings
     (records : List ((String × String) × List (String × Ty)))
-    (component event : String) : List (String × Ty) :=
+    (component event : String)
+    : List (String × Ty) :=
   (records.find? (fun record => record.1.1 == component && record.1.2 == event)).map
     (·.2) |>.getD []
 
-private def dedupBindings (seen : List String) : List (String × Ty) → List (String × Ty)
+private
+def dedupBindings
+    (seen : List String)
+    : List (String × Ty) →
+      List (String × Ty)
   | [] => []
   | binding :: rest =>
       if seen.contains binding.1 then dedupBindings seen rest
       else binding :: dedupBindings (binding.1 :: seen) rest
 
-private def inheritedEventBindings
-    (p : Project) (records : List ((String × String) × List (String × Ty))) :
-    Nat → String → String → List (String × Ty)
+private
+def inheritedEventBindings
+    (p : Project)
+    (records : List ((String × String) × List (String × Ty)))
+    : Nat →
+      String →
+      String →
+      List (String × Ty)
   | 0, _, _ => []
   | depth + 1, machine, event =>
       match lookupComponent p machine with
@@ -377,8 +466,10 @@ private def inheritedEventBindings
               dedupBindings [] collected
 
 def visibleEventBindings
-    (p : Project) (records : List ((String × String) × List (String × Ty)))
-    (component event : String) : List (String × Ty) :=
+    (p : Project)
+    (records : List ((String × String) × List (String × Ty)))
+    (component event : String)
+    : List (String × Ty) :=
   eventParamBindings records component event ++
     inheritedEventBindings p records p.length component event
 
@@ -387,7 +478,12 @@ def visibleEventBindings
 `visited` already stops repeats, so the recursion terminates on any well-formed project;
 `depth` states the bound the type system cannot see. It is the number of components, so
 a chain that reaches it has revisited one, meaning the dependency graph has a cycle. -/
-def closureAux (p : Project) : Nat → List String → String → List String × List String
+def closureAux
+    (p : Project)
+    : Nat →
+      List String →
+      String →
+      List String × List String
   | 0, visited, _ => (visited, [])
   | depth + 1, visited, name =>
       if visited.contains name then (visited, []) else
@@ -405,11 +501,17 @@ def closureAux (p : Project) : Nat → List String → String → List String ×
             (name :: visited, [])
         (visited, ordered ++ [name])
 
-def closure (p : Project) (visited : List String) (name : String) :
-    List String × List String :=
+def closure
+    (p : Project)
+    (visited : List String)
+    (name : String)
+    : List String × List String :=
   closureAux p p.length visited name
 
-def componentTheoryRoots (p : Project) (name : String) : List String :=
+def componentTheoryRoots
+    (p : Project)
+    (name : String)
+    : List String :=
   let (_, order) := closure p [] name
   order.flatMap fun dep =>
     (lookupComponent p dep).map (·.theories) |>.getD []
@@ -561,7 +663,10 @@ structure ComponentInference where
   eventParams : List ((String × String) × List (String × Ty))
   diagnostics : List String
 
-private def containsMVar : Ty → Bool
+private
+def containsMVar
+    : Ty →
+      Bool
   | .mvar _ => true
   | .given _ | .int | .bool => false
   | .pow t => containsMVar t
@@ -569,9 +674,13 @@ private def containsMVar : Ty → Bool
 
 /-- Infer every identifier type visible in `name`, retaining event-local bindings for
 POG consumers that must resolve repeated parameter names by lexical scope. -/
-private def inferComponentDetailsModeIn (strict : Bool) (theory : Theory.Env) (p : Project)
-    (name : String) :
-    Except EventB.Error ComponentInference :=
+private
+def inferComponentDetailsModeIn
+    (strict : Bool)
+    (theory : Theory.Env)
+    (p : Project)
+    (name : String)
+    : Except EventB.Error ComponentInference :=
   let (_, order) := closure p [] name
   let roots := componentTheoryRoots p name
   let run : StateT St (Except String) ComponentInference := do
@@ -605,24 +714,37 @@ private def inferComponentDetailsModeIn (strict : Bool) (theory : Theory.Env) (p
   | .ok result => .ok result
   | .error error => .error (EventB.Error.typing error)
 
-def inferComponentDetailsIn (theory : Theory.Env) (p : Project) (name : String) :
-    Except EventB.Error ComponentInference :=
+def inferComponentDetailsIn
+    (theory : Theory.Env)
+    (p : Project)
+    (name : String)
+    : Except EventB.Error ComponentInference :=
   inferComponentDetailsModeIn false theory p name
 
-def inferComponentDetailsCheckedIn (theory : Theory.Env) (p : Project) (name : String) :
-    Except EventB.Error ComponentInference :=
+def inferComponentDetailsCheckedIn
+    (theory : Theory.Env)
+    (p : Project)
+    (name : String)
+    : Except EventB.Error ComponentInference :=
   inferComponentDetailsModeIn true theory p name
 
-def inferComponentIn (theory : Theory.Env) (p : Project) (name : String) :
-    Except EventB.Error (List (String × Ty) × List String) :=
+def inferComponentIn
+    (theory : Theory.Env)
+    (p : Project)
+    (name : String)
+    : Except EventB.Error (List (String × Ty) × List String) :=
   (inferComponentDetailsIn theory p name).map fun result =>
     (result.types, result.diagnostics)
 
-def inferComponent (p : Project) (name : String) :
-    Except EventB.Error (List (String × Ty) × List String) :=
+def inferComponent
+    (p : Project)
+    (name : String)
+    : Except EventB.Error (List (String × Ty) × List String) :=
   inferComponentIn Theory.empty p name
 
-private def missingReferenceProject : Project :=
+private
+def missingReferenceProject
+    : Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.seesContext [("org.eventb.core.target", "Missing")] []]
@@ -634,7 +756,9 @@ private def missingReferenceProject : Project :=
         errors.contains "unresolved theory reference MissingTheory"
   | .error _ => false
 
-private def cyclicRefinementProject : Project :=
+private
+def cyclicRefinementProject
+    : Project :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.refinesMachine [("org.eventb.core.target", "B")] []] }
@@ -646,7 +770,9 @@ private def cyclicRefinementProject : Project :=
   | .ok (_, errors) => errors.any (fun error => error.contains "refinement cycle")
   | .error _ => false
 
-private def multipleParentProject : Project :=
+private
+def multipleParentProject
+    : Project :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")] [] }
    , { name := "B"
@@ -660,7 +786,9 @@ private def multipleParentProject : Project :=
   | .ok (_, errors) => errors.any (fun error => error.contains "multiple refinement parents")
   | .error _ => false
 
-private def contextCycleProject : Project :=
+private
+def contextCycleProject
+    : Project :=
   [{ name := "C1"
      elem := .contextFile [("org.eventb.core.name", "C1")]
        [.extendsContext [("org.eventb.core.target", "C2")] []] }
@@ -675,7 +803,9 @@ private def contextCycleProject : Project :=
   | .ok (_, errors) => errors.any (fun error => error.contains "dependency cycle")
   | .error _ => false
 
-private def initializationGuardProject : Project :=
+private
+def initializationGuardProject
+    : Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -687,7 +817,9 @@ private def initializationGuardProject : Project :=
   | .ok (_, errors) => errors.any (fun error => error.contains "must not declare guards")
   | .error _ => false
 
-private def duplicateInitializationProject : Project :=
+private
+def duplicateInitializationProject
+    : Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.event [("org.eventb.core.label", "INITIALISATION")] []
@@ -697,7 +829,9 @@ private def duplicateInitializationProject : Project :=
   | .ok (_, errors) => errors.any (fun error => error.contains "exactly one INITIALISATION")
   | .error _ => false
 
-private def duplicateEventLabelProject : Project :=
+private
+def duplicateEventLabelProject
+    : Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.event [("org.eventb.core.label", "INITIALISATION")] []
@@ -708,7 +842,9 @@ private def duplicateEventLabelProject : Project :=
   | .ok (_, errors) => errors.any (fun error => error.contains "duplicate event label step")
   | .error _ => false
 
-private def primedPredicateProject : Project :=
+private
+def primedPredicateProject
+    : Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -720,7 +856,9 @@ private def primedPredicateProject : Project :=
   | .ok result => result.diagnostics.any (fun error => error.contains "unresolved")
   | .error _ => false
 
-private def invalidVariantProject : Project :=
+private
+def invalidVariantProject
+    : Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "b")] []
@@ -733,7 +871,9 @@ private def invalidVariantProject : Project :=
   | .ok (_, errors) => errors.any (fun error => error.contains "variant expression")
   | .error _ => false
 
-private def invalidReferenceKindProject : Project :=
+private
+def invalidReferenceKindProject
+    : Project :=
   [{ name := "C"
      elem := .contextFile [("org.eventb.core.name", "C")]
        [.refinesMachine [("org.eventb.core.target", "M")] []] }
@@ -744,7 +884,9 @@ private def invalidReferenceKindProject : Project :=
   | .ok (_, errors) => errors.any (fun error => error.contains "not legal from C")
   | .error _ => false
 
-private def missingVariantExpressionProject : Project :=
+private
+def missingVariantExpressionProject
+    : Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variant [] [], .event [("org.eventb.core.label", "INITIALISATION")] []] }]
@@ -753,7 +895,9 @@ private def missingVariantExpressionProject : Project :=
   | .ok (_, errors) => errors.any (fun error => error.contains "variant in M has no expression")
   | .error _ => false
 
-private def duplicateRefinementTargetProject : Project :=
+private
+def duplicateRefinementTargetProject
+    : Project :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.event [("org.eventb.core.label", "step")] []] }
@@ -770,7 +914,9 @@ private def duplicateRefinementTargetProject : Project :=
       errors.any (fun error => error.contains "duplicate refinement reference step")
   | .error _ => false
 
-private def componentNameMismatchProject : Project :=
+private
+def componentNameMismatchProject
+    : Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "Other")]
        [.event [("org.eventb.core.label", "INITIALISATION")] []] }]
@@ -779,7 +925,9 @@ private def componentNameMismatchProject : Project :=
   | .ok (_, errors) => errors.any (fun error => error.contains "XML name is Other")
   | .error _ => false
 
-private def primedBinderProject : Project :=
+private
+def primedBinderProject
+    : Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -794,7 +942,9 @@ private def primedBinderProject : Project :=
   | .ok (_, errors) => errors.isEmpty
   | .error _ => false
 
-private def strictScopeProject : Project :=
+private
+def strictScopeProject
+    : Project :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -823,7 +973,9 @@ private def strictScopeProject : Project :=
   | .ok details => details.diagnostics.any (fun error => error.contains "unbound identifier p")
   | .error _ => false
 
-private def duplicateAssignmentProject : Project :=
+private
+def duplicateAssignmentProject
+    : Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -847,8 +999,12 @@ private def inferTermAtText (theory : Theory.Env) (roots : List String) (env : L
     throw "unresolved type metavariable"
   return ty
 
-def inferTermAt (theory : Theory.Env) (roots : List String) (env : List (String × Ty))
-    (t : Term) : Except EventB.Error Ty :=
+def inferTermAt
+    (theory : Theory.Env)
+    (roots : List String)
+    (env : List (String × Ty))
+    (t : Term)
+    : Except EventB.Error Ty :=
   (inferTermAtText theory roots env t).mapError EventB.Error.typing
 
 def inferTermIn (theory : Theory.Env) (env : List (String × Ty)) (t : Term) :
@@ -856,7 +1012,10 @@ def inferTermIn (theory : Theory.Env) (env : List (String × Ty)) (t : Term) :
   let roots := theory.theories.map (·.name)
   inferTermAt theory roots env t
 
-def inferTerm (env : List (String × Ty)) (t : Term) : Except EventB.Error Ty :=
+def inferTerm
+    (env : List (String × Ty))
+    (t : Term)
+    : Except EventB.Error Ty :=
   inferTermIn Theory.empty env t
 
 /-! Self-checks. The corpus pins the common cases; these pin the shapes it happens not
@@ -872,8 +1031,12 @@ to contain, and the printer conventions the `.bpo` comparison depends on. -/
 
 /-- `given` are identifiers with a known type, `unknown` are the ones inference has to
 work out. Metavariables must come from `fresh` so the substitution has a slot for them. -/
-private def inferOne (given : List (String × Ty)) (unknown : List String)
-    (pred name : String) : Option String :=
+private
+def inferOne
+    (given : List (String × Ty))
+    (unknown : List String)
+    (pred name : String)
+    : Option String :=
   match Formula.parse pred with
   | .error _ => none
   | .ok term =>
@@ -916,7 +1079,9 @@ private def inferOne (given : List (String × Ty)) (unknown : List String)
 #guard inferOne [("x", .int), ("x'", .int), ("y", .int), ("y'", .int)] []
     "x, y :∣ x' = y' ∧ y' = x' + 1" "x" == some "ℤ"
 
-private def demoTheory : Theory.Env :=
+private
+def demoTheory
+    : Theory.Env :=
   match Theory.add Theory.empty
       { name := "Demo", symbols :=
         [{ name := "LIMIT", kind := .constant, type := some .int

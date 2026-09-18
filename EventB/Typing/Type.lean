@@ -22,12 +22,16 @@ inductive Ty where
   deriving BEq, Repr, Inhabited, DecidableEq
 
 /-- Node count, used to bound the substitution traversals in `Infer`. -/
-def Ty.size : Ty → Nat
+def Ty.size
+    : Ty →
+      Nat
   | .given _ | .int | .bool | .mvar _ => 1
   | .pow t => t.size + 1
   | .prod a b => a.size + b.size + 1
 
-def Ty.print : Ty → String
+def Ty.print
+    : Ty →
+      String
   | .given s => s
   | .int => "ℤ"
   | .bool => "BOOL"
@@ -45,13 +49,22 @@ mutual
 /-- Same shape as the formula lexer: every branch consumes at least one character, but
 that fact lives inside `takeWhile` and the literal patterns rather than in a type, so
 `fuel` states it. Seeded at the input length, it cannot run out on a terminating scan. -/
-private def parseGo : Nat → List Char → Option (Ty × List Char)
+private
+def parseGo
+    : Nat →
+      List Char →
+      Option (Ty × List Char)
   | 0, _ => none
   | fuel + 1, cs => do
     let (lhs, rest) ← parseAtom fuel cs
     parseProducts fuel lhs rest
 
-private def parseProducts : Nat → Ty → List Char → Option (Ty × List Char)
+private
+def parseProducts
+    : Nat →
+      Ty →
+      List Char →
+      Option (Ty × List Char)
   | 0, lhs, cs => some (lhs, cs)
   | fuel + 1, lhs, cs =>
     match cs with
@@ -60,7 +73,11 @@ private def parseProducts : Nat → Ty → List Char → Option (Ty × List Char
         parseProducts fuel (.prod lhs rhs) rest
     | _ => some (lhs, cs)
 
-private def parseAtom : Nat → List Char → Option (Ty × List Char)
+private
+def parseAtom
+    : Nat →
+      List Char →
+      Option (Ty × List Char)
   | 0, _ => none
   | fuel + 1, cs =>
     match cs with
@@ -84,7 +101,9 @@ private def parseAtom : Nat → List Char → Option (Ty × List Char)
 
 end
 
-def Ty.parse (s : String) : Option Ty :=
+def Ty.parse
+    (s : String)
+    : Option Ty :=
   let cs := s.toList
   parseGo (cs.length + 1) cs |>.bind fun (t, rest) => if rest.isEmpty then some t else none
 

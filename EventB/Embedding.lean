@@ -15,7 +15,11 @@ abbrev EventSet (α : Type) := α → Prop
 structure Signature where
   carrier : String → Type
 
-private def typeOf? (signature : Signature) : Typing.Ty → Option Type
+private
+def typeOf?
+    (signature : Signature)
+    : Typing.Ty →
+      Option Type
   | .given name => some (signature.carrier name)
   | .int => some Int
   | .bool => some Bool
@@ -26,13 +30,22 @@ private def typeOf? (signature : Signature) : Typing.Ty → Option Type
       return left × right
   | .mvar _ => none
 
-def type? (signature : Signature) (type : Typing.Ty) : Option Type :=
+def type?
+    (signature : Signature)
+    (type : Typing.Ty)
+    : Option Type :=
   typeOf? signature type
 
-def symbolType? (signature : Signature) (symbol : Prelude.Symbol) : Option Type :=
+def symbolType?
+    (signature : Signature)
+    (symbol : Prelude.Symbol)
+    : Option Type :=
   symbol.type.bind (type? signature)
 
-def embeddable (signature : Signature) (env : Theory.Env) : List String :=
+def embeddable
+    (signature : Signature)
+    (env : Theory.Env)
+    : List String :=
   env.theories.flatMap fun theory =>
     theory.symbols.filterMap fun symbol =>
       if symbol.type.isSome && (symbolType? signature symbol).isNone then

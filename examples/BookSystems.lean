@@ -496,7 +496,8 @@ eventb_machine Train1 where
     guard grd1 : "r ∈ rdy"
     action act1 : "occ, lbt, rdy ≔ occ ∪ {fst(r)}, lbt ∪ {fst(r)}, rdy ∖ {r}"
 
-def systemsProject : Typing.Project :=
+def systemsProject
+    : Typing.Project :=
   [ { name := "PressCtx", elem := PressCtx }
   , { name := "Press0", elem := Press0 }
   , { name := "Press1", elem := Press1 }
@@ -526,7 +527,10 @@ def systemsProject : Typing.Project :=
   , { name := "Train0", elem := Train0 }
   , { name := "Train1", elem := Train1 } ]
 
-private def hasPO (machine name : String) : Bool :=
+private
+def hasPO
+    (machine name : String)
+    : Bool :=
   (POG.generate systemsProject machine).any (·.name == name)
 
 #guard hasPO "Press0" "a_on/inv0_1/INV"
@@ -538,11 +542,17 @@ private def hasPO (machine name : String) : Bool :=
 #guard hasPO "Access0" "enter/inv0_1/INV"
 #guard hasPO "Train1" "route_formation/act1/SIM"
 
-private def pressGoal (name : String) : Option String :=
+private
+def pressGoal
+    (name : String)
+    : Option String :=
   (POG.generate systemsProject "Press0").find? (·.name == name) |>.bind
     (fun obligation => obligation.goal.map Formula.print)
 
-private def pressHypotheses (name : String) : Option (List String) :=
+private
+def pressHypotheses
+    (name : String)
+    : Option (List String) :=
   (POG.generate systemsProject "Press0").find? (·.name == name) |>.map
     (fun obligation => obligation.hyps.map Formula.print)
 

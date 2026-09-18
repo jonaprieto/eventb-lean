@@ -4,7 +4,9 @@ import EventB.POG.RefinementAdapters
 
 namespace EventB.POG
 
-private def mergeSemanticProject : EventB.Typing.Project :=
+private
+def mergeSemanticProject
+    : EventB.Typing.Project :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [ .event [("org.eventb.core.label", "INITIALISATION")] []
@@ -21,35 +23,47 @@ private def mergeSemanticProject : EventB.Typing.Project :=
              , .action [("org.eventb.core.label", "set"),
                         ("org.eventb.core.assignment", "x ≔ 0")] [] ] ] }]
 
-private def mergeSource : CheckedMergeSource Theory.empty
-    mergeSemanticProject "B" "merge" :=
+private
+def mergeSource
+    : CheckedMergeSource Theory.empty mergeSemanticProject "B" "merge" :=
   (CheckedMergeSource.fromProject Theory.empty mergeSemanticProject "B" "merge").get
     (by native_decide)
 
-private def concreteEvent : Event Unit :=
+private
+def concreteEvent
+    : Event Unit :=
   { grd := fun _ => True
     act := fun _ _ => True }
 
-private def leftBranch : Event Bool :=
+private
+def leftBranch
+    : Event Bool :=
   { grd := fun state => state = false
     act := fun _ _ => True }
 
-private def rightBranch : Event Bool :=
+private
+def rightBranch
+    : Event Bool :=
   { grd := fun state => state = true
     act := fun _ _ => True }
 
-private def abstractMachine : Machine Bool :=
+private
+def abstractMachine
+    : Machine Bool :=
   { inv := fun _ => True
     init := fun _ => True
     events := [leftBranch, rightBranch] }
 
-private def concreteMachine : Machine Unit :=
+private
+def concreteMachine
+    : Machine Unit :=
   { inv := fun _ => True
     init := fun _ => True
     events := [concreteEvent] }
 
-private def splitContract : SplitSimulation concreteMachine abstractMachine
-    (fun _ _ => True) :=
+private
+def splitContract
+    : SplitSimulation concreteMachine abstractMachine (fun _ _ => True) :=
   { concreteEvent := concreteEvent
     concreteMember := by simp [concreteMachine]
     abstractEvents := [leftBranch, rightBranch]
@@ -71,7 +85,9 @@ private def splitContract : SplitSimulation concreteMachine abstractMachine
       rcases branches with rfl | rfl <;>
         exact ⟨false, by simp [leftBranch, rightBranch], trivial⟩ }
 
-private def sourceBranches : List (String × Event Bool) :=
+private
+def sourceBranches
+    : List (String × Event Bool) :=
   [("left", leftBranch), ("right", rightBranch)]
 
 #guard mergeSource.targets == ["left", "right"]
@@ -80,7 +96,8 @@ private def sourceBranches : List (String × Event Bool) :=
 
 example : [leftBranch, rightBranch] = sourceBranches.map (·.2) := by rfl
 
-example : splitSimulationSemantic splitContract sourceBranches := by
+example
+    : splitSimulationSemantic splitContract sourceBranches := by
   intro _ _ abstract _ _ _
   cases abstract with
   | false =>
@@ -90,12 +107,14 @@ example : splitSimulationSemantic splitContract sourceBranches := by
       exact ⟨"right", rightBranch, true, by simp [sourceBranches],
         by simp [rightBranch], by simp [rightBranch], trivial⟩
 
-private def foreignBranch : Event Bool :=
+private
+def foreignBranch
+    : Event Bool :=
   { grd := fun _ => True
     act := fun _ _ => False }
 
-example : ¬ splitSimulationSemantic splitContract
-    [("foreign", foreignBranch)] := by
+example
+    : ¬ splitSimulationSemantic splitContract [("foreign", foreignBranch)] := by
   intro semantic
   obtain ⟨label, branch, after, member, _, action, _⟩ :=
     semantic () () false trivial trivial trivial
@@ -107,8 +126,8 @@ example : ¬ splitSimulationSemantic splitContract
 /- A matching label is not enough: replacing the selected branch object must also
    invalidate the semantic contract.  This is the negative control for the adapter's
    still-explicit abstract-event provenance boundary. -/
-example : ¬ splitSimulationSemantic splitContract
-    [("left", foreignBranch), ("right", rightBranch)] := by
+example
+    : ¬ splitSimulationSemantic splitContract [("left", foreignBranch), ("right", rightBranch)] := by
   intro semantic
   obtain ⟨label, branch, after, member, guard, action, _⟩ :=
     semantic () () false trivial trivial trivial

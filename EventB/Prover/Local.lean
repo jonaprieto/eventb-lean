@@ -19,7 +19,9 @@ inductive Rule where
   | contradiction
   deriving BEq, Repr, Inhabited
 
-def Rule.label : Rule → String
+def Rule.label
+    : Rule →
+      String
   | .exactHypothesis => "exact-hypothesis"
   | .true => "true"
   | .reflexive => "reflexive"
@@ -32,11 +34,17 @@ structure Result where
 
 def Result.discharged (result : Result) : Bool := result.rule.isSome
 
-private def isReflexive : Term → Bool
+private
+def isReflexive
+    : Term →
+      Bool
   | .bin "=" left right => Formula.alphaEq left right
   | _ => false
 
-private def isFalse : Term → Bool
+private
+def isFalse
+    : Term →
+      Bool
   | .id "⊥" => true
   | _ => false
 
@@ -53,18 +61,31 @@ private def rule? (obligation : Obligation) : Option Rule := do
   else
     none
 
-private def evidenceFingerprint (obligation : Obligation) (rule : Rule) : String :=
+private
+def evidenceFingerprint
+    (obligation : Obligation)
+    (rule : Rule)
+    : String :=
   Trust.fingerprint (obligation.canonical ++ "\nrule=" ++ rule.label)
 
-def evidence (obligation : Obligation) (rule : Rule) : Evidence :=
+def evidence
+    (obligation : Obligation)
+    (rule : Rule)
+    : Evidence :=
   .external "eventb-local" "0" (evidenceFingerprint obligation rule) "EventB.Prover.Local"
 
-def prove (obligation : Obligation) : Result :=
+def prove
+    (obligation : Obligation)
+    : Result :=
   match rule? obligation with
   | some rule => { rule := some rule, evidence := evidence obligation rule }
   | none => {}
 
-def attach (ledger : Ledger) (obligation : Obligation) : Result → Except EventB.Error Ledger
+def attach
+    (ledger : Ledger)
+    (obligation : Obligation)
+    : Result →
+      Except EventB.Error Ledger
   | { rule := some rule, evidence := .external tool version digest verifier } =>
       if tool != "eventb-local" || version != "0" || verifier != "EventB.Prover.Local" then
         .error (EventB.Error.prover "local prover evidence metadata mismatch")
@@ -78,10 +99,14 @@ def attach (ledger : Ledger) (obligation : Obligation) : Result → Except Event
       .error (EventB.Error.prover "local prover evidence has wrong trust mode")
   | _ => pure ledger
 
-private def trueObligation : Obligation :=
+private
+def trueObligation
+    : Obligation :=
   { component := "Local", name := "true", kind := "THM", goal := some (.id "⊤") }
 
-private def reflexiveObligation : Obligation :=
+private
+def reflexiveObligation
+    : Obligation :=
   { component := "Local", name := "refl", kind := "THM"
     goal := some (.bin "=" (.id "x") (.id "x")) }
 

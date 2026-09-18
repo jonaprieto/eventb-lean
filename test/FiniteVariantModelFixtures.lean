@@ -4,7 +4,9 @@ import EventB.POG.RefinementAdapters
 
 namespace EventB.POG
 
-private def modelFiniteProject : EventB.Typing.Project :=
+private
+def modelFiniteProject
+    : EventB.Typing.Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [ .variable [("org.eventb.core.identifier", "S")] []
@@ -17,16 +19,23 @@ private def modelFiniteProject : EventB.Typing.Project :=
        , .event [("org.eventb.core.label", "hold"),
                  ("org.eventb.core.convergence", "2")] [] ] }]
 
-private def parsed? (source : String) : Option EventB.Formula.Term :=
+private
+def parsed?
+    (source : String)
+    : Option EventB.Formula.Term :=
   (EventB.Formula.parse source).toOption
 
-private def modelFinObligation : Obligation :=
+private
+def modelFinObligation
+    : Obligation :=
   { component := "M", name := "FIN", kind := "FIN"
     goal := parsed? "finite(S)"
     hyps := [(parsed? "S ∈ ℙ(ℤ)").get (by native_decide),
       (parsed? "finite(S)").get (by native_decide)] }
 
-private def modelVarObligation : Obligation :=
+private
+def modelVarObligation
+    : Obligation :=
   { component := "M", name := "hold/VAR", kind := "VAR"
     goal := parsed? "S ⊆ S"
     hyps := [(parsed? "S ∈ ℙ(ℤ)").get (by native_decide),
@@ -38,52 +47,75 @@ private def modelVarObligation : Obligation :=
   modelVarObligation).isSome
 #guard EventB.POG.eventRefinementTargets modelFiniteProject "M" "hold" == []
 
-private def modelFinPO : CheckedPO EventB.Theory.empty modelFiniteProject :=
+private
+def modelFinPO
+    : CheckedPO EventB.Theory.empty modelFiniteProject :=
   (CheckedPO.fromGeneratedExact? EventB.Theory.empty modelFiniteProject modelFinObligation).get
     (by native_decide)
 
-private def modelVarPO : CheckedPO EventB.Theory.empty modelFiniteProject :=
+private
+def modelVarPO
+    : CheckedPO EventB.Theory.empty modelFiniteProject :=
   (CheckedPO.fromGeneratedExact? EventB.Theory.empty modelFiniteProject modelVarObligation).get
     (by native_decide)
 
-private def modelEventSource : CheckedEventSource EventB.Theory.empty
-    modelFiniteProject "M" "hold" :=
+private
+def modelEventSource
+    : CheckedEventSource EventB.Theory.empty modelFiniteProject "M" "hold" :=
   (CheckedEventSource.fromProject EventB.Theory.empty modelFiniteProject "M" "hold").get
     (by native_decide)
 
-private def modelVariantSource : CheckedVariantSource modelFiniteProject "M" :=
+private
+def modelVariantSource
+    : CheckedVariantSource modelFiniteProject "M" :=
   (CheckedVariantSource.fromProject modelFiniteProject "M").get (by native_decide)
 
-private def modelEventSourceBound : CheckedEventSource EventB.Theory.empty
-    modelFiniteProject modelFinPO.obligation.component "hold" := by
+private
+def modelEventSourceBound
+    : CheckedEventSource EventB.Theory.empty modelFiniteProject modelFinPO.obligation.component "hold" := by
   have component : modelFinPO.obligation.component = "M" := by native_decide
   rw [component]
   exact modelEventSource
 
-private def modelVariantSourceBound : CheckedVariantSource modelFiniteProject
-    modelFinPO.obligation.component := by
+private
+def modelVariantSourceBound
+    : CheckedVariantSource modelFiniteProject modelFinPO.obligation.component := by
   have component : modelFinPO.obligation.component = "M" := by native_decide
   rw [component]
   exact modelVariantSource
 
-private def modelDeclarations : List (String × EventB.Typing.Ty) :=
+private
+def modelDeclarations
+    : List (String × EventB.Typing.Ty) :=
   [("S", .pow .int)]
 
-private def modelTypeGoal : EventB.Formula.Term :=
+private
+def modelTypeGoal
+    : EventB.Formula.Term :=
   .bin "∈" (.id "S") (.pre "ℙ" (.id "ℤ"))
 
-private def modelFiniteGoal : EventB.Formula.Term :=
+private
+def modelFiniteGoal
+    : EventB.Formula.Term :=
   .app (.id "finite") (.id "S")
 
-private def modelShape (env : ValueEnv) : Prop :=
+private
+def modelShape
+    (env : ValueEnv)
+    : Prop :=
   ∃ values, evalValueAtFuel 127 env (.id "S") = .ok (.set values)
 
-private def modelFinObligationExact : Obligation :=
+private
+def modelFinObligationExact
+    : Obligation :=
   { component := "M", name := "FIN", kind := "FIN"
     goal := some modelFiniteGoal
     hyps := [modelTypeGoal, modelFiniteGoal] }
 
-private def modelDomain (env : ValueEnv) : Prop :=
+private
+def modelDomain
+    (env : ValueEnv)
+    : Prop :=
   ValueEnv.validationOk 128 modelDeclarations env = true ∧
     evalPredicateAtFuel 128 env modelTypeGoal = .ok true ∧
     evalPredicateAtFuel 128 env modelFiniteGoal = .ok true ∧
@@ -91,15 +123,19 @@ private def modelDomain (env : ValueEnv) : Prop :=
 
 private abbrev modelState := { env : ValueEnv // modelDomain env }
 
-private theorem modelValidationFuelOfOk (env : ValueEnv)
-    (h : ValueEnv.validationOk 128 modelDeclarations env = true) :
-    ValueEnv.validateFuel 128 modelDeclarations env = .ok PUnit.unit := by
+private
+theorem modelValidationFuelOfOk
+    (env : ValueEnv)
+    (h : ValueEnv.validationOk 128 modelDeclarations env = true)
+    : ValueEnv.validateFuel 128 modelDeclarations env = .ok PUnit.unit := by
   unfold ValueEnv.validationOk at h
   cases result : ValueEnv.validateFuel 128 modelDeclarations env with
   | error error => simp [result] at h
   | ok value => cases value; simpa using result
 
-private def modelFormulaModel : TypedFormulaModel :=
+private
+def modelFormulaModel
+    : TypedFormulaModel :=
   { declarations := modelDeclarations
     fuel := 128
     wellFormed := fun env => ValueEnv.validationOk 128 modelDeclarations env = true
@@ -116,11 +152,16 @@ private def modelFormulaModel : TypedFormulaModel :=
 
 private def modelEncode (state : modelState) : ValueEnv := state.1
 
-private def modelSourceTransition (state : modelState) : CheckedBeforeAfter :=
+private
+def modelSourceTransition
+    (state : modelState)
+    : CheckedBeforeAfter :=
   { before := state.1, after := state.1, declarations := modelDeclarations }
 
-private theorem modelSourceAssignment (state : modelState) :
-    modelEventSourceBound.assignmentAction 128 (modelSourceTransition state) := by
+private
+theorem modelSourceAssignment
+    (state : modelState)
+    : modelEventSourceBound.assignmentAction 128 (modelSourceTransition state) := by
   change assignmentRelation 128 modelEventSourceBound.declarations
     (modelSourceTransition state) modelEventSourceBound.updates
   have declarations : modelEventSourceBound.declarations = modelDeclarations := by
@@ -135,9 +176,11 @@ private theorem modelSourceAssignment (state : modelState) :
     CheckedBeforeAfter.make, validationFuel, Bind.bind, Except.bind]
   rfl
 
-private theorem modelSourceAfterEq (transition : CheckedBeforeAfter)
-    (source : modelEventSourceBound.assignmentAction 128 transition) :
-    transition.after = transition.before := by
+private
+theorem modelSourceAfterEq
+    (transition : CheckedBeforeAfter)
+    (source : modelEventSourceBound.assignmentAction 128 transition)
+    : transition.after = transition.before := by
   change assignmentRelation 128 modelEventSourceBound.declarations transition
     modelEventSourceBound.updates at source
   have declarations : modelEventSourceBound.declarations = modelDeclarations := by
@@ -165,22 +208,33 @@ private theorem modelSourceAfterEq (transition : CheckedBeforeAfter)
 private abbrev modelVarState :=
   { pair : modelState × modelState // pair.1.1 = pair.2.1 }
 
-private def modelVarEncode (state : modelVarState) : CheckedBeforeAfter :=
+private
+def modelVarEncode
+    (state : modelVarState)
+    : CheckedBeforeAfter :=
   { before := state.1.1.1, after := state.1.2.1, declarations := modelDeclarations }
 
-private def modelVarSource (transition : CheckedBeforeAfter) : Prop :=
+private
+def modelVarSource
+    (transition : CheckedBeforeAfter)
+    : Prop :=
   modelEventSourceBound.assignmentAction 128 transition ∧
     modelDomain transition.before ∧ modelDomain transition.after
 
-private theorem modelVarSourceValid (state : modelVarState) :
-    modelVarSource (modelVarEncode state) := by
+private
+theorem modelVarSourceValid
+    (state : modelVarState)
+    : modelVarSource (modelVarEncode state) := by
   refine ⟨?_, state.1.1.2, state.1.2.2⟩
   simpa [modelVarEncode, modelSourceTransition, state.2] using
     modelSourceAssignment state.1.1
 
-private theorem modelVarSourceComplete (transition : CheckedBeforeAfter)
-    (source : modelVarSource transition) :
-    ∃ state : modelVarState, modelVarEncode state = transition := by
+private
+theorem modelVarSourceComplete
+    (transition : CheckedBeforeAfter)
+    (source : modelVarSource transition)
+    : ∃ state : modelVarState,
+      modelVarEncode state = transition := by
   rcases source with ⟨assignment, beforeDomain, afterDomain⟩
   have afterEq := modelSourceAfterEq transition assignment
   refine ⟨⟨(⟨transition.before, beforeDomain⟩, ⟨transition.after, afterDomain⟩),
@@ -194,16 +248,20 @@ private theorem modelVarSourceComplete (transition : CheckedBeforeAfter)
   simp [modelVarEncode]
   exact declaredExact.symm
 
-private theorem modelSubsetSelfEval (transition : CheckedBeforeAfter)
+private
+theorem modelSubsetSelfEval
+    (transition : CheckedBeforeAfter)
     (beforeValid : ValueEnv.validationOk 128 transition.declarations transition.before = true)
     (afterValid : ValueEnv.validationOk 128 transition.declarations transition.after = true)
     (shape : modelShape transition.before)
-    (afterEq : transition.after = transition.before) :
-    evalBeforeAfter 128 transition
-      (.bin "⊆" (.id "S") (.id "S")) = .ok true := by
+    (afterEq : transition.after = transition.before)
+    : evalBeforeAfter 128 transition
+        (.bin "⊆" (.id "S") (.id "S")) = .ok true := by
   exact evalBeforeAfterIdentifierSubsetSelf transition beforeValid afterValid shape afterEq
 
-private def modelInitialState : modelState :=
+private
+def modelInitialState
+    : modelState :=
   ⟨{ values := [("S", .set [.integer 0]) ] }, by
     refine ⟨?_, ?_, ?_, ?_⟩
     · native_decide
@@ -212,17 +270,22 @@ private def modelInitialState : modelState :=
     · refine ⟨[.integer 0], ?_⟩
       exact evalValueIdentifierSingletonZero⟩
 
-private def modelInitialVarState : modelVarState :=
+private
+def modelInitialVarState
+    : modelVarState :=
   ⟨(modelInitialState, modelInitialState), rfl⟩
 
-private def modelVarEvaluator : TypedTransitionModel :=
+private
+def modelVarEvaluator
+    : TypedTransitionModel :=
   { fuel := 128
     wellFormed := modelVarSource
     inhabited := ⟨modelVarEncode modelInitialVarState, modelVarSourceValid modelInitialVarState⟩
     supports := fun _ => true }
 
-private theorem modelVarEvaluatorValid :
-    modelVarEvaluator.validOnDomain modelVarSource modelVarObligation := by
+private
+theorem modelVarEvaluatorValid
+    : modelVarEvaluator.validOnDomain modelVarSource modelVarObligation := by
   have obligationExact : modelVarObligation =
       { component := "M", name := "hold/VAR", kind := "VAR"
         goal := some (.bin "⊆" (.id "S") (.id "S"))
@@ -262,8 +325,9 @@ private theorem modelVarEvaluatorValid :
         exact modelSubsetSelfEval transition beforeValid' afterValid'
           beforeDomain.2.2.2 afterEq
 
-private theorem modelFinEvaluatorValid :
-    modelFormulaModel.validOnDomain modelDomain modelFinObligation := by
+private
+theorem modelFinEvaluatorValid
+    : modelFormulaModel.validOnDomain modelDomain modelFinObligation := by
   have obligationExact : modelFinObligation =
       modelFinObligationExact := by native_decide
   rw [obligationExact]
@@ -295,7 +359,9 @@ private theorem modelFinEvaluatorValid :
       · intro _
         exact finiteValid
 
-private def modelFiniteVariant : FiniteSetVariant modelState Int :=
+private
+def modelFiniteVariant
+    : FiniteSetVariant modelState Int :=
   { mode := .anticipated
     measure := fun state =>
       match evalValueAtFuel 128 state.1 (.id "S") with
@@ -308,8 +374,10 @@ private def modelFiniteVariant : FiniteSetVariant modelState Int :=
       intro before after action value member
       simpa [action] using member }
 
-private theorem modelFinitenessExact : ∀ state : modelState,
-    modelFiniteVariant.finite state ↔
+private
+theorem modelFinitenessExact
+    : ∀ state : modelState,
+      modelFiniteVariant.finite state ↔
       modelFormulaModel.denote modelFiniteGoal (modelEncode state) := by
   intro state
   constructor
@@ -318,8 +386,9 @@ private theorem modelFinitenessExact : ∀ state : modelState,
   · intro _
     trivial
 
-private def modelFinFormula : DomainFormulaAdequacy modelFinPO modelState
-    (finiteVariantFiniteness modelFiniteVariant) modelDomain :=
+private
+def modelFinFormula
+    : DomainFormulaAdequacy modelFinPO modelState (finiteVariantFiniteness modelFiniteVariant) modelDomain :=
   { evaluator := modelFormulaModel
     encode := modelEncode
     declarationScope := none
@@ -387,8 +456,9 @@ private def modelVarFormula : TransitionFormulaAdequacy modelVarPO modelVarState
       intro value member
       simpa [modelVarBefore, modelVarAfter, action] using member }
 
-private def modelRestrictedAdapter :
-    RestrictedFiniteSetVariantAdapter (η := modelVarState) (γ := modelState)
+private
+def modelRestrictedAdapter
+    : RestrictedFiniteSetVariantAdapter (η := modelVarState) (γ := modelState)
       EventB.Theory.empty modelFiniteProject modelFiniteVariant :=
   { finBinding := modelFinPO
     varBinding := modelVarPO
@@ -438,12 +508,14 @@ private def modelRestrictedAdapter :
         simpa [modelVarBefore, modelVarAfter, modelVarEncode] using afterEq.symm
     fuelExact := by constructor <;> rfl }
 
-private theorem modelRestrictedSound :
-    finiteVariantFiniteness modelFiniteVariant ∧
+private
+theorem modelRestrictedSound
+    : finiteVariantFiniteness modelFiniteVariant ∧
       finiteVariantProgressSemantic modelFiniteVariant :=
   RestrictedFiniteSetVariantAdapter.sound modelRestrictedAdapter
 
-example : ¬ finiteVariantProgress .convergent ([0] : List Int) [0] := by
+example
+    : ¬ finiteVariantProgress .convergent ([0] : List Int) [0] := by
   intro progress
   rcases progress.2 with ⟨value, member, absent⟩
   simp_all

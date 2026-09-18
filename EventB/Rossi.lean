@@ -29,14 +29,23 @@ private inductive CommentMode where
 
 private def whitespace (c : Char) : Bool := c.isWhitespace
 
-private def trim (s : String) : String :=
+private
+def trim
+    (s : String)
+    : String :=
   let left := s.toList.dropWhile whitespace
   String.ofList (left.reverse.dropWhile whitespace |>.reverse)
 
-private def lower (s : String) : String :=
+private
+def lower
+    (s : String)
+    : String :=
   String.ofList (s.toList.map Char.toLower)
 
-private def stripComments (source : String) : Except String String :=
+private
+def stripComments
+    (source : String)
+    : Except String String :=
   go source.toList .normal []
 where
   go : List Char → CommentMode → List Char → Except String String
@@ -51,19 +60,28 @@ where
     | '\n' :: rest, .block, out => go rest .block ('\n' :: out)
     | _ :: rest, .block, out => go rest .block out
 
-private def structuralWords : List String :=
+private
+def structuralWords
+    : List String :=
   ["context", "extends", "sets", "constants", "axioms", "theorems", "end", "machine",
    "refines", "sees", "variables", "invariants", "variant", "events", "event", "any",
    "where", "when", "with", "then", "begin", "witness"]
 
-private def wordPrefix? (word : String) (cs : List Char) : Bool :=
+private
+def wordPrefix?
+    (word : String)
+    (cs : List Char)
+    : Bool :=
   let wanted := (lower word).toList
   let actual := cs.take wanted.length |>.map Char.toLower
   actual == wanted && match cs.drop wanted.length with
     | c :: _ => !c.isAlphanum && c != '_' && c != '-'
     | [] => true
 
-private def splitStructural (source : String) : String :=
+private
+def splitStructural
+    (source : String)
+    : String :=
   go (source.length + 1) source.toList true []
 where
   go : Nat → List Char → Bool → List Char → String
@@ -85,11 +103,17 @@ where
         else
           go fuel rest false (c :: out)
 
-private def lines (source : String) : List Line :=
+private
+def lines
+    (source : String)
+    : List Line :=
   (splitStructural source).splitOn "\n" |>.mapIdx fun number text =>
     { number := number + 1, text := trim text }
 
-private def firstWord? (s : String) : Option (String × String) :=
+private
+def firstWord?
+    (s : String)
+    : Option (String × String) :=
   let cs := (trim s).toList
   let word := cs.takeWhile (fun c => !whitespace c)
   if word.isEmpty then none
@@ -97,12 +121,18 @@ private def firstWord? (s : String) : Option (String × String) :=
     let rest := cs.drop word.length |>.dropWhile whitespace
     some (String.ofList word, String.ofList rest)
 
-private def head? (s : String) : Option String :=
+private
+def head?
+    (s : String)
+    : Option String :=
   firstWord? s |>.map (fun p => lower p.1)
 
 private def tail (s : String) : String := (firstWord? s).map (·.2) |>.getD ""
 
-private def words (s : String) : List String :=
+private
+def words
+    (s : String)
+    : List String :=
   go s.toList [] []
 where
   go : List Char → List Char → List String → List String
@@ -115,23 +145,43 @@ where
           else go rest [] (String.ofList current.reverse :: out)
         else go rest (c :: current) out
 
-private def lineError (line : Line) (message : String) : String :=
+private
+def lineError
+    (line : Line)
+    (message : String)
+    : String :=
   s!"line {line.number}: {message}"
 
-private def identAttrs (name : String) : XmlAttrs :=
+private
+def identAttrs
+    (name : String)
+    : XmlAttrs :=
   [("org.eventb.core.identifier", name)]
 
-private def targetAttrs (name : String) : XmlAttrs :=
+private
+def targetAttrs
+    (name : String)
+    : XmlAttrs :=
   [("org.eventb.core.target", name)]
 
-private def labelAttrs (label formula : String) (isTheorem : Bool := false) : XmlAttrs :=
+private
+def labelAttrs
+    (label formula : String)
+    (isTheorem : Bool := false)
+    : XmlAttrs :=
   [("org.eventb.core.label", label), ("org.eventb.core.predicate", formula)] ++
     (if isTheorem then [("org.eventb.core.theorem", "true")] else [])
 
-private def assignmentAttrs (label formula : String) : XmlAttrs :=
+private
+def assignmentAttrs
+    (label formula : String)
+    : XmlAttrs :=
   [("org.eventb.core.label", label), ("org.eventb.core.assignment", formula)]
 
-private def removeTrailingColon (s : String) : String :=
+private
+def removeTrailingColon
+    (s : String)
+    : String :=
   if s.endsWith ":" then String.ofList (s.toList.reverse.drop 1 |>.reverse) else s
 
 private structure Labelled where
@@ -139,14 +189,20 @@ private structure Labelled where
   formula : String
   isTheorem : Bool := false
 
-private def stripTheorem (source : String) : Bool × String :=
+private
+def stripTheorem
+    (source : String)
+    : Bool × String :=
   match firstWord? source with
   | some (word, rest) =>
       let isTheorem := lower word == "theorem"
       (isTheorem, if isTheorem then rest else source)
   | none => (false, source)
 
-private def leadingLabel? (s : String) : Option (String × String) :=
+private
+def leadingLabel?
+    (s : String)
+    : Option (String × String) :=
   let s := trim s
   if !s.startsWith "@" then none
   else
@@ -168,7 +224,10 @@ private def labelled (_generated : String) (source : String) : Except String Lab
   if source.isEmpty then .error "expected a formula"
   else .ok { label, formula := source, isTheorem := theoremBefore || theoremAfter }
 
-private def labelOnly? (source : String) : Option String :=
+private
+def labelOnly?
+    (source : String)
+    : Option String :=
   leadingLabel? source |>.filter (·.2.isEmpty) |>.map (·.1)
 
 private inductive PredicateKind where
@@ -179,7 +238,11 @@ private inductive PredicateKind where
   | guard
   | witness
 
-private def predicateElem (kind : PredicateKind) (label formula : String) : Elem :=
+private
+def predicateElem
+    (kind : PredicateKind)
+    (label formula : String)
+    : Elem :=
   match kind with
   | .axiom => .axiom (labelAttrs label formula) []
   | .theoremAxiom => .axiom (labelAttrs label formula true) []
@@ -188,47 +251,73 @@ private def predicateElem (kind : PredicateKind) (label formula : String) : Elem
   | .guard => .guard (labelAttrs label formula) []
   | .witness => .witness (labelAttrs label formula) []
 
-private def skipBlank : List Line → List Line
+private
+def skipBlank
+    : List Line →
+      List Line
   | [] => []
   | line :: rest => if line.text.isEmpty then skipBlank rest else line :: rest
 
 private def isOneOf (value : String) (values : List String) : Bool := values.contains value
 
-private def contextStops : List String :=
+private
+def contextStops
+    : List String :=
   ["extends", "sets", "constants", "axioms", "theorems", "end"]
 
-private def machineStops : List String :=
+private
+def machineStops
+    : List String :=
   ["refines", "sees", "variables", "invariants", "theorems", "variant", "events",
    "end"]
 
-private def eventStops : List String :=
+private
+def eventStops
+    : List String :=
   ["any", "where", "when", "with", "witness", "then", "begin", "end"]
 
-private def predicateBoundary (stops : List String) (line : Line) : Bool :=
+private
+def predicateBoundary
+    (stops : List String)
+    (line : Line)
+    : Bool :=
   match head? line.text with
   | some head => isOneOf head stops
   | none => false
 
-private def formulaBody (source : String) : String :=
+private
+def formulaBody
+    (source : String)
+    : String :=
   let (_, source) := stripTheorem source
   match leadingLabel? source with
   | some (_, rest) => rest
   | none => source
 
-private def startsWithFormulaOperator (source : String) : Bool :=
+private
+def startsWithFormulaOperator
+    (source : String)
+    : Bool :=
   match Formula.lex source with
   | .ok (tok :: _) => match tok with
       | .op _ => true
       | _ => false
   | _ => false
 
-private def formulaComplete (source : String) : Bool :=
+private
+def formulaComplete
+    (source : String)
+    : Bool :=
   match Formula.parse source with
   | .ok _ => true
   | .error _ => false
 
-private def collectPredicateText (stops : List String) (line : Line) (rest : List Line) :
-    String × List Line :=
+private
+def collectPredicateText
+    (stops : List String)
+    (line : Line)
+    (rest : List Line)
+    : String × List Line :=
   let initial := line.text
   let initialBody := formulaBody initial
   let (initial, rest) := if initialBody.isEmpty then
@@ -299,8 +388,14 @@ private def predicateLine (kind : PredicateKind) (stops : List String) (index : 
             return (predicateElem kind (parsed.label.getD label) parsed.formula, remaining)
       | _, _ => .error (lineError line s!"invalid labelled formula `{line.text}`")
 
-private def parsePredicates (kind : PredicateKind) (stops : List String) : Nat → Nat →
-    List Line → Except String (List Elem × List Line)
+private
+def parsePredicates
+    (kind : PredicateKind)
+    (stops : List String)
+    : Nat →
+      Nat →
+      List Line →
+      Except String (List Elem × List Line)
   | 0, _, _ => .error "Rossi parser ran out of fuel"
   | fuel + 1, index, source =>
       let source := skipBlank source
@@ -314,7 +409,10 @@ private def parsePredicates (kind : PredicateKind) (stops : List String) : Nat �
             let (more, remaining) ← parsePredicates kind stops fuel (index + 1) remaining
             return (elem :: more, remaining)
 
-private def assignmentLength? : List Char → Option Nat
+private
+def assignmentLength?
+    : List Char →
+      Option Nat
   | '≔' :: _ => some 1
   | ':' :: '=' :: _ => some 2
   | ':' :: '∈' :: _ => some 2
@@ -323,7 +421,10 @@ private def assignmentLength? : List Char → Option Nat
   | ':' :: '∣' :: _ => some 2
   | _ => none
 
-private def topLevelAssignments (source : String) : List Nat :=
+private
+def topLevelAssignments
+    (source : String)
+    : List Nat :=
   go source.length source.toList 0 0
 where
   go : Nat → List Char → Nat → Nat → List Nat
@@ -350,12 +451,20 @@ where
             | _ :: rest => go fuel rest 0 (position + 1)
     | fuel + 1, _ :: rest, depth, position => go fuel rest depth (position + 1)
 
-private def charAt? : List Char → Nat → Option Char
+private
+def charAt?
+    : List Char →
+      Nat →
+      Option Char
   | [], _ => none
   | c :: _, 0 => some c
   | _ :: rest, position + 1 => charAt? rest position
 
-private def actionStart (source : String) (marker : Nat) : Nat :=
+private
+def actionStart
+    (source : String)
+    (marker : Nat)
+    : Nat :=
   let chars := source.toList
   go chars marker false
 where
@@ -376,7 +485,11 @@ where
             else
               position + 1
 
-private def splitAtPositions (source : String) (starts : List Nat) : List String :=
+private
+def splitAtPositions
+    (source : String)
+    (starts : List Nat)
+    : List String :=
   go source.toList 0 starts
 where
   go : List Char → Nat → List Nat → List String
@@ -388,7 +501,10 @@ where
         let more := go chars next rest
         if text.isEmpty then more else text :: more
 
-private def splitActionText (source : String) : List String :=
+private
+def splitActionText
+    (source : String)
+    : List String :=
   match topLevelAssignments source with
   | [] => [source]
   | first :: rest =>
@@ -399,7 +515,10 @@ private def splitActionText (source : String) : List String :=
         else starts
       splitAtPositions source starts
 
-private def actionBody (source : String) : String :=
+private
+def actionBody
+    (source : String)
+    : String :=
   match topLevelAssignments source with
   | marker :: _ =>
       let chars := source.toList.drop marker
@@ -408,7 +527,10 @@ private def actionBody (source : String) : String :=
       | none => ""
   | [] => ""
 
-private def actionComplete (source : String) : Bool :=
+private
+def actionComplete
+    (source : String)
+    : Bool :=
   let body := match leadingLabel? source with
     | some (_, rest) => rest
     | none => source
@@ -416,7 +538,11 @@ private def actionComplete (source : String) : Bool :=
   else if topLevelAssignments body |>.isEmpty then false
   else formulaComplete (actionBody body)
 
-private def collectActionText (line : Line) (rest : List Line) : String × List Line :=
+private
+def collectActionText
+    (line : Line)
+    (rest : List Line)
+    : String × List Line :=
   go (rest.length + 1) line.text rest
 where
   go : Nat → String → List Line → String × List Line
@@ -432,7 +558,12 @@ where
             else
               (text, source)
 
-private def parseActions : Nat → Nat → List Line → Except String (List Elem × List Line)
+private
+def parseActions
+    : Nat →
+      Nat →
+      List Line →
+      Except String (List Elem × List Line)
   | 0, _, _ => .error "Rossi parser ran out of fuel"
   | fuel + 1, index, source =>
       let source := skipBlank source
@@ -451,14 +582,23 @@ private def parseActions : Nat → Nat → List Line → Except String (List Ele
             let (more, remaining) ← parseActions fuel (index + chunks.length) remaining
             return (actions ++ more, remaining)
 
-private def sectionData (line : Line) (rest : List Line) : String × List Line :=
+private
+def sectionData
+    (line : Line)
+    (rest : List Line)
+    : String × List Line :=
   if !(tail line.text).isEmpty then (tail line.text, rest)
   else
     match skipBlank rest with
     | next :: remaining => (next.text, remaining)
     | [] => ("", [])
 
-private def collectNames : Nat → List String → List Line → List String × List Line
+private
+def collectNames
+    : Nat →
+      List String →
+      List Line →
+      List String × List Line
   | 0, _, source => ([], source)
   | fuel + 1, stops, source =>
       let source := skipBlank source
@@ -470,7 +610,12 @@ private def collectNames : Nat → List String → List Line → List String × 
             let (more, remaining) := collectNames fuel stops rest
             (words line.text ++ more, remaining)
 
-private def collectText : Nat → List String → List Line → List String × List Line
+private
+def collectText
+    : Nat →
+      List String →
+      List Line →
+      List String × List Line
   | 0, _, source => ([], source)
   | fuel + 1, stops, source =>
       let source := skipBlank source
@@ -482,15 +627,22 @@ private def collectText : Nat → List String → List Line → List String × L
             let (more, remaining) := collectText fuel stops rest
             (line.text :: more, remaining)
 
-private def names (stops : List String) (line : Line) (rest : List Line) :
-    Except String (List String × List Line) :=
+private
+def names
+    (stops : List String)
+    (line : Line)
+    (rest : List Line)
+    : Except String (List String × List Line) :=
   let first := if (tail line.text).isEmpty then [] else
     [{ number := line.number, text := tail line.text }]
   let (result, remaining) := collectNames (rest.length + 2) stops (first ++ rest)
   if result.isEmpty then .error (lineError line "expected one or more names")
   else .ok (result, remaining)
 
-private def setTokens (s : String) : List String :=
+private
+def setTokens
+    (s : String)
+    : List String :=
   go s.toList [] []
 where
   flush (current : List Char) (out : List String) : List String :=
@@ -504,7 +656,11 @@ where
           go rest [] (String.ofList [c] :: out)
         else go rest (c :: current) out
 
-private def parseSetDecls : Nat → List String → Except String (List (String × Option String))
+private
+def parseSetDecls
+    : Nat →
+      List String →
+      Except String (List (String × Option String))
   | 0, _ => .error "too many set declarations"
   | _, [] => .ok []
   | fuel + 1, name :: "=" :: "{" :: rest => do
@@ -535,8 +691,12 @@ private def setElements (line : Line) (rest : List Line) :
         | none => []
       .carrierSet (identAttrs name ++ attrs) [], remaining)
 
-private def parseContextBody : Nat → List Elem → List Line →
-    Except String (Elem × List Line)
+private
+def parseContextBody
+    : Nat →
+      List Elem →
+      List Line →
+      Except String (Elem × List Line)
   | 0, _, _ => .error "Rossi parser ran out of fuel"
   | fuel + 1, children, source =>
       let source := skipBlank source
@@ -578,7 +738,10 @@ private def parseContext (line : Line) (rest : List Line) :
   let (root, remaining) ← parseContextBody (source.length + 1) [] source
   return ({ name, model := { root } }, remaining)
 
-private def convergence (status : String) : Option String :=
+private
+def convergence
+    (status : String)
+    : Option String :=
   if status == "ordinary" then some "0"
   else if status == "convergent" then some "1"
   else if status == "anticipated" then some "2"
@@ -605,8 +768,14 @@ private def eventStatus (line : Line) : Except String (Option String × String) 
   | some value => pure (some value, rest)
   | none => .error (lineError line "STATUS expects ordinary, convergent, or anticipated")
 
-private def parseEventBody : Nat → String → Option String → List Elem → List Line →
-    Except String (Elem × List Line)
+private
+def parseEventBody
+    : Nat →
+      String →
+      Option String →
+      List Elem →
+      List Line →
+      Except String (Elem × List Line)
   | 0, _, _, _, _ => .error "Rossi parser ran out of fuel"
   | fuel + 1, name, status, children, source =>
       let source := skipBlank source
@@ -669,7 +838,12 @@ private def parseEvent (line : Line) (rest : List Line) : Except String (Elem ×
     ({ number := line.number, text := headerTail } :: rest)
   parseEventBody (source.length + 1) name status [] source
 
-private def parseEvents : Nat → List Elem → List Line → Except String (List Elem × List Line)
+private
+def parseEvents
+    : Nat →
+      List Elem →
+      List Line →
+      Except String (List Elem × List Line)
   | 0, _, _ => .error "Rossi parser ran out of fuel"
   | fuel + 1, events, source =>
       let source := skipBlank source
@@ -693,8 +867,12 @@ private def parseEvents : Nat → List Elem → List Line → Except String (Lis
             let (event, remaining) ← parseEvent line rest
             parseEvents fuel (events ++ [event]) remaining
 
-private def parseMachineBody : Nat → List Elem → List Line →
-    Except String (Elem × List Line)
+private
+def parseMachineBody
+    : Nat →
+      List Elem →
+      List Line →
+      Except String (Elem × List Line)
   | 0, _, _ => .error "Rossi parser ran out of fuel"
   | fuel + 1, children, source =>
       let source := skipBlank source
@@ -750,7 +928,11 @@ private def parseMachine (line : Line) (rest : List Line) :
   let (root, remaining) ← parseMachineBody (source.length + 1) [] source
   return ({ name, model := { root } }, remaining)
 
-private def parseComponents : Nat → List Line → Except String (List Component)
+private
+def parseComponents
+    : Nat →
+      List Line →
+      Except String (List Component)
   | 0, _ => .error "Rossi parser ran out of fuel"
   | fuel + 1, source =>
       let source := skipBlank source
@@ -775,7 +957,9 @@ def parse (source : String) : Except EventB.Error (List Component) := do
   if result.isEmpty then .error (EventB.Error.rossi "Rossi input contains no CONTEXT or MACHINE")
   else return result
 
-def parseModel (source : String) : Except EventB.Error (List Model) :=
+def parseModel
+    (source : String)
+    : Except EventB.Error (List Model) :=
   parse source |>.map (·.map (·.model))
 
 def read (path : System.FilePath) : IO (Except EventB.Error (List Component)) := do

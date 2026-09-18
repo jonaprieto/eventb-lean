@@ -45,7 +45,9 @@ structure KernelContext where
 
 private def semanticValueHash (value : Expr) : String := toString value.hash
 
-def KernelContext.semanticFingerprint (context : KernelContext) : String :=
+def KernelContext.semanticFingerprint
+    (context : KernelContext)
+    : String :=
   String.intercalate "\n"
     ["roots=" ++ String.intercalate "," context.roots
     , "carriers=" ++ String.intercalate ";" (context.signature.carriers.map
@@ -78,7 +80,10 @@ private def KernelContext.lookupPredicate (context : KernelContext) (name : Stri
 private def KernelSignature.carrier? (signature : KernelSignature) (name : String) :
     Option Expr := signature.carriers.find? (·.1 == name) |>.map (·.2)
 
-def leanType (context : KernelContext) : Ty → MetaM Expr
+def leanType
+    (context : KernelContext)
+    : Ty →
+      MetaM Expr
   | .given name =>
       match context.signature.carrier? name with
       | some type => pure type
@@ -106,7 +111,10 @@ private def trueProp : Expr := mkConst (Name.mkSimple "True")
 
 /-- Event-B exponentiation is only defined for non-negative exponents. The embedding is
 totalized outside that domain; POG emits `0 ≤ exponent` as the corresponding WD premise. -/
-private def eventBPow (base exponent : Int) : Int :=
+private
+def eventBPow
+    (base exponent : Int)
+    : Int :=
   if 0 ≤ exponent then Int.pow base exponent.toNat else 0
 
 private def mkAnd (left right : Expr) : MetaM Expr := mkAppM ``And #[left, right]
@@ -117,7 +125,10 @@ private def mkEq (left right : Expr) : MetaM Expr := mkAppM ``Eq #[left, right]
 
 private def mkPair (left right : Expr) : MetaM Expr := mkAppM ``Prod.mk #[left, right]
 
-private def mkDisjunction : List Expr → MetaM Expr
+private
+def mkDisjunction
+    : List Expr →
+      MetaM Expr
   | [] => pure (mkConst ``False)
   | value :: values => values.foldlM mkOr value
 
@@ -204,7 +215,10 @@ private def validatePredicate (context : KernelContext) (predicate : KernelPredi
     throwError s!"semantic predicate `{predicate.name}` has Lean type {actual}, " ++
       s!"expected {argumentType} → Prop"
 
-private def asSet (term : KernelTerm) : MetaM (Ty × Expr) :=
+private
+def asSet
+    (term : KernelTerm)
+    : MetaM (Ty × Expr) :=
   match term.ty with
   | .pow type => pure (type, term.value)
   | type => throwError s!"expected a set, found {type.print}"
@@ -213,7 +227,10 @@ private def sameType (left right : Ty) : MetaM Unit := do
   unless left == right do
     throwError s!"incompatible translated types {left.print} and {right.print}"
 
-private def eventBType : Formula.Term → MetaM Ty
+private
+def eventBType
+    : Formula.Term →
+      MetaM Ty
   | .id "ℤ" | .id "ℕ" | .id "ℕ1" => pure .int
   | .id "BOOL" => pure .bool
   | .id name => pure (.given name)
@@ -257,32 +274,53 @@ private def withPattern {α : Type} (context : KernelContext) (pattern : Formula
           body context (leftLocals ++ rightLocals) value (.prod leftType rightType)
   | term => throwError s!"unsupported binder pattern `{Formula.print term}`"
 
-private def mkExistsLocals : List Expr → Expr → MetaM Expr
+private
+def mkExistsLocals
+    : List Expr →
+      Expr →
+      MetaM Expr
   | [], body => pure body
   | localVar :: locals, body => do
       let body ← mkExistsLocals locals body
       mkAppM ``Exists #[← mkLambdaFVars #[localVar] body]
 
-private def mkForallLocals : List Expr → Expr → MetaM Expr
+private
+def mkForallLocals
+    : List Expr →
+      Expr →
+      MetaM Expr
   | [], body => pure body
   | localVar :: locals, body => do
       let body ← mkForallLocals locals body
       mkForallFVars #[localVar] body
 
-private def isLambda : Formula.Term → Bool
+private
+def isLambda
+    : Formula.Term →
+      Bool
   | .bind "λ" _ _ => true
   | _ => false
 
-private def elementType? : Option Ty → Option Ty
+private
+def elementType?
+    : Option Ty →
+      Option Ty
   | some (.pow type) => some type
   | _ => none
 
-private def relationTypes (term : KernelTerm) : MetaM (Ty × Ty) :=
+private
+def relationTypes
+    (term : KernelTerm)
+    : MetaM (Ty × Ty) :=
   match term.ty with
   | .pow (.prod left right) => pure (left, right)
   | type => throwError s!"expected a relation, found {type.print}"
 
-private def project (which : Name) (pair : Expr) : MetaM Expr :=
+private
+def project
+    (which : Name)
+    (pair : Expr)
+    : MetaM Expr :=
   mkAppM which #[pair]
 
 private def mkSetBinary (op : String) (type left right : Expr) : MetaM Expr := do
@@ -351,7 +389,10 @@ private def mkRelationConstraint (kind : String)
         mkForallFVars #[y] (← mkImp (mkApp rightSet y) existsExpr)
   | _ => throwError s!"unknown relation constraint `{kind}`"
 
-private def relationConstraints : String → List String
+private
+def relationConstraints
+    : String →
+      List String
   | "↔" => []
   | "" => ["total"]
   | "" => ["surjective"]
@@ -506,11 +547,17 @@ private def builtinSet (context : KernelContext) (name : String) : MetaM KernelT
 
 mutual
 
-private def termFuelList : List Formula.Term → Nat
+private
+def termFuelList
+    : List Formula.Term →
+      Nat
   | [] => 0
   | term :: terms => termFuel term + termFuelList terms
 
-private def termFuel : Formula.Term → Nat
+private
+def termFuel
+    : Formula.Term →
+      Nat
   | .id _ | .num _ => 1
   | .bin _ left right => 1 + termFuel left + termFuel right
   | .pre _ value | .post _ value => 1 + termFuel value
@@ -523,8 +570,12 @@ end
 
 mutual
 
-private def translateExprList : Nat → KernelContext → List Formula.Term →
-    MetaM (List KernelTerm)
+private
+def translateExprList
+    : Nat →
+      KernelContext →
+      List Formula.Term →
+      MetaM (List KernelTerm)
   | 0, _, _ => throwError "formula translation recursion limit reached"
   | _ + 1, _, [] => pure []
   | fuel + 1, context, term :: terms => do
@@ -532,8 +583,14 @@ private def translateExprList : Nat → KernelContext → List Formula.Term →
       let rest ← translateExprList fuel context terms
       pure (value :: rest)
 
-private def translateComprehension : Nat → KernelContext → Formula.Term → Formula.Term →
-    Option Ty → MetaM KernelTerm
+private
+def translateComprehension
+    : Nat →
+      KernelContext →
+      Formula.Term →
+      Formula.Term →
+      Option Ty →
+      MetaM KernelTerm
   | fuel, context, pattern, body, expected => do
       withPattern context pattern none fun bodyContext locals patternValue patternType => do
         let (predicateTerm, valueTerm) := match body with
@@ -553,8 +610,14 @@ private def translateComprehension : Nat → KernelContext → Formula.Term → 
           let set ← mkLambdaFVars #[result] body
           checked context (.pow resultType) set
 
-private def translateLambda : Nat → KernelContext → Formula.Term → Formula.Term → Option Ty →
-    MetaM KernelTerm
+private
+def translateLambda
+    : Nat →
+      KernelContext →
+      Formula.Term →
+      Formula.Term →
+      Option Ty →
+      MetaM KernelTerm
   | fuel, context, pattern, body, expected => do
       let (inputExpected, outputExpected) ← match expected with
         | some (.pow (.prod input output)) => pure (some input, some output)
@@ -591,8 +654,14 @@ private def translateLambda : Nat → KernelContext → Formula.Term → Formula
           let relation ← mkLambdaFVars #[pair] body
           checked context (.pow relationType) relation
 
-private def translateEquality : Nat → KernelContext → Formula.Term → Formula.Term → Bool →
-    MetaM Expr
+private
+def translateEquality
+    : Nat →
+      KernelContext →
+      Formula.Term →
+      Formula.Term →
+      Bool →
+      MetaM Expr
   | fuel, context, leftTerm, rightTerm, negated => do
       let (left, right) ← if leftTerm == .set [] || isLambda leftTerm then
         let right ← translateExpr fuel context rightTerm
@@ -606,8 +675,13 @@ private def translateEquality : Nat → KernelContext → Formula.Term → Formu
       let equality ← mkEq left.value right.value
       if negated then mkNot equality else pure equality
 
-private def translateExprExpected : Nat → KernelContext → Option Ty → Formula.Term →
-    MetaM KernelTerm
+private
+def translateExprExpected
+    : Nat →
+      KernelContext →
+      Option Ty →
+      Formula.Term →
+      MetaM KernelTerm
   | 0, _, _, _ => throwError "formula translation recursion limit reached"
   | _ + 1, context, some (.pow type), .set [] => do
       let value ← withLocalDeclD `x (← typeExpr context type) fun x =>
@@ -619,8 +693,13 @@ private def translateExprExpected : Nat → KernelContext → Option Ty → Form
       translateLambda fuel context pattern body expected
   | fuel + 1, context, _, term => translateExpr fuel context term
 
-private def translateApplicationArgument : Nat → KernelContext → Ty → Formula.Term →
-    MetaM KernelTerm
+private
+def translateApplicationArgument
+    : Nat →
+      KernelContext →
+      Ty →
+      Formula.Term →
+      MetaM KernelTerm
   | 0, _, _, _ => throwError "formula translation recursion limit reached"
   | fuel + 1, context, .prod left right, .bin "," first rest => do
       let first ← translateApplicationArgument fuel context left first
@@ -631,7 +710,12 @@ private def translateApplicationArgument : Nat → KernelContext → Ty → Form
   | fuel + 1, context, expected, term =>
       translateExprExpected fuel context (some expected) term
 
-private def translateExpr : Nat → KernelContext → Formula.Term → MetaM KernelTerm
+private
+def translateExpr
+    : Nat →
+      KernelContext →
+      Formula.Term →
+      MetaM KernelTerm
   | 0, _, _ => throwError "formula translation recursion limit reached"
   | _ + 1, context, .num value =>
       checked context .int (mkApp (mkConst ``Int.ofNat) (mkNatLit value))
@@ -864,7 +948,12 @@ private def translateExpr : Nat → KernelContext → Formula.Term → MetaM Ker
             checked context (.pow .int) (← mkLambdaFVars #[x] (← mkAnd lower upper))
       | _ => throwError s!"unsupported Event-B expression operator `{op}`"
 
-private def translatePred : Nat → KernelContext → Formula.Term → MetaM Expr
+private
+def translatePred
+    : Nat →
+      KernelContext →
+      Formula.Term →
+      MetaM Expr
   | 0, _, _ => throwError "formula translation recursion limit reached"
   | _ + 1, _, .id "⊤" => pure (mkConst ``True)
   | _ + 1, _, .id "⊥" => pure (mkConst ``False)
@@ -957,10 +1046,16 @@ private def translatePred : Nat → KernelContext → Formula.Term → MetaM Exp
 
 end
 
-def translateExpression (context : KernelContext) (term : Formula.Term) : MetaM KernelTerm :=
+def translateExpression
+    (context : KernelContext)
+    (term : Formula.Term)
+    : MetaM KernelTerm :=
   translateExpr (termFuel term + 1) context term
 
-def translatePredicate (context : KernelContext) (term : Formula.Term) : MetaM Expr :=
+def translatePredicate
+    (context : KernelContext)
+    (term : Formula.Term)
+    : MetaM Expr :=
   translatePred (termFuel term + 1) context term
 
 end EventB.Embedding

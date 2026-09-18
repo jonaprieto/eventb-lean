@@ -40,7 +40,9 @@ structure Obligation where
 /-- The only checked obligation without a translated statement is witness WD: Rodin
 records its definedness formula as a hypothesis of the sequent. Every other checked
 obligation must carry exactly one goal. -/
-def Obligation.shapeValid (obligation : Obligation) : Bool :=
+def Obligation.shapeValid
+    (obligation : Obligation)
+    : Bool :=
   match obligation.kind, obligation.goal with
   | "WWD", none => !obligation.hyps.isEmpty
   | "WWD", some _ => false
@@ -52,13 +54,21 @@ def Obligation.shapeValid (obligation : Obligation) : Bool :=
 
 def formulaLanguageVersion : String := "eventb-formula-v2"
 
-private def canonicalField (value : String) : String :=
+private
+def canonicalField
+    (value : String)
+    : String :=
   s!"{value.length}:{value}"
 
-private def canonicalList (values : List String) : String :=
+private
+def canonicalList
+    (values : List String)
+    : String :=
   s!"{values.length}[{String.intercalate "" (values.map canonicalField)}]"
 
-def Obligation.canonical (obligation : Obligation) : String :=
+def Obligation.canonical
+    (obligation : Obligation)
+    : String :=
   String.intercalate "\n"
     ["scope=" ++ canonicalField obligation.component
     , "obligation=" ++ canonicalField obligation.name
@@ -69,23 +79,40 @@ def Obligation.canonical (obligation : Obligation) : String :=
     , "hyps=" ++ canonicalList (obligation.hyps.map Formula.print)
     , "goal=" ++ canonicalField (obligation.goal.map Formula.print |>.getD "<pending>")]
 
-private def childrenOf (e : Elem) (tag : String) : List Elem :=
+private
+def childrenOf
+    (e : Elem)
+    (tag : String)
+    : List Elem :=
   e.children.filter (fun c => c.tag == "org.eventb.core." ++ tag)
 
-private def attrOf (e : Elem) (key : String) : Option String :=
+private
+def attrOf
+    (e : Elem)
+    (key : String)
+    : Option String :=
   e.attr? ("org.eventb.core." ++ key)
 
 private def labelOf (e : Elem) : String := (attrOf e "label").getD ""
 
-private def targetName (e : Elem) : Option String :=
+private
+def targetName
+    (e : Elem)
+    : Option String :=
   (attrOf e "target").map (fun t => (t.splitOn "/").getLast!)
 
-private def eventTargets (ev : Elem) : List String :=
+private
+def eventTargets
+    (ev : Elem)
+    : List String :=
   if labelOf ev == "INITIALISATION" then ["INITIALISATION"]
   else (childrenOf ev "refinesEvent").filterMap targetName
 
 /-- Exact abstract events named by a concrete event's `refinesEvent` children. -/
-def eventRefinementTargets (p : Project) (machine event : String) : List String :=
+def eventRefinementTargets
+    (p : Project)
+    (machine event : String)
+    : List String :=
   match lookupComponent p machine with
   | none => []
   | some component =>
@@ -97,8 +124,10 @@ def eventRefinementTargets (p : Project) (machine event : String) : List String 
 /- Keep the source machine together with each refined-event label.  The older
    `eventRefinementTargets` API remains the compatibility label projection; checked
    refinement adapters use this locator-preserving view. -/
-def eventRefinementTargetLocators (p : Project) (machine event : String) :
-    List (String × String) :=
+def eventRefinementTargetLocators
+    (p : Project)
+    (machine event : String)
+    : List (String × String) :=
   match lookupComponent p machine with
   | none => []
   | some component =>
@@ -119,20 +148,28 @@ def eventRefinementTargetLocators (p : Project) (machine event : String) :
 
 /-- Exact convergence attribute of a source event.  Semantic adapters use this
     instead of inferring anticipated/convergent semantics from a VAR name. -/
-def eventConvergenceMode? (p : Project) (machine event : String) : Option String :=
+def eventConvergenceMode?
+    (p : Project)
+    (machine event : String)
+    : Option String :=
   match lookupComponent p machine with
   | none => none
   | some component =>
       (childrenOf component.elem "event").find?
         (fun candidate => labelOf candidate == event) |>.bind (attrOf · "convergence")
 
-private def isExtended (ev : Elem) : Bool :=
+private
+def isExtended
+    (ev : Elem)
+    : Bool :=
   (attrOf ev "extended").getD "false" == "true" ||
     (childrenOf ev "refinesEvent").any
       (fun reference => (attrOf reference "extended").getD "false" == "true")
 
 /-- Identifiers occurring in a formula. -/
-def identifiers : Term → List String
+def identifiers
+    : Term →
+      List String
   | .id n => [n]
   | .num _ => []
   | .bin _ a b => identifiers a ++ identifiers b
@@ -142,7 +179,11 @@ def identifiers : Term → List String
   | .set ts => ts.flatMap identifiers
   | .bind _ p b => identifiers p ++ identifiers b
 
-private def freeIdentifiers (bound : List String) : Term → List String
+private
+def freeIdentifiers
+    (bound : List String)
+    : Term →
+      List String
   | .id n => if bound.contains n then [] else [n]
   | .num _ => []
   | .bin _ a b => freeIdentifiers bound a ++ freeIdentifiers bound b
@@ -154,7 +195,10 @@ private def freeIdentifiers (bound : List String) : Term → List String
       freeIdentifiers bound pattern ++
         freeIdentifiers (patternNames pattern ++ bound) body
 
-private def freeOf (formula : String) : List String :=
+private
+def freeOf
+    (formula : String)
+    : List String :=
   match Formula.parse formula with
   | .ok t => freeIdentifiers [] t
   | .error _ => []
@@ -162,7 +206,10 @@ private def freeOf (formula : String) : List String :=
 /-- The substitution an action performs. Only the deterministic form `v ≔ E` yields
 one: `v :∈ S` and `v :∣ P` choose a value, which Rodin states with a fresh variable
 rather than a replacement, and which this does not derive yet. -/
-private def substOf (action : Elem) : List (String × Term) :=
+private
+def substOf
+    (action : Elem)
+    : List (String × Term) :=
   match attrOf action "assignment" with
   | none => []
   | some a =>
@@ -179,7 +226,10 @@ private def substOf (action : Elem) : List (String × Term) :=
           |>.filterMap (fun (v, e) => update v e)
     | _ => []
 
-private def witnessBinding (witness : Elem) : Option (String × Term) :=
+private
+def witnessBinding
+    (witness : Elem)
+    : Option (String × Term) :=
   match Formula.parse ((attrOf witness "predicate").getD "") with
   | .ok (.bin "=" left right) =>
       match attrOf witness "label" with
@@ -199,17 +249,26 @@ private def witnessBinding (witness : Elem) : Option (String × Term) :=
             | _ => none
   | _ => none
 
-private def witnessVariable (witness : Elem) : Option String :=
+private
+def witnessVariable
+    (witness : Elem)
+    : Option String :=
   (witnessBinding witness).map (·.1) <|> attrOf witness "label"
 
-private def witnessSubstitution (witness : Elem) : Option (String × Term) :=
+private
+def witnessSubstitution
+    (witness : Elem)
+    : Option (String × Term) :=
   match Formula.parse ((attrOf witness "predicate").getD "") with
   | .ok (.bin "=" (.id v) e) => some (v, e)
   | _ => none
 
 /-- The variables an action assigns. Rodin's three assignment forms all name their
 targets on the left: `v ≔ E`, `v :∈ S`, and `v, w :∣ P`. -/
-private def assignedBy (action : Elem) : List String :=
+private
+def assignedBy
+    (action : Elem)
+    : List String :=
   match attrOf action "assignment" with
   | none => []
   | some a =>
@@ -226,10 +285,17 @@ private def assignedBy (action : Elem) : List String :=
         else []
     | .ok _ => []
 
-private def targetEventName (ev : Elem) : String :=
+private
+def targetEventName
+    (ev : Elem)
+    : String :=
   (eventTargets ev).head?.getD ""
 
-private def beforeElem (target : Elem) : List Elem → List Elem
+private
+def beforeElem
+    (target : Elem)
+    : List Elem →
+      List Elem
   | [] => []
   | elem :: elems => if elem == target then [] else elem :: beforeElem target elems
 
@@ -240,7 +306,13 @@ it refines, so its effective children are its own plus everything up the chain.
 has revisited a machine, which means the model has a `refines` cycle and no fixed point
 exists. Well-formed projects never reach the bound, and reaching it returns what has
 been gathered so far rather than looping. -/
-def inheritedChildren (p : Project) (tag : String) : Nat → String → Elem → List Elem
+def inheritedChildren
+    (p : Project)
+    (tag : String)
+    : Nat →
+      String →
+      Elem →
+      List Elem
   | 0, _, ev => childrenOf ev tag
   | depth + 1, machine, ev =>
     let own := childrenOf ev tag
@@ -259,13 +331,24 @@ def inheritedChildren (p : Project) (tag : String) : Nat → String → Elem →
               | some ae => inheritedChildren p tag depth am ae
         inherited ++ own
 
-def effectiveActions (p : Project) (machine : String) (ev : Elem) : List Elem :=
+def effectiveActions
+    (p : Project)
+    (machine : String)
+    (ev : Elem)
+    : List Elem :=
   inheritedChildren p "action" p.length machine ev
 
-def effectiveGuards (p : Project) (machine : String) (ev : Elem) : List Elem :=
+def effectiveGuards
+    (p : Project)
+    (machine : String)
+    (ev : Elem)
+    : List Elem :=
   inheritedChildren p "guard" p.length machine ev
 
-private def parseGuardPredicates? : List Elem → Option (List Term)
+private
+def parseGuardPredicates?
+    : List Elem →
+      Option (List Term)
   | [] => some []
   | guard :: guards => do
       let source ← guard.attr? "org.eventb.core.predicate"
@@ -275,7 +358,10 @@ private def parseGuardPredicates? : List Elem → Option (List Term)
 
 /-- Exact parsed guard predicates of an event, including inherited guards.  A missing
     event or malformed guard is rejected instead of being converted to an empty list. -/
-def eventGuardPredicates (p : Project) (machine event : String) : Option (List Term) :=
+def eventGuardPredicates
+    (p : Project)
+    (machine event : String)
+    : Option (List Term) :=
   match lookupComponent p machine with
   | none => none
   | some component =>
@@ -292,7 +378,13 @@ abstract event even when the refinement never names them, so `scheduledAirplanes
 dom(landing_sequence)` becomes `∅ = dom(∅)` under an INITIALISATION that only assigns
 `landing_sequence` here and leaves the other to the machine above. Concrete assignments
 win; `depth` bounds the walk by the component count, as elsewhere. -/
-private def eventActions (p : Project) : Nat → String → Elem → List Elem
+private
+def eventActions
+    (p : Project)
+    : Nat →
+      String →
+      Elem →
+      List Elem
   | 0, machine, ev =>
       match lookupComponent p machine with
       | some component => initializationActions p component ev
@@ -316,25 +408,48 @@ private def eventActions (p : Project) : Nat → String → Elem → List Elem
     own ++ inherited.filter (fun q =>
       !(assignedBy q).any (fun v => own.any (fun o => (assignedBy o).contains v)))
 
-private def transitionActions (p : Project) (machine : String) (ev : Elem) : List Elem :=
+private
+def transitionActions
+    (p : Project)
+    (machine : String)
+    (ev : Elem)
+    : List Elem :=
   eventActions p p.length machine ev
 
-private def accurateTransitionActions (p : Project) (machine : String) (ev : Elem) : List Elem :=
+private
+def accurateTransitionActions
+    (p : Project)
+    (machine : String)
+    (ev : Elem)
+    : List Elem :=
   match lookupComponent p machine with
   | none => childrenOf ev "action"
   | some component =>
       if labelOf ev == "INITIALISATION" then initializationActions p component ev
       else effectiveActions p machine ev
 
-private def refinementTransitionActions (p : Project) (machine : String) (ev : Elem) : List Elem :=
+private
+def refinementTransitionActions
+    (p : Project)
+    (machine : String)
+    (ev : Elem)
+    : List Elem :=
   accurateTransitionActions p machine ev
 
-def eventSubst (p : Project) : Nat → String → Elem → List (String × Term)
+def eventSubst
+    (p : Project)
+    : Nat →
+      String →
+      Elem →
+      List (String × Term)
   | 0, machine, ev =>
       (transitionActions p machine ev).flatMap substOf
   | _, machine, ev => (transitionActions p machine ev).flatMap substOf
 
-private def actionRelation (action : Elem) : Option Term :=
+private
+def actionRelation
+    (action : Elem)
+    : Option Term :=
   match attrOf action "assignment" with
   | none => none
   | some source =>
@@ -351,7 +466,10 @@ private def actionRelation (action : Elem) : Option Term :=
       | .ok (.bin ":∣" _ predicate) => some predicate
       | _ => none
 
-private def actionRelationAccurate (action : Elem) : Option Term :=
+private
+def actionRelationAccurate
+    (action : Elem)
+    : Option Term :=
   match attrOf action "assignment" with
   | none => none
   | some source =>
@@ -370,7 +488,10 @@ private def actionRelationAccurate (action : Elem) : Option Term :=
       | .ok (.bin ":∣" _ predicate) => some predicate
       | _ => none
 
-private def nondeterministicSubst (action : Elem) : List (String × Term) :=
+private
+def nondeterministicSubst
+    (action : Elem)
+    : List (String × Term) :=
   match attrOf action "assignment" with
   | some source =>
       match Formula.parse source with
@@ -381,61 +502,112 @@ private def nondeterministicSubst (action : Elem) : List (String × Term) :=
       | _ => []
   | none => []
 
-private def firstAssignments (pairs : List (String × Term)) : List (String × Term) :=
+private
+def firstAssignments
+    (pairs : List (String × Term))
+    : List (String × Term) :=
   pairs.foldl (fun acc pair =>
     if acc.any (fun prior => prior.1 == pair.1) then acc else acc ++ [pair]) []
 
-private def eventStateSubst (p : Project) (name : String) (ev : Elem) : List (String × Term) :=
+private
+def eventStateSubst
+    (p : Project)
+    (name : String)
+    (ev : Elem)
+    : List (String × Term) :=
   firstAssignments ((transitionActions p name ev).flatMap fun action =>
     substOf action ++ nondeterministicSubst action)
 
-private def eventRelationalHyps (p : Project) (name : String) (ev : Elem) : List Term :=
+private
+def eventRelationalHyps
+    (p : Project)
+    (name : String)
+    (ev : Elem)
+    : List Term :=
   (transitionActions p name ev).filterMap actionRelation
 
-private def eventStateSubstMode (strict : Bool) (p : Project) (name : String)
-    (ev : Elem) : List (String × Term) :=
+private
+def eventStateSubstMode
+    (strict : Bool)
+    (p : Project)
+    (name : String)
+    (ev : Elem)
+    : List (String × Term) :=
   if strict then
     firstAssignments ((refinementTransitionActions p name ev).flatMap fun action =>
       substOf action ++ nondeterministicSubst action)
   else eventStateSubst p name ev
 
-private def eventRelationalHypsMode (strict : Bool) (p : Project) (name : String)
-    (ev : Elem) : List Term :=
+private
+def eventRelationalHypsMode
+    (strict : Bool)
+    (p : Project)
+    (name : String)
+    (ev : Elem)
+    : List Term :=
   if strict then (refinementTransitionActions p name ev).filterMap actionRelationAccurate
   else eventRelationalHyps p name ev
 
-private def deterministicAfterRelation (action : Elem) : List Term :=
+private
+def deterministicAfterRelation
+    (action : Elem)
+    : List Term :=
   (substOf action).map fun (v, rhs) => .bin "=" (.id (v ++ "'")) rhs
 
-private def actionAfterRelation (action : Elem) : List Term :=
+private
+def actionAfterRelation
+    (action : Elem)
+    : List Term :=
   deterministicAfterRelation action ++ (actionRelation action).toList
 
-private def actionAfterRelationAccurate (action : Elem) : List Term :=
+private
+def actionAfterRelationAccurate
+    (action : Elem)
+    : List Term :=
   deterministicAfterRelation action ++ (actionRelationAccurate action).toList
 
-private def frameRelations (variables : List String) (actions : List Elem) : List Term :=
+private
+def frameRelations
+    (variables : List String)
+    (actions : List Elem)
+    : List Term :=
   let assigned := actions.flatMap assignedBy
   (variables.filter (fun v => !assigned.contains v)).map fun v =>
     .bin "=" (.id (v ++ "'")) (.id v)
 
-private def concreteStateRelations (variables : List String) (actions : List Elem) : List Term :=
+private
+def concreteStateRelations
+    (variables : List String)
+    (actions : List Elem)
+    : List Term :=
   actions.flatMap actionAfterRelation ++ frameRelations variables actions
 
-private def concreteStateRelationsAccurate (initialization : Bool) (variables : List String)
-    (actions : List Elem) : List Term :=
+private
+def concreteStateRelationsAccurate
+    (initialization : Bool)
+    (variables : List String)
+    (actions : List Elem)
+    : List Term :=
   actions.flatMap actionAfterRelationAccurate ++
     if initialization then [] else frameRelations variables actions
 
-private def concreteStateRelationsMode (strict initialization : Bool) (variables : List String)
-    (actions : List Elem) : List Term :=
+private
+def concreteStateRelationsMode
+    (strict initialization : Bool)
+    (variables : List String)
+    (actions : List Elem)
+    : List Term :=
   if strict then concreteStateRelationsAccurate initialization variables actions
   else concreteStateRelations variables actions
 
 /-- Exact after-state relations selected by the strict transition path.  This is
     public so source-bound semantic adapters can consume the same action slice as
     strict POG generation, including nondeterministic assignments and frames. -/
-def eventStateRelations (p : Project) (machine event : String)
-    (variables : List String) : List Term :=
+def eventStateRelations
+    (p : Project)
+    (machine event : String)
+    (variables : List String)
+    : List Term :=
   match lookupComponent p machine with
   | none => []
   | some component =>
@@ -449,14 +621,21 @@ def eventStateRelations (p : Project) (machine event : String)
           actions.flatMap actionAfterRelationAccurate ++
             if event == "INITIALISATION" then [] else frameRelations variables actions
 
-private def actionAfterSubst (action : Elem) : List (String × Term) :=
+private
+def actionAfterSubst
+    (action : Elem)
+    : List (String × Term) :=
   ((substOf action).map fun (v, rhs) => (v ++ "'", rhs)) ++
     ((nondeterministicSubst action).map fun (v, rhs) => (v ++ "'", rhs))
 
 /-- Guards and actions of the abstract event a refined event refines. These are what GRD
 and SIM obligations are named after: the abstract label, not the concrete one. -/
-private def abstractEvents (p : Project) (machine : String) (ev : Elem) :
-    List (String × Elem) :=
+private
+def abstractEvents
+    (p : Project)
+    (machine : String)
+    (ev : Elem)
+    : List (String × Elem) :=
   match lookupComponent p machine with
   | none => []
   | some m =>
@@ -469,16 +648,26 @@ private def abstractEvents (p : Project) (machine : String) (ev : Elem) :
         (childrenOf a.elem "event").find? (fun candidate => labelOf candidate == target)
           |>.map (fun ae => (a.name, ae))
 
-private def abstractEvent (p : Project) (machine : String) (ev : Elem) :
-    Option (String × Elem) :=
+private
+def abstractEvent
+    (p : Project)
+    (machine : String)
+    (ev : Elem)
+    : Option (String × Elem) :=
   let refs := abstractEvents p machine ev
   refs.head?
 
-private def disjoin : List Term → Option Term
+private
+def disjoin
+    : List Term →
+      Option Term
   | [] => none
   | term :: terms => some (terms.foldl (fun acc next => .bin "∨" acc next) term)
 
-private def conjoin : List Term → Option Term
+private
+def conjoin
+    : List Term →
+      Option Term
   | [] => some (.id "⊤")
   | term :: terms => some (terms.foldl (fun acc next => .bin "∧" acc next) term)
 
@@ -488,35 +677,59 @@ structure WdContext where
   totalKeywords : List String
   env : List (String × Ty)
 
-private def totalKeywords (theory : Theory.Env) (roots : List String) : List String :=
+private
+def totalKeywords
+    (theory : Theory.Env)
+    (roots : List String)
+    : List String :=
   Theory.namesWithApplication theory roots .total
 
 private def wdTop : Term := .id "⊤"
 
-private def wdIsTop : Term → Bool
+private
+def wdIsTop
+    : Term →
+      Bool
   | .id "⊤" => true
   | _ => false
 
-private def wdAtoms : Term → List Term
+private
+def wdAtoms
+    : Term →
+      List Term
   | .id "⊤" => []
   | .bin "∧" a b => wdAtoms a ++ wdAtoms b
   | t => [t]
 
-private def wdDedupAux (seen : List Term) : List Term → List Term
+private
+def wdDedupAux
+    (seen : List Term)
+    : List Term →
+      List Term
   | [] => seen.reverse
   | t :: ts =>
       if seen.contains t then wdDedupAux seen ts else wdDedupAux (t :: seen) ts
 
 private def wdDedup (ts : List Term) : List Term := wdDedupAux [] ts
 
-private def wdBuild : List Term → Term
+private
+def wdBuild
+    : List Term →
+      Term
   | [] => wdTop
   | t :: ts => ts.foldl (fun acc next => .bin "∧" acc next) t
 
-private def wdAnd (a b : Term) : Term :=
+private
+def wdAnd
+    (a b : Term)
+    : Term :=
   wdBuild (wdDedup (wdAtoms a ++ wdAtoms b))
 
-private def wdDrop (known : List Term) : Term → Term
+private
+def wdDrop
+    (known : List Term)
+    : Term →
+      Term
   | .id "⊤" => wdTop
   | .bin "∧" a b => wdAnd (wdDrop known a) (wdDrop known b)
   | .bin "⇒" p q =>
@@ -527,13 +740,20 @@ private def wdDrop (known : List Term) : Term → Term
       if wdIsTop body then wdTop else .bind k pat body
   | t => if known.contains t then wdTop else t
 
-private def wdImpliesKnown (known : List Term) (p q : Term) : Term :=
+private
+def wdImpliesKnown
+    (known : List Term)
+    (p q : Term)
+    : Term :=
   let q := wdDrop (known ++ wdAtoms p) q
   if wdIsTop q || wdIsTop p then q else .bin "⇒" p q
 
 private def wdImplies (p q : Term) : Term := wdImpliesKnown [] p q
 
-private def wdType : Ty → Term
+private
+def wdType
+    : Ty →
+      Term
   | .given n => .id n
   | .int => .id "ℤ"
   | .bool => .id "BOOL"
@@ -541,7 +761,11 @@ private def wdType : Ty → Term
   | .prod a b => .bin "×" (wdType a) (wdType b)
   | .mvar n => .id s!"?{n}"
 
-private def actionFeasibility (types : List (String × Ty)) (action : Elem) : Option Term :=
+private
+def actionFeasibility
+    (types : List (String × Ty))
+    (action : Elem)
+    : Option Term :=
   match attrOf action "assignment" with
   | none => none
   | some source =>
@@ -557,20 +781,34 @@ private def actionFeasibility (types : List (String × Ty)) (action : Elem) : Op
           else none
       | _ => none
 
-private def wdFunctionType (context : WdContext) (f : Term) : Option Term :=
+private
+def wdFunctionType
+    (context : WdContext)
+    (f : Term)
+    : Option Term :=
   match inferTermAt context.theory context.roots context.env f with
   | .ok (.pow (.prod a b)) => some (.bin "⇸" (wdType a) (wdType b))
   | _ => none
 
 private def wdNonempty (s : Term) : Term := .bin "≠" s (.set [])
 
-private def wdFreshName (base : String) (used : List String) : Nat → Nat → String
+private
+def wdFreshName
+    (base : String)
+    (used : List String)
+    : Nat →
+      Nat →
+      String
   | _, 0 => base ++ s!"{used.length + 1}"
   | index, fuel + 1 =>
       let candidate := if index == 0 then base else base ++ s!"{index}"
       if used.contains candidate then wdFreshName base used (index + 1) fuel else candidate
 
-private def wdBound (isMax : Bool) (s : Term) : Term :=
+private
+def wdBound
+    (isMax : Bool)
+    (s : Term)
+    : Term :=
   let used := identifiers s
   let bName := wdFreshName "b" used 0 (used.length + 1)
   let xName := wdFreshName "x" (bName :: used) 0 (used.length + 1)
@@ -579,20 +817,35 @@ private def wdBound (isMax : Bool) (s : Term) : Term :=
   let order := if isMax then .bin "≥" b x else .bin "≤" b x
   .bind "∃" b (.bind "∀" x (.bin "⇒" (.bin "∈" x s) order))
 
-private def wdRule (rule : Definedness) (s : Term) : Term :=
+private
+def wdRule
+    (rule : Definedness)
+    (s : Term)
+    : Term :=
   match rule with
   | .finite => .app (.id "finite") s
   | .nonempty => wdNonempty s
   | .lowerBound => wdBound false s
   | .upperBound => wdBound true s
 
-private def wdRules (rules : List Definedness) (s : Term) : Term :=
+private
+def wdRules
+    (rules : List Definedness)
+    (s : Term)
+    : Term :=
   rules.foldl (fun acc rule => wdAnd acc (wdRule rule s)) wdTop
 
-private def definednessFor (context : WdContext) (name : String) : List Definedness :=
+private
+def definednessFor
+    (context : WdContext)
+    (name : String)
+    : List Definedness :=
   Theory.definedness? context.theory context.roots name
 
-private def wdPattern : Term → Term
+private
+def wdPattern
+    : Term →
+      Term
   | .bin "↦" a b => .bin "," (wdPattern a) (wdPattern b)
   | .bin "," a b => .bin "," (wdPattern a) (wdPattern b)
   | .bin "⦂" a t => .bin "⦂" (wdPattern a) t
@@ -600,7 +853,10 @@ private def wdPattern : Term → Term
 
 mutual
 
-def needsWD (totalKeywords : List String) : Term → Bool
+def needsWD
+    (totalKeywords : List String)
+    : Term →
+      Bool
   | .num _ | .id _ => false
   | .bin op a b =>
       op == "÷" || op == "mod" || op == "^" || needsWD totalKeywords a ||
@@ -619,7 +875,10 @@ def needsWD (totalKeywords : List String) : Term → Bool
 /-- `List.any needsWD` would hide the recursive call inside a closure, where the
 equation compiler cannot see that it is applied to a subterm. Spelling the list
 traversal out keeps the whole thing structural. -/
-def needsWDAny (totalKeywords : List String) : List Term → Bool
+def needsWDAny
+    (totalKeywords : List String)
+    : List Term →
+      Bool
   | [] => false
   | t :: ts => needsWD totalKeywords t || needsWDAny totalKeywords ts
 
@@ -627,7 +886,12 @@ end
 
 mutual
 
-private def wdTermAux : Nat → WdContext → Term → Option Term
+private
+def wdTermAux
+    : Nat →
+      WdContext →
+      Term →
+      Option Term
   | 0, _, _ => none
   | _, _, .num _ | _, _, .id _ => some wdTop
   | fuel + 1, context, .bin op a b => do
@@ -691,7 +955,12 @@ private def wdTermAux : Nat → WdContext → Term → Option Term
               if k == "λ" || k == "{" then .bind "∀" (wdPattern pat) w else w
         | _ => wdTermAux fuel context body
 
-private def wdTerms : Nat → WdContext → List Term → Option Term
+private
+def wdTerms
+    : Nat →
+      WdContext →
+      List Term →
+      Option Term
   | 0, _, _ => none
   | _, _, [] => some wdTop
   | fuel + 1, context, t :: ts => do
@@ -703,7 +972,10 @@ end
 
 mutual
 
-private def wdFuel : Term → Nat
+private
+def wdFuel
+    : Term →
+      Nat
   | .id _ | .num _ => 1
   | .bin _ a b => wdFuel a + wdFuel b + 1
   | .pre _ a | .post _ a => wdFuel a + 1
@@ -711,28 +983,47 @@ private def wdFuel : Term → Nat
   | .set ts => wdFuelList ts + 1
   | .bind _ p b => wdFuel p + wdFuel b + 1
 
-private def wdFuelList : List Term → Nat
+private
+def wdFuelList
+    : List Term →
+      Nat
   | [] => 0
   | t :: ts => wdFuel t + wdFuelList ts + 1
 
 end
 
-private def wdTerm (theory : Theory.Env) (roots totalKeywords : List String)
-    (env : List (String × Ty)) (t : Term) : Option Term :=
+private
+def wdTerm
+    (theory : Theory.Env)
+    (roots totalKeywords : List String)
+    (env : List (String × Ty))
+    (t : Term)
+    : Option Term :=
   wdTermAux (wdFuel t + 1) { theory, roots, totalKeywords, env } t
 
-private def wdRequired (totalKeywords : List String) (formula : String) : Bool :=
+private
+def wdRequired
+    (totalKeywords : List String)
+    (formula : String)
+    : Bool :=
   match Formula.parse formula with
   | .ok t => needsWD totalKeywords t
   | .error _ => false
 
-private def assignmentRhs (formula : String) : Option String :=
+private
+def assignmentRhs
+    (formula : String)
+    : Option String :=
   match Formula.parse formula with
   | .ok (.bin op _ rhs) =>
       if op == "≔" || op == ":∈" || op == ":∣" then some (Formula.print rhs) else none
   | _ => none
 
-private def assignmentRhsMode (strict : Bool) (formula : String) : Option String :=
+private
+def assignmentRhsMode
+    (strict : Bool)
+    (formula : String)
+    : Option String :=
   if strict then
     match Formula.parse formula with
     | .ok (.bin "≔" lhs rhs) =>
@@ -746,8 +1037,13 @@ private def assignmentRhsMode (strict : Bool) (formula : String) : Option String
     | _ => none
   else assignmentRhs formula
 
-private def wdGoal (theory : Theory.Env) (roots totalKeywords : List String)
-    (env : List (String × Ty)) (formula : String) : Option Term :=
+private
+def wdGoal
+    (theory : Theory.Env)
+    (roots totalKeywords : List String)
+    (env : List (String × Ty))
+    (formula : String)
+    : Option Term :=
   match Formula.parse formula with
   | .ok t => wdTerm theory roots totalKeywords env t
   | .error _ => none
@@ -828,7 +1124,10 @@ retried. Each was plausible and each made the gates worse:
 context in the dependency closure, then every invariant up the refinement chain, in
 declaration order. `closure` already computes that order for the typechecker, so the two
 cannot drift apart. -/
-def contextHyps (p : Project) (name : String) : List Term :=
+def contextHyps
+    (p : Project)
+    (name : String)
+    : List Term :=
   let (_, order) := closure p [] name
   order.flatMap fun dep =>
     match lookupComponent p dep with
@@ -837,7 +1136,11 @@ def contextHyps (p : Project) (name : String) : List Term :=
       (childrenOf c.elem "axiom" ++ childrenOf c.elem "invariant").filterMap fun a =>
         (Formula.parse ((attrOf a "predicate").getD "")).toOption
 
-private def contextAxioms (p : Project) (name : String) : List Term :=
+private
+def contextAxioms
+    (p : Project)
+    (name : String)
+    : List Term :=
   let (_, order) := closure p [] name
   order.flatMap fun dep =>
     match lookupComponent p dep with
@@ -845,7 +1148,12 @@ private def contextAxioms (p : Project) (name : String) : List Term :=
     | some c => (childrenOf c.elem "axiom").filterMap fun a =>
         (Formula.parse ((attrOf a "predicate").getD "")).toOption
 
-private def hypothesesBefore (p : Project) (name : String) (target : Elem) : List Term :=
+private
+def hypothesesBefore
+    (p : Project)
+    (name : String)
+    (target : Elem)
+    : List Term :=
   let (_, order) := closure p [] name
   order.flatMap fun dep =>
     match lookupComponent p dep with
@@ -855,13 +1163,23 @@ private def hypothesesBefore (p : Project) (name : String) (target : Elem) : Lis
       (if dep == name then beforeElem target declarations else declarations).filterMap fun a =>
         (Formula.parse ((attrOf a "predicate").getD "")).toOption
 
-private def eventHypsBefore (p : Project) (name : String) (ev target : Elem) : List Term :=
+private
+def eventHypsBefore
+    (p : Project)
+    (name : String)
+    (ev target : Elem)
+    : List Term :=
   let base := if labelOf ev == "INITIALISATION" then contextAxioms p name
     else contextHyps p name
   base ++ (beforeElem target (effectiveGuards p name ev)).filterMap fun g =>
     (Formula.parse ((attrOf g "predicate").getD "")).toOption
 
-private def eventHyps (p : Project) (name : String) (ev : Elem) : List Term :=
+private
+def eventHyps
+    (p : Project)
+    (name : String)
+    (ev : Elem)
+    : List Term :=
   let base := if labelOf ev == "INITIALISATION" then contextAxioms p name
     else contextHyps p name
   base ++ (effectiveGuards p name ev).filterMap fun g =>
@@ -1162,8 +1480,11 @@ private def generateInMode (strict : Bool) (theory : Theory.Env) (p : Project)
 /-- Fail-closed wrapper for front ends that must not consume partial POG output. The
 compatibility `generateIn` API keeps diagnostics on each obligation for reporting and
 comparison, while this API refuses any scope with typing or resolution errors. -/
-def generateCheckedIn (theory : Theory.Env) (p : Project) (name : String) :
-    Except EventB.Error (List Obligation) :=
+def generateCheckedIn
+    (theory : Theory.Env)
+    (p : Project)
+    (name : String)
+    : Except EventB.Error (List Obligation) :=
   match lookupComponent p name with
   | none => .error (EventB.Error.typing
       s!"cannot generate trusted obligations for missing component {name}")
@@ -1204,10 +1525,16 @@ structure EqlOrigin where
   actionHyps : List Formula.Term
   deriving BEq, Repr
 
-private def directVariables (component : Component) : List String :=
+private
+def directVariables
+    (component : Component)
+    : List String :=
   (childrenOf component.elem "variable").filterMap (attrOf · "identifier")
 
-private def exactEqlGoal (varName : String) : Formula.Term :=
+private
+def exactEqlGoal
+    (varName : String)
+    : Formula.Term :=
   .bin "=" (.id (varName ++ "'")) (.id varName)
 
 /-- Locate the exact EQL record and the exact source event/action slice that caused
@@ -1271,13 +1598,19 @@ def locateEql? (theory : Theory.Env) (p : Project)
    element has been selected uniquely and the checked generator has emitted the
    corresponding obligation. -/
 
-def exactWitnessBinding? (witness : Elem) : Option (String × Formula.Term) :=
+def exactWitnessBinding?
+    (witness : Elem)
+    : Option (String × Formula.Term) :=
   witnessBinding witness
 
-def exactWitnessVariable? (witness : Elem) : Option String :=
+def exactWitnessVariable?
+    (witness : Elem)
+    : Option String :=
   witnessVariable witness
 
-def exactWitnessPredicate? (witness : Elem) : Option Formula.Term :=
+def exactWitnessPredicate?
+    (witness : Elem)
+    : Option Formula.Term :=
   (attrOf witness "predicate").bind (Formula.parse · |>.toOption)
 
 structure WitnessOrigin where
@@ -1291,14 +1624,22 @@ structure WitnessOrigin where
   binding : Option (String × Formula.Term)
   deriving BEq, Repr
 
-private def uniqueChildByLabel (parent : Elem) (tag label : String) : Option Elem :=
+private
+def uniqueChildByLabel
+    (parent : Elem)
+    (tag label : String)
+    : Option Elem :=
   match (childrenOf parent tag).filter (fun child => labelOf child == label) with
   | [child] => some child
   | _ => none
 
-private def checkedWitnessOrigin (component event witnessLabel : String)
-    (concreteEvent witness : Elem) (predicate : Formula.Term)
-    (witnessName : String) : WitnessOrigin :=
+private
+def checkedWitnessOrigin
+    (component event witnessLabel : String)
+    (concreteEvent witness : Elem)
+    (predicate : Formula.Term)
+    (witnessName : String)
+    : WitnessOrigin :=
   { component
     event
     witnessLabel
@@ -1426,8 +1767,12 @@ def locateSim? (theory : Theory.Env) (p : Project)
        abstractAction := abstractAction
        concreteActions := accurateTransitionActions p component concreteEvent }, obligation))
 
-def simSourceBound (theory : Theory.Env) (p : Project)
-    (component event abstractActionLabel : String) (target : Obligation) : Bool :=
+def simSourceBound
+    (theory : Theory.Env)
+    (p : Project)
+    (component event abstractActionLabel : String)
+    (target : Obligation)
+    : Bool :=
   match locateSim? theory p component event abstractActionLabel with
   | .ok (some (_, obligation)) => obligation == target
   | _ => false
@@ -1435,7 +1780,10 @@ def simSourceBound (theory : Theory.Env) (p : Project)
 /-- Bind generated names to the source slice selected by the generator.  In
     particular, GRD and SIM labels come from the selected abstract event, while
     FIS/WD labels come from the concrete transition action slice. -/
-def generatedSourceBound (p : Project) (obligation : Obligation) : Bool :=
+def generatedSourceBound
+    (p : Project)
+    (obligation : Obligation)
+    : Bool :=
   let directComponent := lookupComponent p obligation.component
   let directEvent (event : String) : Option Elem :=
     directComponent.bind fun component =>
@@ -1513,21 +1861,35 @@ def generatedSourceBound (p : Project) (obligation : Obligation) : Bool :=
   | _, _ => false
 
 /-- Compatibility entry point for Rodin corpus projects without user theories. -/
-def generate (p : Project) (name : String) : List Obligation :=
+def generate
+    (p : Project)
+    (name : String)
+    : List Obligation :=
   generateInMode false Theory.empty p name
 
-def generateIn (theory : Theory.Env) (p : Project) (name : String) : List Obligation :=
+def generateIn
+    (theory : Theory.Env)
+    (p : Project)
+    (name : String)
+    : List Obligation :=
   generateInMode false theory p name
 
-def generateChecked (p : Project) (name : String) : Except EventB.Error (List Obligation) :=
+def generateChecked
+    (p : Project)
+    (name : String)
+    : Except EventB.Error (List Obligation) :=
   generateCheckedIn Theory.empty p name
 
-private def checkedMissingProject : Project :=
+private
+def checkedMissingProject
+    : Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.seesContext [("org.eventb.core.target", "Missing")] []] }]
 
-private def defaultInitializationProject : Project :=
+private
+def defaultInitializationProject
+    : Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -1536,7 +1898,9 @@ private def defaultInitializationProject : Project :=
         , .event [("org.eventb.core.label", "INITIALISATION")]
           []] }]
 
-private def rightWitnessProject : Project :=
+private
+def rightWitnessProject
+    : Project :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -1564,7 +1928,9 @@ private def rightWitnessProject : Project :=
              , .action [("org.eventb.core.label", "set"),
                         ("org.eventb.core.assignment", "x ≔ q + 1")] []]] }]
 
-private def hiddenParameterChild : Component :=
+private
+def hiddenParameterChild
+    : Component :=
   { name := "C"
     elem := .machineFile [("org.eventb.core.name", "C")]
       [.refinesMachine [("org.eventb.core.target", "B")] []
@@ -1576,7 +1942,9 @@ private def hiddenParameterChild : Component :=
           , .guard [("org.eventb.core.label", "hidden"),
                     ("org.eventb.core.predicate", "p = 0")] []]] }
 
-private def dataRefinementProject : Project :=
+private
+def dataRefinementProject
+    : Project :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.variable [("org.eventb.core.identifier", "a")] []
@@ -1604,7 +1972,9 @@ private def dataRefinementProject : Project :=
              , .action [("org.eventb.core.label", "set"),
                         ("org.eventb.core.assignment", "b ≔ b + 1")] []]] }]
 
-private def mergeProject : Project :=
+private
+def mergeProject
+    : Project :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -1634,7 +2004,9 @@ private def mergeProject : Project :=
              , .action [("org.eventb.core.label", "set"),
                         ("org.eventb.core.assignment", "x ≔ x")] []]] }]
 
-private def nonEqualityWitnessProject : Project :=
+private
+def nonEqualityWitnessProject
+    : Project :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -1662,7 +2034,9 @@ private def nonEqualityWitnessProject : Project :=
              , .action [("org.eventb.core.label", "set"),
                         ("org.eventb.core.assignment", "x ≔ q")] []]] }]
 
-private def extendedParameterProject : Project :=
+private
+def extendedParameterProject
+    : Project :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -1685,7 +2059,9 @@ private def extendedParameterProject : Project :=
              , .action [("org.eventb.core.label", "set_y"),
                         ("org.eventb.core.assignment", "y ≔ p")] []]] }]
 
-private def initializationRefinementProject : Project :=
+private
+def initializationRefinementProject
+    : Project :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -1700,7 +2076,9 @@ private def initializationRefinementProject : Project :=
           , .variable [("org.eventb.core.identifier", "x")] []
           , .event [("org.eventb.core.label", "INITIALISATION")] []] }]
 
-private def functionUpdateWdProject : Project :=
+private
+def functionUpdateWdProject
+    : Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "f")] []

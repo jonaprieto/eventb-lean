@@ -24,7 +24,11 @@ structure Report where
   axioms : List String := []
   deriving BEq, Repr, Inhabited
 
-private def mkImplications : List Expr → Expr → MetaM Expr
+private
+def mkImplications
+    : List Expr →
+      Expr →
+      MetaM Expr
   | [], conclusion => pure conclusion
   | premise :: premises, conclusion => do
       let rest ← mkImplications premises conclusion
@@ -39,13 +43,18 @@ private def statement (context : Embedding.KernelContext)
   mkImplications hypotheses goal
 
 /-- Translate a complete obligation sequent without assigning trust evidence. -/
-def translateStatement (context : Embedding.KernelContext)
-    (obligation : POG.Obligation) : MetaM Expr :=
+def translateStatement
+    (context : Embedding.KernelContext)
+    (obligation : POG.Obligation)
+    : MetaM Expr :=
   statement context obligation
 
 private def declarationName (declaration : String) : Name := declaration.toName
 
-def proofFingerprint (context : Embedding.KernelContext) (obligation : POG.Obligation) : String :=
+def proofFingerprint
+    (context : Embedding.KernelContext)
+    (obligation : POG.Obligation)
+    : String :=
   Trust.fingerprint (obligation.canonical ++
     "\nsemantic-context=" ++ context.semanticFingerprint)
 
@@ -60,7 +69,11 @@ private def proofTerm (declaration : String) : MetaM Expr := do
     throwError s!"proof declaration `{declaration}` has an inconsistent type"
   pure proof
 
-private def specializeProof (proof : Expr) : List KernelBinding → MetaM Expr
+private
+def specializeProof
+    (proof : Expr)
+    : List KernelBinding →
+      MetaM Expr
   | [] => pure proof
   | binding :: bindings => do
       let proofType ← whnf (← inferType proof)
@@ -73,7 +86,10 @@ private def specializeProof (proof : Expr) : List KernelBinding → MetaM Expr
       | _ =>
           throwError s!"proof declaration has no parameter for `{binding.name}`"
 
-private def declarationDependencies (info : ConstantInfo) : Array Name :=
+private
+def declarationDependencies
+    (info : ConstantInfo)
+    : Array Name :=
   match info with
   | .defnInfo value => value.value.getUsedConstants
   | .thmInfo value => value.value.getUsedConstants
@@ -97,7 +113,10 @@ private def axiomNames (initial : List Name) : MetaM NameSet := do
       pending := pending ++ (declarationDependencies info).toList
   pure axioms
 
-private def sortedNames (names : NameSet) : List String :=
+private
+def sortedNames
+    (names : NameSet)
+    : List String :=
   names.toList.map (·.toString false) |>.mergeSort (· < ·)
 
 private def actualAxioms (proof : Expr) : MetaM (List String) := do
@@ -111,8 +130,10 @@ private def expectedAxioms (evidence : Evidence) : MetaM (String × List String)
   | _ => throwError "kernel replay requires kernel evidence"
 
 /-- Validate an in-memory proof term against the translated sequent. -/
-def validateTerm (context : Embedding.KernelContext)
-    (obligation : POG.Obligation) (proof : Expr)
+def validateTerm
+    (context : Embedding.KernelContext)
+    (obligation : POG.Obligation)
+    (proof : Expr)
     (declaration : String := "<term>")
     (declaredAxioms : List String := []) : MetaM Report := do
   unless obligation.diagnostics.isEmpty do
@@ -143,8 +164,11 @@ private def replayKernel (context : Embedding.KernelContext)
   let proof ← specializeProof proof context.bindings
   validateTerm context obligation proof declaration declaredAxioms
 
-def validate (context : Embedding.KernelContext) (obligation : POG.Obligation) :
-    Evidence → MetaM Report
+def validate
+    (context : Embedding.KernelContext)
+    (obligation : POG.Obligation)
+    : Evidence →
+      MetaM Report
   | evidence@(.kernel ..) => replayKernel context obligation evidence
   | .rodinImported .. =>
       throwError "legacy status-only Rodin evidence is not trusted; attach model and PO provenance"
@@ -199,7 +223,8 @@ def validateEntry (context : Embedding.KernelContext) (obligation : POG.Obligati
 
 namespace TestFixtures
 
-theorem propextTrue : True := by
+theorem propextTrue
+    : True := by
   have h : True = True := propext Iff.rfl
   exact Eq.mp h True.intro
 
@@ -211,7 +236,9 @@ theorem reflexive (value : Int) : value = value := rfl
 
 end TestFixtures
 
-private def replayObligation : POG.Obligation :=
+private
+def replayObligation
+    : POG.Obligation :=
   { component := "Replay"
     name := "true/THM"
     kind := "THM"

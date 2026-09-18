@@ -4,7 +4,9 @@ import EventB.POG.RefinementAdapters
 
 namespace EventB.POG
 
-private def guardedProject : EventB.Typing.Project :=
+private
+def guardedProject
+    : EventB.Typing.Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -15,7 +17,9 @@ private def guardedProject : EventB.Typing.Project :=
           [.guard [("org.eventb.core.label", "g"),
                    ("org.eventb.core.predicate", "x ∈ ℤ")] []]] }]
 
-private def malformedGuardProject : EventB.Typing.Project :=
+private
+def malformedGuardProject
+    : EventB.Typing.Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.event [("org.eventb.core.label", "step")]

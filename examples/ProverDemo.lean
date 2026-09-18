@@ -5,7 +5,9 @@ import EventB.Trust.Replay
 
 open EventB EventB.POG EventB.Prover.Local
 
-private def obligations : List Obligation :=
+private
+def obligations
+    : List Obligation :=
   [{ component := "Demo", name := "true", kind := "THM", goal := some (.id "⊤") },
    { component := "Demo", name := "refl", kind := "THM",
      goal := some (.bin "=" (.id "x") (.id "x")) },
@@ -21,47 +23,69 @@ namespace KernelChecks
 open Lean Elab Command Meta
 open EventB EventB.Embedding EventB.Formula EventB.POG
 
-private def trueObligation : Obligation :=
+private
+def trueObligation
+    : Obligation :=
   { component := "Demo", name := "true", kind := "THM", goal := some (.id "⊤") }
 
-private def exactObligation : Obligation :=
+private
+def exactObligation
+    : Obligation :=
   { component := "Demo", name := "exact", kind := "THM",
     goal := some (.id "⊤"), hyps := [.id "⊤"] }
 
-private def reflexiveObligation : Obligation :=
+private
+def reflexiveObligation
+    : Obligation :=
   { component := "Demo", name := "refl", kind := "THM"
     goal := some (.bin "=" (.num 1) (.num 1)) }
 
-private def numeralObligation : Obligation :=
+private
+def numeralObligation
+    : Obligation :=
   { component := "Demo", name := "zero-lt-numeral", kind := "THM"
     goal := some (.bin "<" (.num 0) (.num 1)) }
 
-private def contradictionObligation : Obligation :=
+private
+def contradictionObligation
+    : Obligation :=
   { component := "Demo", name := "contra", kind := "THM",
     goal := some (.bin "=" (.num 1) (.num 2)), hyps := [.id "⊥"] }
 
-private def conjunctionObligation : Obligation :=
+private
+def conjunctionObligation
+    : Obligation :=
   { component := "Demo", name := "and", kind := "THM",
     goal := some (.bin "∧" (.id "⊤") (.bin "=" (.num 1) (.num 1))) }
 
-private def membershipObligation : Obligation :=
+private
+def membershipObligation
+    : Obligation :=
   { component := "Demo", name := "membership", kind := "THM",
     goal := some (.bin "∈" (.num 1) (.set [.num 1, .num 2])) }
 
-private def subsetObligation : Obligation :=
+private
+def subsetObligation
+    : Obligation :=
   { component := "Demo", name := "subset", kind := "THM",
     goal := some (.bin "⊆" (.set [.num 1]) (.set [.num 1])) }
 
-private def implicationObligation : Obligation :=
+private
+def implicationObligation
+    : Obligation :=
   { component := "Demo", name := "imp", kind := "THM",
     goal := some (.bin "⇒" (.id "⊤") (.id "⊤")) }
 
-private def projectionObligation : Obligation :=
+private
+def projectionObligation
+    : Obligation :=
   { component := "Demo", name := "projection", kind := "THM",
     goal := some (.bin "=" (.num 1) (.num 2)),
     hyps := [.bin "∧" (.id "⊤") (.bin "=" (.num 1) (.num 2))] }
 
-private def examples : List (EventB.Prover.Kernel.Rule × Obligation) :=
+private
+def examples
+    : List (EventB.Prover.Kernel.Rule × Obligation) :=
   [(.true, trueObligation), (.exactHypothesis, exactObligation),
    (.reflexive, reflexiveObligation), (.contradiction, contradictionObligation),
    (.zeroLtNumeral, numeralObligation),

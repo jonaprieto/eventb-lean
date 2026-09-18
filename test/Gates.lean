@@ -17,14 +17,18 @@ structure FileResult where
   status : String
   model : Option Model := none
 
-def expectedInventory : List (String × Nat) :=
+def expectedInventory
+    : List (String × Nat) :=
   [("guard", 467), ("action", 410), ("event", 308), ("refinesEvent", 222),
    ("variable", 180), ("invariant", 142), ("parameter", 137), ("axiom", 68),
    ("constant", 33), ("machineFile", 22), ("seesContext", 22),
    ("refinesMachine", 19), ("extendsContext", 17), ("contextFile", 16),
    ("witness", 15), ("carrierSet", 6)]
 
-private def isSource (path : System.FilePath) : Bool :=
+private
+def isSource
+    (path : System.FilePath)
+    : Bool :=
   path.toString.endsWith ".bum" || path.toString.endsWith ".buc"
 
 private def sourceFiles : IO (List System.FilePath) := do
@@ -38,7 +42,10 @@ private def sourceFiles : IO (List System.FilePath) := do
           paths := entry.path :: paths
   pure (paths.mergeSort (fun left right => left.toString < right.toString))
 
-private def shortReason (reason : String) : String :=
+private
+def shortReason
+    (reason : String)
+    : String :=
   reason.splitOn "\n" |>.head?.getD "parse failed"
 
 private def checkFile (path : System.FilePath) : IO FileResult := do
@@ -57,14 +64,20 @@ private def checkFile (path : System.FilePath) : IO FileResult := do
   catch err =>
     pure { path := path.toString, status := "FAIL:IO " ++ err.toString }
 
-private def sumInventory : List (String × Nat) → List (String × Nat) →
-    List (String × Nat)
+private
+def sumInventory
+    : List (String × Nat) →
+      List (String × Nat) →
+      List (String × Nat)
   | [], _ => []
   | _, [] => []
   | (name, left) :: xs, (_, right) :: ys =>
       (name, left + right) :: sumInventory xs ys
 
-private def totalInventory (results : List FileResult) : List (String × Nat) :=
+private
+def totalInventory
+    (results : List FileResult)
+    : List (String × Nat) :=
   results.foldl
     (fun total result =>
       match result.model with
@@ -72,7 +85,11 @@ private def totalInventory (results : List FileResult) : List (String × Nat) :=
       | none => total)
     (expectedInventory.map (fun (name, _) => (name, 0)))
 
-private def histogramAdd (reason : String) : List (String × Nat) → List (String × Nat)
+private
+def histogramAdd
+    (reason : String)
+    : List (String × Nat) →
+      List (String × Nat)
   | [] => [(reason, 1)]
   | (name, count) :: rest =>
       if name == reason then
@@ -80,7 +97,10 @@ private def histogramAdd (reason : String) : List (String × Nat) → List (Stri
       else
         (name, count) :: histogramAdd reason rest
 
-private def histogram (results : List FileResult) : List (String × Nat) :=
+private
+def histogram
+    (results : List FileResult)
+    : List (String × Nat) :=
   (results.foldl
     (fun counts result =>
       if result.status.startsWith "FAIL:" then
@@ -100,7 +120,10 @@ private structure FormulaResult where
   key    : String
   status : String
 
-private def checkFormula (file label formula : String) : FormulaResult :=
+private
+def checkFormula
+    (file label formula : String)
+    : FormulaResult :=
   let key := file ++ "\t" ++ label
   match Formula.parse formula with
   | .error reason => { key := key, status := "FAIL:" ++ EventB.Error.render reason }
@@ -112,13 +135,19 @@ private def checkFormula (file label formula : String) : FormulaResult :=
           if again == term then { key := key, status := "PASS" }
           else { key := key, status := "FAIL:round-trip differs" }
 
-private def formulaResults (results : List FileResult) : List FormulaResult :=
+private
+def formulaResults
+    (results : List FileResult)
+    : List FormulaResult :=
   results.flatMap fun result =>
     match result.model with
     | none => []
     | some model => model.formulas.map (fun (label, f) => checkFormula result.path label f)
 
-private def formulaHistogram (results : List FormulaResult) : List (String × Nat) :=
+private
+def formulaHistogram
+    (results : List FormulaResult)
+    : List (String × Nat) :=
   (results.foldl
     (fun counts result =>
       if result.status.startsWith "FAIL:" then histogramAdd result.status counts
@@ -139,7 +168,10 @@ mutual
 `poFile`, outside the machine/context element set, so this walks the raw XML tree rather
 than the Event-B model. The first spelling of each name wins; the corpus never types one
 name two ways within a file. -/
-private def rawIdentifiers (e : XmlElem) : List (String × String) :=
+private
+def rawIdentifiers
+    (e : XmlElem)
+    : List (String × String) :=
   let here :=
     if e.tag == "org.eventb.core.poIdentifier" then
       -- Rodin writes the identifier name as a plain `name` attribute, unnamespaced.
@@ -151,28 +183,41 @@ private def rawIdentifiers (e : XmlElem) : List (String × String) :=
 termination_by sizeOf e
 decreasing_by cases e; simp +arith
 
-private def rawIdentifiersList : List XmlElem → List (String × String)
+private
+def rawIdentifiersList
+    : List XmlElem →
+      List (String × String)
   | [] => []
   | e :: es => rawIdentifiers e ++ rawIdentifiersList es
 termination_by es => sizeOf es
 
 end
 
-private def dedupFirst : List (String × String) → List (String × String) →
-    List (String × String)
+private
+def dedupFirst
+    : List (String × String) →
+      List (String × String) →
+      List (String × String)
   | [], acc => acc.reverse
   | (n, t) :: rest, acc =>
       if acc.any (fun p => p.1 == n) then dedupFirst rest acc
       else dedupFirst rest ((n, t) :: acc)
 
-private def duplicateStrings (seen : List String) : List String → List String
+private
+def duplicateStrings
+    (seen : List String)
+    : List String →
+      List String
   | [] => []
   | name :: rest =>
       if seen.contains name then name :: duplicateStrings seen rest
       else duplicateStrings (name :: seen) rest
 
-private def conflictingIdentifiers (seen : List (String × String)) :
-    List (String × String) → List String
+private
+def conflictingIdentifiers
+    (seen : List (String × String))
+    : List (String × String) →
+      List String
   | [] => []
   | (name, type) :: rest =>
       let conflicts := match seen.find? (fun pair => pair.1 == name) with
@@ -196,14 +241,21 @@ private structure TypeResult where
 
 /-- Compare inferred against recorded by parsing both, so a mismatch is reported as two
 types rather than a diff of Unicode. -/
-private def compareType (key inferred gold : String) : TypeResult :=
+private
+def compareType
+    (key inferred gold : String)
+    : TypeResult :=
   if inferred == gold then { key := key, status := "PASS" }
   else match Ty.parse gold with
     | none => { key := key, status := s!"FAIL:ungrammatical gold type {gold}" }
     | some _ => { key := key, status := s!"FAIL:inferred {inferred}, recorded {gold}" }
 
-private def checkTypes (project : Project) (file : String)
-    (gold : List (String × String)) : List TypeResult :=
+private
+def checkTypes
+    (project : Project)
+    (file : String)
+    (gold : List (String × String))
+    : List TypeResult :=
   match inferComponent project file with
   | .error e =>
       gold.map (fun (n, _) =>
@@ -218,7 +270,10 @@ private def checkTypes (project : Project) (file : String)
             | none => { key := key, status := "FAIL:not inferred" }
             | some (_, t) => compareType key t.print g
 
-private def typeHistogram (results : List TypeResult) : List (String × Nat) :=
+private
+def typeHistogram
+    (results : List TypeResult)
+    : List (String × Nat) :=
   (results.foldl
     (fun counts r => if r.status.startsWith "FAIL:" then histogramAdd r.status counts
                      else counts)
@@ -239,14 +294,20 @@ private def p4Minimum : Nat := 73
 
 mutual
 
-private def poNames (e : XmlElem) : List String :=
+private
+def poNames
+    (e : XmlElem)
+    : List String :=
   let here :=
     if e.tag == "org.eventb.core.poSequent" then (e.attr? "name").toList else []
   here ++ poNamesList e.children
 termination_by sizeOf e
 decreasing_by cases e; simp +arith
 
-private def poNamesList : List XmlElem → List String
+private
+def poNamesList
+    : List XmlElem →
+      List String
   | [] => []
   | e :: es => poNames e ++ poNamesList es
 termination_by es => sizeOf es
@@ -269,8 +330,12 @@ private structure PoResult where
 
 /-- Both directions, one line per obligation, so `--histogram` separates "we missed it"
 from "we invented it". -/
-private def checkPOs (project : Project) (file : String) (gold : List String) :
-    List PoResult :=
+private
+def checkPOs
+    (project : Project)
+    (file : String)
+    (gold : List String)
+    : List PoResult :=
   let ours := (generate project file).map (·.name)
   let duplicateOurs := duplicateStrings [] ours
     |>.map fun n => { key := file ++ "\t" ++ n, status := "FAIL:duplicate generated PO name" }
@@ -282,7 +347,10 @@ private def checkPOs (project : Project) (file : String) (gold : List String) :
     |>.map fun n => { key := file ++ "\t" ++ n, status := "PASS" }
   duplicateOurs ++ matched ++ missing ++ spurious
 
-private def poHistogram (results : List PoResult) : List (String × Nat) :=
+private
+def poHistogram
+    (results : List PoResult)
+    : List (String × Nat) :=
   (results.foldl
     (fun counts r =>
       if r.status.startsWith "FAIL:" then
@@ -302,14 +370,21 @@ recorded answer: the goal is derived from the `.bum` alone.
 
 Rodin keeps a sequent's hypotheses in a parent chain of predicate sets, so the whole
 chain has to be resolved before they can be compared. -/
-private def refName (ref : String) : String :=
+private
+def refName
+    (ref : String)
+    : String :=
   ((ref.splitOn "#").getLast!).replace "\\/" "/"
     |>.replace "\\\\" "\\"
     |>.replace "\\|" "|"
 
 -- partiality: these helpers walk externally supplied Rodin XML trees; the XML representation has
 -- no indexed depth measure, and this test-only traversal is kept direct and local.
-private partial def predicateSets (e : XmlElem) : List (String × Option String × List String) :=
+private
+partial
+def predicateSets
+    (e : XmlElem)
+    : List (String × Option String × List String) :=
   let here :=
     if e.tag == "org.eventb.core.poPredicateSet" then
       [(((e.attr? "name").getD ""),
@@ -319,8 +394,11 @@ private partial def predicateSets (e : XmlElem) : List (String × Option String 
     else []
   e.children.foldl (fun acc c => acc ++ predicateSets c) here
 
-private def chainHyps (sets : List (String × Option String × List String))
-    (start : Option String) : List String :=
+private
+def chainHyps
+    (sets : List (String × Option String × List String))
+    (start : Option String)
+    : List String :=
   go sets.length start []
 where
   go : Nat → Option String → List String → List String
@@ -331,8 +409,10 @@ where
       | none => acc
       | some (_, parent, preds) => go fuel parent (preds ++ acc)
 
-private def predicateSetErrors
-    (sets : List (String × Option String × List String)) : List String :=
+private
+def predicateSetErrors
+    (sets : List (String × Option String × List String))
+    : List String :=
   let names := sets.map (·.1)
   -- Names such as SEQHYP are intentionally local to a sequent. Only duplicate
   -- top-level names are globally ambiguous in this flattened representation.
@@ -359,8 +439,12 @@ private def predicateSetErrors
     cycleErrors
 
 -- partiality: this is the corresponding test-only XML walk for predicate-set inheritance.
-private partial def goldHyps (e : XmlElem)
-    (sets : List (String × Option String × List String)) : List (String × List String) :=
+private
+partial
+def goldHyps
+    (e : XmlElem)
+    (sets : List (String × Option String × List String))
+    : List (String × List String) :=
   let here :=
     if e.tag == "org.eventb.core.poSequent" then
       match e.attr? "name" with
@@ -378,7 +462,11 @@ private partial def goldHyps (e : XmlElem)
   e.children.foldl (fun acc c => acc ++ goldHyps c sets) here
 
 -- partiality: this is the corresponding test-only XML walk for recorded proof obligations.
-private partial def goldGoals (e : XmlElem) : List (String × String) :=
+private
+partial
+def goldGoals
+    (e : XmlElem)
+    : List (String × String) :=
   let here :=
     if e.tag == "org.eventb.core.poSequent" then
       match e.attr? "name" with
@@ -400,7 +488,11 @@ private partial def goldGoals (e : XmlElem) : List (String × String) :=
     else []
   e.children.foldl (fun acc c => acc ++ goldGoals c) here
 
-private partial def goalShapeErrors (e : XmlElem) : List String :=
+private
+partial
+def goalShapeErrors
+    (e : XmlElem)
+    : List String :=
   let here :=
     if e.tag == "org.eventb.core.poSequent" then
       match e.attr? "name" with
@@ -434,16 +526,27 @@ them. Nothing else is normalised: the gate's job is to notice a difference, and 
 comparison that rewrites both sides can only hide one. -/
 private def comparable (t : Term) : Term := Formula.stripAscriptions t
 
-private def equivalent (left right : Term) : Bool :=
+private
+def equivalent
+    (left right : Term)
+    : Bool :=
   Formula.alphaEq (comparable left) (comparable right)
 
-private def removeEquivalent (target : Term) : List Term → Option (List Term)
+private
+def removeEquivalent
+    (target : Term)
+    : List Term →
+      Option (List Term)
   | [] => none
   | term :: rest =>
       if equivalent target term then some rest
       else (removeEquivalent target rest).map (fun remaining => term :: remaining)
 
-private def multisetEqual : List Term → List Term → Bool
+private
+def multisetEqual
+    : List Term →
+      List Term →
+      Bool
   | [], [] => true
   | [], _ :: _ => false
   | _ :: _, [] => false
@@ -452,7 +555,10 @@ private def multisetEqual : List Term → List Term → Bool
       | none => false
       | some remaining => multisetEqual rest remaining
 
-private def hypothesesMatch (ours wanted : List Term) : Bool :=
+private
+def hypothesesMatch
+    (ours wanted : List Term)
+    : Bool :=
   multisetEqual (ours.map comparable) (wanted.map comparable)
 
 private structure GoalResult where
@@ -467,7 +573,10 @@ private structure CoverageResult where
   reason : String
   diagnostic : String
 
-private def coverageReasonFor (hasName hasGoal derived goalOK hypsOK : Bool) : String :=
+private
+def coverageReasonFor
+    (hasName hasGoal derived goalOK hypsOK : Bool)
+    : String :=
   if !hasName then "no-sequent"
   else if !derived then "not-derived"
   else if !hasGoal then "no-sequent"
@@ -478,12 +587,19 @@ private def coverageReasonFor (hasName hasGoal derived goalOK hypsOK : Bool) : S
 private theorem deletedGoldSequentIsCoverageLoss :
     coverageReasonFor false false false false false == "no-sequent" := by decide
 
-private def isPlainTypeInvariant : Formula.Term → Bool
+private
+def isPlainTypeInvariant
+    : Formula.Term →
+      Bool
   | .bin op (.id _) (.id _) => op == "∈" || op == "⊆"
   | .bin op (.id _) (.pre "ℙ" (.id _)) => op == "∈"
   | _ => false
 
-private def omittedInvariant (project : Project) (file name : String) : Bool :=
+private
+def omittedInvariant
+    (project : Project)
+    (file name : String)
+    : Bool :=
   match lookupComponent project file, name.splitOn "/" with
   | some component, _ :: label :: _ =>
       match component.elem.children.find? (fun elem =>
@@ -499,8 +615,13 @@ private def omittedInvariant (project : Project) (file name : String) : Bool :=
       | none => false
   | _, _ => false
 
-private def coverageDiagnostic (project : Project) (file : String)
-    (obligation : Obligation) (reason : String) : String :=
+private
+def coverageDiagnostic
+    (project : Project)
+    (file : String)
+    (obligation : Obligation)
+    (reason : String)
+    : String :=
   if reason != "no-sequent" && reason != "not-derived" then "none"
   else if obligation.kind == "INV" && omittedInvariant project file obligation.name then
     "pinned-bpo-omits-plain-type-invariant"
@@ -516,7 +637,11 @@ private def coverageDiagnostic (project : Project) (file : String)
 #guard isPlainTypeInvariant (.bin "∈" (.id "x") (.pre "ℙ" (.id "S")))
 #guard !isPlainTypeInvariant (.bin "=" (.id "x") (.id "y"))
 
-private def goalAgrees (obligation : Obligation) (gold : List (String × String)) : Bool :=
+private
+def goalAgrees
+    (obligation : Obligation)
+    (gold : List (String × String))
+    : Bool :=
   match obligation.goal, gold.find? (fun p => p.1 == obligation.name) with
   | some ours, some (_, wanted) =>
       match Formula.parse wanted with
@@ -524,8 +649,11 @@ private def goalAgrees (obligation : Obligation) (gold : List (String × String)
       | .error _ => false
   | _, _ => false
 
-private def hypothesesAgree (obligation : Obligation)
-    (gold : List (String × List String)) : Bool :=
+private
+def hypothesesAgree
+    (obligation : Obligation)
+    (gold : List (String × List String))
+    : Bool :=
   match gold.find? (fun p => p.1 == obligation.name) with
   | none => false
   | some (_, wanted) =>
@@ -533,9 +661,14 @@ private def hypothesesAgree (obligation : Obligation)
       | .error _ => false
       | .ok want => hypothesesMatch obligation.hyps want
 
-private def coverage (project : Project) (file : String) (names : List String)
-    (goals : List (String × String)) (hyps : List (String × List String)) :
-    List CoverageResult :=
+private
+def coverage
+    (project : Project)
+    (file : String)
+    (names : List String)
+    (goals : List (String × String))
+    (hyps : List (String × List String))
+    : List CoverageResult :=
   (generate project file).map fun obligation =>
     let hasName := names.contains obligation.name
     let hasGoal := goals.any (fun p => p.1 == obligation.name)
@@ -552,12 +685,18 @@ private def coverage (project : Project) (file : String) (names : List String)
       reason := reason
       diagnostic := coverageDiagnostic project file obligation reason }
 
-private def coverageLine (record : CoverageResult) : String :=
+private
+def coverageLine
+    (record : CoverageResult)
+    : String :=
   String.intercalate "\t"
     [record.component, record.kind, record.name, record.derivation, record.reason,
       record.diagnostic]
 
-private def coverageHistogram (records : List CoverageResult) : List (String × Nat) :=
+private
+def coverageHistogram
+    (records : List CoverageResult)
+    : List (String × Nat) :=
   (records.foldl
     (fun counts record =>
       if record.reason == "matched" then counts
@@ -567,18 +706,26 @@ private def coverageHistogram (records : List CoverageResult) : List (String × 
     []).mergeSort (fun left right =>
     if left.2 == right.2 then left.1 < right.1 else right.2 < left.2)
 
-private def compatibilityDiagnosticNames : List String :=
+private
+def compatibilityDiagnosticNames
+    : List String :=
   ["pinned-bpo-omits-plain-type-invariant",
    "pinned-bpo-omits-definedness-sequent",
    "pinned-bpo-omits-refinement-guard-sequent",
    "pinned-bpo-omits-refinement-action-sequent",
    "pinned-bpo-omits-witness-feasibility-sequent"]
 
-private def isKnownCompatibilityRecord (record : CoverageResult) : Bool :=
+private
+def isKnownCompatibilityRecord
+    (record : CoverageResult)
+    : Bool :=
   (record.reason == "no-sequent" || record.reason == "not-derived") &&
     compatibilityDiagnosticNames.contains record.diagnostic
 
-private def compatibilityRecords (records : List CoverageResult) : List CoverageResult :=
+private
+def compatibilityRecords
+    (records : List CoverageResult)
+    : List CoverageResult :=
   records.filter isKnownCompatibilityRecord
 
 #guard coverageReasonFor true true true false true == "goal-differs"
@@ -589,8 +736,12 @@ private def compatibilityRecords (records : List CoverageResult) : List Coverage
 
 /-- Only obligations we generate a goal for are scored; the rest are not yet attempted
 and would otherwise drown the signal. -/
-private def checkGoals (project : Project) (file : String)
-    (gold : List (String × String)) : List GoalResult :=
+private
+def checkGoals
+    (project : Project)
+    (file : String)
+    (gold : List (String × String))
+    : List GoalResult :=
   (generate project file).filterMap fun o =>
     match o.goal with
     | none => none
@@ -628,8 +779,12 @@ private def readGoldHyps (path : System.FilePath) : IO (List (String × List Str
 /-- Hypotheses are scored as sets: Rodin's order is an artefact of how it walks the
 predicate-set chain, and a generator that produces the same assumptions in a different
 order is not wrong. -/
-private def checkHyps (project : Project) (file : String)
-    (gold : List (String × List String)) : List GoalResult :=
+private
+def checkHyps
+    (project : Project)
+    (file : String)
+    (gold : List (String × List String))
+    : List GoalResult :=
   (generate project file).filterMap fun o =>
     -- Scored for every obligation with a derived goal. An empty hypothesis list is a
     -- claim (INITIALISATION assumes nothing), not an absence of one.
@@ -647,8 +802,12 @@ private def checkHyps (project : Project) (file : String)
           else some { key := key,
                       status := "FAIL:hypothesis multiset differs" }
 
-private def checkWWD (project : Project) (file : String)
-    (gold : List (String × List String)) : List GoalResult :=
+private
+def checkWWD
+    (project : Project)
+    (file : String)
+    (gold : List (String × List String))
+    : List GoalResult :=
   (generate project file).filterMap fun o =>
     if o.kind != "WWD" then none
     else
@@ -667,7 +826,11 @@ private structure P4Result where
   result : Result
   accepted : Bool
 
-private def localResults (project : Project) (poResults : List PoResult) : List P4Result :=
+private
+def localResults
+    (project : Project)
+    (poResults : List PoResult)
+    : List P4Result :=
   let matched := poResults.filter (·.status == "PASS") |>.map (·.key)
   let obligations := (project.flatMap fun component => generate project component.name).filter
     fun obligation => matched.contains (obligation.component ++ "\t" ++ obligation.name)
@@ -679,14 +842,20 @@ private def localResults (project : Project) (poResults : List PoResult) : List 
       | .error _ => false
     { obligation, result, accepted }
 
-private def goalHistogram (results : List GoalResult) : List (String × Nat) :=
+private
+def goalHistogram
+    (results : List GoalResult)
+    : List (String × Nat) :=
   (results.foldl
     (fun counts r => if r.status.startsWith "FAIL:" then histogramAdd r.status counts
                      else counts)
     []).mergeSort (fun left right =>
       if left.2 == right.2 then left.1 < right.1 else right.2 < left.2)
 
-private def termShape : Term → String
+private
+def termShape
+    : Term →
+      String
   | .id _ => "id"
   | .num _ => "numeral"
   | .bin op _ _ => "bin:" ++ op
@@ -697,7 +866,10 @@ private def termShape : Term → String
   | .set _ => "set"
   | .bind op _ _ => "binder:" ++ op
 
-private def p4Histogram (results : List P4Result) : List (String × Nat) :=
+private
+def p4Histogram
+    (results : List P4Result)
+    : List (String × Nat) :=
   (results.foldl (fun counts result =>
     if result.accepted then counts
     else histogramAdd (match result.obligation.goal with
@@ -705,22 +877,36 @@ private def p4Histogram (results : List P4Result) : List (String × Nat) :=
       | none => "no-goal") counts) []).mergeSort (fun left right =>
       if left.2 == right.2 then left.1 < right.1 else right.2 < left.2)
 
-private def p4BaselineLine (result : P4Result) : String :=
+private
+def p4BaselineLine
+    (result : P4Result)
+    : String :=
   let rule := result.result.rule.map Rule.label |>.getD "unproved"
   String.intercalate "\t"
     [result.obligation.component, result.obligation.name,
      Trust.fingerprint result.obligation.canonical,
      result.result.evidence.mode.label, rule]
 
-private def nonemptyLines (source : String) : List String :=
+private
+def nonemptyLines
+    (source : String)
+    : List String :=
   source.splitOn "\n" |>.filter (fun line => !line.isEmpty)
 
-private def removeExact (target : String) : List String → Option (List String)
+private
+def removeExact
+    (target : String)
+    : List String →
+      Option (List String)
   | [] => none
   | line :: rest => if line == target then some rest
     else removeExact target rest |>.map (fun remaining => line :: remaining)
 
-private def multisetSubset : List String → List String → Bool
+private
+def multisetSubset
+    : List String →
+      List String →
+      Bool
   | [], _ => true
   | line :: rest, actual =>
       match removeExact line actual with

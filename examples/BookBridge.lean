@@ -225,7 +225,8 @@ partial/total functions, domain restriction, images, lambdas, quantifiers, inter
 boolean values, simultaneous assignments, witnesses, theorem predicates and refinement
 targets.  These are deliberately real `Elem` trees, not comments or parser-only tests. -/
 
-def bookProject : Typing.Project :=
+def bookProject
+    : Typing.Project :=
   [ { name := "BridgeCtx", elem := BridgeCtx }
   , { name := "Bridge0", elem := Bridge0 }
   , { name := "Bridge1", elem := Bridge1 }
@@ -237,14 +238,23 @@ def bookProject : Typing.Project :=
   , { name := "File2", elem := File2 }
   , { name := "File3", elem := File3 } ]
 
-private def hasPO (machine name : String) : Bool :=
+private
+def hasPO
+    (machine name : String)
+    : Bool :=
   (POG.generate bookProject machine).any (·.name == name)
 
-private def goalText (machine name : String) : Option String :=
+private
+def goalText
+    (machine name : String)
+    : Option String :=
   (POG.generate bookProject machine).find? (·.name == name) |>.bind
     (fun obligation => obligation.goal.map Formula.print)
 
-private def hypothesesText (machine name : String) : Option (List String) :=
+private
+def hypothesesText
+    (machine name : String)
+    : Option (List String) :=
   (POG.generate bookProject machine).find? (·.name == name) |>.map
     (fun obligation => obligation.hyps.map Formula.print)
 

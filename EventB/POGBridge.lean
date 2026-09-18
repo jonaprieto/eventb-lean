@@ -13,21 +13,31 @@ namespace EventB.POG
 
 universe u
 
-def eqlTerm (varName : String) : EventB.Formula.Term :=
+def eqlTerm
+    (varName : String)
+    : EventB.Formula.Term :=
   .bin "=" (.id (varName ++ "'")) (.id varName)
 
-def transitionDenote (σ : Type u) :=
+def transitionDenote
+    (σ : Type u)
+    :=
   EventB.Formula.Term → (σ × σ) → Prop
 
-def transitionHypothesesHold {σ : Type u}
-    (denote : transitionDenote σ) (hypotheses : List EventB.Formula.Term)
-    (before after : σ) : Prop :=
+def transitionHypothesesHold
+    {σ : Type u}
+    (denote : transitionDenote σ)
+    (hypotheses : List EventB.Formula.Term)
+    (before after : σ)
+    : Prop :=
   ∀ hypothesis ∈ hypotheses, denote hypothesis (before, after)
 
 /- The source fields are intentionally redundant with `checked`: they make the
    machine/event/variable identity visible to consumers and prevent an adapter from
    silently changing the identity while reusing a proof. -/
-structure EqlBridge (σ : Type u) (α : Type u) where
+structure EqlBridge
+    (σ : Type u)
+    (α : Type u)
+    where
   theory : EventB.Theory.Env
   project : EventB.Typing.Project
   obligation : Obligation
@@ -46,12 +56,18 @@ structure EqlBridge (σ : Type u) (α : Type u) where
     denote (eqlTerm varName) (before, after) ↔ read after = read before
   frame : framePreserved read action
 
-def EqlBridge.valid {σ α : Type u} (bridge : EqlBridge σ α) : Prop :=
+def EqlBridge.valid
+    {σ α : Type u}
+    (bridge : EqlBridge σ α)
+    : Prop :=
   validSequent
     (bridge.obligation.hyps.map (fun hypothesis state => bridge.denote hypothesis state))
     (fun state => bridge.denote (eqlTerm bridge.varName) state)
 
-theorem EqlBridge.valid_of_frame {σ α : Type u} (bridge : EqlBridge σ α) : bridge.valid := by
+theorem EqlBridge.valid_of_frame
+    {σ α : Type u}
+    (bridge : EqlBridge σ α)
+    : bridge.valid := by
   intro state hypotheses
   rcases state with ⟨before, after⟩
   have hypothesesHold : transitionHypothesesHold bridge.denote bridge.obligation.hyps

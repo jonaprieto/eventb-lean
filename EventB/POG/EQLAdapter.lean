@@ -11,21 +11,31 @@ namespace EventB.POG
 
 universe u
 
-def eqlGoal (name : String) : EventB.Formula.Term :=
+def eqlGoal
+    (name : String)
+    : EventB.Formula.Term :=
   .bin "=" (.id (name ++ "'")) (.id name)
 
-def intRead (name : String) (env : ValueEnv) : Option Int :=
+def intRead
+    (name : String)
+    (env : ValueEnv)
+    : Option Int :=
   match env.lookup name with
   | some (.integer value) => some value
   | _ => none
 
-def exactEqlShape (origin : EqlOrigin) (obligation : Obligation) : Bool :=
+def exactEqlShape
+    (origin : EqlOrigin)
+    (obligation : Obligation)
+    : Bool :=
   obligation.component == origin.component && obligation.kind == "EQL" &&
     obligation.name == origin.event ++ "/" ++ origin.eqlVariable ++ "/EQL" &&
     obligation.goal == some (eqlGoal origin.eqlVariable)
 
-structure EqlIntBinding (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) where
+structure EqlIntBinding
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    where
   component : String
   eventLabel : String
   eqlVariable : String
@@ -47,9 +57,11 @@ structure EqlIntBinding (theory : EventB.Theory.Env)
   variableType :
     ValueEnv.declaredType? declarations eqlVariable = some .int
 
-def EqlIntBinding.fromProject? (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (component event eqlVariable : String) :
-    Option (EqlIntBinding theory project) :=
+def EqlIntBinding.fromProject?
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (component event eqlVariable : String)
+    : Option (EqlIntBinding theory project) :=
   match located : locateEql? theory project component event eqlVariable with
   | .error _ | .ok none => none
   | .ok (some (origin, obligation)) =>
@@ -80,9 +92,13 @@ def EqlIntBinding.fromProject? (theory : EventB.Theory.Env)
                 else none
       else none
 
-def EqlIntBinding.action {theory : EventB.Theory.Env}
-    {project : EventB.Typing.Project} (binding : EqlIntBinding theory project) (fuel : Nat)
-    (before after : ValueEnv) : Prop :=
+def EqlIntBinding.action
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    (binding : EqlIntBinding theory project)
+    (fuel : Nat)
+    (before after : ValueEnv)
+    : Prop :=
   ∃ transition : CheckedBeforeAfter,
     ValueEnv.parallelAssignTypedFuel fuel binding.declarations before binding.updates =
         .ok transition ∧ transition.after = after
@@ -91,9 +107,12 @@ def EqlIntBinding.goal {theory : EventB.Theory.Env}
     {project : EventB.Typing.Project} (binding : EqlIntBinding theory project) :
     EventB.Formula.Term := eqlGoal binding.eqlVariable
 
-structure EqlIntEventBridge {theory : EventB.Theory.Env}
-    {project : EventB.Typing.Project} (binding : EqlIntBinding theory project)
-    (σ : Type u) where
+structure EqlIntEventBridge
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    (binding : EqlIntBinding theory project)
+    (σ : Type u)
+    where
   fuel : Nat
   encode : σ → ValueEnv
   event : Event σ
@@ -127,17 +146,22 @@ structure EqlIntEventBridge {theory : EventB.Theory.Env}
     (encode state).lookup binding.eqlVariable = some (.integer value)
   nonempty : ∃ before after, event.act before after
 
-def EqlIntEventBridge.read {theory : EventB.Theory.Env}
+def EqlIntEventBridge.read
+    {theory : EventB.Theory.Env}
     {project : EventB.Typing.Project}
-    {binding : EqlIntBinding theory project} {σ : Type u}
-    (bridge : EqlIntEventBridge binding σ) : σ → Option Int :=
+    {binding : EqlIntBinding theory project}
+    {σ : Type u}
+    (bridge : EqlIntEventBridge binding σ)
+    : σ →
+      Option Int :=
   fun state => intRead binding.eqlVariable (bridge.encode state)
 
 /- A kernel-checkable evaluator lemma. The lookup facts make the result independent
    of list order or the representation of unrelated variables. -/
 theorem intRead_of_eqlEvaluation
     (fuel : Nat)
-    (name : String) (transition : CheckedBeforeAfter)
+    (name : String)
+    (transition : CheckedBeforeAfter)
     (beforeValue afterValue : Int)
     (beforeValid : ValueEnv.validationOk fuel transition.declarations transition.before = true)
     (afterValid : ValueEnv.validationOk fuel transition.declarations transition.after = true)
@@ -154,17 +178,20 @@ theorem intRead_of_eqlEvaluation
     (beforeLookup : transition.before.lookup name = some (.integer beforeValue))
     (afterLookup : transition.after.lookup ((name ++ "'").dropEnd 1).copy =
       some (.integer afterValue))
-    (evaluated : assignmentPredicateWithFuel fuel transition (eqlGoal name)) :
-    afterValue = beforeValue := by
+    (evaluated : assignmentPredicateWithFuel fuel transition (eqlGoal name))
+    : afterValue = beforeValue := by
   exact eqlIntegerAfterEqBefore fuel name transition beforeValue afterValue
     beforeValid afterValid unprimed primedBase primeNotInteger primeNotNatural
     primeNotNatural1 primeNotBoolean notInteger notNatural notNatural1 notBoolean
     beforeLookup afterLookup evaluated
 
-def EqlIntEventBridge.sequent {theory : EventB.Theory.Env}
+def EqlIntEventBridge.sequent
+    {theory : EventB.Theory.Env}
     {project : EventB.Typing.Project}
-    {binding : EqlIntBinding theory project} {σ : Type u}
-    (bridge : EqlIntEventBridge binding σ) : Prop :=
+    {binding : EqlIntBinding theory project}
+    {σ : Type u}
+    (bridge : EqlIntEventBridge binding σ)
+    : Prop :=
   ∀ transition : CheckedBeforeAfter,
     transition.declarations = binding.declarations →
     (∀ hypothesis ∈ binding.obligation.hyps,
@@ -172,20 +199,24 @@ def EqlIntEventBridge.sequent {theory : EventB.Theory.Env}
     assignmentPredicateWithFuel bridge.fuel transition (binding.goal)
 
 theorem EqlIntEventBridge.sequent_of_goal_hypothesis
-    {theory : EventB.Theory.Env} {project : EventB.Typing.Project}
-    {binding : EqlIntBinding theory project} {σ : Type u}
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {binding : EqlIntBinding theory project}
+    {σ : Type u}
     (bridge : EqlIntEventBridge binding σ)
-    (goalHypothesis : binding.goal ∈ binding.obligation.hyps) :
-    bridge.sequent := by
+    (goalHypothesis : binding.goal ∈ binding.obligation.hyps)
+    : bridge.sequent := by
   intro transition _ hypotheses
   exact hypotheses binding.goal goalHypothesis
 
 theorem EqlIntEventBridge.framePreserved
-    {theory : EventB.Theory.Env} {project : EventB.Typing.Project}
-    {binding : EqlIntBinding theory project} {σ : Type u}
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {binding : EqlIntBinding theory project}
+    {σ : Type u}
     (bridge : EqlIntEventBridge binding σ)
-    (poProof : bridge.sequent) :
-    framePreserved bridge.read bridge.event.act := by
+    (poProof : bridge.sequent)
+    : framePreserved bridge.read bridge.event.act := by
   intro before after eventStep
   obtain ⟨transition, beforeEq, afterEq, declarationsEq, beforeValid, afterValid,
     hypotheses⟩ := bridge.hypothesesHold eventStep
@@ -211,23 +242,29 @@ theorem EqlIntEventBridge.framePreserved
 /- A complete EQL acceptance object binds the generated obligation, the exact
    integer source, the executable event, and the proof of the checked sequent.
    The semantic theorem is then obtained only through the bridge above. -/
-structure EqlIntAdapter (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (σ : Type u) where
+structure EqlIntAdapter
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (σ : Type u)
+    where
   binding : EqlIntBinding theory project
   bridge : EqlIntEventBridge binding σ
   sequent : bridge.sequent
 
-theorem EqlIntAdapter.sound {theory : EventB.Theory.Env}
-    {project : EventB.Typing.Project} {σ : Type u}
-    (adapter : EqlIntAdapter theory project σ) :
-    framePreserved adapter.bridge.read adapter.bridge.event.act :=
+theorem EqlIntAdapter.sound
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {σ : Type u}
+    (adapter : EqlIntAdapter theory project σ)
+    : framePreserved adapter.bridge.read adapter.bridge.event.act :=
   adapter.bridge.framePreserved adapter.sequent
 
 /- ------------------------------------------------------------------ -/
 /- Kernel fixtures.  The parent event has no action; the concrete event's
    deterministic self-assignment is therefore the exact source of B/step/x/EQL. -/
 
-def positiveProject : EventB.Typing.Project :=
+def positiveProject
+    : EventB.Typing.Project :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -292,10 +329,14 @@ def positiveProject : EventB.Typing.Project :=
       | _ => false
   | .error _ => false
 
-example {theory : EventB.Theory.Env} {project : EventB.Typing.Project}
-    {binding : EqlIntBinding theory project} {σ : Type u}
-    (bridge : EqlIntEventBridge binding σ) (poProof : bridge.sequent) :
-    framePreserved bridge.read bridge.event.act := by
+example
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    {binding : EqlIntBinding theory project}
+    {σ : Type u}
+    (bridge : EqlIntEventBridge binding σ)
+    (poProof : bridge.sequent)
+    : framePreserved bridge.read bridge.event.act := by
   exact bridge.framePreserved poProof
 
 end EventB.POG

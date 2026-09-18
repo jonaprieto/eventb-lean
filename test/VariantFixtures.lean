@@ -13,18 +13,32 @@ namespace EventB.VariantFixtures
 
 open EventB EventB.Formula EventB.POG EventB.Typing
 
-private def childrenOf (element : Elem) (tag : String) : List Elem :=
+private
+def childrenOf
+    (element : Elem)
+    (tag : String)
+    : List Elem :=
   element.children.filter (fun child => child.tag == "org.eventb.core." ++ tag)
 
-private def attrOf (element : Elem) (key : String) : Option String :=
+private
+def attrOf
+    (element : Elem)
+    (key : String)
+    : Option String :=
   element.attr? ("org.eventb.core." ++ key)
 
-private def componentElements (project : Project) (component : String) :
-    Option Elem :=
+private
+def componentElements
+    (project : Project)
+    (component : String)
+    : Option Elem :=
   (lookupComponent project component).map (·.elem)
 
-private def variantExpressions (project : Project) (component : String) :
-    List (Option Term) :=
+private
+def variantExpressions
+    (project : Project)
+    (component : String)
+    : List (Option Term) :=
   (componentElements project component).toList.flatMap fun element =>
     (childrenOf element "variant").map fun variant =>
       (attrOf variant "expression").bind (Formula.parse · |>.toOption)
@@ -32,22 +46,32 @@ private def variantExpressions (project : Project) (component : String) :
 /- A fixture-local uniqueness check: the checked production source is accepted only
    when this project has exactly one variant, so a second variant cannot silently be
    ignored by a first-match lookup. -/
-private def uniqueVariantExpression? (project : Project) (component : String) :
-    Option Term :=
+private
+def uniqueVariantExpression?
+    (project : Project)
+    (component : String)
+    : Option Term :=
   match (variantExpressions project component).filterMap id with
   | [expression] => some expression
   | _ => none
 
-private def eventConvergence? (project : Project) (component event : String) :
-    Option String :=
+private
+def eventConvergence?
+    (project : Project)
+    (component event : String)
+    : Option String :=
   (componentElements project component).bind fun element =>
     (childrenOf element "event").find? (fun candidate =>
       attrOf candidate "label" == some event) |>.bind (attrOf · "convergence")
 
-private def parsed? (source : String) : Option Term :=
+private
+def parsed?
+    (source : String)
+    : Option Term :=
   (Formula.parse source).toOption
 
-def boundedNatVariantProject : Project :=
+def boundedNatVariantProject
+    : Project :=
   [{ name := "M"
      elem := .machineFile [ ("org.eventb.core.name", "M") ]
        [ .variable [ ("org.eventb.core.identifier", "x") ] []
@@ -68,8 +92,12 @@ def boundedNatVariantProject : Project :=
            [ .action [ ("org.eventb.core.label", "unchanged")
                      , ("org.eventb.core.assignment", "x ≔ x") ] [] ] ] }]
 
-private def variantGoal? (project : Project) (event kind : String)
-    (goal : Option Term) : Bool :=
+private
+def variantGoal?
+    (project : Project)
+    (event kind : String)
+    (goal : Option Term)
+    : Bool :=
   match generateCheckedIn Theory.empty project "M" with
   | .error _ => false
   | .ok obligations =>
@@ -78,17 +106,26 @@ private def variantGoal? (project : Project) (event kind : String)
           obligation.kind == kind && obligation.goal == goal &&
           generatedSourceBound project obligation
 
-private def exactVariantGoal? (project : Project) (event kind mode : String)
-    (goal : Option Term) : Bool :=
+private
+def exactVariantGoal?
+    (project : Project)
+    (event kind mode : String)
+    (goal : Option Term)
+    : Bool :=
   uniqueVariantExpression? project "M" == some (.id "x") &&
     eventConvergence? project "M" event == some mode &&
     variantGoal? project event kind goal
 
-private def exactVariantSource? : Option Term :=
+private
+def exactVariantSource?
+    : Option Term :=
   uniqueVariantExpression? boundedNatVariantProject "M"
 
-private def assignmentUpdates? (project : Project) (component event : String) :
-    Option (List (String × Term)) :=
+private
+def assignmentUpdates?
+    (project : Project)
+    (component event : String)
+    : Option (List (String × Term)) :=
   (componentElements project component).bind fun element =>
     (childrenOf element "event").find? (fun candidate =>
       attrOf candidate "label" == some event) |>.bind fun currentEvent =>
@@ -99,7 +136,9 @@ private def assignmentUpdates? (project : Project) (component event : String) :
         | .bin "≔" (.id name) rhs => some (name, rhs)
         | _ => none
 
-private def exactStepSource? : Option (List (String × Term)) :=
+private
+def exactStepSource?
+    : Option (List (String × Term)) :=
   assignmentUpdates? boundedNatVariantProject "M" "step"
 
 /- Exact provenance and exact generated goals.  The parser comparison is AST equality,
@@ -127,7 +166,9 @@ private def exactStepSource? : Option (List (String × Term)) :=
   (parsed? "x ≤ x")
 #guard !variantGoal? boundedNatVariantProject "missing" "VAR" (parsed? "x < x")
 
-private def alteredVariantProject : Project :=
+private
+def alteredVariantProject
+    : Project :=
   [{ name := "M"
      elem := .machineFile [ ("org.eventb.core.name", "M") ]
        [ .variable [ ("org.eventb.core.identifier", "x") ] []
@@ -140,7 +181,9 @@ private def alteredVariantProject : Project :=
            [ .action [ ("org.eventb.core.label", "decrement")
                      , ("org.eventb.core.assignment", "x ≔ x − 1") ] [] ] ] }]
 
-private def duplicateVariantProject : Project :=
+private
+def duplicateVariantProject
+    : Project :=
   [{ name := "M"
      elem := .machineFile [ ("org.eventb.core.name", "M") ]
        [ .variable [ ("org.eventb.core.identifier", "x") ] []
@@ -160,44 +203,60 @@ inductive BoundedState where
   | two
   deriving DecidableEq, Repr
 
-def measure : BoundedState → Nat
+def measure
+    : BoundedState →
+      Nat
   | .zero => 0
   | .one => 1
   | .two => 2
 
-def sourceValue : BoundedState → Int
+def sourceValue
+    : BoundedState →
+      Int
   | .zero => 0
   | .one => 1
   | .two => 2
 
-def decrement : BoundedState → BoundedState → Prop
+def decrement
+    : BoundedState →
+      BoundedState →
+      Prop
   | .one, .zero => True
   | .two, .one => True
   | _, _ => False
 
 def boundedStates : List BoundedState := [.zero, .one, .two]
 
-def boundedTransitions : List (BoundedState × BoundedState) :=
+def boundedTransitions
+    : List (BoundedState × BoundedState) :=
   [(.one, .zero), (.two, .one)]
 
-theorem bounded_nat : ∀ state, 0 ≤ measure state := by
+theorem bounded_nat
+    : ∀ state,
+      0 ≤ measure state := by
   intro state
   cases state <;> decide
 
-theorem bounded_var : ∀ before after,
-    decrement before after → measure after < measure before := by
+theorem bounded_var
+    : ∀ before after,
+      decrement before after →
+      measure after < measure before := by
   intro before after step
   cases before <;> cases after <;> simp [decrement, measure] at step ⊢
 
-theorem bounded_source_action : ∀ before after,
-    decrement before after → sourceValue after = sourceValue before - 1 := by
+theorem bounded_source_action
+    : ∀ before after,
+      decrement before after →
+      sourceValue after = sourceValue before - 1 := by
   intro before after step
   cases before <;> cases after <;> simp [decrement, sourceValue] at step ⊢
 
-theorem no_unit_source_cover :
-    ¬ ∃ encode : Unit → BoundedState × BoundedState,
+theorem no_unit_source_cover
+    : ¬ ∃ encode : Unit →
+      BoundedState × BoundedState,
       ∀ transition ∈ boundedTransitions,
-        ∃ state, encode state = transition := by
+      ∃ state,
+      encode state = transition := by
   rintro ⟨encode, complete⟩
   obtain ⟨zeroState, zeroEncoded⟩ := complete (.one, .zero) (by simp [boundedTransitions])
   obtain ⟨oneState, oneEncoded⟩ := complete (.two, .one) (by simp [boundedTransitions])

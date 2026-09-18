@@ -39,19 +39,34 @@ private def printError (paths : List System.FilePath) (error : EventB.Error) : I
   let text ← diagnosticText paths error
   stderr.putStr (TermColor.Text.render target (text ++ TermColor.Text.plain "\n"))
 
-private def isSource (path : System.FilePath) : Bool :=
+private
+def isSource
+    (path : System.FilePath)
+    : Bool :=
   path.toString.endsWith ".bum" || path.toString.endsWith ".buc"
 
-private def isRossi (path : System.FilePath) : Bool :=
+private
+def isRossi
+    (path : System.FilePath)
+    : Bool :=
   path.toString.endsWith ".eventb"
 
-private def isBpo (path : System.FilePath) : Bool :=
+private
+def isBpo
+    (path : System.FilePath)
+    : Bool :=
   path.toString.endsWith ".bpo"
 
-private def isTheory (path : System.FilePath) : Bool :=
+private
+def isTheory
+    (path : System.FilePath)
+    : Bool :=
   path.toString.endsWith ".tuf"
 
-private def stem (path : System.FilePath) : String :=
+private
+def stem
+    (path : System.FilePath)
+    : String :=
   ((path.toString.splitOn "/").getLast!).splitOn "." |>.head!
 
 private def sourceFiles (dir : System.FilePath) : IO (List System.FilePath) := do
@@ -95,7 +110,11 @@ private structure Source where
   name : String
   model : Model
 
-private def projectComponent (roots : List String) (source : Source) : Component :=
+private
+def projectComponent
+    (roots : List String)
+    (source : Source)
+    : Component :=
   { name := source.name, elem := source.model.root, theories := roots }
 
 private structure ProjectData where
@@ -210,7 +229,11 @@ private def loadProject (path : System.FilePath) : IO ProjectData := do
   return ProjectData.mk project uniqueSources theory (errors.reverse ++ duplicateErrors.reverse)
     (path :: theoryPaths ++ sourcePaths ++ rossiPaths)
 
-private def formulaErrorLabel (model : Model) (error : String) : Option String :=
+private
+def formulaErrorLabel
+    (model : Model)
+    (error : String)
+    : Option String :=
   model.formulas.find? (fun pair =>
     match pair with
     | (_label, formula) =>
@@ -223,14 +246,22 @@ private def formulaErrorLabel (model : Model) (error : String) : Option String :
                 (error.drop marker.length).toString)
   |>.map (·.1)
 
-private def formatTypeError (source : Source) (error : String) : EventB.Error :=
+private
+def formatTypeError
+    (source : Source)
+    (error : String)
+    : EventB.Error :=
   let reason := if error.startsWith "parse: " then error.drop 7 else error
   let message := match formulaErrorLabel source.model error with
     | some label => s!"element {label}: {reason}"
     | none => s!"typechecking failed: {reason}"
   (EventB.Error.typing message).withPath source.path.toString
 
-private def typeErrors (data : ProjectData) (source : Source) : List EventB.Error :=
+private
+def typeErrors
+    (data : ProjectData)
+    (source : Source)
+    : List EventB.Error :=
   match inferComponentIn data.theory data.project source.name with
   | .error error => [formatTypeError source error.message]
   | .ok (_, errors) => errors.map (formatTypeError source)
@@ -240,20 +271,32 @@ private structure Report where
   obligations : List Obligation
   errors : List EventB.Error
 
-private def reports (data : ProjectData) : List Report :=
+private
+def reports
+    (data : ProjectData)
+    : List Report :=
   data.sources.map fun source =>
     { source := source
       obligations := generateIn data.theory data.project source.name
       errors := typeErrors data source }
 
-private def fatalErrors (data : ProjectData) (rs : List Report) : List EventB.Error :=
+private
+def fatalErrors
+    (data : ProjectData)
+    (rs : List Report)
+    : List EventB.Error :=
   data.errors ++ rs.flatMap (·.errors)
 
-private def kinds : List String :=
+private
+def kinds
+    : List String :=
   ["INV", "WD", "GRD", "SIM", "THM", "WFIS", "WWD", "FIS", "EQL", "MRG",
    "VWD", "FIN", "NAT", "VAR"]
 
-private def parseKinds (value : String) : Except String (List String) :=
+private
+def parseKinds
+    (value : String)
+    : Except String (List String) :=
   let values := value.splitOn ","
   if values.isEmpty || values.any (fun kind => !kinds.contains kind) then
     .error s!"unknown obligation class in --kind {value}; use {String.intercalate "," kinds}"
@@ -270,8 +313,13 @@ private def printCheckDiagnostics (data : ProjectData) (rs : List Report) : IO U
   for error in fatalErrors data rs do
     printError data.paths error
 
-private def makeCheck (dir : System.FilePath) (json : Bool) (kinds : Option String)
-    (machine : Option String) : CheckArgs :=
+private
+def makeCheck
+    (dir : System.FilePath)
+    (json : Bool)
+    (kinds : Option String)
+    (machine : Option String)
+    : CheckArgs :=
   { dir, json, kinds, machine }
 
 private inductive Action where
@@ -283,10 +331,15 @@ private inductive Action where
   | prove (dir : System.FilePath)
   | diff (dir : System.FilePath)
 
-private def pathParam : Param System.FilePath :=
+private
+def pathParam
+    : Param System.FilePath :=
   Param.map System.FilePath.mk Param.path
 
-private def projectArg (help : String) :=
+private
+def projectArg
+    (help : String)
+    :=
   Spec.arg "PROJECT" help pathParam
 
 private def checkSpec :=
@@ -302,7 +355,9 @@ private def summarySpec :=
   Spec.map2 Action.summary (projectArg "Project directory or .eventb file")
     (Spec.switch "json" none "Emit one JSON summary")
 
-private def command : Command Action :=
+private
+def command
+    : Command Action :=
   group "eventb" [
     cmd "check" (Spec.map Action.check checkSpec)
       (description := "Typecheck a project and list generated obligations."),
@@ -325,7 +380,10 @@ private def command : Command Action :=
       (description := "Compare generated obligation names with Rodin .bpo files.")
   ] (description := "Inspect Event-B projects from Rodin XML or Rossi text.")
 
-private def jsonEscape (value : String) : String :=
+private
+def jsonEscape
+    (value : String)
+    : String :=
   String.ofList (value.toList.flatMap fun c =>
     match c with
     | '"' => ['\\', '"']
@@ -335,16 +393,27 @@ private def jsonEscape (value : String) : String :=
     | '\t' => ['\\', 't']
     | _ => [c])
 
-private def jsonString (value : String) : String :=
+private
+def jsonString
+    (value : String)
+    : String :=
   "\"" ++ jsonEscape value ++ "\""
 
 private def jsonBool (value : Bool) : String := if value then "true" else "false"
 
-private def hypothesisOnly (obligation : Obligation) : Bool :=
+private
+def hypothesisOnly
+    (obligation : Obligation)
+    : Bool :=
   obligation.kind == "WWD" && obligation.goal.isNone
 
-private def selected (machine : Option String) (kinds : Option (List String)) (report : Report)
-    (obligation : Obligation) : Bool :=
+private
+def selected
+    (machine : Option String)
+    (kinds : Option (List String))
+    (report : Report)
+    (obligation : Obligation)
+    : Bool :=
   (match machine with
    | none => true
    | some name => name == report.source.name) &&
@@ -352,9 +421,12 @@ private def selected (machine : Option String) (kinds : Option (List String)) (r
    | none => true
    | some selectedKinds => selectedKinds.contains obligation.kind)
 
-private def filteredObligations (args : CheckArgs) (kinds : Option (List String))
-    (rs : List Report) :
-    List (String × Obligation) :=
+private
+def filteredObligations
+    (args : CheckArgs)
+    (kinds : Option (List String))
+    (rs : List Report)
+    : List (String × Obligation) :=
   rs.flatMap fun report =>
     (report.obligations.filter (selected args.machine kinds report)).map
       (fun o => (report.source.name, o))
@@ -390,7 +462,10 @@ private def runCheckWithKinds (args : CheckArgs) (kinds : Option (List String)) 
           if hypothesisOnly then "hypothesis-only" else "no statement"))
   return if (fatalErrors data rs).isEmpty then 0 else 1
 
-private def runCheck (args : CheckArgs) : IO UInt32 :=
+private
+def runCheck
+    (args : CheckArgs)
+    : IO UInt32 :=
   match args.kinds with
   | none => runCheckWithKinds args none
   | some value =>
@@ -400,28 +475,50 @@ private def runCheck (args : CheckArgs) : IO UInt32 :=
           printError [] (EventB.Error.cli s!"eventb check: {error}")
           return 1
 
-private def bump (key : String) : List (String × Nat) → List (String × Nat)
+private
+def bump
+    (key : String)
+    : List (String × Nat) →
+      List (String × Nat)
   | [] => [(key, 1)]
   | (name, count) :: rest =>
       if name == key then (name, count + 1) :: rest else
         (name, count) :: bump key rest
 
-private def countKinds (obligations : List Obligation) : List (String × Nat) :=
+private
+def countKinds
+    (obligations : List Obligation)
+    : List (String × Nat) :=
   obligations.foldl (fun counts obligation => bump obligation.kind counts) []
 
-private def derivedCount (obligations : List Obligation) : Nat :=
+private
+def derivedCount
+    (obligations : List Obligation)
+    : Nat :=
   obligations.countP (·.goal.isSome)
 
-private def notDerivedCount (obligations : List Obligation) : Nat :=
+private
+def notDerivedCount
+    (obligations : List Obligation)
+    : Nat :=
   obligations.countP (·.goal.isNone)
 
-private def notDerivedKinds (obligations : List Obligation) : List (String × Nat) :=
+private
+def notDerivedKinds
+    (obligations : List Obligation)
+    : List (String × Nat) :=
   countKinds (obligations.filter (·.goal.isNone))
 
-private def hypothesisOnlyCount (obligations : List Obligation) : Nat :=
+private
+def hypothesisOnlyCount
+    (obligations : List Obligation)
+    : Nat :=
   obligations.countP hypothesisOnly
 
-private def jsonCounts (counts : List (String × Nat)) : String :=
+private
+def jsonCounts
+    (counts : List (String × Nat))
+    : String :=
   "{" ++ String.intercalate "," (counts.map fun (name, count) =>
     jsonString name ++ ":" ++ toString count) ++ "}"
 
@@ -507,7 +604,11 @@ private def runProve (dir : System.FilePath) : IO UInt32 := do
       IO.println s!"  {obligation.name}: {rule.label} [external evidence]"
   return if (fatalErrors data rs).isEmpty then 0 else 1
 
-private def findObligation : List Report → String → Option (String × Obligation)
+private
+def findObligation
+    : List Report →
+      String →
+      Option (String × Obligation)
   | [], _ => none
   | report :: rest, name =>
       match report.obligations.find? (fun obligation => obligation.name == name) with
@@ -541,7 +642,10 @@ private def runPo (dir : System.FilePath) (name : String) : IO UInt32 := do
 
 mutual
 
-private def poNames (elem : XmlElem) : List String :=
+private
+def poNames
+    (elem : XmlElem)
+    : List String :=
   let here := if elem.tag == "org.eventb.core.poSequent" then
       elem.attr? "name" |>.toList
     else []
@@ -550,7 +654,10 @@ private def poNames (elem : XmlElem) : List String :=
 termination_by sizeOf elem
 decreasing_by cases elem; simp +arith
 
-private def poNamesList : List XmlElem → List String
+private
+def poNamesList
+    : List XmlElem →
+      List String
   | [] => []
   | elem :: rest => poNames elem ++ poNamesList rest
 
@@ -567,22 +674,34 @@ private def readGoldPOs (path : System.FilePath) : IO (Except String (List Strin
   catch error =>
     return .error s!"could not be read: {error}"
 
-private def localLedger (obligations : List Obligation) : Trust.Ledger :=
+private
+def localLedger
+    (obligations : List Obligation)
+    : Trust.Ledger :=
   obligations.foldl (fun ledger obligation =>
     match Prover.Local.attach ledger obligation (Prover.Local.prove obligation) with
     | .ok updated => updated
     | .error _ => ledger) (Trust.Ledger.ofObligations obligations)
 
-private def reportCoverage (gold : List (String × List String))
-    (machine name : String) : String :=
+private
+def reportCoverage
+    (gold : List (String × List String))
+    (machine name : String)
+    : String :=
   match gold.find? (·.1 == machine) with
   | none => "not-compared"
   | some (_, names) => if names.contains name then "name-matched" else "name-missing"
 
-private def jsonArray (values : List String) : String :=
+private
+def jsonArray
+    (values : List String)
+    : String :=
   "[" ++ String.intercalate "," (values.map jsonString) ++ "]"
 
-private def evidenceJson : Trust.Evidence → String
+private
+def evidenceJson
+    : Trust.Evidence →
+      String
   | .none =>
       "{\"mode\":\"unproved\",\"declaration\":\"\",\"verifier\":\"\",\"dependencies\":[]}"
   | .kernel declaration axioms =>
@@ -622,8 +741,13 @@ private def evidenceJson : Trust.Evidence → String
 #guard (evidenceJson (.external "tool" "1" "claim" "checker")).contains
   "\"metadata_only\":true"
 
-private def reportEntry (gold : List (String × List String)) (ledger : Trust.Ledger)
-    (machine : String) (obligation : Obligation) : String :=
+private
+def reportEntry
+    (gold : List (String × List String))
+    (ledger : Trust.Ledger)
+    (machine : String)
+    (obligation : Obligation)
+    : String :=
   let fallback := (Trust.Ledger.ofObligations [obligation]).entries.head!
   let entry := (ledger.displayEntry? machine obligation.name).getD fallback
   let mode := entry.mode.label
@@ -678,7 +802,11 @@ private def runReport (dir : System.FilePath) : IO UInt32 := do
     "],\"trust_ledger\":{" ++ String.intercalate "," counts ++ "}}")
   return if (fatalErrors data rs).isEmpty then 0 else 1
 
-private def findSource (sources : List Source) (name : String) : Option Source :=
+private
+def findSource
+    (sources : List Source)
+    (name : String)
+    : Option Source :=
   sources.find? (fun source => source.name == name)
 
 private def runDiff (dir : System.FilePath) : IO UInt32 := do
@@ -729,7 +857,10 @@ private def runDiff (dir : System.FilePath) : IO UInt32 := do
         ((EventB.Error.cli "eventb diff: no matching .bpo file").withPath source.path.toString)
   return if failed then 1 else 0
 
-private def runAction : Action → IO UInt32
+private
+def runAction
+    : Action →
+      IO UInt32
   | .check args => runCheck args
   | .po dir name => runPo dir name
   | .summary dir json => runSummary dir json

@@ -4,7 +4,9 @@ open EventB.Formula
 
 /-- Dump the parsed form of each input line as JSON, so the spike's translator works
 from the real parser's output rather than a second implementation of it. -/
-def toJson : Term → String
+def toJson
+    : Term →
+      String
   | .id s => "[\"id\"," ++ esc s ++ "]"
   | .num n => "[\"num\"," ++ toString n ++ "]"
   | .bin o a b => "[\"bin\"," ++ esc o ++ "," ++ toJson a ++ "," ++ toJson b ++ "]"
