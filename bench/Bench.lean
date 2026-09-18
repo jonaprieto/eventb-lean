@@ -6,7 +6,9 @@ open EventB
 /-- Parse every predicate Rodin wrote into the `.bpo` files, extracted by
 `spike/extract.py`. These are the proof obligations themselves, not the model, and they
 use syntax a `.bum` never contains: type ascriptions on bound variables. -/
-def main (args : List String) : IO Unit := do
+def main
+    (args : List String)
+    : IO Unit := do
   let path := args.getLast?.getD "/tmp/allpo.txt"
   let text ← try IO.FS.readFile path catch _ =>
     throw <| IO.userError s!"bench: input file not found: {path} (run spike/extract.py first)"

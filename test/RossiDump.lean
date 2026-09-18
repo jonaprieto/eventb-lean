@@ -35,7 +35,9 @@ def fileJson
   "{\"file\":" ++ jsonString path ++ ",\"success\":true,\"components\":[" ++
     String.intercalate "," (components.map componentJson) ++ "]}"
 
-def main (args : List String) : IO UInt32 := do
+def main
+    (args : List String)
+    : IO UInt32 := do
   let mut failed := false
   for path in args do
     match ← Rossi.read path with

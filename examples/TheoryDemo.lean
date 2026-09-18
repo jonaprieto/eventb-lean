@@ -43,22 +43,18 @@ eventb_machine TheoryMachine where
   event INITIALISATION where
     action act1 : cars := 0
 
-def theoryProject
-    : Typing.Project :=
+def theoryProject : Typing.Project :=
   [ { name := "TheoryCtx", elem := TheoryCtx, theories := ["Controls"] }
   , { name := "TheoryMachine", elem := TheoryMachine, theories := ["Controls"] } ]
 
-def theoryEnv
-    : Theory.Env :=
+def theoryEnv : Theory.Env :=
   match Theory.register [Bounds, Controls, Algebra, Generic] with
   | .ok env => env
   | .error _ => Theory.empty
 
 #guard (Theory.declaration? theoryEnv ["Algebra"] "Colour").isSome
 #guard (Theory.declaration? theoryEnv ["Algebra"] "add_zero").isSome
-private
-def genericDatatype
-    : Bool :=
+private def genericDatatype : Bool :=
   match Theory.declaration? theoryEnv ["Generic"] "Box" with
   | some (_, declaration) =>
       match declaration with

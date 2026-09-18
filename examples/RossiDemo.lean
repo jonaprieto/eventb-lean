@@ -10,9 +10,7 @@ namespace EventB.RossiDemo
 
 open EventB
 
-private
-def source
-    : String :=
+private def source : String :=
   "CONTEXT counter_ctx SETS STATUS CONSTANTS max_value " ++
   "AXIOMS @max_value_eq max_value = 100 @max_value_pos max_value > 0 END " ++
   "MACHINE counter SEES counter_ctx VARIABLES count INVARIANTS " ++
@@ -28,9 +26,7 @@ def childrenWith
     : List Elem :=
   elem.children.filter (fun child => child.tag == "org.eventb.core." ++ tag)
 
-private
-def compactMachine
-    : String :=
+private def compactMachine : String :=
   "MACHINE M VARIABLES x INVARIANTS @i x ∈ ℕ EVENTS " ++
   "EVENT INITIALISATION THEN x := 0 END END"
 
@@ -52,9 +48,7 @@ def compactMachine
   | .error message => (EventB.Error.render message).contains "formula"
   | _ => false
 
-private
-def sourceWithRefinement
-    : String :=
+private def sourceWithRefinement : String :=
   "context C\nsets\n  S = {a, b}\nconstants\n  k\n" ++
   "axioms\n  @a1\n  k ∈ S\ntheorems\n  theorem @t1 k = k\nend\n" ++
   "machine M\nvariables x\nevents\nconvergent event M\nrefines Old\n" ++

@@ -44,7 +44,11 @@ def checkChildren
   | none => pure ()
   | some child => .error s!"{String.intercalate "/" path}: unsupported child `{child.tag}`"
 
-private def parseType (path : List String) (elem : XmlElem) : Except String Ty := do
+private
+def parseType
+    (path : List String)
+    (elem : XmlElem)
+    : Except String Ty := do
   let source ← required path elem ["type", "org.eventb.core.type"]
   match Ty.parse source with
   | some type => pure type
@@ -59,12 +63,20 @@ def parseFormula
   | .ok term => pure term
   | .error error => .error s!"{String.intercalate "/" path}: invalid formula: {error}"
 
-private def parseFormulaAttr (path : List String) (elem : XmlElem) (name : String) :
-    Except String Term := do
+private
+def parseFormulaAttr
+    (path : List String)
+    (elem : XmlElem)
+    (name : String)
+    : Except String Term := do
   let source ← required path elem [name]
   parseFormula path source
 
-private def parseSymbol (path : List String) (elem : XmlElem) : Except String Symbol := do
+private
+def parseSymbol
+    (path : List String)
+    (elem : XmlElem)
+    : Except String Symbol := do
   let _ ← checkChildren path elem []
   let name ← required path elem ["identifier", "name"]
   let kind ← required path elem ["kind"]
@@ -86,8 +98,11 @@ private def parseSymbol (path : List String) (elem : XmlElem) : Except String Sy
   pure (Symbol.mk name kind type description application [] (SymbolId.unqualified name)
     (SourceRange.synthetic "Rodin theory"))
 
-private def parseConstructor (path : List String) (elem : XmlElem) :
-    Except String Constructor := do
+private
+def parseConstructor
+    (path : List String)
+    (elem : XmlElem)
+    : Except String Constructor := do
   let _ ← checkChildren path elem [tag "constructorArgument"]
   let name ← required path elem ["identifier", "name"]
   let arguments ← elem.children.mapM fun child => do
@@ -97,8 +112,11 @@ private def parseConstructor (path : List String) (elem : XmlElem) :
     parseType childPath child
   pure { name, arguments }
 
-private def parseDatatype (path : List String) (elem : XmlElem) :
-    Except String Declaration := do
+private
+def parseDatatype
+    (path : List String)
+    (elem : XmlElem)
+    : Except String Declaration := do
   let _ ← checkChildren path elem [tag "typeParameter", tag "datatypeConstructor"]
   let name ← required path elem ["identifier", "name"]
   let parameters ← elem.children.filter (·.tag == tag "typeParameter") |>.mapM fun child =>
@@ -125,8 +143,11 @@ def parseTypeParameters
   elem.children.filter (·.tag == tag "typeParameter") |>.mapM fun child =>
     required (path ++ [child.tag]) child ["identifier", "name"]
 
-private def parseDefinition (path : List String) (elem : XmlElem) :
-    Except String Declaration := do
+private
+def parseDefinition
+    (path : List String)
+    (elem : XmlElem)
+    : Except String Declaration := do
   let _ ← checkChildren path elem [tag "typeParameter", tag "parameter"]
   let name ← required path elem ["identifier", "name"]
   let typeParameters ← parseTypeParameters path elem
@@ -136,8 +157,12 @@ private def parseDefinition (path : List String) (elem : XmlElem) :
   let kind := if attr elem ["kind"] == some "axiomatic" then .axiomatic else .definitional
   pure (.definitionDecl { name, typeParameters, parameters, result, body, kind })
 
-private def parseRule (path : List String) (elem : XmlElem) (kind : DeclarationKind) :
-    Except String Declaration := do
+private
+def parseRule
+    (path : List String)
+    (elem : XmlElem)
+    (kind : DeclarationKind)
+    : Except String Declaration := do
   let _ ← checkChildren path elem [tag "typeParameter", tag "parameter", tag "premise"]
   let name ← required path elem ["identifier", "name"]
   let typeParameters ← parseTypeParameters path elem
@@ -155,8 +180,11 @@ private def parseRule (path : List String) (elem : XmlElem) (kind : DeclarationK
     | _ => some <$> parseFormulaAttr path elem "conclusion"
   pure (.ruleDecl { name, kind, typeParameters, parameters, premises, lhs, rhs, conclusion })
 
-private def parseChild (path : List String) (elem : XmlElem) : Except String (Option String ×
-    Option Symbol × Option Declaration) := do
+private
+def parseChild
+    (path : List String)
+    (elem : XmlElem)
+    : Except String (Option String × Option Symbol × Option Declaration) := do
   if elem.tag == tag "import" then
     let name ← required path elem ["identifier", "name"]
     pure (some name, none, none)
@@ -174,7 +202,10 @@ private def parseChild (path : List String) (elem : XmlElem) : Except String (Op
     pure (none, none, some (← parseRule path elem .theorem))
   else .error s!"{String.intercalate "/" path}: unsupported theory child `{elem.tag}`"
 
-private def parseRoot (root : XmlElem) : Except String Spec := do
+private
+def parseRoot
+    (root : XmlElem)
+    : Except String Spec := do
   unless root.tag == tag "theoryFile" || root.tag == tag "theoryRoot" do
     throw s!"root is not a Rodin theory file: `{root.tag}`"
   let name ← required [root.tag] root ["identifier", "name"]
@@ -325,7 +356,10 @@ def declarationElems
           rule.premises.map fun premise =>
           XmlElem.mk (tag "premise") [("formula", Formula.print premise)] [])]
 
-def exportSpec (env : Env) (spec : Spec) : Except EventB.Error String := do
+def exportSpec
+    (env : Env)
+    (spec : Spec)
+    : Except EventB.Error String := do
   let report := Validate.validateSpec env spec
   if report.isValid then
     let root : XmlElem :=

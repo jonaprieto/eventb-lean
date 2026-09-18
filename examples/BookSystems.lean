@@ -496,8 +496,7 @@ eventb_machine Train1 where
     guard grd1 : "r ∈ rdy"
     action act1 : "occ, lbt, rdy ≔ occ ∪ {fst(r)}, lbt ∪ {fst(r)}, rdy ∖ {r}"
 
-def systemsProject
-    : Typing.Project :=
+def systemsProject : Typing.Project :=
   [ { name := "PressCtx", elem := PressCtx }
   , { name := "Press0", elem := Press0 }
   , { name := "Press1", elem := Press1 }

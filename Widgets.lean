@@ -180,9 +180,7 @@ def obligationCard
     obligationBody obligation entry
   ]
 
-private
-def kinds
-    : List String :=
+private def kinds : List String :=
   ["INV", "WD", "GRD", "SIM", "THM", "WFIS", "WWD", "FIS", "EQL", "MRG",
    "VWD", "FIN", "NAT", "VAR"]
 

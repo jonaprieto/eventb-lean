@@ -59,7 +59,10 @@ def lambda
     : MetaM Expr :=
   mkLambdaFVars locals.toArray body
 
-private def reflexiveProof (goal : Expr) : MetaM (Option Expr) := do
+private
+def reflexiveProof
+    (goal : Expr)
+    : MetaM (Option Expr) := do
   let goal ← whnf goal
   match goal with
   | .app (.app (.app (.const ``Eq _) _) left) right =>
@@ -72,7 +75,10 @@ theorem zeroLtIntOfNatSucc
     : Int.ofNat 0 < Int.ofNat (Nat.succ n) := by
   exact Int.ofNat_lt.mpr (Nat.zero_lt_succ n)
 
-private def zeroLtNumeralProof (goal : Expr) : MetaM (Option Expr) := do
+private
+def zeroLtNumeralProof
+    (goal : Expr)
+    : MetaM (Option Expr) := do
   let (function, arguments) := goal.getAppFnArgs
   if function == ``Int.lt && arguments.size == 2 then
     let left := arguments[0]!
@@ -91,8 +97,11 @@ private def zeroLtNumeralProof (goal : Expr) : MetaM (Option Expr) := do
   else
     pure none
 
-private def basicProof (pairs : List (Expr × Expr)) (goal : Expr) :
-    MetaM (Option (Rule × Expr)) := do
+private
+def basicProof
+    (pairs : List (Expr × Expr))
+    (goal : Expr)
+    : MetaM (Option (Rule × Expr)) := do
   for pair in pairs do
     if ← isDefEq pair.1 goal then
       return some (.exactHypothesis, pair.2)
@@ -108,26 +117,38 @@ private def basicProof (pairs : List (Expr × Expr)) (goal : Expr) :
       return some (.contradiction, proof)
   pure none
 
-private def andParts (goal : Expr) : MetaM (Option (Expr × Expr)) := do
+private
+def andParts
+    (goal : Expr)
+    : MetaM (Option (Expr × Expr)) := do
   let goal ← whnf goal
   match goal with
   | .app (.app (.const ``And _) left) right => pure (some (left, right))
   | _ => pure none
 
-private def orParts (goal : Expr) : MetaM (Option (Expr × Expr)) := do
+private
+def orParts
+    (goal : Expr)
+    : MetaM (Option (Expr × Expr)) := do
   let goal ← whnf goal
   match goal with
   | .app (.app (.const ``Or _) left) right => pure (some (left, right))
   | _ => pure none
 
-private def implicationParts (goal : Expr) : MetaM (Option (Expr × Expr)) := do
+private
+def implicationParts
+    (goal : Expr)
+    : MetaM (Option (Expr × Expr)) := do
   let goal ← whnf goal
   match goal with
   | .forallE _ premise body _ => pure (some (premise, body))
   | _ => pure none
 
-private def projection (pairs : List (Expr × Expr)) (goal : Expr) :
-    MetaM (Option Expr) := do
+private
+def projection
+    (pairs : List (Expr × Expr))
+    (goal : Expr)
+    : MetaM (Option Expr) := do
   for pair in pairs do
     let hypothesis ← whnf pair.1
     match hypothesis with
@@ -182,7 +203,10 @@ def ruleProof
       else
         pure none
 
-def prove (context : KernelContext) (obligation : Obligation) : MetaM Result := do
+def prove
+    (context : KernelContext)
+    (obligation : Obligation)
+    : MetaM Result := do
   let goal ← match obligation.goal with
     | some value => Embedding.translatePredicate context value
     | none => throwError s!"obligation `{obligation.name}` has no translated goal"
@@ -194,7 +218,10 @@ def prove (context : KernelContext) (obligation : Obligation) : MetaM Result := 
         pure { rule := some rule, proof := some proof }
     | none => pure {}
 
-def validate (context : KernelContext) (obligation : Obligation) : MetaM Result := do
+def validate
+    (context : KernelContext)
+    (obligation : Obligation)
+    : MetaM Result := do
   let result ← prove context obligation
   match result.proof with
   | none => pure result

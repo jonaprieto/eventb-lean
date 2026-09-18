@@ -1048,9 +1048,14 @@ def wdGoal
   | .ok t => wdTerm theory roots totalKeywords env t
   | .error _ => none
 
-private def assignmentWdGoal (strict : Bool) (theory : Theory.Env)
+private
+def assignmentWdGoal
+    (strict : Bool)
+    (theory : Theory.Env)
     (roots totalKeywords : List String)
-    (types : List (String × Ty)) (action : Elem) : Option Term := do
+    (types : List (String × Ty))
+    (action : Elem)
+    : Option Term := do
   let source ← attrOf action "assignment"
   let parsed ← Formula.parse source |>.toOption
   match parsed with
@@ -1080,18 +1085,29 @@ private def assignmentWdGoal (strict : Bool) (theory : Theory.Env)
       let rhs ← assignmentRhsMode strict source
       wdGoal theory roots totalKeywords types rhs
 
-private def variantType (theory : Theory.Env) (roots : List String)
-    (types : List (String × Ty)) (variant : Elem) : Option Ty := do
+private
+def variantType
+    (theory : Theory.Env)
+    (roots : List String)
+    (types : List (String × Ty))
+    (variant : Elem)
+    : Option Ty := do
   let source ← attrOf variant "expression"
   let term ← Formula.parse source |>.toOption
   (inferTermAt theory roots types term).toOption
 
-private def variantTerm (variant : Elem) : Option Term := do
+private
+def variantTerm
+    (variant : Elem)
+    : Option Term := do
   let source ← attrOf variant "expression"
   Formula.parse source |>.toOption
 
-private def witnessFeasibility (types visibleParams : List (String × Ty))
-    (witness : Elem) : Option Term := do
+private
+def witnessFeasibility
+    (types visibleParams : List (String × Ty))
+    (witness : Elem)
+    : Option Term := do
   let predicate ← Formula.parse ((attrOf witness "predicate").getD "") |>.toOption
   let witnessVar ← witnessVariable witness
   let (_, type) ← (visibleParams.find? (fun pair => pair.1 == witnessVar) <|>
@@ -1540,9 +1556,11 @@ def exactEqlGoal
 /-- Locate the exact EQL record and the exact source event/action slice that caused
     it. `none` means this event/variable pair does not satisfy Rodin's EQL condition;
     malformed or unchecked projects return an error. -/
-def locateEql? (theory : Theory.Env) (p : Project)
-    (component event eqlVariable : String) :
-    Except EventB.Error (Option (EqlOrigin × Obligation)) := do
+def locateEql?
+    (theory : Theory.Env)
+    (p : Project)
+    (component event eqlVariable : String)
+    : Except EventB.Error (Option (EqlOrigin × Obligation)) := do
   let generated ← generateCheckedIn theory p component
   let concrete ← match lookupComponent p component with
     | some value => pure value
@@ -1654,9 +1672,11 @@ def checkedWitnessOrigin
     kind is explicit because the same witness can generate both WFIS and WWD, while
     the source identity is shared. Ambiguous source labels and duplicate generated
     names fail closed. -/
-def locateWitness? (theory : Theory.Env) (p : Project)
-    (component event witnessLabel kind : String) :
-    Except EventB.Error (Option (WitnessOrigin × Obligation)) := do
+def locateWitness?
+    (theory : Theory.Env)
+    (p : Project)
+    (component event witnessLabel kind : String)
+    : Except EventB.Error (Option (WitnessOrigin × Obligation)) := do
   if kind != "WFIS" && kind != "WWD" then
     throw (EventB.Error.typing s!"unsupported witness obligation kind {kind}")
   let generated ← generateCheckedIn theory p component
@@ -1720,9 +1740,11 @@ structure SimOrigin where
     The selected abstract action is unique by label in the effective action slice;
     this rejects a name-only match when malformed input would produce duplicate PO
     names. -/
-def locateSim? (theory : Theory.Env) (p : Project)
-    (component event abstractActionLabel : String) :
-    Except EventB.Error (Option (SimOrigin × Obligation)) := do
+def locateSim?
+    (theory : Theory.Env)
+    (p : Project)
+    (component event abstractActionLabel : String)
+    : Except EventB.Error (Option (SimOrigin × Obligation)) := do
   let generated ← generateCheckedIn theory p component
   let concrete ← match lookupComponent p component with
     | some value => pure value
@@ -1880,16 +1902,12 @@ def generateChecked
     : Except EventB.Error (List Obligation) :=
   generateCheckedIn Theory.empty p name
 
-private
-def checkedMissingProject
-    : Project :=
+private def checkedMissingProject : Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.seesContext [("org.eventb.core.target", "Missing")] []] }]
 
-private
-def defaultInitializationProject
-    : Project :=
+private def defaultInitializationProject : Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -1898,9 +1916,7 @@ def defaultInitializationProject
         , .event [("org.eventb.core.label", "INITIALISATION")]
           []] }]
 
-private
-def rightWitnessProject
-    : Project :=
+private def rightWitnessProject : Project :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -1928,9 +1944,7 @@ def rightWitnessProject
              , .action [("org.eventb.core.label", "set"),
                         ("org.eventb.core.assignment", "x ≔ q + 1")] []]] }]
 
-private
-def hiddenParameterChild
-    : Component :=
+private def hiddenParameterChild : Component :=
   { name := "C"
     elem := .machineFile [("org.eventb.core.name", "C")]
       [.refinesMachine [("org.eventb.core.target", "B")] []
@@ -1942,9 +1956,7 @@ def hiddenParameterChild
           , .guard [("org.eventb.core.label", "hidden"),
                     ("org.eventb.core.predicate", "p = 0")] []]] }
 
-private
-def dataRefinementProject
-    : Project :=
+private def dataRefinementProject : Project :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.variable [("org.eventb.core.identifier", "a")] []
@@ -1972,9 +1984,7 @@ def dataRefinementProject
              , .action [("org.eventb.core.label", "set"),
                         ("org.eventb.core.assignment", "b ≔ b + 1")] []]] }]
 
-private
-def mergeProject
-    : Project :=
+private def mergeProject : Project :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -2004,9 +2014,7 @@ def mergeProject
              , .action [("org.eventb.core.label", "set"),
                         ("org.eventb.core.assignment", "x ≔ x")] []]] }]
 
-private
-def nonEqualityWitnessProject
-    : Project :=
+private def nonEqualityWitnessProject : Project :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -2034,9 +2042,7 @@ def nonEqualityWitnessProject
              , .action [("org.eventb.core.label", "set"),
                         ("org.eventb.core.assignment", "x ≔ q")] []]] }]
 
-private
-def extendedParameterProject
-    : Project :=
+private def extendedParameterProject : Project :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -2059,9 +2065,7 @@ def extendedParameterProject
              , .action [("org.eventb.core.label", "set_y"),
                         ("org.eventb.core.assignment", "y ≔ p")] []]] }]
 
-private
-def initializationRefinementProject
-    : Project :=
+private def initializationRefinementProject : Project :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -2076,9 +2080,7 @@ def initializationRefinementProject
           , .variable [("org.eventb.core.identifier", "x")] []
           , .event [("org.eventb.core.label", "INITIALISATION")] []] }]
 
-private
-def functionUpdateWdProject
-    : Project :=
+private def functionUpdateWdProject : Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "f")] []

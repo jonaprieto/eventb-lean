@@ -63,10 +63,7 @@ def provenanceFingerprintOf
     (models.map modelProvenanceText) ++
     "\n---bpo---\n" ++ bpo ++ "\n---statuses---\n" ++ statuses)}"
 
-def provenanceFingerprint
-    (model : ModelArtifact)
-    (bpo statuses : String)
-    : String :=
+def provenanceFingerprint (model : ModelArtifact) (bpo statuses : String) : String :=
   provenanceFingerprintOf [model] bpo statuses
 
 inductive Evidence where
@@ -79,9 +76,7 @@ inductive Evidence where
       (digest : String) (manual : Bool)
   deriving BEq, Repr, Inhabited
 
-def Evidence.mode
-    : Evidence →
-      Mode
+def Evidence.mode : Evidence → Mode
   | .none => .unproved
   | .kernel _ axioms => if axioms.isEmpty then .kernel else .kernelAxiomatized
   | .smt _ _ _ _ => .smt
@@ -89,9 +84,7 @@ def Evidence.mode
   | .rodinImported _ _ _ => .rodinImported
   | .rodinImportedProvenance _ _ _ _ _ => .rodinImported
 
-def Evidence.isWellFormed
-    : Evidence →
-      Bool
+def Evidence.isWellFormed : Evidence → Bool
   | .none => false
   | .kernel declaration _ => !declaration.isEmpty
   | .smt solver version digest verifier =>
@@ -106,9 +99,7 @@ def Evidence.isWellFormed
         models.all (fun model => !model.component.isEmpty && !model.bytes.isEmpty) &&
         digest == provenanceFingerprintOf models bpo statuses
 
-def fingerprint
-    (canonical : String)
-    : String :=
+def fingerprint (canonical : String) : String :=
   s!"eventb-v1-{String.hash canonical}"
 
 structure Entry where
@@ -123,9 +114,7 @@ structure Entry where
   evidence : Evidence := .none
   deriving BEq, Repr, Inhabited
 
-def Entry.isConsistent
-    (entry : Entry)
-    : Bool :=
+def Entry.isConsistent (entry : Entry) : Bool :=
     !entry.component.isEmpty && !entry.obligation.isEmpty &&
     !entry.canonical.isEmpty && entry.fingerprint == Trust.fingerprint entry.canonical &&
     ((entry.mode != .kernel && entry.mode != .kernelAxiomatized) ||
@@ -137,30 +126,19 @@ structure Ledger where
   entries : List Entry := []
   deriving BEq, Repr, Inhabited
 
-def Ledger.ofObligations
-    (obligations : List POG.Obligation)
-    : Ledger :=
+def Ledger.ofObligations (obligations : List POG.Obligation) : Ledger :=
   { entries := obligations.map fun obligation =>
       { component := obligation.component, obligation := obligation.name
         fingerprint := fingerprint obligation.canonical, canonical := obligation.canonical,
         mode := .unproved } }
 
-private
-def sameEntry
-    (entry : Entry)
-    (component name : String)
-    : Bool :=
+private def sameEntry (entry : Entry) (component name : String) : Bool :=
   entry.component == component && entry.obligation == name
 
-def Ledger.entry?
-    (ledger : Ledger)
-    (component name : String)
-    : Option Entry :=
+def Ledger.entry? (ledger : Ledger) (component name : String) : Option Entry :=
   ledger.entries.find? (sameEntry · component name)
 
-def Ledger.validate
-    (ledger : Ledger)
-    : Except EventB.Error Unit :=
+def Ledger.validate (ledger : Ledger) : Except EventB.Error Unit :=
   let rec go (seen : List String) : List Entry → Except EventB.Error Unit
     | [] => .ok ()
     | entry :: rest =>
@@ -175,19 +153,13 @@ def Ledger.validate
         else go (key :: seen) rest
   go [] ledger.entries
 
-def Ledger.displayEntry?
-    (ledger : Ledger)
-    (component name : String)
-    : Option Entry :=
+def Ledger.displayEntry? (ledger : Ledger) (component name : String) : Option Entry :=
   match ledger.validate with
   | .ok _ => ledger.entry? component name
   | .error _ => none
 
-def Ledger.attach
-    (ledger : Ledger)
-    (obligation : POG.Obligation)
-    (evidence : Evidence)
-    : Except EventB.Error Ledger :=
+def Ledger.attach (ledger : Ledger) (obligation : POG.Obligation) (evidence : Evidence) :
+    Except EventB.Error Ledger :=
   let expected := fingerprint obligation.canonical
   if let .error error := ledger.validate then
     .error error
@@ -233,22 +205,15 @@ def Ledger.attach
           { current with mode := evidence.mode, evidence := evidence }
         else current }
 
-def Ledger.count
-    (ledger : Ledger)
-    (mode : Mode)
-    : Nat :=
+def Ledger.count (ledger : Ledger) (mode : Mode) : Nat :=
   match ledger.validate with
   | .ok _ => ledger.entries.countP (·.mode == mode)
   | .error _ => 0
 
-def Ledger.total
-    (ledger : Ledger)
-    : Nat :=
+def Ledger.total (ledger : Ledger) : Nat :=
   ledger.entries.length
 
-def Ledger.summary
-    (ledger : Ledger)
-    : String :=
+def Ledger.summary (ledger : Ledger) : String :=
   match ledger.validate with
   | .error error => "invalid-ledger: " ++ error.message
   | .ok _ =>
@@ -277,52 +242,36 @@ def Ledger.summary
 #guard !Evidence.isWellFormed
   (.rodinImportedProvenance [] "bpo" "status" "forged" false)
 
-private
-def sampleObligation
-    : POG.Obligation :=
+private def sampleObligation : POG.Obligation :=
   { component := "Sample", name := "INITIALISATION/inv1/INV", kind := "INV"
     goal := some (.id "⊤") }
 
 private def sampleLedger : Ledger := Ledger.ofObligations [sampleObligation]
 
-private
-def inconsistentLedger
-    : Ledger :=
+private def inconsistentLedger : Ledger :=
   { entries := [{ sampleLedger.entries.head! with evidence := .kernel "forged" }] }
 
-private
-def inconsistentAxiomatizedEntry
-    : Entry :=
+private def inconsistentAxiomatizedEntry : Entry :=
   { sampleLedger.entries.head! with
       mode := .kernelAxiomatized
       evidence := .kernel "forged" ["propext"] }
 
-private
-def unrelatedObligation
-    : POG.Obligation :=
+private def unrelatedObligation : POG.Obligation :=
   { sampleObligation with name := "INITIALISATION/inv2/INV" }
 
-private
-def unrelatedInconsistentLedger
-    : Ledger :=
+private def unrelatedInconsistentLedger : Ledger :=
   { entries := [inconsistentLedger.entries.head!,
       (Ledger.ofObligations [unrelatedObligation]).entries.head!] }
 
-private
-def forgedKernelLedger
-    : Ledger :=
+private def forgedKernelLedger : Ledger :=
   { entries := [{ sampleLedger.entries.head! with
       mode := .kernel, evidence := .kernel "forged" }] }
 
-private
-def legacyRodinLedger
-    : Ledger :=
+private def legacyRodinLedger : Ledger :=
   { entries := [{ sampleLedger.entries.head! with
       mode := .rodinImported, evidence := .rodinImported "status.bps" "digest" false }] }
 
-private
-def renamedSample
-    : POG.Obligation :=
+private def renamedSample : POG.Obligation :=
   { sampleObligation with name := "display-only", kind := "INV" }
 
 #guard match inconsistentLedger.validate with | .error _ => true | .ok _ => false

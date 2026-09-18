@@ -43,7 +43,9 @@ def artifactError
   | some path => (EventB.Error.model message).withPath path
   | none => EventB.Error.model message
 
-def parseModelArtifact (artifact : ModelArtifact) : Except EventB.Error Component := do
+def parseModelArtifact
+    (artifact : ModelArtifact)
+    : Except EventB.Error Component := do
   unless !artifact.component.isEmpty do
     throw (artifactError artifact "model artifact has no component identity")
   let model ← match parseModel artifact.bytes with
@@ -63,7 +65,9 @@ def parseModelArtifact (artifact : ModelArtifact) : Except EventB.Error Componen
   | none => pure ()
   pure { name := artifact.component, elem := model.root, theories := artifact.theories }
 
-def projectFromArtifacts (artifacts : List ModelArtifact) : Except EventB.Error Project := do
+def projectFromArtifacts
+    (artifacts : List ModelArtifact)
+    : Except EventB.Error Project := do
   let components ← artifacts.mapM parseModelArtifact
   let names := components.map (·.name)
   unless names.eraseDups.length == names.length do

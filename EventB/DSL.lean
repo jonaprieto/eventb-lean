@@ -141,12 +141,19 @@ def symbolName
     : Name :=
   Name.mkSimple ("EventB.DSL.symbol." ++ owner ++ "." ++ symbol)
 
-private def addSymbolRange (owner : String) (id : Syntax) : CommandElabM Unit := do
+private
+def addSymbolRange
+    (owner : String)
+    (id : Syntax)
+    : CommandElabM Unit := do
   let some range ← getDeclarationRange? id | return
   Lean.addDeclarationRanges (symbolName owner id.getId.toString)
     { range := range, selectionRange := range }
 
-private def sourceRangeOf (stx : Syntax) : CommandElabM EventB.SourceRange := do
+private
+def sourceRangeOf
+    (stx : Syntax)
+    : CommandElabM EventB.SourceRange := do
   let file ← getFileName
   match ← getDeclarationRange? stx with
   | some range =>
@@ -171,8 +178,11 @@ private def currentModule : CommandElabM Name := do
   catch _ =>
     getMainModule
 
-private def symbolLocation? (owners : List String) (symbol : String) :
-    CommandElabM (Option DeclarationLocation) := do
+private
+def symbolLocation?
+    (owners : List String)
+    (symbol : String)
+    : CommandElabM (Option DeclarationLocation) := do
   let module ← currentModule
   let symbol := baseSymbol symbol
   for owner in owners do
@@ -212,15 +222,23 @@ def freeFormulaIdentifiers
       let bound' := Formula.patternNames pattern ++ bound
       freeFormulaIdentifiers bound' pattern ++ freeFormulaIdentifiers bound' body
 
-private def checkScope (theoryRoots owners : List String) (stx : Syntax) (term : Formula.Term) :
-    CommandElabM Unit := do
+private
+def checkScope
+    (theoryRoots owners : List String)
+    (stx : Syntax)
+    (term : Formula.Term)
+    : CommandElabM Unit := do
   let theory := theoryEnvironment (← getEnv)
   for name in (freeFormulaIdentifiers [] term).eraseDups do
     if !Theory.isIdentifierIn theory theoryRoots name && (← symbolLocation? owners name).isNone then
       throwErrorAt stx s!"unknown Event-B identifier `{name}`"
 
-private def addDefinitionInfo (id : Syntax) (symbol : String) (location : DeclarationLocation) :
-    CommandElabM Unit := do
+private
+def addDefinitionInfo
+    (id : Syntax)
+    (symbol : String)
+    (location : DeclarationLocation)
+    : CommandElabM Unit := do
   pushInfoLeaf <| .ofDelabTermInfo {
     elaborator := `EventB.DSL
     stx := id
@@ -232,27 +250,42 @@ private def addDefinitionInfo (id : Syntax) (symbol : String) (location : Declar
     mkDocString? := some fun _ => pure s!"Event-B symbol `{symbol}`"
   }
 
-private def nativeSymbolLocation? (id : Ident) : CommandElabM (Option DeclarationLocation) := do
+private
+def nativeSymbolLocation?
+    (id : Ident)
+    : CommandElabM (Option DeclarationLocation) := do
   let module ← currentModule
   match ← Lean.findDeclarationRanges? id.getId with
   | some ranges => pure <| some { module, range := ranges.selectionRange }
   | none => pure none
 
-private def addReferenceInfo (owners : List String) (id : Ident) : CommandElabM Unit := do
+private
+def addReferenceInfo
+    (owners : List String)
+    (id : Ident)
+    : CommandElabM Unit := do
   let location ← match ← nativeSymbolLocation? id with
     | some location => pure <| some location
     | none => symbolLocation? owners id.getId.toString
   if let some location := location then
     addDefinitionInfo id.raw id.getId.toString location
 
-private def addFormulaInfos (owners : List String) (stx : Syntax) : CommandElabM Unit := do
+private
+def addFormulaInfos
+    (owners : List String)
+    (stx : Syntax)
+    : CommandElabM Unit := do
   for id in formulaIdentifiers stx do
     if let some location ← symbolLocation? owners id.getId.toString then
       addDefinitionInfo id id.getId.toString location
 
 /-- Reject anything that is not an Event-B formula, at elaboration time. -/
-private def checkFormula (theoryRoots owners : List String) (stx : Syntax) (s : String) :
-    CommandElabM Unit := do
+private
+def checkFormula
+    (theoryRoots owners : List String)
+    (stx : Syntax)
+    (s : String)
+    : CommandElabM Unit := do
   match Formula.parse s with
   | .ok term => checkScope theoryRoots owners stx term
   | .error e => throwErrorAt stx s!"not an Event-B formula: {e}"
@@ -294,12 +327,19 @@ def rootsName
     : Ident :=
   mkIdent (Name.mkSimple (name.getId.toString ++ "_theories"))
 
-private def defineRoots (name : Ident) (roots : List String) : CommandElabM Unit := do
+private
+def defineRoots
+    (name : Ident)
+    (roots : List String)
+    : CommandElabM Unit := do
   let rootTerms := listOf (roots.toArray.map quote)
   elabCommand (← `(def $(rootsName name) : List String := $rootTerms))
 
-private def eventParts (theoryRoots owners : List String) (parts : Array (TSyntax `ebEventPart)) :
-    CommandElabM (Array (TSyntax `term) × Option String) := do
+private
+def eventParts
+    (theoryRoots owners : List String)
+    (parts : Array (TSyntax `ebEventPart))
+    : CommandElabM (Array (TSyntax `term) × Option String) := do
   let mut out := #[]
   let mut conv : Option String := none
   for p in parts do
@@ -332,8 +372,12 @@ private def eventParts (theoryRoots owners : List String) (parts : Array (TSynta
     | stx => throwErrorAt stx "unexpected event clause"
   return (out, conv)
 
-private def eventOf (owner : String) (theoryRoots owners : List String) (stx : TSyntax `ebEvent) :
-    CommandElabM (TSyntax `term) := do
+private
+def eventOf
+    (owner : String)
+    (theoryRoots owners : List String)
+    (stx : TSyntax `ebEvent)
+    : CommandElabM (TSyntax `term) := do
   match stx with
   | `(ebEvent| event $n:ident where $ps:ebEventPart*) => do
       addSymbolRange owner n.raw
@@ -348,8 +392,12 @@ private def eventOf (owner : String) (theoryRoots owners : List String) (stx : T
       return mkElem "event" attrs (listOf kids)
   | other => throwErrorAt other "expected an event"
 
-private def addEventInfos (owner : String) (owners : List String)
-    (stx : TSyntax `ebEvent) : CommandElabM Unit := do
+private
+def addEventInfos
+    (owner : String)
+    (owners : List String)
+    (stx : TSyntax `ebEvent)
+    : CommandElabM Unit := do
   match stx with
   | `(ebEvent| event $n:ident where $ps:ebEventPart*) =>
       let eventOwner := owner ++ "." ++ n.getId.toString
@@ -367,8 +415,12 @@ private def addEventInfos (owner : String) (owners : List String)
         | _ => pure ()
   | other => throwErrorAt other "expected an event"
 
-private def addMachineInfos (owner : String) (owners : List String)
-    (parts : Array (TSyntax `ebMachinePart)) : CommandElabM Unit := do
+private
+def addMachineInfos
+    (owner : String)
+    (owners : List String)
+    (parts : Array (TSyntax `ebMachinePart))
+    : CommandElabM Unit := do
     for p in parts do
     match p with
     | `(ebMachinePart| invariant $l:ebLabelled) =>
@@ -384,8 +436,11 @@ private def addMachineInfos (owner : String) (owners : List String)
     | `(ebMachinePart| $e:ebEvent) => addEventInfos owner owners e
     | _ => pure ()
 
-private def addContextInfos (owners : List String)
-    (parts : Array (TSyntax `ebContextPart)) : CommandElabM Unit := do
+private
+def addContextInfos
+    (owners : List String)
+    (parts : Array (TSyntax `ebContextPart))
+    : CommandElabM Unit := do
   for p in parts do
     match p with
     | `(ebContextPart| axiom $l:ebLabelled) =>
@@ -428,7 +483,11 @@ def theoryTy
     : EventB.Typing.Ty :=
   (EventB.Typing.Ty.parse stx.getId.toString).getD (.given stx.getId.toString)
 
-private def theoryFormula (stx : Syntax) (source : String) : CommandElabM Formula.Term := do
+private
+def theoryFormula
+    (stx : Syntax)
+    (source : String)
+    : CommandElabM Formula.Term := do
   match Formula.parse source with
   | .ok term => pure term
   | .error error => throwErrorAt stx s!"not an Event-B theory formula: {error}"
@@ -582,10 +641,18 @@ def theorySymbol
   { name, kind, type, description := s!"Native Event-B theory symbol `{name}`.", application,
     id := SymbolId.unqualified name, source := EventB.SourceRange.synthetic }
 
-private def symbolAt (stx : Syntax) (symbol : Symbol) : CommandElabM Symbol := do
+private
+def symbolAt
+    (stx : Syntax)
+    (symbol : Symbol)
+    : CommandElabM Symbol := do
   return { symbol with source := ← sourceRangeOf stx }
 
-private def defineTheory (name : Ident) (body : TSyntax `term) : CommandElabM Unit := do
+private
+def defineTheory
+    (name : Ident)
+    (body : TSyntax `term)
+    : CommandElabM Unit := do
   elabCommand (← `(def $name : EventB.Theory.Spec := $body))
 
 @[command_elab eventbTheory]
@@ -740,7 +807,11 @@ private def elabTheory : CommandElab := fun stx => do
 
 /-- Emit `def <name> : EventB.Elem := <tree>`, so the model is an ordinary Lean value
 that the generator and the typechecker consume unchanged. -/
-private def define (name : Ident) (body : TSyntax `term) : CommandElabM Unit := do
+private
+def define
+    (name : Ident)
+    (body : TSyntax `term)
+    : CommandElabM Unit := do
   elabCommand (← `(def $name : EventB.Elem := $body))
 
 @[command_elab eventbMachine]

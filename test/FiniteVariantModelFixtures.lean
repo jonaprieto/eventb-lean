@@ -4,9 +4,7 @@ import EventB.POG.RefinementAdapters
 
 namespace EventB.POG
 
-private
-def modelFiniteProject
-    : EventB.Typing.Project :=
+private def modelFiniteProject : EventB.Typing.Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [ .variable [("org.eventb.core.identifier", "S")] []
@@ -25,17 +23,13 @@ def parsed?
     : Option EventB.Formula.Term :=
   (EventB.Formula.parse source).toOption
 
-private
-def modelFinObligation
-    : Obligation :=
+private def modelFinObligation : Obligation :=
   { component := "M", name := "FIN", kind := "FIN"
     goal := parsed? "finite(S)"
     hyps := [(parsed? "S ∈ ℙ(ℤ)").get (by native_decide),
       (parsed? "finite(S)").get (by native_decide)] }
 
-private
-def modelVarObligation
-    : Obligation :=
+private def modelVarObligation : Obligation :=
   { component := "M", name := "hold/VAR", kind := "VAR"
     goal := parsed? "S ⊆ S"
     hyps := [(parsed? "S ∈ ℙ(ℤ)").get (by native_decide),
@@ -47,56 +41,41 @@ def modelVarObligation
   modelVarObligation).isSome
 #guard EventB.POG.eventRefinementTargets modelFiniteProject "M" "hold" == []
 
-private
-def modelFinPO
-    : CheckedPO EventB.Theory.empty modelFiniteProject :=
+private def modelFinPO : CheckedPO EventB.Theory.empty modelFiniteProject :=
   (CheckedPO.fromGeneratedExact? EventB.Theory.empty modelFiniteProject modelFinObligation).get
     (by native_decide)
 
-private
-def modelVarPO
-    : CheckedPO EventB.Theory.empty modelFiniteProject :=
+private def modelVarPO : CheckedPO EventB.Theory.empty modelFiniteProject :=
   (CheckedPO.fromGeneratedExact? EventB.Theory.empty modelFiniteProject modelVarObligation).get
     (by native_decide)
 
-private
-def modelEventSource
-    : CheckedEventSource EventB.Theory.empty modelFiniteProject "M" "hold" :=
+private def modelEventSource : CheckedEventSource EventB.Theory.empty
+    modelFiniteProject "M" "hold" :=
   (CheckedEventSource.fromProject EventB.Theory.empty modelFiniteProject "M" "hold").get
     (by native_decide)
 
-private
-def modelVariantSource
-    : CheckedVariantSource modelFiniteProject "M" :=
+private def modelVariantSource : CheckedVariantSource modelFiniteProject "M" :=
   (CheckedVariantSource.fromProject modelFiniteProject "M").get (by native_decide)
 
-private
-def modelEventSourceBound
-    : CheckedEventSource EventB.Theory.empty modelFiniteProject modelFinPO.obligation.component "hold" := by
+private def modelEventSourceBound : CheckedEventSource EventB.Theory.empty
+    modelFiniteProject modelFinPO.obligation.component "hold" := by
   have component : modelFinPO.obligation.component = "M" := by native_decide
   rw [component]
   exact modelEventSource
 
-private
-def modelVariantSourceBound
-    : CheckedVariantSource modelFiniteProject modelFinPO.obligation.component := by
+private def modelVariantSourceBound : CheckedVariantSource modelFiniteProject
+    modelFinPO.obligation.component := by
   have component : modelFinPO.obligation.component = "M" := by native_decide
   rw [component]
   exact modelVariantSource
 
-private
-def modelDeclarations
-    : List (String × EventB.Typing.Ty) :=
+private def modelDeclarations : List (String × EventB.Typing.Ty) :=
   [("S", .pow .int)]
 
-private
-def modelTypeGoal
-    : EventB.Formula.Term :=
+private def modelTypeGoal : EventB.Formula.Term :=
   .bin "∈" (.id "S") (.pre "ℙ" (.id "ℤ"))
 
-private
-def modelFiniteGoal
-    : EventB.Formula.Term :=
+private def modelFiniteGoal : EventB.Formula.Term :=
   .app (.id "finite") (.id "S")
 
 private
@@ -105,9 +84,7 @@ def modelShape
     : Prop :=
   ∃ values, evalValueAtFuel 127 env (.id "S") = .ok (.set values)
 
-private
-def modelFinObligationExact
-    : Obligation :=
+private def modelFinObligationExact : Obligation :=
   { component := "M", name := "FIN", kind := "FIN"
     goal := some modelFiniteGoal
     hyps := [modelTypeGoal, modelFiniteGoal] }
@@ -133,9 +110,7 @@ theorem modelValidationFuelOfOk
   | error error => simp [result] at h
   | ok value => cases value; simpa using result
 
-private
-def modelFormulaModel
-    : TypedFormulaModel :=
+private def modelFormulaModel : TypedFormulaModel :=
   { declarations := modelDeclarations
     fuel := 128
     wellFormed := fun env => ValueEnv.validationOk 128 modelDeclarations env = true
@@ -255,13 +230,10 @@ theorem modelSubsetSelfEval
     (afterValid : ValueEnv.validationOk 128 transition.declarations transition.after = true)
     (shape : modelShape transition.before)
     (afterEq : transition.after = transition.before)
-    : evalBeforeAfter 128 transition
-        (.bin "⊆" (.id "S") (.id "S")) = .ok true := by
+    : evalBeforeAfter 128 transition (.bin "⊆" (.id "S") (.id "S")) = .ok true := by
   exact evalBeforeAfterIdentifierSubsetSelf transition beforeValid afterValid shape afterEq
 
-private
-def modelInitialState
-    : modelState :=
+private def modelInitialState : modelState :=
   ⟨{ values := [("S", .set [.integer 0]) ] }, by
     refine ⟨?_, ?_, ?_, ?_⟩
     · native_decide
@@ -270,22 +242,17 @@ def modelInitialState
     · refine ⟨[.integer 0], ?_⟩
       exact evalValueIdentifierSingletonZero⟩
 
-private
-def modelInitialVarState
-    : modelVarState :=
+private def modelInitialVarState : modelVarState :=
   ⟨(modelInitialState, modelInitialState), rfl⟩
 
-private
-def modelVarEvaluator
-    : TypedTransitionModel :=
+private def modelVarEvaluator : TypedTransitionModel :=
   { fuel := 128
     wellFormed := modelVarSource
     inhabited := ⟨modelVarEncode modelInitialVarState, modelVarSourceValid modelInitialVarState⟩
     supports := fun _ => true }
 
-private
-theorem modelVarEvaluatorValid
-    : modelVarEvaluator.validOnDomain modelVarSource modelVarObligation := by
+private theorem modelVarEvaluatorValid :
+    modelVarEvaluator.validOnDomain modelVarSource modelVarObligation := by
   have obligationExact : modelVarObligation =
       { component := "M", name := "hold/VAR", kind := "VAR"
         goal := some (.bin "⊆" (.id "S") (.id "S"))
@@ -325,9 +292,8 @@ theorem modelVarEvaluatorValid
         exact modelSubsetSelfEval transition beforeValid' afterValid'
           beforeDomain.2.2.2 afterEq
 
-private
-theorem modelFinEvaluatorValid
-    : modelFormulaModel.validOnDomain modelDomain modelFinObligation := by
+private theorem modelFinEvaluatorValid :
+    modelFormulaModel.validOnDomain modelDomain modelFinObligation := by
   have obligationExact : modelFinObligation =
       modelFinObligationExact := by native_decide
   rw [obligationExact]
@@ -359,9 +325,7 @@ theorem modelFinEvaluatorValid
       · intro _
         exact finiteValid
 
-private
-def modelFiniteVariant
-    : FiniteSetVariant modelState Int :=
+private def modelFiniteVariant : FiniteSetVariant modelState Int :=
   { mode := .anticipated
     measure := fun state =>
       match evalValueAtFuel 128 state.1 (.id "S") with
@@ -386,9 +350,8 @@ theorem modelFinitenessExact
   · intro _
     trivial
 
-private
-def modelFinFormula
-    : DomainFormulaAdequacy modelFinPO modelState (finiteVariantFiniteness modelFiniteVariant) modelDomain :=
+private def modelFinFormula : DomainFormulaAdequacy modelFinPO modelState
+    (finiteVariantFiniteness modelFiniteVariant) modelDomain :=
   { evaluator := modelFormulaModel
     encode := modelEncode
     declarationScope := none
@@ -456,9 +419,8 @@ private def modelVarFormula : TransitionFormulaAdequacy modelVarPO modelVarState
       intro value member
       simpa [modelVarBefore, modelVarAfter, action] using member }
 
-private
-def modelRestrictedAdapter
-    : RestrictedFiniteSetVariantAdapter (η := modelVarState) (γ := modelState)
+private def modelRestrictedAdapter :
+    RestrictedFiniteSetVariantAdapter (η := modelVarState) (γ := modelState)
       EventB.Theory.empty modelFiniteProject modelFiniteVariant :=
   { finBinding := modelFinPO
     varBinding := modelVarPO
@@ -514,8 +476,7 @@ theorem modelRestrictedSound
       finiteVariantProgressSemantic modelFiniteVariant :=
   RestrictedFiniteSetVariantAdapter.sound modelRestrictedAdapter
 
-example
-    : ¬ finiteVariantProgress .convergent ([0] : List Int) [0] := by
+example : ¬ finiteVariantProgress .convergent ([0] : List Int) [0] := by
   intro progress
   rcases progress.2 with ⟨value, member, absent⟩
   simp_all

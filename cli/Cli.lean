@@ -15,8 +15,11 @@ open EventB.Typing
 open Argus
 open TermColor
 
-private def diagnosticText (paths : List System.FilePath) (error : EventB.Error) :
-    IO TermColor.Text := do
+private
+def diagnosticText
+    (paths : List System.FilePath)
+    (error : EventB.Error)
+    : IO TermColor.Text := do
   let candidates := error.path.toList.map System.FilePath.mk ++ paths
   match candidates.head? with
   | none => pure (TermColor.Text.plain error.render)
@@ -33,7 +36,11 @@ private def diagnosticText (paths : List System.FilePath) (error : EventB.Error)
         (fun diagnostic context => diagnostic.withNote context) diagnostic
       pure (TermColor.Diagnostics.render #[source] diagnostic)
 
-private def printError (paths : List System.FilePath) (error : EventB.Error) : IO Unit := do
+private
+def printError
+    (paths : List System.FilePath)
+    (error : EventB.Error)
+    : IO Unit := do
   let stderr ← IO.getStderr
   let target ← TermColor.targetWithTty .auto (← stderr.isTty)
   let text ← diagnosticText paths error
@@ -69,7 +76,10 @@ def stem
     : String :=
   ((path.toString.splitOn "/").getLast!).splitOn "." |>.head!
 
-private def sourceFiles (dir : System.FilePath) : IO (List System.FilePath) := do
+private
+def sourceFiles
+    (dir : System.FilePath)
+    : IO (List System.FilePath) := do
   let mut paths : List System.FilePath := []
   for entry in ← dir.readDir do
     if !(← entry.path.isDir) && isSource entry.path then
@@ -78,7 +88,11 @@ private def sourceFiles (dir : System.FilePath) : IO (List System.FilePath) := d
 
 -- partiality: recursive directory discovery follows the filesystem, whose depth is not a kernel
 -- data bound; IO traversal is the correct operational boundary here.
-private partial def rossiFiles (dir : System.FilePath) : IO (List System.FilePath) := do
+private
+partial
+def rossiFiles
+    (dir : System.FilePath)
+    : IO (List System.FilePath) := do
   let mut paths : List System.FilePath := []
   for entry in ← dir.readDir do
     if ← entry.path.isDir then
@@ -89,7 +103,11 @@ private partial def rossiFiles (dir : System.FilePath) : IO (List System.FilePat
 
 -- partiality: recursive directory discovery follows the filesystem, whose depth is not a kernel
 -- data bound; IO traversal is the correct operational boundary here.
-private partial def theoryFiles (dir : System.FilePath) : IO (List System.FilePath) := do
+private
+partial
+def theoryFiles
+    (dir : System.FilePath)
+    : IO (List System.FilePath) := do
   let mut paths : List System.FilePath := []
   for entry in ← dir.readDir do
     if ← entry.path.isDir then
@@ -98,7 +116,10 @@ private partial def theoryFiles (dir : System.FilePath) : IO (List System.FilePa
       paths := entry.path :: paths
   return paths.mergeSort (fun left right => left.toString < right.toString)
 
-private def bpoFiles (dir : System.FilePath) : IO (List System.FilePath) := do
+private
+def bpoFiles
+    (dir : System.FilePath)
+    : IO (List System.FilePath) := do
   let mut paths : List System.FilePath := []
   for entry in ← dir.readDir do
     if !(← entry.path.isDir) && isBpo entry.path then
@@ -124,8 +145,10 @@ private structure ProjectData where
   errors : List EventB.Error
   paths : List System.FilePath
 
-private def loadTheories (paths : List System.FilePath) :
-    IO (Theory.Env × List EventB.Error) := do
+private
+def loadTheories
+    (paths : List System.FilePath)
+    : IO (Theory.Env × List EventB.Error) := do
   let mut pending := paths
   let mut env := Theory.empty
   let mut errors : List EventB.Error := []
@@ -157,7 +180,10 @@ private def loadTheories (paths : List System.FilePath) :
       pending := next.reverse.map (·.1)
   return (env, errors.reverse)
 
-private def readSource (path : System.FilePath) : IO (Except EventB.Error Source) := do
+private
+def readSource
+    (path : System.FilePath)
+    : IO (Except EventB.Error Source) := do
   try
     match ← readModel path with
     | .ok model =>
@@ -179,14 +205,20 @@ private def readSource (path : System.FilePath) : IO (Except EventB.Error Source
   catch err =>
     return .error ((EventB.Error.io s!"could not be read: {err}").withPath path.toString)
 
-private def readRossi (path : System.FilePath) : IO (Except EventB.Error (List Source)) := do
+private
+def readRossi
+    (path : System.FilePath)
+    : IO (Except EventB.Error (List Source)) := do
   match ← Rossi.read path with
   | .error reason => return .error (reason.withPath path.toString)
   | .ok components =>
       return .ok (components.map fun component =>
         { path := path, name := component.name, model := component.model })
 
-private def loadProject (path : System.FilePath) : IO ProjectData := do
+private
+def loadProject
+    (path : System.FilePath)
+    : IO ProjectData := do
   let mut sources : List Source := []
   let mut errors : List EventB.Error := []
   let isDir ← path.isDir
@@ -287,9 +319,7 @@ def fatalErrors
     : List EventB.Error :=
   data.errors ++ rs.flatMap (·.errors)
 
-private
-def kinds
-    : List String :=
+private def kinds : List String :=
   ["INV", "WD", "GRD", "SIM", "THM", "WFIS", "WWD", "FIS", "EQL", "MRG",
    "VWD", "FIN", "NAT", "VAR"]
 
@@ -309,7 +339,11 @@ private structure CheckArgs where
   kinds : Option String := none
   machine : Option String := none
 
-private def printCheckDiagnostics (data : ProjectData) (rs : List Report) : IO Unit := do
+private
+def printCheckDiagnostics
+    (data : ProjectData)
+    (rs : List Report)
+    : IO Unit := do
   for error in fatalErrors data rs do
     printError data.paths error
 
@@ -331,9 +365,7 @@ private inductive Action where
   | prove (dir : System.FilePath)
   | diff (dir : System.FilePath)
 
-private
-def pathParam
-    : Param System.FilePath :=
+private def pathParam : Param System.FilePath :=
   Param.map System.FilePath.mk Param.path
 
 private
@@ -355,9 +387,7 @@ private def summarySpec :=
   Spec.map2 Action.summary (projectArg "Project directory or .eventb file")
     (Spec.switch "json" none "Emit one JSON summary")
 
-private
-def command
-    : Command Action :=
+private def command : Command Action :=
   group "eventb" [
     cmd "check" (Spec.map Action.check checkSpec)
       (description := "Typecheck a project and list generated obligations."),
@@ -431,7 +461,11 @@ def filteredObligations
     (report.obligations.filter (selected args.machine kinds report)).map
       (fun o => (report.source.name, o))
 
-private def runCheckWithKinds (args : CheckArgs) (kinds : Option (List String)) : IO UInt32 := do
+private
+def runCheckWithKinds
+    (args : CheckArgs)
+    (kinds : Option (List String))
+    : IO UInt32 := do
   let data ← loadProject args.dir
   if data.sources.isEmpty then
     for error in data.errors do
@@ -522,7 +556,11 @@ def jsonCounts
   "{" ++ String.intercalate "," (counts.map fun (name, count) =>
     jsonString name ++ ":" ++ toString count) ++ "}"
 
-private def runSummary (dir : System.FilePath) (json : Bool) : IO UInt32 := do
+private
+def runSummary
+    (dir : System.FilePath)
+    (json : Bool)
+    : IO UInt32 := do
   let data ← loadProject dir
   if data.sources.isEmpty then
     for error in data.errors do
@@ -565,7 +603,10 @@ private def runSummary (dir : System.FilePath) (json : Bool) : IO UInt32 := do
         s!"({derivedCount report.obligations} derived)")
   return if (fatalErrors data rs).isEmpty then 0 else 1
 
-private def runTheory (path : System.FilePath) : IO UInt32 := do
+private
+def runTheory
+    (path : System.FilePath)
+    : IO UInt32 := do
   let paths ← if ← path.isDir then theoryFiles path
     else if isTheory path then pure [path]
     else pure []
@@ -583,7 +624,10 @@ private def runTheory (path : System.FilePath) : IO UInt32 := do
         String.intercalate "," spec.imports)
   return if errors.isEmpty then 0 else 1
 
-private def runProve (dir : System.FilePath) : IO UInt32 := do
+private
+def runProve
+    (dir : System.FilePath)
+    : IO UInt32 := do
   let data ← loadProject dir
   if data.sources.isEmpty then
     for error in data.errors do
@@ -615,7 +659,11 @@ def findObligation
       | some obligation => some (report.source.name, obligation)
       | none => findObligation rest name
 
-private def runPo (dir : System.FilePath) (name : String) : IO UInt32 := do
+private
+def runPo
+    (dir : System.FilePath)
+    (name : String)
+    : IO UInt32 := do
   let data ← loadProject dir
   if data.sources.isEmpty then
     for error in data.errors do
@@ -665,7 +713,10 @@ termination_by rest => sizeOf rest
 
 end
 
-private def readGoldPOs (path : System.FilePath) : IO (Except String (List String)) := do
+private
+def readGoldPOs
+    (path : System.FilePath)
+    : IO (Except String (List String)) := do
   try
     let bytes ← IO.FS.readBinFile path
     match parseXml bytes with
@@ -768,7 +819,10 @@ def reportEntry
     ",\"fingerprint\":" ++ jsonString (Trust.fingerprint obligation.canonical) ++
     ",\"goal\":" ++ jsonString goal ++ "}"
 
-private def runReport (dir : System.FilePath) : IO UInt32 := do
+private
+def runReport
+    (dir : System.FilePath)
+    : IO UInt32 := do
   let data ← loadProject dir
   if data.sources.isEmpty then
     for error in data.errors do
@@ -809,7 +863,10 @@ def findSource
     : Option Source :=
   sources.find? (fun source => source.name == name)
 
-private def runDiff (dir : System.FilePath) : IO UInt32 := do
+private
+def runDiff
+    (dir : System.FilePath)
+    : IO UInt32 := do
   let data ← loadProject dir
   if data.sources.isEmpty then
     printError [dir]
@@ -869,7 +926,9 @@ def runAction
   | .prove dir => runProve dir
   | .diff dir => runDiff dir
 
-def main (args : List String) : IO UInt32 := do
+def main
+    (args : List String)
+    : IO UInt32 := do
   try
     Argus.Term.main command args runAction
   catch error =>
