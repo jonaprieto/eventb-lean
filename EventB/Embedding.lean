@@ -33,19 +33,22 @@ def typeOf?
 def type?
     (signature : Signature)
     (type : Typing.Ty)
-    : Option Type :=
+    : Option Type
+    :=
   typeOf? signature type
 
 def symbolType?
     (signature : Signature)
     (symbol : Prelude.Symbol)
-    : Option Type :=
+    : Option Type
+    :=
   symbol.type.bind (type? signature)
 
 def embeddable
     (signature : Signature)
     (env : Theory.Env)
-    : List String :=
+    : List String
+    :=
   env.theories.flatMap fun theory =>
     theory.symbols.filterMap fun symbol =>
       if symbol.type.isSome && (symbolType? signature symbol).isNone then

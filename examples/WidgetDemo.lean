@@ -74,7 +74,8 @@ theorem initialInv1
     (_gate : Bool)
     (_ : 0 ≤ limit)
     (_ : 0 < limit)
-    : True := by
+    : True
+    := by
   trivial
 
 theorem initialInv2
@@ -83,7 +84,8 @@ theorem initialInv2
     (_ : 0 ≤ limit)
     (_ : 0 < limit)
     : false = true →
-      0 < limit := by
+      0 < limit
+    := by
   intro contradiction
   cases contradiction
 
@@ -92,7 +94,8 @@ theorem initialSim
     (_gate : Bool)
     (_ : 0 ≤ limit)
     (_ : 0 < limit)
-    : (0 : Int) = 0 := by
+    : (0 : Int) = 0
+    := by
   rfl
 
 theorem enterInv1
@@ -105,7 +108,8 @@ theorem enterInv1
     (_ : True)
     (_ : gate = true → cars < limit)
     (_ : gate = false ∧ cars + 1 < limit)
-    : True := by
+    : True
+    := by
   trivial
 
 theorem enterInv2
@@ -119,7 +123,8 @@ theorem enterInv2
     (_ : gate = true → cars < limit)
     (_ : gate = false ∧ cars + 1 < limit)
     : true = true →
-      cars + 1 < limit := by
+      cars + 1 < limit
+    := by
   intro _
   exact ‹gate = false ∧ cars + 1 < limit›.2
 
@@ -133,7 +138,8 @@ theorem enterGuard
     (_ : True)
     (_ : gate = true → cars < limit)
     (condition : gate = false ∧ cars + 1 < limit)
-    : cars < limit := by
+    : cars < limit
+    := by
   omega
 
 theorem enterSim
@@ -146,7 +152,8 @@ theorem enterSim
     (_ : True)
     (_ : gate = true → cars < limit)
     (_ : gate = false ∧ cars + 1 < limit)
-    : cars + 1 = cars + 1 := by
+    : cars + 1 = cars + 1
+    := by
   rfl
 
 theorem leaveInv1
@@ -159,7 +166,8 @@ theorem leaveInv1
     (_ : True)
     (_ : gate = true → cars < limit)
     (_ : gate = true ∧ 0 < cars)
-    : True := by
+    : True
+    := by
   trivial
 
 theorem leaveInv2
@@ -173,7 +181,8 @@ theorem leaveInv2
     (_ : gate = true → cars < limit)
     (_ : gate = true ∧ 0 < cars)
     : false = true →
-      cars - 1 < limit := by
+      cars - 1 < limit
+    := by
   intro contradiction
   cases contradiction
 
@@ -187,7 +196,8 @@ theorem leaveGuard
     (_ : True)
     (_ : gate = true → cars < limit)
     (condition : gate = true ∧ 0 < cars)
-    : 0 < cars := by
+    : 0 < cars
+    := by
   exact condition.2
 
 theorem leaveSim
@@ -200,7 +210,8 @@ theorem leaveSim
     (_ : True)
     (_ : gate = true → cars < limit)
     (_ : gate = true ∧ 0 < cars)
-    : cars - 1 = cars - 1 := by
+    : cars - 1 = cars - 1
+    := by
   rfl
 
 end WidgetProofs
@@ -221,7 +232,8 @@ private def widgetProofs : List (String × String) :=
 private
 def widgetAxioms
     (declaration : String)
-    : List String :=
+    : List String
+    :=
   if declaration == "WidgetProofs.enterGuard" then ["Quot.sound", "propext"] else []
 
 private
@@ -229,7 +241,8 @@ def attachWidgetProof
     (ledger : Trust.Ledger)
     (obligations : List POG.Obligation)
     (name declaration : String)
-    : Trust.Ledger :=
+    : Trust.Ledger
+    :=
   match obligations.find? (·.name == name) with
   | none => ledger
   | some obligation =>

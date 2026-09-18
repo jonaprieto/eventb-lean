@@ -45,7 +45,8 @@ def withHypLocals
     (hypotheses : List Expr)
     (locals : List Expr)
     (body : List Expr → MetaM α)
-    : MetaM α :=
+    : MetaM α
+    :=
   match hypotheses with
   | [] => body locals
   | hypothesis :: rest =>
@@ -56,7 +57,8 @@ private
 def lambda
     (locals : List Expr)
     (body : Expr)
-    : MetaM Expr :=
+    : MetaM Expr
+    :=
   mkLambdaFVars locals.toArray body
 
 private
@@ -72,7 +74,8 @@ def reflexiveProof
 private
 theorem zeroLtIntOfNatSucc
     (n : Nat)
-    : Int.ofNat 0 < Int.ofNat (Nat.succ n) := by
+    : Int.ofNat 0 < Int.ofNat (Nat.succ n)
+    := by
   exact Int.ofNat_lt.mpr (Nat.zero_lt_succ n)
 
 private

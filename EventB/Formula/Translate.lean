@@ -47,7 +47,8 @@ private def semanticValueHash (value : Expr) : String := toString value.hash
 
 def KernelContext.semanticFingerprint
     (context : KernelContext)
-    : String :=
+    : String
+    :=
   String.intercalate "\n"
     ["roots=" ++ String.intercalate "," context.roots
     , "carriers=" ++ String.intercalate ";" (context.signature.carriers.map
@@ -119,7 +120,8 @@ totalized outside that domain; POG emits `0 ≤ exponent` as the corresponding W
 private
 def eventBPow
     (base exponent : Int)
-    : Int :=
+    : Int
+    :=
   if 0 ≤ exponent then Int.pow base exponent.toNat else 0
 
 private def mkAnd (left right : Expr) : MetaM Expr := mkAppM ``And #[left, right]
@@ -253,7 +255,8 @@ def validatePredicate
 private
 def asSet
     (term : KernelTerm)
-    : MetaM (Ty × Expr) :=
+    : MetaM (Ty × Expr)
+    :=
   match term.ty with
   | .pow type => pure (type, term.value)
   | type => throwError s!"expected a set, found {type.print}"
@@ -354,7 +357,8 @@ def elementType?
 private
 def relationTypes
     (term : KernelTerm)
-    : MetaM (Ty × Ty) :=
+    : MetaM (Ty × Ty)
+    :=
   match term.ty with
   | .pow (.prod left right) => pure (left, right)
   | type => throwError s!"expected a relation, found {type.print}"
@@ -363,7 +367,8 @@ private
 def project
     (which : Name)
     (pair : Expr)
-    : MetaM Expr :=
+    : MetaM Expr
+    :=
   mkAppM which #[pair]
 
 private
@@ -1150,13 +1155,15 @@ end
 def translateExpression
     (context : KernelContext)
     (term : Formula.Term)
-    : MetaM KernelTerm :=
+    : MetaM KernelTerm
+    :=
   translateExpr (termFuel term + 1) context term
 
 def translatePredicate
     (context : KernelContext)
     (term : Formula.Term)
-    : MetaM Expr :=
+    : MetaM Expr
+    :=
   translatePred (termFuel term + 1) context term
 
 end EventB.Embedding

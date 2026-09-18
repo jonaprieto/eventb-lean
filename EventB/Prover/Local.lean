@@ -68,18 +68,21 @@ private
 def evidenceFingerprint
     (obligation : Obligation)
     (rule : Rule)
-    : String :=
+    : String
+    :=
   Trust.fingerprint (obligation.canonical ++ "\nrule=" ++ rule.label)
 
 def evidence
     (obligation : Obligation)
     (rule : Rule)
-    : Evidence :=
+    : Evidence
+    :=
   .external "eventb-local" "0" (evidenceFingerprint obligation rule) "EventB.Prover.Local"
 
 def prove
     (obligation : Obligation)
-    : Result :=
+    : Result
+    :=
   match rule? obligation with
   | some rule => { rule := some rule, evidence := evidence obligation rule }
   | none => {}

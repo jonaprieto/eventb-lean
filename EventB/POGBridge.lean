@@ -15,7 +15,8 @@ universe u
 
 def eqlTerm
     (varName : String)
-    : EventB.Formula.Term :=
+    : EventB.Formula.Term
+    :=
   .bin "=" (.id (varName ++ "'")) (.id varName)
 
 def transitionDenote
@@ -28,7 +29,8 @@ def transitionHypothesesHold
     (denote : transitionDenote σ)
     (hypotheses : List EventB.Formula.Term)
     (before after : σ)
-    : Prop :=
+    : Prop
+    :=
   ∀ hypothesis ∈ hypotheses, denote hypothesis (before, after)
 
 /- The source fields are intentionally redundant with `checked`: they make the
@@ -59,7 +61,8 @@ structure EqlBridge
 def EqlBridge.valid
     {σ α : Type u}
     (bridge : EqlBridge σ α)
-    : Prop :=
+    : Prop
+    :=
   validSequent
     (bridge.obligation.hyps.map (fun hypothesis state => bridge.denote hypothesis state))
     (fun state => bridge.denote (eqlTerm bridge.varName) state)
@@ -67,7 +70,8 @@ def EqlBridge.valid
 theorem EqlBridge.valid_of_frame
     {σ α : Type u}
     (bridge : EqlBridge σ α)
-    : bridge.valid := by
+    : bridge.valid
+    := by
   intro state hypotheses
   rcases state with ⟨before, after⟩
   have hypothesesHold : transitionHypothesesHold bridge.denote bridge.obligation.hyps

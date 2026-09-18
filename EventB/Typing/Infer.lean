@@ -143,7 +143,8 @@ def lookup?
 def bind
     (name : String)
     (t : Ty)
-    : M Unit :=
+    : M Unit
+    :=
   modify fun s => { s with env := (name, t) :: s.env }
 
 /-- Run a typing action in a lexical environment and restore that environment afterward. -/
@@ -207,7 +208,8 @@ private def ranRestrict : List String := ["▷", "⩥"]
 private
 theorem termSizePos
     (t : Term)
-    : 1 ≤ sizeOf t := by
+    : 1 ≤ sizeOf t
+    := by
   cases t <;> simp +arith [Term.id.sizeOf_spec, Term.num.sizeOf_spec,
     Term.bin.sizeOf_spec, Term.pre.sizeOf_spec, Term.post.sizeOf_spec,
     Term.app.sizeOf_spec, Term.img.sizeOf_spec, Term.set.sizeOf_spec,

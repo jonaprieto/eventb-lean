@@ -23,7 +23,8 @@ private
 def childrenWith
     (tag : String)
     (elem : Elem)
-    : List Elem :=
+    : List Elem
+    :=
   elem.children.filter (fun child => child.tag == "org.eventb.core." ++ tag)
 
 private def compactMachine : String :=

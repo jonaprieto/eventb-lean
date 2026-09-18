@@ -13,13 +13,15 @@ universe u
 
 def eqlGoal
     (name : String)
-    : EventB.Formula.Term :=
+    : EventB.Formula.Term
+    :=
   .bin "=" (.id (name ++ "'")) (.id name)
 
 def intRead
     (name : String)
     (env : ValueEnv)
-    : Option Int :=
+    : Option Int
+    :=
   match env.lookup name with
   | some (.integer value) => some value
   | _ => none
@@ -27,7 +29,8 @@ def intRead
 def exactEqlShape
     (origin : EqlOrigin)
     (obligation : Obligation)
-    : Bool :=
+    : Bool
+    :=
   obligation.component == origin.component && obligation.kind == "EQL" &&
     obligation.name == origin.event ++ "/" ++ origin.eqlVariable ++ "/EQL" &&
     obligation.goal == some (eqlGoal origin.eqlVariable)
@@ -61,7 +64,8 @@ def EqlIntBinding.fromProject?
     (theory : EventB.Theory.Env)
     (project : EventB.Typing.Project)
     (component event eqlVariable : String)
-    : Option (EqlIntBinding theory project) :=
+    : Option (EqlIntBinding theory project)
+    :=
   match located : locateEql? theory project component event eqlVariable with
   | .error _ | .ok none => none
   | .ok (some (origin, obligation)) =>
@@ -98,7 +102,8 @@ def EqlIntBinding.action
     (binding : EqlIntBinding theory project)
     (fuel : Nat)
     (before after : ValueEnv)
-    : Prop :=
+    : Prop
+    :=
   ∃ transition : CheckedBeforeAfter,
     ValueEnv.parallelAssignTypedFuel fuel binding.declarations before binding.updates =
         .ok transition ∧ transition.after = after
@@ -153,7 +158,8 @@ def EqlIntEventBridge.read
     {σ : Type u}
     (bridge : EqlIntEventBridge binding σ)
     : σ →
-      Option Int :=
+      Option Int
+    :=
   fun state => intRead binding.eqlVariable (bridge.encode state)
 
 /- A kernel-checkable evaluator lemma. The lookup facts make the result independent
@@ -190,7 +196,8 @@ def EqlIntEventBridge.sequent
     {binding : EqlIntBinding theory project}
     {σ : Type u}
     (bridge : EqlIntEventBridge binding σ)
-    : Prop :=
+    : Prop
+    :=
   ∀ transition : CheckedBeforeAfter,
     transition.declarations = binding.declarations →
     (∀ hypothesis ∈ binding.obligation.hyps,
@@ -204,7 +211,8 @@ theorem EqlIntEventBridge.sequent_of_goal_hypothesis
     {σ : Type u}
     (bridge : EqlIntEventBridge binding σ)
     (goalHypothesis : binding.goal ∈ binding.obligation.hyps)
-    : bridge.sequent := by
+    : bridge.sequent
+    := by
   intro transition _ hypotheses
   exact hypotheses binding.goal goalHypothesis
 
@@ -215,7 +223,8 @@ theorem EqlIntEventBridge.framePreserved
     {σ : Type u}
     (bridge : EqlIntEventBridge binding σ)
     (poProof : bridge.sequent)
-    : framePreserved bridge.read bridge.event.act := by
+    : framePreserved bridge.read bridge.event.act
+    := by
   intro before after eventStep
   obtain ⟨transition, beforeEq, afterEq, declarationsEq, beforeValid, afterValid,
     hypotheses⟩ := bridge.hypothesesHold eventStep
@@ -255,7 +264,8 @@ theorem EqlIntAdapter.sound
     {project : EventB.Typing.Project}
     {σ : Type u}
     (adapter : EqlIntAdapter theory project σ)
-    : framePreserved adapter.bridge.read adapter.bridge.event.act :=
+    : framePreserved adapter.bridge.read adapter.bridge.event.act
+    :=
   adapter.bridge.framePreserved adapter.sequent
 
 /- ------------------------------------------------------------------ -/
@@ -334,7 +344,8 @@ example
     {σ : Type u}
     (bridge : EqlIntEventBridge binding σ)
     (poProof : bridge.sequent)
-    : framePreserved bridge.read bridge.event.act := by
+    : framePreserved bridge.read bridge.event.act
+    := by
   exact bridge.framePreserved poProof
 
 end EventB.POG

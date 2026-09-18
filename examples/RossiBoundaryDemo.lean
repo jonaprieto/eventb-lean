@@ -12,19 +12,22 @@ private
 def childrenWith
     (tag : String)
     (elem : Elem)
-    : List Elem :=
+    : List Elem
+    :=
   elem.children.filter (fun child => child.tag == "org.eventb.core." ++ tag)
 
 private
 def formulaOf
     (elem : Elem)
-    : Option String :=
+    : Option String
+    :=
   elem.attr? "org.eventb.core.predicate"
 
 private
 def assignmentOf
     (elem : Elem)
-    : Option String :=
+    : Option String
+    :=
   elem.attr? "org.eventb.core.assignment"
 
 private def wrapped : String :=

@@ -22,12 +22,14 @@ namespace SourceRange
 
 def synthetic
     (file : String := "<generated>")
-    : SourceRange :=
+    : SourceRange
+    :=
   { file, beginPos := { line := 1, column := 0 }, finishPos := { line := 1, column := 0 } }
 
 def display
     (range : SourceRange)
-    : String :=
+    : String
+    :=
   s!"{range.file}:{range.beginPos.line}:{range.beginPos.column + 1}-" ++
     s!"{range.finishPos.line}:{range.finishPos.column + 1}"
 

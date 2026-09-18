@@ -11,7 +11,8 @@ theorem zeroReflexive (zero : Int) : zero = zero := rfl
 
 theorem addZero
     (value : Int)
-    : value + 0 = value := by
+    : value + 0 = value
+    := by
   simp
 
 inductive Colour where

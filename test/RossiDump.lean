@@ -7,7 +7,8 @@ open EventB
 private
 def jsonEscape
     (value : String)
-    : String :=
+    : String
+    :=
   String.ofList (value.toList.flatMap fun c =>
     match c with
     | '"' => ['\\', '"']
@@ -22,7 +23,8 @@ private def jsonString (value : String) : String := "\"" ++ jsonEscape value ++ 
 private
 def componentJson
     (component : Rossi.Component)
-    : String :=
+    : String
+    :=
   let kind := if component.model.root.tag.endsWith "contextFile" then "Context" else "Machine"
   "{\"component_type\":" ++ jsonString kind ++
     ",\"component_name\":" ++ jsonString component.name ++ "}"
@@ -31,7 +33,8 @@ private
 def fileJson
     (path : String)
     (components : List Rossi.Component)
-    : String :=
+    : String
+    :=
   "{\"file\":" ++ jsonString path ++ ",\"success\":true,\"components\":[" ++
     String.intercalate "," (components.map componentJson) ++ "]}"
 

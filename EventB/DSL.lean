@@ -46,7 +46,8 @@ initialize theoryExtension : SimplePersistentEnvExtension Theory.Spec (Array The
 private
 def theoryEnvironment
     (env : Environment)
-    : Theory.Env :=
+    : Theory.Env
+    :=
   { theories := Theory.core :: (theoryExtension.getState env).toList }
 
 declare_syntax_cat ebLabelled
@@ -93,7 +94,8 @@ private
 def labelledAttrs
     (attr label formula : String)
     (isThm : Bool)
-    : TSyntax `term :=
+    : TSyntax `term
+    :=
   if isThm then
     Unhygienic.run `([("org.eventb.core.label", $(quote label)),
       ($(quote attr), $(quote formula)), ("org.eventb.core.theorem", "true")])
@@ -104,19 +106,22 @@ def labelledAttrs
 private
 def identAttrs
     (name : String)
-    : TSyntax `term :=
+    : TSyntax `term
+    :=
   Unhygienic.run `([("org.eventb.core.identifier", $(quote name))])
 
 private
 def targetAttrs
     (name : String)
-    : TSyntax `term :=
+    : TSyntax `term
+    :=
   Unhygienic.run `([("org.eventb.core.target", $(quote name))])
 
 private
 def extendedTargetAttrs
     (name : String)
-    : TSyntax `term :=
+    : TSyntax `term
+    :=
   Unhygienic.run `([("org.eventb.core.target", $(quote name)),
     ("org.eventb.core.extended", "true")])
 
@@ -124,7 +129,8 @@ private
 def eventAttrs
     (label : String)
     (conv : Option String)
-    : TSyntax `term :=
+    : TSyntax `term
+    :=
   match conv with
   | none => Unhygienic.run `([("org.eventb.core.label", $(quote label))])
   | some s =>
@@ -138,7 +144,8 @@ private def noKids : TSyntax `term := Unhygienic.run `(([] : List EventB.Elem))
 private
 def symbolName
     (owner symbol : String)
-    : Name :=
+    : Name
+    :=
   Name.mkSimple ("EventB.DSL.symbol." ++ owner ++ "." ++ symbol)
 
 private
@@ -167,7 +174,8 @@ def sourceRangeOf
 private
 def baseSymbol
     (symbol : String)
-    : String :=
+    : String
+    :=
   if symbol.endsWith "'" then (symbol.dropEnd 1).copy else symbol
 
 private def currentModule : CommandElabM Name := do
@@ -203,7 +211,8 @@ def formulaIdentifiersAux
 private
 def formulaIdentifiers
     (stx : Syntax)
-    : List Syntax :=
+    : List Syntax
+    :=
   -- Formula syntax is shallow; the bound keeps this metadata walk executable.
   formulaIdentifiersAux 1024 stx
 
@@ -293,7 +302,8 @@ def checkFormula
 private
 def formulaText
     (f : TSyntax `ebFormula)
-    : String :=
+    : String
+    :=
   match f with
   | `(ebFormula| $s:str) => s.getString
   | _ => f.raw.prettyPrint.pretty
@@ -312,19 +322,22 @@ private
 def mkElem
     (ctor : String)
     (attrs kids : TSyntax `term)
-    : TSyntax `term :=
+    : TSyntax `term
+    :=
   Unhygienic.run `($(mkIdent ("EventB.Elem." ++ ctor : String).toName) $attrs $kids)
 
 private
 def listOf
     (ts : Array (TSyntax `term))
-    : TSyntax `term :=
+    : TSyntax `term
+    :=
   Unhygienic.run `([$ts,*])
 
 private
 def rootsName
     (name : Ident)
-    : Ident :=
+    : Ident
+    :=
   mkIdent (Name.mkSimple (name.getId.toString ++ "_theories"))
 
 private
@@ -480,7 +493,8 @@ syntax (name := eventbTheory)
 private
 def theoryTy
     (stx : Syntax)
-    : EventB.Typing.Ty :=
+    : EventB.Typing.Ty
+    :=
   (EventB.Typing.Ty.parse stx.getId.toString).getD (.given stx.getId.toString)
 
 private
@@ -507,7 +521,8 @@ def mkTyTerm
 private
 def mkSymbolKind
     (kind : SymbolKind)
-    : TSyntax `term :=
+    : TSyntax `term
+    :=
   match kind with
   | .carrierSet => Unhygienic.run `(EventB.Prelude.SymbolKind.carrierSet)
   | .constant => Unhygienic.run `(EventB.Prelude.SymbolKind.constant)
@@ -517,7 +532,8 @@ def mkSymbolKind
 private
 def mkApplication
     (application : Option ApplicationKind)
-    : TSyntax `term :=
+    : TSyntax `term
+    :=
   match application with
   | none => Unhygienic.run `(none)
   | some .total => Unhygienic.run `(some EventB.Prelude.ApplicationKind.total)
@@ -526,7 +542,8 @@ def mkApplication
 private
 def mkDefinedness
     (rule : Definedness)
-    : TSyntax `term :=
+    : TSyntax `term
+    :=
   match rule with
   | .finite => Unhygienic.run `(EventB.Prelude.Definedness.finite)
   | .nonempty => Unhygienic.run `(EventB.Prelude.Definedness.nonempty)
@@ -536,7 +553,8 @@ def mkDefinedness
 private
 def mkSymbolTerm
     (symbol : Symbol)
-    : TSyntax `term :=
+    : TSyntax `term
+    :=
   let type := match symbol.type with
     | none => Unhygienic.run `(none)
     | some type => Unhygienic.run `(some $(mkTyTerm type))
@@ -554,7 +572,8 @@ def mkSymbolTerm
 private
 def mkFormulaTerm
     (term : Formula.Term)
-    : TSyntax `term :=
+    : TSyntax `term
+    :=
   let source := Formula.print term
   Unhygienic.run `(match EventB.Formula.parse $(quote source) with
     | .ok value => value
@@ -563,7 +582,8 @@ def mkFormulaTerm
 private
 def mkTypedParameter
     (parameter : String × EventB.Typing.Ty)
-    : TSyntax `term :=
+    : TSyntax `term
+    :=
   let name := parameter.1
   let type := parameter.2
   Unhygienic.run `(($(quote name), $(mkTyTerm type)))
@@ -571,7 +591,8 @@ def mkTypedParameter
 private
 def mkConstructorTerm
     (constructor : Theory.Constructor)
-    : TSyntax `term :=
+    : TSyntax `term
+    :=
   let arguments := listOf (constructor.arguments.toArray.map mkTyTerm)
   Unhygienic.run `(EventB.Theory.Constructor.mk $(quote constructor.name) $arguments)
 
@@ -625,7 +646,8 @@ def mkDeclarationTerm
 private
 def mkSpecTerm
     (spec : Theory.Spec)
-    : TSyntax `term :=
+    : TSyntax `term
+    :=
   let importNames := listOf (spec.imports.toArray.map quote)
   let symbols := listOf (spec.symbols.toArray.map mkSymbolTerm)
   let declarations := listOf (spec.declarations.toArray.map mkDeclarationTerm)
@@ -637,7 +659,8 @@ def theorySymbol
     (kind : SymbolKind)
     (type : Option Ty)
     (application : Option ApplicationKind)
-    : Symbol :=
+    : Symbol
+    :=
   { name, kind, type, description := s!"Native Event-B theory symbol `{name}`.", application,
     id := SymbolId.unqualified name, source := EventB.SourceRange.synthetic }
 

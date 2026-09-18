@@ -303,7 +303,8 @@ def programsProject : Typing.Project :=
 private
 def hasPO
     (machine name : String)
-    : Bool :=
+    : Bool
+    :=
   (POG.generate programsProject machine).any (·.name == name)
 
 #guard hasPO "NotationMachine" "INITIALISATION/inv0_1/INV"
@@ -323,7 +324,8 @@ def hasPO
 private
 def goalText
     (machine name : String)
-    : Option String :=
+    : Option String
+    :=
   (POG.generate programsProject machine).find? (·.name == name) |>.bind
     (·.goal.map Formula.print)
 

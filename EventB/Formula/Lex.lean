@@ -89,7 +89,8 @@ of an identifier: `order` is one name, not `or` followed by `der`. -/
 private
 def aliasFits
     (alias rest : List Char)
-    : Bool :=
+    : Bool
+    :=
   if alias.all isIdentRest then
     match rest.drop alias.length with
     | c :: _ => !isIdentRest c
@@ -101,7 +102,8 @@ private
 def matchOperator
     (table : Array (List Char × String))
     (cs : List Char)
-    : Option (String × List Char) :=
+    : Option (String × List Char)
+    :=
   table.findSome? fun (a, canon) =>
     -- `!a.isEmpty` is load-bearing: an empty alias matches everywhere and consumes
     -- nothing, so the scanner would spin forever on the first character.
@@ -155,7 +157,8 @@ operators (`card`, `dom`, `bool`, ...) are ordinary identifiers applied to an ar
 so the lexer leaves them alone. -/
 def lex
     (s : String)
-    : Except EventB.Error (List Tok) :=
+    : Except EventB.Error (List Tok)
+    :=
   let cs := s.toList
   (go operatorTable [] cs.length cs).mapError EventB.Error.formula
 

@@ -117,7 +117,8 @@ def Elem.children
 def Elem.attr?
     (elem : Elem)
     (key : String)
-    : Option String :=
+    : Option String
+    :=
   elem.attrs.find? (fun (name, _) => name == key) |>.map (·.2)
 
 /-- `Elem.children` is an 18-case match, so the equation compiler cannot see through it
@@ -125,7 +126,8 @@ to know the sublist is smaller. Proving it once here lets every traversal below 
 plain `def` with a `sizeOf` measure, instead of `partial`. -/
 theorem Elem.sizeOf_children
     (e : Elem)
-    : sizeOf e.children < sizeOf e := by
+    : sizeOf e.children < sizeOf e
+    := by
   cases e <;> simp +arith [Elem.children]
 
 -- `Elem` nests a `List Elem`, so every traversal needs its list case written out: a
@@ -137,7 +139,8 @@ private
 def countTag
     (wanted : String)
     (elem : Elem)
-    : Nat :=
+    : Nat
+    :=
   (if elem.tag == wanted then 1 else 0) + countTagList wanted elem.children
 termination_by sizeOf elem
 decreasing_by exact Elem.sizeOf_children elem
@@ -155,7 +158,8 @@ end
 
 def Model.inventory
     (model : Model)
-    : List (String × Nat) :=
+    : List (String × Nat)
+    :=
   inventoryTags.map (fun tag => (tag, countTag ("org.eventb.core." ++ tag) model.root))
 
 /-- Attributes carrying an Event-B formula. `expression` is the variant used by
@@ -169,7 +173,8 @@ mutual
 so a P1 failure names the invariant or guard it came from. -/
 def Elem.formulas
     (elem : Elem)
-    : List (String × String) :=
+    : List (String × String)
+    :=
   let label := (elem.attr? "org.eventb.core.label").getD (elem.tag.splitOn "." |>.getLast!)
   let here := formulaAttrs.filterMap (fun a => (elem.attr? a).map (fun f => (label, f)))
   here ++ Elem.formulasList elem.children
@@ -187,7 +192,8 @@ end
 
 def Model.formulas
     (model : Model)
-    : List (String × String) :=
+    : List (String × String)
+    :=
   model.root.formulas
 
 mutual
@@ -246,7 +252,8 @@ def fromXml
 
 def parseModel
     (source : ByteArray)
-    : Except EventB.Error Model :=
+    : Except EventB.Error Model
+    :=
   match parseXml source with
   | .error err => .error (EventB.Error.model (err.pretty source))
   | .ok xml => fromXml xml

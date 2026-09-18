@@ -32,21 +32,24 @@ abbrev Project := List Component
 def lookupComponent
     (p : Project)
     (name : String)
-    : Option Component :=
+    : Option Component
+    :=
   List.find? (fun c => c.name == name) p
 
 private
 def childrenOf
     (e : Elem)
     (tag : String)
-    : List Elem :=
+    : List Elem
+    :=
   e.children.filter (fun c => c.tag == "org.eventb.core." ++ tag)
 
 private
 def attrOf
     (e : Elem)
     (key : String)
-    : Option String :=
+    : Option String
+    :=
   e.attr? ("org.eventb.core." ++ key)
 
 private def labelOf (e : Elem) : String := (attrOf e "label").getD ""
@@ -54,20 +57,23 @@ private def labelOf (e : Elem) : String := (attrOf e "label").getD ""
 private
 def targetName
     (e : Elem)
-    : Option String :=
+    : Option String
+    :=
   (attrOf e "target").map (fun t => (t.splitOn "/").getLast!)
 
 private
 def eventTargets
     (ev : Elem)
-    : List String :=
+    : List String
+    :=
   if labelOf ev == "INITIALISATION" then ["INITIALISATION"]
   else (childrenOf ev "refinesEvent").filterMap targetName
 
 private
 def isExtended
     (ev : Elem)
-    : Bool :=
+    : Bool
+    :=
   (attrOf ev "extended").getD "false" == "true" ||
     (childrenOf ev "refinesEvent").any
       (fun reference => (attrOf reference "extended").getD "false" == "true")
@@ -75,7 +81,8 @@ def isExtended
 private
 def assignmentTargets
     (action : Elem)
-    : List String :=
+    : List String
+    :=
   match attrOf action "assignment" with
   | none => []
   | some source =>
@@ -99,7 +106,8 @@ def assignmentTargets
 private
 def assignmentShapeErrors
     (action : Elem)
-    : List String :=
+    : List String
+    :=
   match attrOf action "assignment" with
   | none => []
   | some source =>
@@ -156,7 +164,8 @@ def initializationActions
     (p : Project)
     (c : Component)
     (ev : Elem)
-    : List Elem :=
+    : List Elem
+    :=
   let actions := childrenOf ev "action"
   if labelOf ev != "INITIALISATION" then actions
   else
@@ -169,7 +178,8 @@ def initializationActions
 private
 def eventParameterNames
     (ev : Elem)
-    : List String :=
+    : List String
+    :=
   (childrenOf ev "parameter").filterMap (attrOf · "identifier")
 
 private
@@ -184,7 +194,8 @@ def validVariantType
 private
 def actionTexts
     (actions : List Elem)
-    : List String :=
+    : List String
+    :=
   actions.filterMap (attrOf · "assignment")
 
 private
@@ -264,7 +275,8 @@ private
 def componentReferenceErrors
     (p : Project)
     (c : Component)
-    : List String :=
+    : List String
+    :=
   let refs := childrenOf c.elem "extendsContext" ++ childrenOf c.elem "seesContext" ++
     childrenOf c.elem "refinesMachine"
   let componentErrors := (refs.filterMap targetName).filterMap fun target =>
@@ -402,7 +414,8 @@ private
 def theoryReferenceErrors
     (theory : Theory.Env)
     (roots : List String)
-    : List String :=
+    : List String
+    :=
   let rec visit (fuel : Nat) (seen : List String) (name : String) : List String :=
     match fuel with
     | 0 => []
@@ -417,7 +430,8 @@ private
 def eventParamBindings
     (records : List ((String × String) × List (String × Ty)))
     (component event : String)
-    : List (String × Ty) :=
+    : List (String × Ty)
+    :=
   (records.find? (fun record => record.1.1 == component && record.1.2 == event)).map
     (·.2) |>.getD []
 
@@ -469,7 +483,8 @@ def visibleEventBindings
     (p : Project)
     (records : List ((String × String) × List (String × Ty)))
     (component event : String)
-    : List (String × Ty) :=
+    : List (String × Ty)
+    :=
   eventParamBindings records component event ++
     inheritedEventBindings p records p.length component event
 
@@ -505,13 +520,15 @@ def closure
     (p : Project)
     (visited : List String)
     (name : String)
-    : List String × List String :=
+    : List String × List String
+    :=
   closureAux p p.length visited name
 
 def componentTheoryRoots
     (p : Project)
     (name : String)
-    : List String :=
+    : List String
+    :=
   let (_, order) := closure p [] name
   order.flatMap fun dep =>
     (lookupComponent p dep).map (·.theories) |>.getD []
@@ -685,7 +702,8 @@ def inferComponentDetailsModeIn
     (theory : Theory.Env)
     (p : Project)
     (name : String)
-    : Except EventB.Error ComponentInference :=
+    : Except EventB.Error ComponentInference
+    :=
   let (_, order) := closure p [] name
   let roots := componentTheoryRoots p name
   let run : StateT St (Except String) ComponentInference := do
@@ -723,28 +741,32 @@ def inferComponentDetailsIn
     (theory : Theory.Env)
     (p : Project)
     (name : String)
-    : Except EventB.Error ComponentInference :=
+    : Except EventB.Error ComponentInference
+    :=
   inferComponentDetailsModeIn false theory p name
 
 def inferComponentDetailsCheckedIn
     (theory : Theory.Env)
     (p : Project)
     (name : String)
-    : Except EventB.Error ComponentInference :=
+    : Except EventB.Error ComponentInference
+    :=
   inferComponentDetailsModeIn true theory p name
 
 def inferComponentIn
     (theory : Theory.Env)
     (p : Project)
     (name : String)
-    : Except EventB.Error (List (String × Ty) × List String) :=
+    : Except EventB.Error (List (String × Ty) × List String)
+    :=
   (inferComponentDetailsIn theory p name).map fun result =>
     (result.types, result.diagnostics)
 
 def inferComponent
     (p : Project)
     (name : String)
-    : Except EventB.Error (List (String × Ty) × List String) :=
+    : Except EventB.Error (List (String × Ty) × List String)
+    :=
   inferComponentIn Theory.empty p name
 
 private def missingReferenceProject : Project :=
@@ -982,7 +1004,8 @@ def inferTermAt
     (roots : List String)
     (env : List (String × Ty))
     (t : Term)
-    : Except EventB.Error Ty :=
+    : Except EventB.Error Ty
+    :=
   (inferTermAtText theory roots env t).mapError EventB.Error.typing
 
 def inferTermIn
@@ -996,7 +1019,8 @@ def inferTermIn
 def inferTerm
     (env : List (String × Ty))
     (t : Term)
-    : Except EventB.Error Ty :=
+    : Except EventB.Error Ty
+    :=
   inferTermIn Theory.empty env t
 
 /-! Self-checks. The corpus pins the common cases; these pin the shapes it happens not
@@ -1017,7 +1041,8 @@ def inferOne
     (given : List (String × Ty))
     (unknown : List String)
     (pred name : String)
-    : Option String :=
+    : Option String
+    :=
   match Formula.parse pred with
   | .error _ => none
   | .ok term =>

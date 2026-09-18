@@ -69,7 +69,8 @@ theorem congrArg₂'
     {right right' : β}
     (leftEq : left = left')
     (rightEq : right = right')
-    : f left right = f left' right' := by
+    : f left right = f left' right'
+    := by
   cases leftEq
   cases rightEq
   rfl
@@ -77,7 +78,8 @@ theorem congrArg₂'
 theorem Term.eq_of_beq
     {left right : Term}
     (equal : left == right)
-    : left = right := by
+    : left = right
+    := by
   change termBeq left right = true at equal
   exact (Term.rec
     (motive_1 := fun left => ∀ right, termBeq left right = true → left = right)
@@ -155,7 +157,8 @@ theorem Term.eq_of_beq
 
 theorem Term.beq_self
     (term : Term)
-    : termBeq term term = true := by
+    : termBeq term term = true
+    := by
   exact Term.rec
     (motive_1 := fun term => termBeq term term = true)
     (motive_2 := fun terms => termListBeq terms terms = true)
@@ -227,7 +230,8 @@ def prefixPower
 private
 def isBinder
     (s : String)
-    : Bool :=
+    : Bool
+    :=
   s == "∀" || s == "∃" || s == "λ" || s == "⋂" || s == "⋃"
 
 /-- `{a, b, c}` parses as nested commas; the set node wants the elements. -/
@@ -245,7 +249,8 @@ private
 def hasRemainingOperator
     (s : St)
     (operator : String)
-    : Bool :=
+    : Bool
+    :=
   (s.toks.toList.drop s.pos).any fun token =>
     match token with
     | .op value => value == operator
@@ -257,7 +262,8 @@ private
 def expect
     (s : St)
     (o : String)
-    : Except String St :=
+    : Except String St
+    :=
   match peek s with
   | some (.op x) => if x == o then .ok { s with pos := s.pos + 1 }
                     else .error s!"expected {o}, found {x}"
@@ -427,7 +433,8 @@ def parseTokensText
 
 def parseTokens
     (toks : List Tok)
-    : Except EventB.Error Term :=
+    : Except EventB.Error Term
+    :=
   (parseTokensText toks).mapError EventB.Error.formula
 
 def parse
@@ -459,7 +466,8 @@ normalises them away before writing a file) and the precedence decisions. -/
 private
 def sameTree
     (a b : String)
-    : Bool :=
+    : Bool
+    :=
   match parse a, parse b with
   | .ok x, .ok y => x == y
   | _, _ => false
@@ -651,7 +659,8 @@ end
 def subst
     (σ : List (String × Term))
     (term : Term)
-    : Term :=
+    : Term
+    :=
   substFuel (termFuel term + 1) σ term
 
 mutual
@@ -685,7 +694,8 @@ bound identifiers when an event parameter would collide with one; those names ca
 logical content and must not make the P3b statement gate reject the same formula. -/
 def alphaEq
     (left right : Term)
-    : Bool :=
+    : Bool
+    :=
   go left right [] [] 0
 where
   lookup (name : String) (env : List (String × Nat)) : Option Nat :=
