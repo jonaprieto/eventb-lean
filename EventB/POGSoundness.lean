@@ -75,13 +75,11 @@ def FormulaModel.valid
     : Prop :=
   False
 
-theorem FormulaModel.valid_of
-    {σ : Type u}
-    (model : FormulaModel σ)
+theorem FormulaModel.valid_of {σ : Type u} (model : FormulaModel σ)
     (obligation : Obligation)
-    (proof : validSequent (obligation.hyps.map model.denote) (obligation.goal.map model.denote |>.getD fun _ => False))
-    : obligation.goal.isSome →
-      model.validUnchecked obligation := by
+    (proof : validSequent (obligation.hyps.map model.denote)
+      (obligation.goal.map model.denote |>.getD fun _ => False)) :
+    obligation.goal.isSome → model.validUnchecked obligation := by
   intro hasGoal
   cases goal : obligation.goal with
   | none => simp [goal] at hasGoal
@@ -558,8 +556,11 @@ def ValueEnv.declaredType?
     : Option EventB.Typing.Ty :=
   declarations.find? (·.1 == name) |>.map (·.2)
 
-def ValueEnv.validateFuel (fuel : Nat) (declarations : List (String × EventB.Typing.Ty))
-    (env : ValueEnv) : Except EvalError Unit := do
+def ValueEnv.validateFuel
+    (fuel : Nat)
+    (declarations : List (String × EventB.Typing.Ty))
+    (env : ValueEnv)
+    : Except EvalError Unit := do
   let declarationNames := declarations.map (·.1)
   let envNames := env.values.map (·.1)
   if let some duplicate := declarationNames.find? (fun name => declarationNames.count name > 1) then
@@ -642,9 +643,11 @@ def exceptDecEq
 instance : DecidableEq (Except EvalError Bool) := exceptDecEq
 instance : DecidableEq (Except EvalError CheckedBeforeAfter) := exceptDecEq
 
-def CheckedBeforeAfter.make (fuel : Nat)
+def CheckedBeforeAfter.make
+    (fuel : Nat)
     (declarations : List (String × EventB.Typing.Ty))
-    (before after : ValueEnv) : Except EvalError CheckedBeforeAfter := do
+    (before after : ValueEnv)
+    : Except EvalError CheckedBeforeAfter := do
   if before.carriers != after.carriers then .error .invalidValue
   ValueEnv.validateFuel fuel declarations before
   ValueEnv.validateFuel fuel declarations after
@@ -1206,8 +1209,8 @@ theorem evalValueFiniteZero
     Value.makeSet, Value.sameType, Value.typeOf, ValueType.compatible,
     Bind.bind, Except.bind]
 
-theorem evalValueIdentifierSingletonZero
-    : evalValueAtFuel 127 { values := [("S", .set [.integer 0])] } (.id "S") =
+theorem evalValueIdentifierSingletonZero :
+    evalValueAtFuel 127 { values := [("S", .set [.integer 0])] } (.id "S") =
       .ok (.set [.integer 0]) := by
   have xNotEndsWith : ¬ "S".endsWith "'" = true := by native_decide
   simp [evalValueAtFuel, evalValueWithFuel, evalValueFuel, EvalView.lookup,
@@ -1386,9 +1389,7 @@ def assignmentPredicate
 /-- The executable before/after evaluator turns an integer EQL equality into the
     corresponding equality of the two checked integer observations. -/
 theorem eqlIntegerAfterEqBefore
-    (fuel : Nat)
-    (name : String)
-    (transition : CheckedBeforeAfter)
+    (fuel : Nat) (name : String) (transition : CheckedBeforeAfter)
     (beforeValue afterValue : Int)
     (beforeValid : ValueEnv.validationOk fuel transition.declarations transition.before = true)
     (afterValid : ValueEnv.validationOk fuel transition.declarations transition.after = true)
@@ -1406,8 +1407,8 @@ theorem eqlIntegerAfterEqBefore
     (afterLookup : transition.after.lookup ((name ++ "'").dropEnd 1).copy =
       some (.integer afterValue))
     (evaluated : assignmentPredicateWithFuel fuel transition
-      (.bin "=" (.id (name ++ "'")) (.id name)))
-    : afterValue = beforeValue := by
+      (.bin "=" (.id (name ++ "'")) (.id name))) :
+    afterValue = beforeValue := by
   have primeEndsWith : (name ++ "'").endsWith "'" = true := by
     rw [String.endsWith_eq_endsWith_toSlice]
     rw [String.Slice.endsWith_string_iff]
@@ -1524,8 +1525,11 @@ def evalPredicate
     (.app (.id "f") (.num 9)) with
   | .error .invalidRelation => true
   | _ => false
-private def ValueEnv.parallelAssign (env : ValueEnv)
-    (updates : List (String × EventB.Formula.Term)) : Except EvalError BeforeAfter := do
+private
+def ValueEnv.parallelAssign
+    (env : ValueEnv)
+    (updates : List (String × EventB.Formula.Term))
+    : Except EvalError BeforeAfter := do
   let names := updates.map (·.1)
   if let some duplicate := names.find? (fun name => names.count name > 1) then
     .error (.duplicateAssignment duplicate)
@@ -1546,9 +1550,12 @@ def ValueEnv.parallelAssignTerms
   if targets.length != rhs.length then .error .assignmentArity
   else ValueEnv.parallelAssign env (targets.zip rhs)
 
-def ValueEnv.parallelAssignTypedFuel (fuel : Nat)
-    (declarations : List (String × EventB.Typing.Ty)) (env : ValueEnv)
-    (updates : List (String × EventB.Formula.Term)) : Except EvalError CheckedBeforeAfter := do
+def ValueEnv.parallelAssignTypedFuel
+    (fuel : Nat)
+    (declarations : List (String × EventB.Typing.Ty))
+    (env : ValueEnv)
+    (updates : List (String × EventB.Formula.Term))
+    : Except EvalError CheckedBeforeAfter := do
   ValueEnv.validateFuel fuel declarations env
   let names := updates.map (·.1)
   if let some duplicate := names.find? (fun name => names.count name > 1) then
@@ -1598,9 +1605,11 @@ structure ComponentValuation where
   variables : List String
   deriving Repr
 
-def ComponentValuation.fromProject (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (component : String) :
-    Except EventB.Error ComponentValuation := do
+def ComponentValuation.fromProject
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (component : String)
+    : Except EventB.Error ComponentValuation := do
   let details ← EventB.Typing.inferComponentDetailsCheckedIn theory project component
   unless details.diagnostics.isEmpty do
     throw (EventB.Error.typing
@@ -1672,9 +1681,13 @@ def ComponentValuation.eventAssignments
           EventB.POG.effectiveActions project valuation.component eventElem |>.flatMapM
             deterministicActionAssignments
 
-def ComponentValuation.parallelAssign (valuation : ComponentValuation)
-    (project : EventB.Typing.Project) (event : String) (env : ValueEnv)
-    (updates : List (String × EventB.Formula.Term)) : Except EvalError CheckedBeforeAfter := do
+def ComponentValuation.parallelAssign
+    (valuation : ComponentValuation)
+    (project : EventB.Typing.Project)
+    (event : String)
+    (env : ValueEnv)
+    (updates : List (String × EventB.Formula.Term))
+    : Except EvalError CheckedBeforeAfter := do
   let expected ← valuation.eventAssignments project event
   if updates != expected then
     .error (.invalidTarget ("updates do not match effective actions of " ++ event))
@@ -1871,9 +1884,7 @@ def supportsBeforeAfterPredicate
   | .app (.id "finite") argument => supportsBeforeAfterValue argument
   | .num _ | .set _ | .post _ _ | .app _ _ | .img _ _ | .bind _ _ _ => false
 
-private
-def typedBindingProject
-    : EventB.Typing.Project :=
+private def typedBindingProject : EventB.Typing.Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -1883,9 +1894,7 @@ def typedBindingProject
           [.action [("org.eventb.core.label", "set"),
                     ("org.eventb.core.assignment", "x ≔ 1")] []]] }]
 
-private
-def badTypedBindingProject
-    : EventB.Typing.Project :=
+private def badTypedBindingProject : EventB.Typing.Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -2243,16 +2252,12 @@ def TypedTransitionModel.ofAssignment
           inhabited := ⟨transition, rfl⟩
           supports := supportsBeforeAfterPredicate }
 
-private
-def incrementTransition
-    : CheckedBeforeAfter :=
+private def incrementTransition : CheckedBeforeAfter :=
   { before := { values := [("x", .integer 1)] }
     after := { values := [("x", .integer 2)] }
     declarations := [("x", .int)] }
 
-private
-def incrementModel
-    : TypedTransitionModel :=
+private def incrementModel : TypedTransitionModel :=
   { fuel := 64
     wellFormed := fun transition => transition = incrementTransition
     inhabited := ⟨incrementTransition, rfl⟩
@@ -2481,8 +2486,7 @@ private theorem typedFormulaValid :
         evalPredicateWithFuel, evalPredicateFuel, evalValue, evalValueWithFuel, evalValueFuel,
         Bind.bind, Except.bind]
 
-def constantTypedFormulaModel
-    : TypedFormulaModel :=
+def constantTypedFormulaModel : TypedFormulaModel :=
   { declarations := []
     fuel := 128
     wellFormed := fun env => ValueEnv.validationOk 128 [] env = true
@@ -2518,13 +2522,10 @@ theorem constantTypedFormulaModel_taut_valid :
         Value.typeOf, ValueType.compatible, valueEqual, integerCompatible,
         Bind.bind, Except.bind]
 
-private
-def constantTransition
-    : CheckedBeforeAfter :=
+private def constantTransition : CheckedBeforeAfter :=
   { before := {}, after := {}, declarations := [] }
 
-def constantTypedTransitionModel
-    : TypedTransitionModel :=
+def constantTypedTransitionModel : TypedTransitionModel :=
   { fuel := 128
     wellFormed := fun transition => transition = constantTransition
     inhabited := ⟨constantTransition, rfl⟩
@@ -2632,15 +2633,12 @@ theorem typedTransitionModel_closed_validOnDomain
     rw [fuel]
     exact evaluated
 
-private
-def stutterTransition
-    : CheckedBeforeAfter :=
+private def stutterTransition : CheckedBeforeAfter :=
   { before := { values := [("x", .integer 0)] }
     after := { values := [("x", .integer 0)] }
     declarations := [("x", .int)] }
 
-def stutterTypedTransitionModel
-    : TypedTransitionModel :=
+def stutterTypedTransitionModel : TypedTransitionModel :=
   { fuel := 128
     wellFormed := fun transition => transition = stutterTransition
     inhabited := ⟨stutterTransition, rfl⟩
@@ -2803,14 +2801,14 @@ example : ¬ TypedFormulaModel.validUnchecked (typedFormulaModel supportsPredica
   simp [TypedFormulaModel.validUnchecked, typedFormulaModel, supportsPredicate]
 
 /- Negative control: a missing goal is never silently treated as a valid sequent. -/
-example
-    : ¬ FormulaModel.validUnchecked ({ denote := fun _ _ => True } : FormulaModel Unit)
+example : ¬ FormulaModel.validUnchecked
+    ({ denote := fun _ _ => True } : FormulaModel Unit)
     { name := "missing/INV", kind := "INV" } := by
   simp [FormulaModel.validUnchecked]
 
 /- Positive control: a caller-provided interpretation can discharge an obligation. -/
-example
-    : FormulaModel.validUnchecked ({ denote := fun _ _ => True } : FormulaModel Unit)
+example : FormulaModel.validUnchecked
+    ({ denote := fun _ _ => True } : FormulaModel Unit)
     { name := "true/THM", kind := "THM", goal := some (.id "⊤") } := by
   simp [FormulaModel.validUnchecked, validSequent]
 

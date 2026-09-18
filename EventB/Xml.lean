@@ -125,28 +125,20 @@ def unescape
 
 private def anyByte : GParser conditional UInt8 := GParser.satisfy (fun _ => true)
 
-private
-def xmlName
-    : GParser conditional String :=
+private def xmlName : GParser conditional String :=
   GParser.capture (GParser.seqR (GParser.satisfy isNameStartByte)
     (GParser.takeWhile isNameByte))
 
-private
-def decodedValue
-    : GParser fallible String :=
+private def decodedValue : GParser fallible String :=
   GParser.captureWith?
     (fun arr q q' => String.fromUTF8? (arr.extract q q') >>= unescape)
     (GParser.takeWhile (fun b => b != Ascii.quote && b != Ascii.code '<'))
 
-private
-def attrValue
-    : GParser conditional String :=
+private def attrValue : GParser conditional String :=
   GParser.seqR (GParser.ch '"')
     (GParser.seqL decodedValue (GParser.ch '"'))
 
-private
-def xmlAttribute
-    : GParser conditional (String × String) :=
+private def xmlAttribute : GParser conditional (String × String) :=
   GParser.map2 (fun name value => (name, value)) xmlName
     (GParser.seqR GParser.ws
       (GParser.seqR (GParser.ch '=')
@@ -162,16 +154,12 @@ def tagTail
       (GParser.map2 (fun attr attrs => attr :: attrs)
         (GParser.seqR GParser.ws1 xmlAttribute) rest)
 
-private
-def selfClosingTag
-    : GParser conditional (String × List (String × String)) :=
+private def selfClosingTag : GParser conditional (String × List (String × String)) :=
   GParser.seqR (GParser.ch '<')
     (GParser.map2 (fun tag attrs => (tag, attrs)) xmlName
       (tagTail (GParser.seqR (GParser.ch '/') (GParser.ch '>'))))
 
-private
-def openTag
-    : GParser conditional (String × List (String × String)) :=
+private def openTag : GParser conditional (String × List (String × String)) :=
   GParser.seqR (GParser.ch '<')
     (GParser.map2 (fun tag attrs => (tag, attrs)) xmlName
       (tagTail (GParser.ch '>')))
@@ -190,9 +178,7 @@ def closeTag
     (GParser.seqL checkedName
       (GParser.seqR GParser.ws (GParser.ch '>')))
 
-private
-def element
-    : GParser conditional XmlElem :=
+private def element : GParser conditional XmlElem :=
   GParser.fix fun self =>
     let leaf : GParser conditional XmlElem :=
       GParser.map (fun (tag, attrs) => ⟨tag, attrs, []⟩) selfClosingTag
@@ -204,9 +190,7 @@ def element
             (GParser.seqR GParser.ws (closeTag tag)))
     GParser.alt leaf branch
 
-private
-def xmlVersionAttribute
-    : GParser conditional Unit :=
+private def xmlVersionAttribute : GParser conditional Unit :=
   GParser.seqR (GParser.string "version")
     (GParser.seqR GParser.ws
       (GParser.seqR (GParser.ch '=')
@@ -214,17 +198,13 @@ def xmlVersionAttribute
           (GParser.seqR (GParser.ch '"')
             (GParser.seqL (GParser.string "1.0") (GParser.ch '"'))))))
 
-private
-def declaration
-    : GParser conditional Unit :=
+private def declaration : GParser conditional Unit :=
   GParser.map (fun _ => ())
     (GParser.seqR (GParser.string "<?xml")
       (GParser.seqR GParser.ws1
         (GParser.seqR xmlVersionAttribute (tagTail (GParser.string "?>")))))
 
-private
-def document
-    : GParser conditional XmlElem :=
+private def document : GParser conditional XmlElem :=
   GParser.seqR declaration
     (GParser.seqR GParser.ws
       (GParser.seqL element (GParser.seqR GParser.ws GParser.eof)))
@@ -244,9 +224,7 @@ def hasDuplicateXmlAttributes
     : Bool :=
   duplicateAttributeName [] elem.attrs || elem.children.any hasDuplicateXmlAttributes
 
-private
-def duplicateAttributeError
-    : Grip.ParseError :=
+private def duplicateAttributeError : Grip.ParseError :=
   { pos := 0, line := 1, col := 1, expected := ["unique XML attributes"] }
 
 /-- Parse one Rodin XML document from its UTF-8 bytes. -/

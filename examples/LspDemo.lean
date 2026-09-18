@@ -25,11 +25,17 @@ def symbolName
     : Name :=
   Name.mkSimple ("EventB.DSL.symbol." ++ owner ++ "." ++ symbol)
 
-private def requireRange (owner symbol : String) : CommandElabM Unit := do
+private
+def requireRange
+    (owner symbol : String)
+    : CommandElabM Unit := do
   unless (← Lean.findDeclarationRanges? (symbolName owner symbol)).isSome do
     throwError s!"missing native Event-B source range for `{owner}.{symbol}`"
 
-private def requireDeclaration (name : Name) : CommandElabM Unit := do
+private
+def requireDeclaration
+    (name : Name)
+    : CommandElabM Unit := do
   unless (← Lean.findDeclarationRanges? name).isSome do
     throwError s!"missing native declaration range for `{name}`"
 

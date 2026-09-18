@@ -60,9 +60,7 @@ where
     | '\n' :: rest, .block, out => go rest .block ('\n' :: out)
     | _ :: rest, .block, out => go rest .block out
 
-private
-def structuralWords
-    : List String :=
+private def structuralWords : List String :=
   ["context", "extends", "sets", "constants", "axioms", "theorems", "end", "machine",
    "refines", "sees", "variables", "invariants", "variant", "events", "event", "any",
    "where", "when", "with", "then", "begin", "witness"]
@@ -213,7 +211,11 @@ def leadingLabel?
       let rest := cs.drop label.length |>.dropWhile whitespace
       some (removeTrailingColon (String.ofList label), String.ofList rest)
 
-private def labelled (_generated : String) (source : String) : Except String Labelled := do
+private
+def labelled
+    (_generated : String)
+    (source : String)
+    : Except String Labelled := do
   let source := trim source
   let (theoremBefore, source) := stripTheorem source
   let (label, source) :=
@@ -260,20 +262,14 @@ def skipBlank
 
 private def isOneOf (value : String) (values : List String) : Bool := values.contains value
 
-private
-def contextStops
-    : List String :=
+private def contextStops : List String :=
   ["extends", "sets", "constants", "axioms", "theorems", "end"]
 
-private
-def machineStops
-    : List String :=
+private def machineStops : List String :=
   ["refines", "sees", "variables", "invariants", "theorems", "variant", "events",
    "end"]
 
-private
-def eventStops
-    : List String :=
+private def eventStops : List String :=
   ["any", "where", "when", "with", "witness", "then", "begin", "end"]
 
 private
@@ -346,8 +342,14 @@ where
             else
               (text, source)
 
-private def predicateLine (kind : PredicateKind) (stops : List String) (index : Nat) (line : Line)
-    (rest : List Line) : Except String (Elem × List Line) := do
+private
+def predicateLine
+    (kind : PredicateKind)
+    (stops : List String)
+    (index : Nat)
+    (line : Line)
+    (rest : List Line)
+    : Except String (Elem × List Line) := do
   if lower line.text == "theorem" then
     match skipBlank rest with
     | next :: remaining =>
@@ -676,8 +678,11 @@ where
     | members, "}" :: rest => .ok (members, rest)
     | members, token :: rest => takeSetMembers (members ++ [token]) rest
 
-private def setElements (line : Line) (rest : List Line) :
-    Except String (List Elem × List Line) := do
+private
+def setElements
+    (line : Line)
+    (rest : List Line)
+    : Except String (List Elem × List Line) := do
   let (text, remaining) := sectionData line rest
   let (continuations, remaining) := collectText (remaining.length + 2)
     contextStops remaining
@@ -728,8 +733,11 @@ def parseContextBody
               parseContextBody fuel (children ++ items) remaining
           | _ => .error (lineError line "unexpected context clause")
 
-private def parseContext (line : Line) (rest : List Line) :
-    Except String (Component × List Line) := do
+private
+def parseContext
+    (line : Line)
+    (rest : List Line)
+    : Except String (Component × List Line) := do
   let (name, headerTail) ← match firstWord? (tail line.text) with
     | some pair => pure pair
     | none => .error (lineError line "CONTEXT needs a component name")
@@ -747,7 +755,10 @@ def convergence
   else if status == "anticipated" then some "2"
   else none
 
-private def parseEventHeader (line : Line) : Except String (String × Option String × String) := do
+private
+def parseEventHeader
+    (line : Line)
+    : Except String (String × Option String × String) := do
   let (first, rest) ← match firstWord? line.text with
     | some pair => pure pair
     | none => .error (lineError line "EVENT needs a name")
@@ -760,7 +771,10 @@ private def parseEventHeader (line : Line) : Except String (String × Option Str
     | none => .error (lineError line "EVENT needs a name")
   return (name, status, afterName)
 
-private def eventStatus (line : Line) : Except String (Option String × String) := do
+private
+def eventStatus
+    (line : Line)
+    : Except String (Option String × String) := do
   let (word, rest) ← match firstWord? (tail line.text) with
     | some pair => pure pair
     | none => .error (lineError line "STATUS expects ordinary, convergent, or anticipated")
@@ -832,7 +846,11 @@ def parseEventBody
               parseEventBody fuel name status (children ++ items) remaining
           | _ => .error (lineError line "unexpected event clause")
 
-private def parseEvent (line : Line) (rest : List Line) : Except String (Elem × List Line) := do
+private
+def parseEvent
+    (line : Line)
+    (rest : List Line)
+    : Except String (Elem × List Line) := do
   let (name, status, headerTail) ← parseEventHeader line
   let source := if headerTail.isEmpty then rest else
     ({ number := line.number, text := headerTail } :: rest)
@@ -918,8 +936,11 @@ def parseMachineBody
               parseMachineBody fuel (children ++ events) remaining
           | _ => .error (lineError line "unexpected machine clause")
 
-private def parseMachine (line : Line) (rest : List Line) :
-    Except String (Component × List Line) := do
+private
+def parseMachine
+    (line : Line)
+    (rest : List Line)
+    : Except String (Component × List Line) := do
   let (name, headerTail) ← match firstWord? (tail line.text) with
     | some pair => pure pair
     | none => .error (lineError line "MACHINE needs a component name")
@@ -950,7 +971,9 @@ def parseComponents
               return component :: more
           | _ => .error (lineError line "expected CONTEXT or MACHINE")
 
-def parse (source : String) : Except EventB.Error (List Component) := do
+def parse
+    (source : String)
+    : Except EventB.Error (List Component) := do
   let source ← (stripComments source).mapError EventB.Error.rossi
   let result ← (parseComponents ((source.length * 2) + 1) (lines source)).mapError
     EventB.Error.rossi
@@ -962,7 +985,9 @@ def parseModel
     : Except EventB.Error (List Model) :=
   parse source |>.map (·.map (·.model))
 
-def read (path : System.FilePath) : IO (Except EventB.Error (List Component)) := do
+def read
+    (path : System.FilePath)
+    : IO (Except EventB.Error (List Component)) := do
   try
     let source ← IO.FS.readFile path
     return (parse source).mapError (·.withPath path.toString)

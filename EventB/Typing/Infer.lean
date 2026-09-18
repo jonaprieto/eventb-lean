@@ -45,7 +45,9 @@ Following a chain of metavariables terminates because every link points to a
 strictly lower index: `unify` always assigns the higher of two metavariables to the
 lower. That makes the index itself the decreasing measure, so this needs no fuel and,
 more usefully, the substitution cannot contain a cycle for it to fall into. -/
-def resolve (t : Ty) : M Ty := do
+def resolve
+    (t : Ty)
+    : M Ty := do
   match t with
   | .mvar n =>
     match (← get).subst[n]? with
@@ -97,7 +99,10 @@ def occursAux
     | .prod a b => return (← occursAux fuel n a) || (← occursAux fuel n b)
     | _ => return false
 
-def occurs (n : Nat) (t : Ty) : M Bool := do
+def occurs
+    (n : Nat)
+    (t : Ty)
+    : M Bool := do
   occursAux ((← substWeight) + t.size + 1) n t
 
 def unifyAux
@@ -125,10 +130,14 @@ where
   assign (n : Nat) (t : Ty) : M Unit := do
     modify fun s => { s with subst := s.subst.set! n (some t) }
 
-def unify (a b : Ty) : M Unit := do
+def unify
+    (a b : Ty)
+    : M Unit := do
   unifyAux ((← substWeight) + a.size + b.size + 1) a b
 
-def lookup? (name : String) : M (Option Ty) := do
+def lookup?
+    (name : String)
+    : M (Option Ty) := do
   return ((← get).env.find? (fun p => p.1 == name)).map (·.2)
 
 def bind
@@ -138,14 +147,20 @@ def bind
   modify fun s => { s with env := (name, t) :: s.env }
 
 /-- Run a typing action in a lexical environment and restore that environment afterward. -/
-def withEnv {α : Type} (action : M α) : M α := do
+def withEnv
+    {α : Type}
+    (action : M α)
+    : M α := do
   let saved := (← get).env
   let value ← action
   modify fun s => { s with env := saved }
   return value
 
 /-- Run a scoped action, returning the bindings it introduced after restoring the environment. -/
-def withEnvBindings {α : Type} (action : M α) : M (α × List (String × Ty)) := do
+def withEnvBindings
+    {α : Type}
+    (action : M α)
+    : M (α × List (String × Ty)) := do
   let saved := (← get).env
   let value ← action
   let current := (← get).env
@@ -154,22 +169,26 @@ def withEnvBindings {α : Type} (action : M α) : M (α × List (String × Ty)) 
   return (value, bound)
 
 /-- A relation `ℙ(A×B)`, returning the two sides. -/
-private def asRelation (t : Ty) : M (Ty × Ty) := do
+private
+def asRelation
+    (t : Ty)
+    : M (Ty × Ty) := do
   let a ← fresh
   let b ← fresh
   unify t (.pow (.prod a b))
   return (a, b)
 
-private def asSet (t : Ty) : M Ty := do
+private
+def asSet
+    (t : Ty)
+    : M Ty := do
   let a ← fresh
   unify t (.pow a)
   return a
 
 /-- Relational predicates: both sides are expressions, and the pair is what constrains
 them. `∈` relates an element to a set, `⊆` two sets, the orderings two integers. -/
-private
-def relational
-    : List String :=
+private def relational : List String :=
   ["=", "≠", "∈", "∉", "⊂", "⊄", "⊆", "⊈", "<", "≤", ">", "≥"]
 
 private def connectives : List String := ["⇔", "⇒", "∧", "∨"]
@@ -178,9 +197,7 @@ private def connectives : List String := ["⇔", "⇒", "∧", "∨"]
 private def setBinary : List String := ["∪", "∩", "∖"]
 
 /-- Relation and function arrows, all `ℙ(A) × ℙ(B) → ℙ(ℙ(A×B))`. -/
-private
-def arrows
-    : List String :=
+private def arrows : List String :=
   ["↔", "", "", "", "⇸", "→", "⤔", "↣", "⤀", "↠", "⤖"]
 
 /-- Domain and range restriction: `◁ ⩤` take a set on the left, `▷ ⩥` on the right. -/
@@ -225,7 +242,9 @@ end
 mutual
 
 /-- Predicates have no type; the judgement is that the formula is well-formed. -/
-def checkPred (t : Term) : M Unit := do
+def checkPred
+    (t : Term)
+    : M Unit := do
   match t with
   | .id "⊤" | .id "⊥" => return ()
   | .pre "¬" p => checkPred p
@@ -314,7 +333,10 @@ decreasing_by
   all_goals simp +arith [Term.bin.sizeOf_spec]
 
 /-- Resolve a type-set ascription without re-entering expression inference. -/
-private def ascriptionType (t : Term) : M Ty := do
+private
+def ascriptionType
+    (t : Term)
+    : M Ty := do
   let s ← get
   let typeOfName (name : String) : M Ty :=
     match Theory.typeIn? s.theory s.theoryRoots name with
@@ -346,7 +368,9 @@ decreasing_by
   all_goals simp +arith [Term.bin.sizeOf_spec]
 
 /-- The type of a binder pattern, once its identifiers are bound. -/
-def patternType (t : Term) : M Ty := do
+def patternType
+    (t : Term)
+    : M Ty := do
   match t with
   | .id n =>
     match ← lookup? n with
@@ -360,7 +384,9 @@ termination_by sizeOf t
 decreasing_by
   all_goals simp +arith [Term.bin.sizeOf_spec]
 
-def inferExpr (t : Term) : M Ty := do
+def inferExpr
+    (t : Term)
+    : M Ty := do
   match t with
   | .num _ => return .int
   | .id n =>
@@ -404,7 +430,9 @@ decreasing_by
 
 /-- Function-shaped keywords are ordinary identifiers in the syntax tree, so their typing
 rules live here rather than in the lexer. -/
-def inferApp (f a : Term) : M Ty := do
+def inferApp
+    (f a : Term)
+    : M Ty := do
   match f with
   | .id "card" => do let _ ← asSet (← inferExpr a); return .int
   | .id "min" | .id "max" => do unify (← inferExpr a) (.pow .int); return .int
@@ -454,7 +482,10 @@ termination_by sizeOf pat + sizeOf body
 decreasing_by
   all_goals simp +arith [termSizePos, Term.bin.sizeOf_spec]
 
-def inferBin (o : String) (a b : Term) : M Ty := do
+def inferBin
+    (o : String)
+    (a b : Term)
+    : M Ty := do
   if o == "," then
     return .prod (← inferExpr a) (← inferExpr b)
   else if o == "↦" then

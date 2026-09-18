@@ -48,7 +48,10 @@ def isFalse
   | .id "⊥" => true
   | _ => false
 
-private def rule? (obligation : Obligation) : Option Rule := do
+private
+def rule?
+    (obligation : Obligation)
+    : Option Rule := do
   let goal ← obligation.goal
   if goal == .id "⊤" then
     some .true
@@ -99,14 +102,10 @@ def attach
       .error (EventB.Error.prover "local prover evidence has wrong trust mode")
   | _ => pure ledger
 
-private
-def trueObligation
-    : Obligation :=
+private def trueObligation : Obligation :=
   { component := "Local", name := "true", kind := "THM", goal := some (.id "⊤") }
 
-private
-def reflexiveObligation
-    : Obligation :=
+private def reflexiveObligation : Obligation :=
   { component := "Local", name := "refl", kind := "THM"
     goal := some (.bin "=" (.id "x") (.id "x")) }
 

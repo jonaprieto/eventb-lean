@@ -4,9 +4,7 @@ import EventB.POG.RefinementAdapters
 
 namespace EventB.POG
 
-private
-def mergeFixtureProject
-    : EventB.Typing.Project :=
+private def mergeFixtureProject : EventB.Typing.Project :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [ .variable [("org.eventb.core.identifier", "x")] []
@@ -44,9 +42,7 @@ def mergeFixtureProject
 #guard (CheckedMergeSource.fromProject EventB.Theory.empty mergeFixtureProject "B" "left").isNone
 #guard (CheckedMergeSource.fromProject EventB.Theory.empty mergeFixtureProject "B" "missing").isNone
 
-private
-def rawMergeObligation
-    : Obligation :=
+private def rawMergeObligation : Obligation :=
   { component := "B"
     name := "merge/MRG"
     kind := "MRG"

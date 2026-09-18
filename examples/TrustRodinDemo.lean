@@ -5,9 +5,7 @@ namespace EventB.TrustRodinDemo
 
 open EventB
 
-private
-def obligation
-    : POG.Obligation :=
+private def obligation : POG.Obligation :=
   { component := "Demo", name := "INITIALISATION/inv/INV", kind := "INV"
     goal := some (.bin "∈" (.num 0) (.id "ℤ")) }
 
@@ -17,9 +15,7 @@ private def source :=
     "org.eventb.core.confidence=\"1000\" org.eventb.core.psManual=\"false\"/>" ++
     "</org.eventb.core.psFile>"
 
-private
-def provenance
-    : Trust.Rodin.Provenance :=
+private def provenance : Trust.Rodin.Provenance :=
   { models := [{ component := "Demo", kind := .machine, bytes :=
     ("<?xml version=\"1.0\"?><org.eventb.core.machineFile " ++
       "org.eventb.core.name=\"Demo\"><org.eventb.core.variable " ++

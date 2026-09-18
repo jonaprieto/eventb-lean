@@ -27,9 +27,7 @@ def assignmentOf
     : Option String :=
   elem.attr? "org.eventb.core.assignment"
 
-private
-def wrapped
-    : String :=
+private def wrapped : String :=
   "CONTEXT C\nSETS S\nCONSTANTS x y\nAXIOMS\n@a\nx ∈ S\n∧ y ∈ S\n@b\ny = y\nEND\n" ++
   "MACHINE M\nSEES C\nVARIABLES v w\nEVENTS\nEVENT INITIALISATION\nTHEN\n" ++
   "v := 0 v := 1\nEND\nEVENT update\nTHEN\n@set_v\n" ++

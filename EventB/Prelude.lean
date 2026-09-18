@@ -106,8 +106,7 @@ def coreSymbol
     : Symbol :=
   { symbol with id := SymbolId.qualified "EventB.Core" symbol.name, source := coreSource }
 
-def coreSymbols
-    : List Symbol :=
+def coreSymbols : List Symbol :=
   [ carrier "ℤ" "The set of all integers."
   , carrier "ℕ" "The set of natural numbers."
   , carrier "ℕ1" "The set of positive natural numbers."

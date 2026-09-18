@@ -160,8 +160,7 @@ def EqlIntEventBridge.read
    of list order or the representation of unrelated variables. -/
 theorem intRead_of_eqlEvaluation
     (fuel : Nat)
-    (name : String)
-    (transition : CheckedBeforeAfter)
+    (name : String) (transition : CheckedBeforeAfter)
     (beforeValue afterValue : Int)
     (beforeValid : ValueEnv.validationOk fuel transition.declarations transition.before = true)
     (afterValid : ValueEnv.validationOk fuel transition.declarations transition.after = true)
@@ -178,8 +177,8 @@ theorem intRead_of_eqlEvaluation
     (beforeLookup : transition.before.lookup name = some (.integer beforeValue))
     (afterLookup : transition.after.lookup ((name ++ "'").dropEnd 1).copy =
       some (.integer afterValue))
-    (evaluated : assignmentPredicateWithFuel fuel transition (eqlGoal name))
-    : afterValue = beforeValue := by
+    (evaluated : assignmentPredicateWithFuel fuel transition (eqlGoal name)) :
+    afterValue = beforeValue := by
   exact eqlIntegerAfterEqBefore fuel name transition beforeValue afterValue
     beforeValid afterValid unprimed primedBase primeNotInteger primeNotNatural
     primeNotNatural1 primeNotBoolean notInteger notNatural notNatural1 notBoolean
@@ -263,8 +262,7 @@ theorem EqlIntAdapter.sound
 /- Kernel fixtures.  The parent event has no action; the concrete event's
    deterministic self-assignment is therefore the exact source of B/step/x/EQL. -/
 
-def positiveProject
-    : EventB.Typing.Project :=
+def positiveProject : EventB.Typing.Project :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.variable [("org.eventb.core.identifier", "x")] []

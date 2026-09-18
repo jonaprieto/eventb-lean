@@ -98,7 +98,12 @@ def leanType
 
 private abbrev typeExpr := leanType
 
-private def checked (context : KernelContext) (ty : Ty) (value : Expr) : MetaM KernelTerm := do
+private
+def checked
+    (context : KernelContext)
+    (ty : Ty)
+    (value : Expr)
+    : MetaM KernelTerm := do
   let expected ← leanType context ty
   let actual ← inferType value
   unless ← isDefEq actual expected do
@@ -132,24 +137,38 @@ def mkDisjunction
   | [] => pure (mkConst ``False)
   | value :: values => values.foldlM mkOr value
 
-private def mkSetExtension (type : Expr) (values : List Expr) : MetaM Expr := do
+private
+def mkSetExtension
+    (type : Expr)
+    (values : List Expr)
+    : MetaM Expr := do
   withLocalDeclD `x type fun x => do
     let equalities ← values.mapM (mkEq x)
     mkLambdaFVars #[x] (← mkDisjunction equalities)
 
-private def mkExistsAt (type : Expr) (body : Expr → MetaM Expr) : MetaM Expr := do
+private
+def mkExistsAt
+    (type : Expr)
+    (body : Expr → MetaM Expr)
+    : MetaM Expr := do
   withLocalDeclD `x type fun x => do
     let predicate ← mkLambdaFVars #[x] (← body x)
     mkAppM ``Exists #[predicate]
 
-private def mkUnionSet (elementType setOfSets : Expr) : MetaM Expr := do
+private
+def mkUnionSet
+    (elementType setOfSets : Expr)
+    : MetaM Expr := do
   let setType ← mkArrow elementType propType
   withLocalDeclD `x elementType fun x => do
     let existsExpr ← mkExistsAt setType fun subset => do
       mkAnd (mkApp setOfSets subset) (mkApp subset x)
     mkLambdaFVars #[x] existsExpr
 
-private def mkIntersectionSet (elementType setOfSets : Expr) : MetaM Expr := do
+private
+def mkIntersectionSet
+    (elementType setOfSets : Expr)
+    : MetaM Expr := do
   let setType ← mkArrow elementType propType
   withLocalDeclD `x elementType fun x => do
     withLocalDeclD `subset setType fun subset => do
@@ -157,10 +176,16 @@ private def mkIntersectionSet (elementType setOfSets : Expr) : MetaM Expr := do
       let universal ← mkForallFVars #[subset] implication
       mkLambdaFVars #[x] universal
 
-private def mkUniversalSet (type : Expr) : MetaM Expr := do
+private
+def mkUniversalSet
+    (type : Expr)
+    : MetaM Expr := do
   withLocalDeclD `x type fun x => mkLambdaFVars #[x] trueProp
 
-private def mkIntSet (positive : Bool) : MetaM Expr := do
+private
+def mkIntSet
+    (positive : Bool)
+    : MetaM Expr := do
   withLocalDeclD `x (mkConst ``Int) fun x => do
     let zero := mkApp (mkConst ``Int.ofNat) (mkNatLit 0)
     let condition := if positive then
@@ -169,7 +194,11 @@ private def mkIntSet (positive : Bool) : MetaM Expr := do
       mkApp2 (mkConst ``Int.le) zero x
     mkLambdaFVars #[x] condition
 
-private def lookupExpr (context : KernelContext) (name : String) : MetaM KernelTerm := do
+private
+def lookupExpr
+    (context : KernelContext)
+    (name : String)
+    : MetaM KernelTerm := do
   match context.lookup name with
   | some binding =>
       if let some expected := Theory.typeIn? context.theory context.roots name then
@@ -188,8 +217,11 @@ private def lookupExpr (context : KernelContext) (name : String) : MetaM KernelT
       else
         throwError s!"unknown Event-B identifier `{name}`"
 
-private def validateFunction (context : KernelContext) (function : KernelFunction) :
-    MetaM Unit := do
+private
+def validateFunction
+    (context : KernelContext)
+    (function : KernelFunction)
+    : MetaM Unit := do
   if let some expected := Theory.typeIn? context.theory context.roots function.name then
     let declared := .pow (.prod function.argument function.result)
     unless expected == declared do
@@ -202,8 +234,11 @@ private def validateFunction (context : KernelContext) (function : KernelFunctio
     throwError s!"semantic function `{function.name}` has Lean type {actual}, " ++
       s!"expected {argumentType} → {resultType}"
 
-private def validatePredicate (context : KernelContext) (predicate : KernelPredicate) :
-    MetaM Unit := do
+private
+def validatePredicate
+    (context : KernelContext)
+    (predicate : KernelPredicate)
+    : MetaM Unit := do
   if let some expected := Theory.typeIn? context.theory context.roots predicate.name then
     let declared := .pow (.prod predicate.argument .bool)
     unless expected == declared do
@@ -223,7 +258,10 @@ def asSet
   | .pow type => pure (type, term.value)
   | type => throwError s!"expected a set, found {type.print}"
 
-private def sameType (left right : Ty) : MetaM Unit := do
+private
+def sameType
+    (left right : Ty)
+    : MetaM Unit := do
   unless left == right do
     throwError s!"incompatible translated types {left.print} and {right.print}"
 
@@ -238,9 +276,14 @@ def eventBType
   | .bin "×" left right => return .prod (← eventBType left) (← eventBType right)
   | term => throwError s!"unsupported binder type `{Formula.print term}`"
 
-private def withPattern {α : Type} (context : KernelContext) (pattern : Formula.Term)
+private
+def withPattern
+    {α : Type}
+    (context : KernelContext)
+    (pattern : Formula.Term)
     (expected : Option Ty)
-    (body : KernelContext → List Expr → Expr → Ty → MetaM α) : MetaM α := do
+    (body : KernelContext → List Expr → Expr → Ty → MetaM α)
+    : MetaM α := do
   match pattern with
   | .id name =>
       let ty ← match expected with
@@ -323,7 +366,11 @@ def project
     : MetaM Expr :=
   mkAppM which #[pair]
 
-private def mkSetBinary (op : String) (type left right : Expr) : MetaM Expr := do
+private
+def mkSetBinary
+    (op : String)
+    (type left right : Expr)
+    : MetaM Expr := do
   withLocalDeclD `x type fun x => do
     let a := mkApp left x
     let b := mkApp right x
@@ -334,13 +381,19 @@ private def mkSetBinary (op : String) (type left right : Expr) : MetaM Expr := d
       | _ => throwError s!"unsupported set operator `{op}`"
     mkLambdaFVars #[x] body
 
-private def mkSubset (type left right : Expr) : MetaM Expr := do
+private
+def mkSubset
+    (type left right : Expr)
+    : MetaM Expr := do
   withLocalDeclD `x type fun x => do
     let premise := mkApp left x
     let conclusion := mkApp right x
     mkForallFVars #[x] (← mkImp premise conclusion)
 
-private def mkProductSet (leftType rightType left right : Expr) : MetaM Expr := do
+private
+def mkProductSet
+    (leftType rightType left right : Expr)
+    : MetaM Expr := do
   let pairType ← mkAppM ``Prod #[leftType, rightType]
   withLocalDeclD `pair pairType fun pair => do
     let first ← project ``Prod.fst pair
@@ -348,7 +401,10 @@ private def mkProductSet (leftType rightType left right : Expr) : MetaM Expr := 
     let body ← mkAnd (mkApp left first) (mkApp right second)
     mkLambdaFVars #[pair] body
 
-private def mkRelationSpace (leftType rightType left right : Expr) : MetaM Expr := do
+private
+def mkRelationSpace
+    (leftType rightType left right : Expr)
+    : MetaM Expr := do
   let pairType ← mkAppM ``Prod #[leftType, rightType]
   let relationType ← mkArrow pairType propType
   withLocalDeclD `relation relationType fun relation => do
@@ -361,9 +417,11 @@ private def mkRelationSpace (leftType rightType left right : Expr) : MetaM Expr 
       let subset ← mkForallFVars #[pair] implication
       mkLambdaFVars #[relation] subset
 
-private def mkRelationConstraint (kind : String)
-    (leftType rightType leftSet rightSet relation : Expr) :
-    MetaM Expr := do
+private
+def mkRelationConstraint
+    (kind : String)
+    (leftType rightType leftSet rightSet relation : Expr)
+    : MetaM Expr := do
   let relationAt (left right : Expr) : MetaM Expr := do
     pure (mkApp relation (← mkPair left right))
   match kind with
@@ -406,8 +464,11 @@ def relationConstraints
   | "⤖" => ["functional", "injective", "surjective", "total"]
   | _ => []
 
-private def mkRelationArrow (op : String) (leftType rightType left right : Expr) :
-    MetaM Expr := do
+private
+def mkRelationArrow
+    (op : String)
+    (leftType rightType left right : Expr)
+    : MetaM Expr := do
   let pairType ← mkAppM ``Prod #[leftType, rightType]
   let relationType ← mkArrow pairType propType
   let base ← mkRelationSpace leftType rightType left right
@@ -419,7 +480,11 @@ private def mkRelationArrow (op : String) (leftType rightType left right : Expr)
       mkAnd body property
     mkLambdaFVars #[relation] body
 
-private def mkPowerSet (type set : Expr) (positive : Bool) : MetaM Expr := do
+private
+def mkPowerSet
+    (type set : Expr)
+    (positive : Bool)
+    : MetaM Expr := do
   let setType ← mkArrow type propType
   withLocalDeclD `subset setType fun subset => do
     withLocalDeclD `x type fun x => do
@@ -433,7 +498,10 @@ private def mkPowerSet (type set : Expr) (positive : Bool) : MetaM Expr := do
       else pure inclusion
       mkLambdaFVars #[subset] body
 
-private def mkImage (leftType rightType relation set : Expr) : MetaM Expr := do
+private
+def mkImage
+    (leftType rightType relation set : Expr)
+    : MetaM Expr := do
   withLocalDeclD `y rightType fun y => do
     let existsExpr ← mkExistsAt leftType fun x => do
       let pair ← mkPair x y
@@ -442,7 +510,10 @@ private def mkImage (leftType rightType relation set : Expr) : MetaM Expr := do
       mkAnd selected related
     mkLambdaFVars #[y] existsExpr
 
-private def mkInverse (leftType rightType relation : Expr) : MetaM Expr := do
+private
+def mkInverse
+    (leftType rightType relation : Expr)
+    : MetaM Expr := do
   let sourcePairType ← mkAppM ``Prod #[rightType, leftType]
   withLocalDeclD `pair sourcePairType fun pair => do
     let first ← project ``Prod.fst pair
@@ -450,8 +521,11 @@ private def mkInverse (leftType rightType relation : Expr) : MetaM Expr := do
     let originalPair ← mkPair second first
     mkLambdaFVars #[pair] (mkApp relation originalPair)
 
-private def mkProjectionSet (leftType rightType relation : Expr) (first : Bool) :
-    MetaM Expr := do
+private
+def mkProjectionSet
+    (leftType rightType relation : Expr)
+    (first : Bool)
+    : MetaM Expr := do
   withLocalDeclD `value (if first then leftType else rightType) fun value => do
     let existsExpr ← if first then
       mkExistsAt rightType fun other => do
@@ -463,7 +537,10 @@ private def mkProjectionSet (leftType rightType relation : Expr) (first : Bool) 
         pure (mkApp relation pair)
     mkLambdaFVars #[value] existsExpr
 
-private def mkIdentity (type set : Expr) : MetaM Expr := do
+private
+def mkIdentity
+    (type set : Expr)
+    : MetaM Expr := do
   let pairType ← mkAppM ``Prod #[type, type]
   withLocalDeclD `pair pairType fun pair => do
     let first ← project ``Prod.fst pair
@@ -471,21 +548,32 @@ private def mkIdentity (type set : Expr) : MetaM Expr := do
     let body ← mkAnd (mkApp set first) (← mkEq first second)
     mkLambdaFVars #[pair] body
 
-private def mkRestriction (relationType set relation : Expr) (domain : Bool) : MetaM Expr := do
+private
+def mkRestriction
+    (relationType set relation : Expr)
+    (domain : Bool)
+    : MetaM Expr := do
   withLocalDeclD `pair relationType fun pair => do
     let endpoint ← if domain then project ``Prod.fst pair else project ``Prod.snd pair
     let restricted := mkApp set endpoint
     let body ← mkAnd restricted (mkApp relation pair)
     mkLambdaFVars #[pair] body
 
-private def mkSubtraction (relationType set relation : Expr) (domain : Bool) : MetaM Expr := do
+private
+def mkSubtraction
+    (relationType set relation : Expr)
+    (domain : Bool)
+    : MetaM Expr := do
   withLocalDeclD `pair relationType fun pair => do
     let endpoint ← if domain then project ``Prod.fst pair else project ``Prod.snd pair
     let removed := mkApp set endpoint
     let body ← mkAnd (← mkNot removed) (mkApp relation pair)
     mkLambdaFVars #[pair] body
 
-private def mkComposition (leftType middleType rightType left right : Expr) : MetaM Expr := do
+private
+def mkComposition
+    (leftType middleType rightType left right : Expr)
+    : MetaM Expr := do
   let pairType ← mkAppM ``Prod #[leftType, rightType]
   withLocalDeclD `pair pairType fun pair => do
     let input ← project ``Prod.fst pair
@@ -496,7 +584,10 @@ private def mkComposition (leftType middleType rightType left right : Expr) : Me
       mkAnd (mkApp left firstPair) (mkApp right secondPair)
     mkLambdaFVars #[pair] existsExpr
 
-private def mkDirectProduct (leftType middleType rightType p q : Expr) : MetaM Expr := do
+private
+def mkDirectProduct
+    (leftType middleType rightType p q : Expr)
+    : MetaM Expr := do
   let outputType ← mkAppM ``Prod #[middleType, rightType]
   let pairType ← mkAppM ``Prod #[leftType, outputType]
   withLocalDeclD `pair pairType fun pair => do
@@ -509,8 +600,11 @@ private def mkDirectProduct (leftType middleType rightType p q : Expr) : MetaM E
     let body ← mkAnd (mkApp p firstPair) (mkApp q secondPair)
     mkLambdaFVars #[pair] body
 
-private def mkParallelProduct (leftType middleType rightType output : Expr) (p q : Expr) :
-    MetaM Expr := do
+private
+def mkParallelProduct
+    (leftType middleType rightType output : Expr)
+    (p q : Expr)
+    : MetaM Expr := do
   let inputType ← mkAppM ``Prod #[leftType, middleType]
   let outputType' ← mkAppM ``Prod #[rightType, output]
   let pairType ← mkAppM ``Prod #[inputType, outputType']
@@ -526,7 +620,10 @@ private def mkParallelProduct (leftType middleType rightType output : Expr) (p q
     let body ← mkAnd (mkApp p leftPair) (mkApp q rightPair)
     mkLambdaFVars #[pair] body
 
-private def mkOverride (leftType rightType left right : Expr) : MetaM Expr := do
+private
+def mkOverride
+    (leftType rightType left right : Expr)
+    : MetaM Expr := do
   let pairType ← mkAppM ``Prod #[leftType, rightType]
   withLocalDeclD `pair pairType fun pair => do
     let input ← project ``Prod.fst pair
@@ -537,7 +634,11 @@ private def mkOverride (leftType rightType left right : Expr) : MetaM Expr := do
     let body ← mkOr rightAt (← mkAnd (mkApp left pair) (← mkNot existsExpr))
     mkLambdaFVars #[pair] body
 
-private def builtinSet (context : KernelContext) (name : String) : MetaM KernelTerm := do
+private
+def builtinSet
+    (context : KernelContext)
+    (name : String)
+    : MetaM KernelTerm := do
   match name with
   | "BOOL" => checked context (.pow .bool) (← mkUniversalSet boolType)
   | "ℤ" => checked context (.pow .int) (← mkUniversalSet (mkConst ``Int))

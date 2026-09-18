@@ -43,8 +43,7 @@ structure Model where
   root : Elem
   deriving BEq, Repr
 
-def inventoryTags
-    : List String :=
+def inventoryTags : List String :=
   ["guard", "action", "event", "refinesEvent", "variable", "invariant", "parameter",
    "axiom", "constant", "machineFile", "seesContext", "refinesMachine", "extendsContext",
    "contextFile", "witness", "carrierSet"]
@@ -161,8 +160,7 @@ def Model.inventory
 
 /-- Attributes carrying an Event-B formula. `expression` is the variant used by
 `org.eventb.core.variant`, which the corpus does not exercise but Rodin emits. -/
-def formulaAttrs
-    : List String :=
+def formulaAttrs : List String :=
   ["org.eventb.core.predicate", "org.eventb.core.assignment", "org.eventb.core.expression"]
 
 mutual
@@ -202,7 +200,10 @@ def mapElemList
   | e :: es => do return (← mapElem e) :: (← mapElemList es)
 termination_by es => sizeOf es
 
-private def mapElem (elem : XmlElem) : Except String Elem := do
+private
+def mapElem
+    (elem : XmlElem)
+    : Except String Elem := do
   let children ← mapElemList elem.children
   match elem.tag with
   | "org.eventb.core.machineFile" => pure (.machineFile elem.attrs children)
@@ -234,7 +235,9 @@ decreasing_by
 
 end
 
-def fromXml (xml : XmlElem) : Except EventB.Error Model := do
+def fromXml
+    (xml : XmlElem)
+    : Except EventB.Error Model := do
   let root ← (mapElem xml).mapError EventB.Error.model
   match root with
   | .machineFile _ _ | .contextFile _ _ => pure { root := root }
@@ -248,19 +251,25 @@ def parseModel
   | .error err => .error (EventB.Error.model (err.pretty source))
   | .ok xml => fromXml xml
 
-def parseMachine (source : ByteArray) : Except EventB.Error Model := do
+def parseMachine
+    (source : ByteArray)
+    : Except EventB.Error Model := do
   let model ← parseModel source
   match model.root with
   | .machineFile _ _ => pure model
   | _ => .error (EventB.Error.model "expected machineFile root")
 
-def parseContext (source : ByteArray) : Except EventB.Error Model := do
+def parseContext
+    (source : ByteArray)
+    : Except EventB.Error Model := do
   let model ← parseModel source
   match model.root with
   | .contextFile _ _ => pure model
   | _ => .error (EventB.Error.model "expected contextFile root")
 
-def readModel (path : System.FilePath) : IO (Except EventB.Error Model) := do
+def readModel
+    (path : System.FilePath)
+    : IO (Except EventB.Error Model) := do
   pure (parseModel (← IO.FS.readBinFile path))
 
 end EventB

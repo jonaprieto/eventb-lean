@@ -47,14 +47,21 @@ def reportText
     : String :=
   String.intercalate "; " (report.errors.map (·.message))
 
-private def requireValid (env : Theory.Env) (roots : List String)
-    (declaration : Declaration) : MetaM Unit := do
+private
+def requireValid
+    (env : Theory.Env)
+    (roots : List String)
+    (declaration : Declaration)
+    : MetaM Unit := do
   let report := Validate.validateDeclaration env roots declaration
   unless report.isValid do
     throwError s!"invalid theory declaration: {reportText report}"
 
-private def checkTypeParameters (context : KernelContext) (parameters : List String) :
-    MetaM Unit := do
+private
+def checkTypeParameters
+    (context : KernelContext)
+    (parameters : List String)
+    : MetaM Unit := do
   for parameter in parameters do
     match context.signature.carriers.find? (·.1 == parameter) with
     | none =>
@@ -79,22 +86,33 @@ def withParameters
         withParameters context rest fun context values =>
           continuation context (value :: values)
 
-private def functionType (context : KernelContext) (parameters : List (String × Ty))
-    (result : Ty) : MetaM Expr := do
+private
+def functionType
+    (context : KernelContext)
+    (parameters : List (String × Ty))
+    (result : Ty)
+    : MetaM Expr := do
   let result ← leanType context result
   parameters.foldrM (fun (_, ty) result => do
     let type ← leanType context ty
     mkArrow type result) result
 
-private def checkedFunction (context : KernelContext) (parameters : List (String × Ty))
-    (result : Ty) (value : Expr) : MetaM Unit := do
+private
+def checkedFunction
+    (context : KernelContext)
+    (parameters : List (String × Ty))
+    (result : Ty)
+    (value : Expr)
+    : MetaM Unit := do
   let expected ← functionType context parameters result
   let actual ← inferType value
   unless ← isDefEq actual expected do
     throwError s!"translated declaration has type {actual}, expected {expected}"
 
-def translateDefinition (context : KernelContext) (definition : Definition) :
-    MetaM KernelDefinition := do
+def translateDefinition
+    (context : KernelContext)
+    (definition : Definition)
+    : MetaM KernelDefinition := do
   requireValid context.theory context.roots (.definitionDecl definition)
   checkTypeParameters context definition.typeParameters
   withParameters context definition.parameters fun bodyContext parameters => do
@@ -125,8 +143,12 @@ def productValues
       let right ← mkAppM ``Prod.snd #[value]
       return (← productValues left count) ++ [right]
 
-private def uncurried (context : KernelContext) (parameters : List (String × Ty))
-    (value : Expr) : MetaM Expr := do
+private
+def uncurried
+    (context : KernelContext)
+    (parameters : List (String × Ty))
+    (value : Expr)
+    : MetaM Expr := do
   let some argumentType := productType (parameters.map (·.2)) | unreachable!
   withLocalDeclD `arguments (← leanType context argumentType) fun arguments => do
     let values ← productValues arguments parameters.length
@@ -160,15 +182,21 @@ def addDefinitionBinding
 /-- Translate all visible definitional declarations and add their Lean denotations to the
 formula context. Declarations are resolved in theory order, so a definition may depend on
 an earlier definition while still requiring explicit model and datatype denotations. -/
-def translateDefinitions (context : KernelContext) : MetaM KernelContext := do
+def translateDefinitions
+    (context : KernelContext)
+    : MetaM KernelContext := do
   let mut resolved := context
   for (_, definition) in Theory.definitionsIn context.theory context.roots do
     let translated ← translateDefinition resolved definition
     resolved ← addDefinitionBinding resolved definition translated
   pure resolved
 
-private def constructorType (context : KernelContext) (arguments : List Ty) (result : Expr) :
-    MetaM Expr := do
+private
+def constructorType
+    (context : KernelContext)
+    (arguments : List Ty)
+    (result : Expr)
+    : MetaM Expr := do
   arguments.foldrM (fun type result => do
     let type ← leanType context type
     mkArrow type result) result
@@ -182,8 +210,13 @@ def namedParameters
   | index, type :: types =>
       ("arg" ++ toString index, type) :: namedParameters (index + 1) types
 
-private def checkedUncurriedFunction (context : KernelContext) (name : String)
-    (argument result : Ty) (value : Expr) : MetaM Unit := do
+private
+def checkedUncurriedFunction
+    (context : KernelContext)
+    (name : String)
+    (argument result : Ty)
+    (value : Expr)
+    : MetaM Unit := do
   let argumentType ← leanType context argument
   let resultType ← leanType context result
   let actual ← inferType value
@@ -191,8 +224,12 @@ private def checkedUncurriedFunction (context : KernelContext) (name : String)
     throwError s!"constructor `{name}` has Lean type {actual}, " ++
       s!"expected {argumentType} → {resultType}"
 
-def checkDatatype (context : KernelContext) (datatype : Datatype) (value : Expr)
-    (constructors : List (String × Expr)) : MetaM KernelDatatype := do
+def checkDatatype
+    (context : KernelContext)
+    (datatype : Datatype)
+    (value : Expr)
+    (constructors : List (String × Expr))
+    : MetaM KernelDatatype := do
   requireValid context.theory context.roots (.dataType datatype)
   checkTypeParameters context datatype.parameters
   unless (← inferType value).isSort do
@@ -211,8 +248,12 @@ def checkDatatype (context : KernelContext) (datatype : Datatype) (value : Expr)
   pure { name := datatype.name, value, constructors := checked }
 
 /-- Check datatype denotations and add their constructors to a formula context. -/
-def addDatatypeBindings (context : KernelContext) (datatype : Datatype) (value : Expr)
-    (constructors : List (String × Expr)) : MetaM KernelContext := do
+def addDatatypeBindings
+    (context : KernelContext)
+    (datatype : Datatype)
+    (value : Expr)
+    (constructors : List (String × Expr))
+    : MetaM KernelContext := do
   let checked ← checkDatatype context datatype value constructors
   let mut resolved := context
   for (declaration, constructor) in datatype.constructors.zip checked.constructors do
@@ -247,7 +288,10 @@ def implications
   | premise :: premises, conclusion => do
       mkArrow premise (← implications premises conclusion)
 
-def translateRule (context : KernelContext) (rule : Rule) : MetaM KernelRule := do
+def translateRule
+    (context : KernelContext)
+    (rule : Rule)
+    : MetaM KernelRule := do
   requireValid context.theory context.roots (.ruleDecl rule)
   checkTypeParameters context rule.typeParameters
   withParameters context rule.parameters fun bodyContext parameters => do
