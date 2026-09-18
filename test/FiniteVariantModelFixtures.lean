@@ -20,7 +20,8 @@ private def modelFiniteProject : EventB.Typing.Project :=
 private
 def parsed?
     (source : String)
-    : Option EventB.Formula.Term :=
+    : Option EventB.Formula.Term
+    :=
   (EventB.Formula.parse source).toOption
 
 private def modelFinObligation : Obligation :=
@@ -81,7 +82,8 @@ private def modelFiniteGoal : EventB.Formula.Term :=
 private
 def modelShape
     (env : ValueEnv)
-    : Prop :=
+    : Prop
+    :=
   ∃ values, evalValueAtFuel 127 env (.id "S") = .ok (.set values)
 
 private def modelFinObligationExact : Obligation :=
@@ -92,7 +94,8 @@ private def modelFinObligationExact : Obligation :=
 private
 def modelDomain
     (env : ValueEnv)
-    : Prop :=
+    : Prop
+    :=
   ValueEnv.validationOk 128 modelDeclarations env = true ∧
     evalPredicateAtFuel 128 env modelTypeGoal = .ok true ∧
     evalPredicateAtFuel 128 env modelFiniteGoal = .ok true ∧
@@ -104,7 +107,8 @@ private
 theorem modelValidationFuelOfOk
     (env : ValueEnv)
     (h : ValueEnv.validationOk 128 modelDeclarations env = true)
-    : ValueEnv.validateFuel 128 modelDeclarations env = .ok PUnit.unit := by
+    : ValueEnv.validateFuel 128 modelDeclarations env = .ok PUnit.unit
+    := by
   unfold ValueEnv.validationOk at h
   cases result : ValueEnv.validateFuel 128 modelDeclarations env with
   | error error => simp [result] at h
@@ -130,13 +134,15 @@ private def modelEncode (state : modelState) : ValueEnv := state.1
 private
 def modelSourceTransition
     (state : modelState)
-    : CheckedBeforeAfter :=
+    : CheckedBeforeAfter
+    :=
   { before := state.1, after := state.1, declarations := modelDeclarations }
 
 private
 theorem modelSourceAssignment
     (state : modelState)
-    : modelEventSourceBound.assignmentAction 128 (modelSourceTransition state) := by
+    : modelEventSourceBound.assignmentAction 128 (modelSourceTransition state)
+    := by
   change assignmentRelation 128 modelEventSourceBound.declarations
     (modelSourceTransition state) modelEventSourceBound.updates
   have declarations : modelEventSourceBound.declarations = modelDeclarations := by
@@ -155,7 +161,8 @@ private
 theorem modelSourceAfterEq
     (transition : CheckedBeforeAfter)
     (source : modelEventSourceBound.assignmentAction 128 transition)
-    : transition.after = transition.before := by
+    : transition.after = transition.before
+    := by
   change assignmentRelation 128 modelEventSourceBound.declarations transition
     modelEventSourceBound.updates at source
   have declarations : modelEventSourceBound.declarations = modelDeclarations := by
@@ -186,20 +193,23 @@ private abbrev modelVarState :=
 private
 def modelVarEncode
     (state : modelVarState)
-    : CheckedBeforeAfter :=
+    : CheckedBeforeAfter
+    :=
   { before := state.1.1.1, after := state.1.2.1, declarations := modelDeclarations }
 
 private
 def modelVarSource
     (transition : CheckedBeforeAfter)
-    : Prop :=
+    : Prop
+    :=
   modelEventSourceBound.assignmentAction 128 transition ∧
     modelDomain transition.before ∧ modelDomain transition.after
 
 private
 theorem modelVarSourceValid
     (state : modelVarState)
-    : modelVarSource (modelVarEncode state) := by
+    : modelVarSource (modelVarEncode state)
+    := by
   refine ⟨?_, state.1.1.2, state.1.2.2⟩
   simpa [modelVarEncode, modelSourceTransition, state.2] using
     modelSourceAssignment state.1.1
@@ -209,7 +219,8 @@ theorem modelVarSourceComplete
     (transition : CheckedBeforeAfter)
     (source : modelVarSource transition)
     : ∃ state : modelVarState,
-      modelVarEncode state = transition := by
+      modelVarEncode state = transition
+    := by
   rcases source with ⟨assignment, beforeDomain, afterDomain⟩
   have afterEq := modelSourceAfterEq transition assignment
   refine ⟨⟨(⟨transition.before, beforeDomain⟩, ⟨transition.after, afterDomain⟩),
@@ -230,7 +241,8 @@ theorem modelSubsetSelfEval
     (afterValid : ValueEnv.validationOk 128 transition.declarations transition.after = true)
     (shape : modelShape transition.before)
     (afterEq : transition.after = transition.before)
-    : evalBeforeAfter 128 transition (.bin "⊆" (.id "S") (.id "S")) = .ok true := by
+    : evalBeforeAfter 128 transition (.bin "⊆" (.id "S") (.id "S")) = .ok true
+    := by
   exact evalBeforeAfterIdentifierSubsetSelf transition beforeValid afterValid shape afterEq
 
 private def modelInitialState : modelState :=
@@ -342,7 +354,8 @@ private
 theorem modelFinitenessExact
     : ∀ state : modelState,
       modelFiniteVariant.finite state ↔
-      modelFormulaModel.denote modelFiniteGoal (modelEncode state) := by
+      modelFormulaModel.denote modelFiniteGoal (modelEncode state)
+    := by
   intro state
   constructor
   · intro _
@@ -473,7 +486,8 @@ private def modelRestrictedAdapter :
 private
 theorem modelRestrictedSound
     : finiteVariantFiniteness modelFiniteVariant ∧
-      finiteVariantProgressSemantic modelFiniteVariant :=
+      finiteVariantProgressSemantic modelFiniteVariant
+    :=
   RestrictedFiniteSetVariantAdapter.sound modelRestrictedAdapter
 
 example : ¬ finiteVariantProgress .convergent ([0] : List Int) [0] := by

@@ -399,7 +399,8 @@ example
       (label, branch) ∈ mrgAdapter.branchEvents ∧
       branch.grd a ∧
       branch.act a a' ∧
-      True :=
+      True
+    :=
   mrgAdapter.sound
 
 end EventB.POG

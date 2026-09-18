@@ -31,14 +31,16 @@ instance : Repr ModelArtifact where
 
 def ModelArtifact.byteString
     (artifact : ModelArtifact)
-    : String :=
+    : String
+    :=
   (String.fromUTF8? artifact.bytes).getD ""
 
 private
 def artifactError
     (artifact : ModelArtifact)
     (message : String)
-    : EventB.Error :=
+    : EventB.Error
+    :=
   match artifact.path with
   | some path => (EventB.Error.model message).withPath path
   | none => EventB.Error.model message

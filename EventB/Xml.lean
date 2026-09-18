@@ -22,7 +22,8 @@ namespace XmlElem
 def attr?
     (elem : XmlElem)
     (key : String)
-    : Option String :=
+    : Option String
+    :=
   elem.attrs.find? (fun (name, _) => name == key) |>.map (·.2)
 
 end XmlElem
@@ -30,21 +31,24 @@ end XmlElem
 private
 def isNameByte
     (b : UInt8)
-    : Bool :=
+    : Bool
+    :=
   Ascii.isAlphaNum b || b == Ascii.code '.' || b == Ascii.code '-'
     || b == Ascii.code ':' || b == 95
 
 private
 def isNameStartByte
     (b : UInt8)
-    : Bool :=
+    : Bool
+    :=
   Ascii.isAlpha b || b == Ascii.code ':' || b == 95
 
 private
 def digitValue
     (base : Nat)
     (c : Char)
-    : Option Nat :=
+    : Option Nat
+    :=
   let n := c.toNat
   if 48 ≤ n && n ≤ 57 && n - 48 < base then
     some (n - 48)
@@ -59,7 +63,8 @@ private
 def digitsValue
     (base : Nat)
     (digits : List Char)
-    : Option Nat :=
+    : Option Nat
+    :=
   if digits.isEmpty then
     none
   else
@@ -93,7 +98,8 @@ private
 def decodeStep
     (state : DecodeState)
     (c : Char)
-    : DecodeState :=
+    : DecodeState
+    :=
   if state.failed then
     state
   else
@@ -114,7 +120,8 @@ def decodeStep
 private
 def unescape
     (s : String)
-    : Option String :=
+    : Option String
+    :=
   let state := s.toList.foldl decodeStep {}
   if state.failed then
     none
@@ -147,7 +154,8 @@ private def xmlAttribute : GParser conditional (String × String) :=
 private
 def tagTail
     (endTag : GParser conditional Unit)
-    : GParser conditional (List (String × String)) :=
+    : GParser conditional (List (String × String))
+    :=
   GParser.fix fun rest =>
     GParser.alt
       (GParser.map (fun _ => []) (GParser.seqR GParser.ws endTag))
@@ -167,7 +175,8 @@ private def openTag : GParser conditional (String × List (String × String)) :=
 private
 def closeTag
     (expected : String)
-    : GParser conditional Unit :=
+    : GParser conditional Unit
+    :=
   let checkedName : GParser conditional Unit :=
     GParser.captureWith?
       (fun arr q q' =>
@@ -221,7 +230,8 @@ private
 partial
 def hasDuplicateXmlAttributes
     (elem : XmlElem)
-    : Bool :=
+    : Bool
+    :=
   duplicateAttributeName [] elem.attrs || elem.children.any hasDuplicateXmlAttributes
 
 private def duplicateAttributeError : Grip.ParseError :=
@@ -230,7 +240,8 @@ private def duplicateAttributeError : Grip.ParseError :=
 /-- Parse one Rodin XML document from its UTF-8 bytes. -/
 def parseXml
     (source : ByteArray)
-    : Except Grip.ParseError XmlElem :=
+    : Except Grip.ParseError XmlElem
+    :=
   match GParser.parse document source with
   | .error error => .error error
   | .ok root =>
@@ -240,7 +251,8 @@ def parseXml
 /-- Parse one Rodin XML document from a Lean string. -/
 def parseXmlString
     (source : String)
-    : Except Grip.ParseError XmlElem :=
+    : Except Grip.ParseError XmlElem
+    :=
   parseXml source.toUTF8
 
 #guard match parseXmlString

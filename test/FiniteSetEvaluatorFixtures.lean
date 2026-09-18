@@ -48,7 +48,8 @@ private def witnessBody : EventB.Formula.Term :=
 example
     : ∃ candidate,
       candidate ∈ ([.integer 0, .integer 1] : List Value) ∧
-      evalPredicateAtFuel 128 (({} : ValueEnv).set "p" candidate) witnessBody = .ok true := by
+      evalPredicateAtFuel 128 (({} : ValueEnv).set "p" candidate) witnessBody = .ok true
+    := by
   apply evalPredicateOverFiniteDomain_true 128 {} "p"
     [.integer 0, .integer 1] witnessBody
   native_decide

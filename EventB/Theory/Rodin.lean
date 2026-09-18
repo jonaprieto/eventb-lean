@@ -21,7 +21,8 @@ private
 def attr
     (elem : XmlElem)
     (names : List String)
-    : Option String :=
+    : Option String
+    :=
   names.findSome? elem.attr?
 
 private
@@ -29,7 +30,8 @@ def required
     (path : List String)
     (elem : XmlElem)
     (names : List String)
-    : Except String String :=
+    : Except String String
+    :=
   match attr elem names with
   | some value => pure value
   | none => .error s!"{String.intercalate "/" path}: missing `{names.head!}`"
@@ -39,7 +41,8 @@ def checkChildren
     (path : List String)
     (elem : XmlElem)
     (allowed : List String)
-    : Except String Unit :=
+    : Except String Unit
+    :=
   match elem.children.find? (fun child => !allowed.contains child.tag) with
   | none => pure ()
   | some child => .error s!"{String.intercalate "/" path}: unsupported child `{child.tag}`"
@@ -58,7 +61,8 @@ private
 def parseFormula
     (path : List String)
     (source : String)
-    : Except String Term :=
+    : Except String Term
+    :=
   match Formula.parse source with
   | .ok term => pure term
   | .error error => .error s!"{String.intercalate "/" path}: invalid formula: {error}"
@@ -129,7 +133,8 @@ private
 def parseParameters
     (path : List String)
     (elem : XmlElem)
-    : Except String (List (String × Ty)) :=
+    : Except String (List (String × Ty))
+    :=
   elem.children.filter (·.tag == tag "parameter") |>.mapM fun child => do
     let name ← required (path ++ [child.tag]) child ["identifier", "name"]
     let type ← parseType (path ++ [child.tag]) child
@@ -139,7 +144,8 @@ private
 def parseTypeParameters
     (path : List String)
     (elem : XmlElem)
-    : Except String (List String) :=
+    : Except String (List String)
+    :=
   elem.children.filter (·.tag == tag "typeParameter") |>.mapM fun child =>
     required (path ++ [child.tag]) child ["identifier", "name"]
 
@@ -219,7 +225,8 @@ def parseRoot
 def importSpec
     (env : Env)
     (source : String)
-    : Except EventB.Error Spec :=
+    : Except EventB.Error Spec
+    :=
   match parseXmlString source with
   | .error error => .error (EventB.Error.theory
       s!"invalid Rodin theory XML: {error.pretty source.toUTF8}")
@@ -235,7 +242,8 @@ def importSpec
 private
 def escape
     (source : String)
-    : String :=
+    : String
+    :=
   source.toList.foldl (fun output char => output ++ match char with
     | '&' => "&amp;"
     | '<' => "&lt;"
@@ -247,7 +255,8 @@ def escape
 private
 def attrs
     (values : List (String × String))
-    : String :=
+    : String
+    :=
   values.foldl (fun output (name, value) =>
     output ++ " " ++ name ++ "=\"" ++ escape value ++ "\"") ""
 
@@ -283,7 +292,8 @@ end
 private
 def symbolElem
     (symbol : Symbol)
-    : XmlElem :=
+    : XmlElem
+    :=
   { tag := tag "symbol"
     attrs := [("identifier", symbol.name), ("kind", match symbol.kind with
       | .carrierSet => "carrierSet"
@@ -299,7 +309,8 @@ def symbolElem
 private
 def constructorElem
     (constructor : Constructor)
-    : XmlElem :=
+    : XmlElem
+    :=
   { tag := tag "datatypeConstructor", attrs := [("identifier", constructor.name)]
     children := constructor.arguments.map fun type =>
       { tag := tag "constructorArgument", attrs := [("type", type.print)], children := [] } }
@@ -307,7 +318,8 @@ def constructorElem
 private
 def datatypeElem
     (datatype : Datatype)
-    : XmlElem :=
+    : XmlElem
+    :=
   let parameters : List XmlElem := datatype.parameters.map fun parameter =>
     { tag := tag "typeParameter", attrs := [("identifier", parameter)], children := [] }
   { tag := tag "datatypeDefinition", attrs := [("identifier", datatype.name)],
@@ -316,14 +328,16 @@ def datatypeElem
 private
 def typeParameterElems
     (parameters : List String)
-    : List XmlElem :=
+    : List XmlElem
+    :=
   parameters.map fun parameter =>
     { tag := tag "typeParameter", attrs := [("identifier", parameter)], children := [] }
 
 private
 def parameterElem
     (parameter : String × Ty)
-    : XmlElem :=
+    : XmlElem
+    :=
   { tag := tag "parameter", attrs := [("identifier", parameter.1), ("type", parameter.2.print)],
     children := [] }
 

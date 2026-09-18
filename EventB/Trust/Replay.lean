@@ -49,7 +49,8 @@ def statement
 def translateStatement
     (context : Embedding.KernelContext)
     (obligation : POG.Obligation)
-    : MetaM Expr :=
+    : MetaM Expr
+    :=
   statement context obligation
 
 private def declarationName (declaration : String) : Name := declaration.toName
@@ -57,7 +58,8 @@ private def declarationName (declaration : String) : Name := declaration.toName
 def proofFingerprint
     (context : Embedding.KernelContext)
     (obligation : POG.Obligation)
-    : String :=
+    : String
+    :=
   Trust.fingerprint (obligation.canonical ++
     "\nsemantic-context=" ++ context.semanticFingerprint)
 
@@ -95,7 +97,8 @@ def specializeProof
 private
 def declarationDependencies
     (info : ConstantInfo)
-    : Array Name :=
+    : Array Name
+    :=
   match info with
   | .defnInfo value => value.value.getUsedConstants
   | .thmInfo value => value.value.getUsedConstants
@@ -125,7 +128,8 @@ def axiomNames
 private
 def sortedNames
     (names : NameSet)
-    : List String :=
+    : List String
+    :=
   names.toList.map (·.toString false) |>.mergeSort (· < ·)
 
 private

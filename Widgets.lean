@@ -19,14 +19,16 @@ def elementWith
     (tag : String)
     (attributes : List (String × Json))
     (children : List Html)
-    : Html :=
+    : Html
+    :=
   .element tag attributes.toArray children.toArray
 
 private
 def element
     (tag : String)
     (children : List Html)
-    : Html :=
+    : Html
+    :=
   elementWith tag [] children
 
 private def text (value : String) : Html := .text value
@@ -36,13 +38,15 @@ private def classes (value : String) : String × Json := ("className", .str valu
 private
 def badge
     (label colorClass : String)
-    : Html :=
+    : Html
+    :=
   elementWith "span" [classes s!"f7 b dib ml2 ph1 ba br-pill {colorClass}"] [text label]
 
 private
 def formula
     (value : Formula.Term)
-    : Html :=
+    : Html
+    :=
   elementWith "pre" [classes "overflow-auto mv2 pa2 ba br1"] [
       element "code" [text (Formula.print value)]
     ]
@@ -50,7 +54,8 @@ def formula
 private
 def hypothesisList
     (hyps : List Formula.Term)
-    : Html :=
+    : Html
+    :=
   if hyps.isEmpty then
     elementWith "p" [classes "mv1 o-70"] [text "none"]
   else
@@ -75,14 +80,16 @@ def evidenceLabel
 private
 def hypothesisOnly
     (obligation : Obligation)
-    : Bool :=
+    : Bool
+    :=
   obligation.kind == "WWD" && obligation.goal.isNone
 
 private
 def obligationBody
     (obligation : Obligation)
     (entry : Trust.Entry)
-    : Html :=
+    : Html
+    :=
   elementWith "div" [classes "pa2"] [
     elementWith "p" [classes "mv1 o-70"] [
       text s!"{obligation.hyps.length} hypotheses · {entry.mode.label}"
@@ -152,21 +159,24 @@ def kindTitle
 private
 def fallbackEntry
     (obligation : Obligation)
-    : Trust.Entry :=
+    : Trust.Entry
+    :=
   (Trust.Ledger.ofObligations [obligation]).entries.head!
 
 private
 def entryFor
     (ledger : Trust.Ledger)
     (obligation : Obligation)
-    : Trust.Entry :=
+    : Trust.Entry
+    :=
   (ledger.displayEntry? obligation.component obligation.name).getD (fallbackEntry obligation)
 
 private
 def obligationCard
     (ledger : Trust.Ledger)
     (obligation : Obligation)
-    : Html :=
+    : Html
+    :=
   let entry := entryFor ledger obligation
   elementWith "details" [classes "mv1 ba br1"] [
     elementWith "summary" [classes "pointer pa2"] [
@@ -188,19 +198,22 @@ private
 def countKind
     (kind : String)
     (obligations : List Obligation)
-    : Nat :=
+    : Nat
+    :=
   obligations.countP (·.kind == kind)
 
 private
 def countDerived
     (obligations : List Obligation)
-    : Nat :=
+    : Nat
+    :=
   obligations.countP (·.goal.isSome)
 
 private
 def stat
     (label value accent : String)
-    : Html :=
+    : Html
+    :=
   elementWith "div" [classes "ba br2 pa2 mr2 mb2"] [
       elementWith "div" [classes s!"f3 b {accent}"] [text value],
       elementWith "div" [classes "f7 o-70"] [text label]
@@ -210,7 +223,8 @@ private
 def summary
     (obligations : List Obligation)
     (ledger : Trust.Ledger)
-    : Html :=
+    : Html
+    :=
   elementWith "div" [classes "flex flex-wrap mv2"] [
       stat "total obligations" (toString obligations.length) "blue",
       stat "goals derived" (toString (countDerived obligations)) "green",
@@ -222,7 +236,8 @@ def summary
 private
 def openAttribute
     (isOpen : Bool)
-    : List (String × Json) :=
+    : List (String × Json)
+    :=
   if isOpen then [("open", .bool true)] else []
 
 private
@@ -231,7 +246,8 @@ def kindSection
     (obligations : List Obligation)
     (ledger : Trust.Ledger)
     (isOpen : Bool)
-    : Option Html :=
+    : Option Html
+    :=
   if obligations.isEmpty then
     none
   else
@@ -248,53 +264,61 @@ def kindSection
 private
 def firstKind
     (obligations : List Obligation)
-    : Option String :=
+    : Option String
+    :=
   kinds.find? (fun kind => countKind kind obligations > 0)
 
 private
 def componentChildren
     (elem : Elem)
     (kind : String)
-    : List Elem :=
+    : List Elem
+    :=
   elem.children.filter (fun child => child.tag == "org.eventb.core." ++ kind)
 
 private
 def componentAttr
     (elem : Elem)
     (key : String)
-    : Option String :=
+    : Option String
+    :=
   elem.attr? ("org.eventb.core." ++ key)
 
 private
 def shortTarget
     (target : String)
-    : String :=
+    : String
+    :=
   (target.splitOn "/").getLast!
 
 private
 def componentTargets
     (elem : Elem)
     (kind : String)
-    : List String :=
+    : List String
+    :=
   (componentChildren elem kind).filterMap (componentAttr · "target") |>.map shortTarget
 
 private
 def componentNames
     (elem : Elem)
     (kind : String)
-    : List String :=
+    : List String
+    :=
   (componentChildren elem kind).filterMap (componentAttr · "identifier")
 
 private
 def namesText
     (names : List String)
-    : String :=
+    : String
+    :=
   names.foldl (fun acc name => if acc.isEmpty then name else acc ++ ", " ++ name) ""
 
 private
 def infoLine
     (label value : String)
-    : Html :=
+    : Html
+    :=
   elementWith "p" [classes "mv1"] [
     elementWith "span" [classes "b"] [text s!"{label}: "],
     text (if value.isEmpty then "none" else value)
@@ -304,7 +328,8 @@ private
 def nameList
     (label : String)
     (names : List String)
-    : Html :=
+    : Html
+    :=
   elementWith "div" [classes "mb2"] [
     elementWith "h4" [classes "mt2 mb1 f6"] [text label],
     if names.isEmpty then
@@ -318,7 +343,8 @@ private
 def labelledFormula
     (elem : Elem)
     (formulaAttr : String)
-    : Html :=
+    : Html
+    :=
   let label := (componentAttr elem "label").getD "unnamed"
   match componentAttr elem formulaAttr with
   | some source =>
@@ -334,7 +360,8 @@ private
 def labelledFormulas
     (elem : Elem)
     (kind formulaAttr : String)
-    : Html :=
+    : Html
+    :=
   let formulas := componentChildren elem kind
   elementWith "div" [classes "mb2"] [
     elementWith "h4" [classes "mt2 mb1 f6"] [text kind],
@@ -347,7 +374,8 @@ def labelledFormulas
 private
 def eventCard
     (ev : Elem)
-    : Html :=
+    : Html
+    :=
   let name := (componentAttr ev "label").getD "unnamed event"
   let refinedTargets := componentTargets ev "refinesEvent"
   let parameters := componentNames ev "parameter"
@@ -367,7 +395,8 @@ def eventCard
 private
 def eventList
     (elem : Elem)
-    : Html :=
+    : Html
+    :=
   let events := componentChildren elem "event"
   elementWith "div" [classes "mb2"] [
     elementWith "h4" [classes "mt2 mb1 f6"] [text "Events"],
@@ -380,7 +409,8 @@ private
 def obligationStats
     (project : Typing.Project)
     (name : String)
-    : Html :=
+    : Html
+    :=
   let obligations := POG.generate project name
   let ledger := Trust.Ledger.ofObligations obligations
   elementWith "div" [classes "flex flex-wrap mv2"] [
@@ -394,7 +424,8 @@ private
 def modelPanel
     (kind name : String)
     (body : List Html)
-    : Html :=
+    : Html
+    :=
   elementWith "details" [classes "mv2", ("open", .bool true)] [
     elementWith "summary" [classes "pointer b"] [
       text s!"Event-B {kind} · {name}"
@@ -406,7 +437,8 @@ def modelPanel
 def renderComponent
     (project : Typing.Project)
     (name : String)
-    : Html :=
+    : Html
+    :=
   match Typing.lookupComponent project name with
   | none => modelPanel "component" name [infoLine "error" "component not found"]
   | some component =>
@@ -435,7 +467,8 @@ private
 def scopedLedger
     (ledger : Trust.Ledger)
     (obligations : List Obligation)
-    : Trust.Ledger :=
+    : Trust.Ledger
+    :=
   { entries := obligations.map fun obligation => entryFor ledger obligation }
 
 /-- Render obligations with evidence supplied by the caller.
@@ -449,7 +482,8 @@ def renderProjectInWithLedger
     (project : Typing.Project)
     (machine : String)
     (ledger : Trust.Ledger)
-    : Html :=
+    : Html
+    :=
   let obligations := POG.generateIn theory project machine
   let ledger := scopedLedger ledger obligations
   let first := firstKind obligations
@@ -476,7 +510,8 @@ def renderProjectIn
     (theory : Theory.Env)
     (project : Typing.Project)
     (machine : String)
-    : Html :=
+    : Html
+    :=
   renderProjectInWithLedger theory project machine
     (Trust.Ledger.ofObligations (POG.generateIn theory project machine))
 
@@ -484,14 +519,16 @@ def renderProjectWithLedger
     (project : Typing.Project)
     (machine : String)
     (ledger : Trust.Ledger)
-    : Html :=
+    : Html
+    :=
   renderProjectInWithLedger Theory.empty project machine ledger
 
 /-- Compatibility widget for projects using only the core prelude. -/
 def renderProject
     (project : Typing.Project)
     (machine : String)
-    : Html :=
+    : Html
+    :=
   renderProjectIn Theory.empty project machine
 
 /-- Display generated obligations without changing the ordinary text POG command. -/

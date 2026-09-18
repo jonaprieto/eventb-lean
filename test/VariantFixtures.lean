@@ -17,28 +17,32 @@ private
 def childrenOf
     (element : Elem)
     (tag : String)
-    : List Elem :=
+    : List Elem
+    :=
   element.children.filter (fun child => child.tag == "org.eventb.core." ++ tag)
 
 private
 def attrOf
     (element : Elem)
     (key : String)
-    : Option String :=
+    : Option String
+    :=
   element.attr? ("org.eventb.core." ++ key)
 
 private
 def componentElements
     (project : Project)
     (component : String)
-    : Option Elem :=
+    : Option Elem
+    :=
   (lookupComponent project component).map (·.elem)
 
 private
 def variantExpressions
     (project : Project)
     (component : String)
-    : List (Option Term) :=
+    : List (Option Term)
+    :=
   (componentElements project component).toList.flatMap fun element =>
     (childrenOf element "variant").map fun variant =>
       (attrOf variant "expression").bind (Formula.parse · |>.toOption)
@@ -50,7 +54,8 @@ private
 def uniqueVariantExpression?
     (project : Project)
     (component : String)
-    : Option Term :=
+    : Option Term
+    :=
   match (variantExpressions project component).filterMap id with
   | [expression] => some expression
   | _ => none
@@ -59,7 +64,8 @@ private
 def eventConvergence?
     (project : Project)
     (component event : String)
-    : Option String :=
+    : Option String
+    :=
   (componentElements project component).bind fun element =>
     (childrenOf element "event").find? (fun candidate =>
       attrOf candidate "label" == some event) |>.bind (attrOf · "convergence")
@@ -67,7 +73,8 @@ def eventConvergence?
 private
 def parsed?
     (source : String)
-    : Option Term :=
+    : Option Term
+    :=
   (Formula.parse source).toOption
 
 def boundedNatVariantProject : Project :=
@@ -96,7 +103,8 @@ def variantGoal?
     (project : Project)
     (event kind : String)
     (goal : Option Term)
-    : Bool :=
+    : Bool
+    :=
   match generateCheckedIn Theory.empty project "M" with
   | .error _ => false
   | .ok obligations =>
@@ -110,7 +118,8 @@ def exactVariantGoal?
     (project : Project)
     (event kind mode : String)
     (goal : Option Term)
-    : Bool :=
+    : Bool
+    :=
   uniqueVariantExpression? project "M" == some (.id "x") &&
     eventConvergence? project "M" event == some mode &&
     variantGoal? project event kind goal
@@ -122,7 +131,8 @@ private
 def assignmentUpdates?
     (project : Project)
     (component event : String)
-    : Option (List (String × Term)) :=
+    : Option (List (String × Term))
+    :=
   (componentElements project component).bind fun element =>
     (childrenOf element "event").find? (fun candidate =>
       attrOf candidate "label" == some event) |>.bind fun currentEvent =>
@@ -223,21 +233,24 @@ def boundedTransitions : List (BoundedState × BoundedState) :=
 
 theorem bounded_nat
     : ∀ state,
-      0 ≤ measure state := by
+      0 ≤ measure state
+    := by
   intro state
   cases state <;> decide
 
 theorem bounded_var
     : ∀ before after,
       decrement before after →
-      measure after < measure before := by
+      measure after < measure before
+    := by
   intro before after step
   cases before <;> cases after <;> simp [decrement, measure] at step ⊢
 
 theorem bounded_source_action
     : ∀ before after,
       decrement before after →
-      sourceValue after = sourceValue before - 1 := by
+      sourceValue after = sourceValue before - 1
+    := by
   intro before after step
   cases before <;> cases after <;> simp [decrement, sourceValue] at step ⊢
 
@@ -246,7 +259,8 @@ theorem no_unit_source_cover
       BoundedState × BoundedState,
       ∀ transition ∈ boundedTransitions,
       ∃ state,
-      encode state = transition := by
+      encode state = transition
+    := by
   rintro ⟨encode, complete⟩
   obtain ⟨zeroState, zeroEncoded⟩ := complete (.one, .zero) (by simp [boundedTransitions])
   obtain ⟨oneState, oneEncoded⟩ := complete (.two, .one) (by simp [boundedTransitions])

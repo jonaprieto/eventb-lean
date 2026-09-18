@@ -49,31 +49,36 @@ def printError
 private
 def isSource
     (path : System.FilePath)
-    : Bool :=
+    : Bool
+    :=
   path.toString.endsWith ".bum" || path.toString.endsWith ".buc"
 
 private
 def isRossi
     (path : System.FilePath)
-    : Bool :=
+    : Bool
+    :=
   path.toString.endsWith ".eventb"
 
 private
 def isBpo
     (path : System.FilePath)
-    : Bool :=
+    : Bool
+    :=
   path.toString.endsWith ".bpo"
 
 private
 def isTheory
     (path : System.FilePath)
-    : Bool :=
+    : Bool
+    :=
   path.toString.endsWith ".tuf"
 
 private
 def stem
     (path : System.FilePath)
-    : String :=
+    : String
+    :=
   ((path.toString.splitOn "/").getLast!).splitOn "." |>.head!
 
 private
@@ -135,7 +140,8 @@ private
 def projectComponent
     (roots : List String)
     (source : Source)
-    : Component :=
+    : Component
+    :=
   { name := source.name, elem := source.model.root, theories := roots }
 
 private structure ProjectData where
@@ -265,7 +271,8 @@ private
 def formulaErrorLabel
     (model : Model)
     (error : String)
-    : Option String :=
+    : Option String
+    :=
   model.formulas.find? (fun pair =>
     match pair with
     | (_label, formula) =>
@@ -282,7 +289,8 @@ private
 def formatTypeError
     (source : Source)
     (error : String)
-    : EventB.Error :=
+    : EventB.Error
+    :=
   let reason := if error.startsWith "parse: " then error.drop 7 else error
   let message := match formulaErrorLabel source.model error with
     | some label => s!"element {label}: {reason}"
@@ -293,7 +301,8 @@ private
 def typeErrors
     (data : ProjectData)
     (source : Source)
-    : List EventB.Error :=
+    : List EventB.Error
+    :=
   match inferComponentIn data.theory data.project source.name with
   | .error error => [formatTypeError source error.message]
   | .ok (_, errors) => errors.map (formatTypeError source)
@@ -306,7 +315,8 @@ private structure Report where
 private
 def reports
     (data : ProjectData)
-    : List Report :=
+    : List Report
+    :=
   data.sources.map fun source =>
     { source := source
       obligations := generateIn data.theory data.project source.name
@@ -316,7 +326,8 @@ private
 def fatalErrors
     (data : ProjectData)
     (rs : List Report)
-    : List EventB.Error :=
+    : List EventB.Error
+    :=
   data.errors ++ rs.flatMap (·.errors)
 
 private def kinds : List String :=
@@ -326,7 +337,8 @@ private def kinds : List String :=
 private
 def parseKinds
     (value : String)
-    : Except String (List String) :=
+    : Except String (List String)
+    :=
   let values := value.splitOn ","
   if values.isEmpty || values.any (fun kind => !kinds.contains kind) then
     .error s!"unknown obligation class in --kind {value}; use {String.intercalate "," kinds}"
@@ -353,7 +365,8 @@ def makeCheck
     (json : Bool)
     (kinds : Option String)
     (machine : Option String)
-    : CheckArgs :=
+    : CheckArgs
+    :=
   { dir, json, kinds, machine }
 
 private inductive Action where
@@ -413,7 +426,8 @@ private def command : Command Action :=
 private
 def jsonEscape
     (value : String)
-    : String :=
+    : String
+    :=
   String.ofList (value.toList.flatMap fun c =>
     match c with
     | '"' => ['\\', '"']
@@ -426,7 +440,8 @@ def jsonEscape
 private
 def jsonString
     (value : String)
-    : String :=
+    : String
+    :=
   "\"" ++ jsonEscape value ++ "\""
 
 private def jsonBool (value : Bool) : String := if value then "true" else "false"
@@ -434,7 +449,8 @@ private def jsonBool (value : Bool) : String := if value then "true" else "false
 private
 def hypothesisOnly
     (obligation : Obligation)
-    : Bool :=
+    : Bool
+    :=
   obligation.kind == "WWD" && obligation.goal.isNone
 
 private
@@ -443,7 +459,8 @@ def selected
     (kinds : Option (List String))
     (report : Report)
     (obligation : Obligation)
-    : Bool :=
+    : Bool
+    :=
   (match machine with
    | none => true
    | some name => name == report.source.name) &&
@@ -456,7 +473,8 @@ def filteredObligations
     (args : CheckArgs)
     (kinds : Option (List String))
     (rs : List Report)
-    : List (String × Obligation) :=
+    : List (String × Obligation)
+    :=
   rs.flatMap fun report =>
     (report.obligations.filter (selected args.machine kinds report)).map
       (fun o => (report.source.name, o))
@@ -499,7 +517,8 @@ def runCheckWithKinds
 private
 def runCheck
     (args : CheckArgs)
-    : IO UInt32 :=
+    : IO UInt32
+    :=
   match args.kinds with
   | none => runCheckWithKinds args none
   | some value =>
@@ -522,37 +541,43 @@ def bump
 private
 def countKinds
     (obligations : List Obligation)
-    : List (String × Nat) :=
+    : List (String × Nat)
+    :=
   obligations.foldl (fun counts obligation => bump obligation.kind counts) []
 
 private
 def derivedCount
     (obligations : List Obligation)
-    : Nat :=
+    : Nat
+    :=
   obligations.countP (·.goal.isSome)
 
 private
 def notDerivedCount
     (obligations : List Obligation)
-    : Nat :=
+    : Nat
+    :=
   obligations.countP (·.goal.isNone)
 
 private
 def notDerivedKinds
     (obligations : List Obligation)
-    : List (String × Nat) :=
+    : List (String × Nat)
+    :=
   countKinds (obligations.filter (·.goal.isNone))
 
 private
 def hypothesisOnlyCount
     (obligations : List Obligation)
-    : Nat :=
+    : Nat
+    :=
   obligations.countP hypothesisOnly
 
 private
 def jsonCounts
     (counts : List (String × Nat))
-    : String :=
+    : String
+    :=
   "{" ++ String.intercalate "," (counts.map fun (name, count) =>
     jsonString name ++ ":" ++ toString count) ++ "}"
 
@@ -693,7 +718,8 @@ mutual
 private
 def poNames
     (elem : XmlElem)
-    : List String :=
+    : List String
+    :=
   let here := if elem.tag == "org.eventb.core.poSequent" then
       elem.attr? "name" |>.toList
     else []
@@ -728,7 +754,8 @@ def readGoldPOs
 private
 def localLedger
     (obligations : List Obligation)
-    : Trust.Ledger :=
+    : Trust.Ledger
+    :=
   obligations.foldl (fun ledger obligation =>
     match Prover.Local.attach ledger obligation (Prover.Local.prove obligation) with
     | .ok updated => updated
@@ -738,7 +765,8 @@ private
 def reportCoverage
     (gold : List (String × List String))
     (machine name : String)
-    : String :=
+    : String
+    :=
   match gold.find? (·.1 == machine) with
   | none => "not-compared"
   | some (_, names) => if names.contains name then "name-matched" else "name-missing"
@@ -746,7 +774,8 @@ def reportCoverage
 private
 def jsonArray
     (values : List String)
-    : String :=
+    : String
+    :=
   "[" ++ String.intercalate "," (values.map jsonString) ++ "]"
 
 private
@@ -798,7 +827,8 @@ def reportEntry
     (ledger : Trust.Ledger)
     (machine : String)
     (obligation : Obligation)
-    : String :=
+    : String
+    :=
   let fallback := (Trust.Ledger.ofObligations [obligation]).entries.head!
   let entry := (ledger.displayEntry? machine obligation.name).getD fallback
   let mode := entry.mode.label
@@ -860,7 +890,8 @@ private
 def findSource
     (sources : List Source)
     (name : String)
-    : Option Source :=
+    : Option Source
+    :=
   sources.find? (fun source => source.name == name)
 
 private

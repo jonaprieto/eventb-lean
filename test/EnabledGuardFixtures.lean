@@ -126,14 +126,16 @@ private
 theorem guardProvenance
     : ∀ transition,
       enabledEvent.grd transition ↔
-      enabledGuardSource.holds 128 transition := by
+      enabledGuardSource.holds 128 transition
+    := by
   intro transition
   rfl
 
 private
 theorem enabledEvent_is_enabled
     : enabledEvent.grd enabledTransition ∧
-      enabledEvent.act enabledTransition enabledTransition := by
+      enabledEvent.act enabledTransition enabledTransition
+    := by
   exact ⟨enabledGuard, enabledAction⟩
 
 private theorem enabledEvent_is_disabled : ¬ enabledEvent.grd disabledTransition :=
@@ -191,7 +193,8 @@ private def parameterizedGuardSource :
 private
 def parameterizedTransition
     (parameter state after : Int)
-    : CheckedBeforeAfter :=
+    : CheckedBeforeAfter
+    :=
   { before := { values := [("x", .integer state), ("p", .integer parameter)] }
     after := { values := [("x", .integer after), ("p", .integer parameter)] }
     declarations := [("x", .int), ("p", .int)] }
@@ -267,7 +270,8 @@ private theorem parameterizedRefinement :
 example
     : ∃ abstractAfter,
       abstractParameterizedEvent.step 1 abstractAfter ∧
-      (2 = abstractAfter) := by
+      (2 = abstractAfter)
+    := by
   obtain ⟨abstractAfter, step, glued⟩ :=
     parameterizedRefinement.stepSim 1 2 1 rfl
       (show concreteParameterizedEvent.step 1 2 from

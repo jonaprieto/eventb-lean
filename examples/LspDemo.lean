@@ -22,7 +22,8 @@ eventb_machine LspMachine where
 private
 def symbolName
     (owner symbol : String)
-    : Name :=
+    : Name
+    :=
   Name.mkSimple ("EventB.DSL.symbol." ++ owner ++ "." ++ symbol)
 
 private

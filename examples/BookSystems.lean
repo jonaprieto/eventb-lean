@@ -529,7 +529,8 @@ def systemsProject : Typing.Project :=
 private
 def hasPO
     (machine name : String)
-    : Bool :=
+    : Bool
+    :=
   (POG.generate systemsProject machine).any (·.name == name)
 
 #guard hasPO "Press0" "a_on/inv0_1/INV"
@@ -544,14 +545,16 @@ def hasPO
 private
 def pressGoal
     (name : String)
-    : Option String :=
+    : Option String
+    :=
   (POG.generate systemsProject "Press0").find? (·.name == name) |>.bind
     (fun obligation => obligation.goal.map Formula.print)
 
 private
 def pressHypotheses
     (name : String)
-    : Option (List String) :=
+    : Option (List String)
+    :=
   (POG.generate systemsProject "Press0").find? (·.name == name) |>.map
     (fun obligation => obligation.hyps.map Formula.print)
 

@@ -38,7 +38,8 @@ private
 def attr
     (elem : XmlElem)
     (name : String)
-    : Except String String :=
+    : Except String String
+    :=
   match elem.attr? name with
   | some value => pure value
   | none => .error s!"missing `{name}` on `{elem.tag}`"
@@ -46,7 +47,8 @@ def attr
 private
 def natValue
     (source : String)
-    : Option Nat :=
+    : Option Nat
+    :=
   if source.isEmpty then none
   else
     source.toList.foldl (fun result char => do
@@ -80,7 +82,8 @@ def parseStatus
 
 def validateStatuses
     (statuses : List Status)
-    : Except EventB.Error Unit :=
+    : Except EventB.Error Unit
+    :=
   let rec go : List Status → Except EventB.Error Unit
     | [] => pure ()
     | status :: rest =>
@@ -113,7 +116,8 @@ private
 def status?
     (statuses : List Status)
     (name : String)
-    : Option Status :=
+    : Option Status
+    :=
   statuses.find? (·.name == name)
 
 private
@@ -128,13 +132,15 @@ def duplicateKeys
 
 def provenanceDigest
     (provenance : Provenance)
-    : String :=
+    : String
+    :=
   Trust.provenanceFingerprintOf provenance.models provenance.bpo provenance.statuses
 
 def compare
     (obligations : List POG.Obligation)
     (statuses : List Status)
-    : Comparison :=
+    : Comparison
+    :=
   let eligible := obligations.filter fun obligation =>
     obligation.diagnostics.isEmpty && obligation.goal.isSome
   let expected := eligible.map (·.name)
@@ -244,7 +250,8 @@ partial
 def findPoSequent
     (elem : XmlElem)
     (name : String)
-    : Option XmlElem :=
+    : Option XmlElem
+    :=
   if elem.tag == "org.eventb.core.poSequent" && elem.attr? "name" == some name then
     some elem
   else
@@ -257,14 +264,16 @@ partial
 def poSequentMatches
     (elem : XmlElem)
     (name : String)
-    : List XmlElem :=
+    : List XmlElem
+    :=
   (if elem.tag == "org.eventb.core.poSequent" && elem.attr? "name" == some name then
       [elem] else []) ++ elem.children.flatMap (fun child => poSequentMatches child name)
 
 private
 def predicateTexts
     (elem : XmlElem)
-    : List String :=
+    : List String
+    :=
   elem.children.filterMap fun child =>
     if child.tag == "org.eventb.core.poPredicate" then
       child.attr? "org.eventb.core.predicate"
@@ -274,7 +283,8 @@ private
 def sequentGoal
     (name : String)
     (sequent : XmlElem)
-    : Option String :=
+    : Option String
+    :=
   let direct := predicateTexts sequent
   let witness := if name.endsWith "/WFIS" then
       sequent.children.filter (fun child => child.tag == "org.eventb.core.poPredicateSet")
@@ -292,7 +302,8 @@ private structure PredicateSet where
 private
 def refName
     (ref : String)
-    : String :=
+    : String
+    :=
   ((ref.splitOn "#").getLast!).replace "\\/" "/"
     |>.replace "\\\\" "\\"
     |>.replace "\\|" "|"
@@ -301,7 +312,8 @@ private
 partial
 def predicateSets
     (elem : XmlElem)
-    : List PredicateSet :=
+    : List PredicateSet
+    :=
   let here := if elem.tag == "org.eventb.core.poPredicateSet" then
       [{ name := (elem.attr? "name").getD ""
          parent := (elem.attr? "org.eventb.core.parentSet").map refName
@@ -327,7 +339,8 @@ private
 def directLabel
     (elem : XmlElem)
     (tag label : String)
-    : Bool :=
+    : Bool
+    :=
   elem.children.any fun child =>
     child.tag == tag && child.attr? "org.eventb.core.label" == some label
 
@@ -335,7 +348,8 @@ private
 def directIdentifier
     (elem : XmlElem)
     (tag identifier : String)
-    : Bool :=
+    : Bool
+    :=
   elem.children.any fun child =>
     child.tag == tag && child.attr? "org.eventb.core.identifier" == some identifier
 
@@ -344,7 +358,8 @@ def eventChildLabel
     (model : XmlElem)
     (event label : String)
     (tags : List String)
-    : Bool :=
+    : Bool
+    :=
   model.children.any fun candidate =>
     candidate.tag == "org.eventb.core.event" &&
       candidate.attr? "org.eventb.core.label" == some event &&
@@ -355,7 +370,8 @@ private
 def eventLabel
     (model : XmlElem)
     (event : String)
-    : Bool :=
+    : Bool
+    :=
   model.children.any fun child =>
     child.tag == "org.eventb.core.event" &&
       child.attr? "org.eventb.core.label" == some event
@@ -364,7 +380,8 @@ private
 def eventConvergent
     (model : XmlElem)
     (event : String)
-    : Bool :=
+    : Bool
+    :=
   model.children.any fun child =>
     child.tag == "org.eventb.core.event" &&
       child.attr? "org.eventb.core.label" == some event &&
@@ -374,7 +391,8 @@ private
 def modelBindsObligation
     (model : XmlElem)
     (obligation : POG.Obligation)
-    : Bool :=
+    : Bool
+    :=
   let parts := obligation.name.splitOn "/"
   match obligation.kind, parts with
   | "INV", [event, label, _] =>
@@ -416,7 +434,8 @@ def sequentHypotheses
     (name : String)
     (sequent : XmlElem)
     (sets : List PredicateSet)
-    : Option (List String) :=
+    : Option (List String)
+    :=
   match sequent.children.filter (fun child =>
       child.tag == "org.eventb.core.poPredicateSet") with
   | [inner] =>
@@ -556,7 +575,8 @@ def validateProvenance
     (obligation : POG.Obligation)
     (provenance : Provenance)
     (status : Status)
-    : Except EventB.Error Unit :=
+    : Except EventB.Error Unit
+    :=
   validateProvenanceIn Theory.empty obligation provenance status
 
 def attachProvenanceIn
@@ -574,7 +594,8 @@ def attachProvenance
     (obligation : POG.Obligation)
     (provenance : Provenance)
     (status : Status)
-    : Except EventB.Error Ledger :=
+    : Except EventB.Error Ledger
+    :=
   attachProvenanceIn Theory.empty ledger obligation provenance status
 
 def attach
@@ -582,7 +603,8 @@ def attach
     (_obligation : POG.Obligation)
     (_source : String)
     (_status : Status)
-    : Except EventB.Error Ledger :=
+    : Except EventB.Error Ledger
+    :=
   .error (EventB.Error.trust
     "Rodin.attach requires model, PO, and proof-status provenance; use attachProvenance")
 

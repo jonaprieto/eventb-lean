@@ -44,7 +44,8 @@ structure KernelRule where
 private
 def reportText
     (report : Validate.Report)
-    : String :=
+    : String
+    :=
   String.intercalate "; " (report.errors.map (·.message))
 
 private
@@ -76,7 +77,8 @@ def withParameters
     (context : KernelContext)
     (parameters : List (String × Ty))
     (continuation : KernelContext → List Expr → MetaM α)
-    : MetaM α :=
+    : MetaM α
+    :=
   match parameters with
   | [] => continuation context []
   | (name, ty) :: rest => do
@@ -160,7 +162,8 @@ def addDefinitionBinding
     (context : KernelContext)
     (definition : Definition)
     (translated : KernelDefinition)
-    : MetaM KernelContext :=
+    : MetaM KernelContext
+    :=
   match definition.parameters with
   | [] =>
       pure { context with bindings :=

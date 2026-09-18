@@ -31,7 +31,8 @@ def ParameterizedEvent.enabled
     {π : Type v}
     (event : ParameterizedEvent σ π)
     (state : σ)
-    : Prop :=
+    : Prop
+    :=
   ∃ parameter, event.grd parameter state
 
 def ParameterizedEvent.step
@@ -39,7 +40,8 @@ def ParameterizedEvent.step
     {π : Type v}
     (event : ParameterizedEvent σ π)
     (before after : σ)
-    : Prop :=
+    : Prop
+    :=
   ∃ parameter, event.grd parameter before ∧ event.act parameter before after
 
 def ParameterizedEvent.invariantPreserved
@@ -47,7 +49,8 @@ def ParameterizedEvent.invariantPreserved
     {π : Type v}
     (event : ParameterizedEvent σ π)
     (invariant : σ → Prop)
-    : Prop :=
+    : Prop
+    :=
   ∀ parameter before after, invariant before → event.grd parameter before →
     event.act parameter before after → invariant after
 
@@ -60,7 +63,8 @@ theorem ParameterizedEvent.step_invariant
     : ∀ before after,
       invariant before →
       event.step before after →
-      invariant after := by
+      invariant after
+    := by
   intro before after invariantBefore step
   obtain ⟨parameter, guard, action⟩ := step
   exact preserved parameter before after invariantBefore guard action
@@ -99,7 +103,8 @@ theorem ParameterizedEventRefinement.stepSim
       concrete.step concreteState concreteAfter →
       ∃ abstractAfter,
       abstract.step abstractState abstractAfter ∧
-      gluing concreteAfter abstractAfter := by
+      gluing concreteAfter abstractAfter
+    := by
   intro concreteState concreteAfter abstractState glued step
   obtain ⟨parameter, guard, action⟩ := step
   obtain ⟨abstractParameter, abstractAfter, abstractGuard, abstractAction, gluedAfter⟩ :=
@@ -113,19 +118,22 @@ def functionalAction
     (update : σ → σ)
     : σ →
       σ →
-      Prop :=
+      Prop
+    :=
   fun before after => after = update before
 
 def deterministicAction
     {σ : Type u}
     (action : σ → σ → Prop)
-    : Prop :=
+    : Prop
+    :=
   ∀ before after₁ after₂, action before after₁ → action before after₂ → after₁ = after₂
 
 theorem functionalAction_deterministic
     {σ : Type u}
     (update : σ → σ)
-    : deterministicAction (functionalAction update) := by
+    : deterministicAction (functionalAction update)
+    := by
   intro before after₁ after₂ h₁ h₂
   simpa [functionalAction] using h₁.trans h₂.symm
 
@@ -136,7 +144,8 @@ def State.update
     (state : State α)
     (name : String)
     (value : α)
-    : State α :=
+    : State α
+    :=
   fun current => if current == name then value else state current
 
 /-- Parallel assignments read every right-hand side from the same pre-state. -/
@@ -144,7 +153,8 @@ def parallelUpdate
     {α : Type u}
     (updates : List (String × (State α → α)))
     (state : State α)
-    : State α :=
+    : State α
+    :=
   fun name => match updates.find? (·.1 == name) with
     | some (_, rhs) => rhs state
     | none => state name
@@ -160,7 +170,8 @@ theorem State.update_same
     (state : State α)
     (name : String)
     (value : α)
-    : State.update state name value name = value := by
+    : State.update state name value name = value
+    := by
   simp [State.update]
 
 theorem State.update_other
@@ -169,7 +180,8 @@ theorem State.update_other
     {name other : String}
     (different : other ≠ name)
     (value : α)
-    : State.update state name value other = state other := by
+    : State.update state name value other = state other
+    := by
   simp [State.update, different]
 
 /-- Event-B machine. `inv` is the invariant, `init` the initialisation predicate. -/
@@ -185,7 +197,8 @@ def Machine.step
     {σ : Type u}
     (M : Machine σ)
     (s s' : σ)
-    : Prop :=
+    : Prop
+    :=
   ∃ e ∈ M.events, e.grd s ∧ e.act s s'
 
 /-- Reachable states. -/
@@ -220,7 +233,8 @@ theorem InvariantProof.toProved
     {σ : Type u}
     {M : Machine σ}
     (h : InvariantProof M)
-    : Proved M := by
+    : Proved M
+    := by
   constructor
   · exact h.init
   · rintro s s' hi ⟨e, he, hg, ha⟩
@@ -233,7 +247,8 @@ theorem Proved.sound
     (h : Proved M)
     : ∀ s,
       Reach M s →
-      M.inv s := by
+      M.inv s
+    := by
   intro s r
   induction r with
   | init hi      => exact h.invInit _ hi
@@ -278,7 +293,8 @@ theorem EventRefinement.stepSim
       C.step c c' →
       ∃ a',
       A.step a a' ∧
-      J c' a' := by
+      J c' a'
+    := by
   rintro c c' a hJ ⟨concrete, concreteMember, concreteGuard, concreteAction⟩
   let abstract := h.abstractEvent concrete
   have abstractMember : abstract ∈ A.events := h.abstractMember concrete concreteMember
@@ -305,7 +321,8 @@ theorem RefinementProof.toRefines
     {A : Machine α}
     {J : γ → α → Prop}
     (h : RefinementProof C A J)
-    : Refines C A J := by
+    : Refines C A J
+    := by
   exact { initSim := h.init, stepSim := h.events.stepSim }
 
 /-- Soundness: every reachable concrete state is glued to a reachable abstract state. -/
@@ -319,7 +336,8 @@ theorem Refines.sound
       Reach C c →
       ∃ a,
       Reach A a ∧
-      J c a := by
+      J c a
+    := by
   intro c r
   induction r with
   | init hi =>
@@ -342,7 +360,8 @@ theorem Refines.inv_transfer
       Reach C c →
       ∃ a,
       A.inv a ∧
-      J c a := by
+      J c a
+    := by
   intro c r
   obtain ⟨a, hra, hJ⟩ := hr.sound c r
   exact ⟨a, hp.sound a hra, hJ⟩
@@ -356,7 +375,8 @@ def State.frame
     {α : Type u}
     (names : List String)
     (before after : State α)
-    : Prop :=
+    : Prop
+    :=
   ∀ name, name ∈ names → after name = before name
 
 def framePreserved
@@ -364,7 +384,8 @@ def framePreserved
     {α : Type v}
     (read : σ → α)
     (action : σ → σ → Prop)
-    : Prop :=
+    : Prop
+    :=
   ∀ before after, action before after → read after = read before
 
 theorem State.parallelUpdate_frame_at
@@ -373,7 +394,8 @@ theorem State.parallelUpdate_frame_at
     (state : State α)
     {name : String}
     (notUpdated : ∀ update ∈ updates, update.1 ≠ name)
-    : parallelUpdate updates state name = state name := by
+    : parallelUpdate updates state name = state name
+    := by
   induction updates with
   | nil => rfl
   | cons head tail ih =>
@@ -393,7 +415,8 @@ theorem State.frame_of_parallelUpdate
     (state : State α)
     (names : List String)
     (notUpdated : ∀ name, name ∈ names → ∀ update ∈ updates, update.1 ≠ name)
-    : State.frame names state (parallelUpdate updates state) := by
+    : State.frame names state (parallelUpdate updates state)
+    := by
   intro name member
   exact State.parallelUpdate_frame_at updates state (notUpdated name member)
 
@@ -402,7 +425,8 @@ def gluingPreserved
     (J : γ → α → Prop)
     (concrete : Event γ)
     (abstract : Event α)
-    : Prop :=
+    : Prop
+    :=
   ∀ c c' a, J c a → concrete.grd c → concrete.act c c' →
     ∃ a', abstract.act a a' ∧ J c' a'
 
@@ -411,7 +435,8 @@ def guardStrengthened
     (J : γ → α → Prop)
     (concrete : Event γ)
     (abstract : Event α)
-    : Prop :=
+    : Prop
+    :=
   ∀ c a, J c a → concrete.grd c → abstract.grd a
 
 def actionSimulates
@@ -419,7 +444,8 @@ def actionSimulates
     (J : γ → α → Prop)
     (concrete : Event γ)
     (abstract : Event α)
-    : Prop :=
+    : Prop
+    :=
   ∀ c c' a, J c a → concrete.grd c → concrete.act c c' →
     ∃ a', abstract.act a a' ∧ J c' a'
 
@@ -431,7 +457,8 @@ theorem EventRefinement.guardPO
     (h : EventRefinement C A J)
     (concrete : Event γ)
     (member : concrete ∈ C.events)
-    : guardStrengthened J concrete (h.abstractEvent concrete) := by
+    : guardStrengthened J concrete (h.abstractEvent concrete)
+    := by
   intro c a hJ guard
   exact h.guard concrete c a member hJ guard
 
@@ -443,7 +470,8 @@ theorem EventRefinement.actionPO
     (h : EventRefinement C A J)
     (concrete : Event γ)
     (member : concrete ∈ C.events)
-    : actionSimulates J concrete (h.abstractEvent concrete) := by
+    : actionSimulates J concrete (h.abstractEvent concrete)
+    := by
   intro c c' a hJ guard action
   exact h.action concrete c c' a member hJ guard action
 
@@ -455,7 +483,8 @@ theorem EventRefinement.gluingPO
     (h : EventRefinement C A J)
     (concrete : Event γ)
     (member : concrete ∈ C.events)
-    : gluingPreserved J concrete (h.abstractEvent concrete) :=
+    : gluingPreserved J concrete (h.abstractEvent concrete)
+    :=
   h.actionPO concrete member
 
 structure WitnessContract
@@ -472,14 +501,16 @@ def nonIncreasing
     {σ : Type u}
     (variant : σ → Nat)
     (action : σ → σ → Prop)
-    : Prop :=
+    : Prop
+    :=
   ∀ before after, action before after → variant after ≤ variant before
 
 def strictlyDecreases
     {σ : Type u}
     (variant : σ → Nat)
     (action : σ → σ → Prop)
-    : Prop :=
+    : Prop
+    :=
   ∀ before after, action before after → variant after < variant before
 
 structure AnticipatedVariant
@@ -518,13 +549,15 @@ inductive FiniteVariantMode where
 def finiteSubset
     {α : Type u}
     (after before : List α)
-    : Prop :=
+    : Prop
+    :=
   ∀ value, value ∈ after → value ∈ before
 
 def finiteProperSubset
     {α : Type u}
     (after before : List α)
-    : Prop :=
+    : Prop
+    :=
   finiteSubset after before ∧ ∃ value, value ∈ before ∧ value ∉ after
 
 def finiteVariantProgress
@@ -573,13 +606,15 @@ structure IntegerVariant
 def integerVariantNaturality
     {σ : Type u}
     (contract : IntegerVariant σ)
-    : Prop :=
+    : Prop
+    :=
   ∀ state, 0 ≤ contract.measure state
 
 def integerVariantProgressSemantic
     {σ : Type u}
     (contract : IntegerVariant σ)
-    : Prop :=
+    : Prop
+    :=
   ∀ before after, contract.action before after →
     integerVariantProgress contract.mode
       (contract.measure after) (contract.measure before)
@@ -588,14 +623,16 @@ def finiteVariantFiniteness
     {σ : Type u}
     {α : Type v}
     (contract : FiniteSetVariant σ α)
-    : Prop :=
+    : Prop
+    :=
   ∀ state, contract.finite state
 
 def finiteVariantProgressSemantic
     {σ : Type u}
     {α : Type v}
     (contract : FiniteSetVariant σ α)
-    : Prop :=
+    : Prop
+    :=
   ∀ before after, contract.action before after →
     finiteVariantProgress contract.mode
       (contract.measure after) (contract.measure before)
@@ -619,7 +656,8 @@ def wellFoundedVariantProgressSemantic
     {σ : Type u}
     {α : Type v}
     (contract : WellFoundedVariant σ α)
-    : Prop :=
+    : Prop
+    :=
   ∀ before after, contract.action before after →
     contract.relation (contract.measure after) (contract.measure before)
 
@@ -627,7 +665,8 @@ theorem WellFoundedVariant.progressSemantic
     {σ : Type u}
     {α : Type v}
     (contract : WellFoundedVariant σ α)
-    : wellFoundedVariantProgressSemantic contract :=
+    : wellFoundedVariantProgressSemantic contract
+    :=
   contract.progress
 
 /- A merge contract names the event coverage that is otherwise easy to lose when
@@ -660,7 +699,8 @@ theorem MergeSimulation.stepSim
       C.step c c' →
       ∃ a',
       A.step a a' ∧
-      J c' a' := by
+      J c' a'
+    := by
   rintro c c' a hJ ⟨concrete, concreteMember, concreteGuard, concreteAction⟩
   have concreteInMerge := h.covered concrete concreteMember
   have abstractGuard := h.guard concrete c a concreteInMerge hJ concreteGuard
@@ -701,7 +741,8 @@ theorem SplitSimulation.stepSim
       h.concreteEvent.act c c' →
       ∃ a',
       A.step a a' ∧
-      J c' a' := by
+      J c' a'
+    := by
   intro c c' a hJ concreteGuard concreteAction
   obtain ⟨abstract, abstractMember, abstractGuard⟩ := h.guard c a hJ concreteGuard
   obtain ⟨a', abstractAction, hJ'⟩ :=
@@ -712,7 +753,8 @@ theorem SplitSimulation.stepSim
 def variantDecreasesAt
     (variant : Nat → Nat)
     (before after : Nat)
-    : Bool :=
+    : Bool
+    :=
   variant after < variant before
 
 #guard !variantDecreasesAt (fun _ => 0) 0 0
@@ -724,7 +766,8 @@ theorem mem_single
     {α : Type u}
     {a b : α}
     (h : a ∈ [b])
-    : a = b := by
+    : a = b
+    := by
   simp at h; exact h
 
 /-- Abstract: `n` counts up to 10. -/
@@ -852,7 +895,8 @@ theorem C_refines_A_from_event_contracts : Refines C A J :=
 example
     : ∀ c,
       Reach C c →
-      c.1 ≤ 10 := by
+      c.1 ≤ 10
+    := by
   intro c r
   obtain ⟨n, hn, hJ⟩ := C_refines_A.inv_transfer A_proved c r
   have h1 : n ≤ 10 := hn

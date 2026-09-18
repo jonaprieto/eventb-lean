@@ -27,7 +27,8 @@ def expectedInventory : List (String × Nat) :=
 private
 def isSource
     (path : System.FilePath)
-    : Bool :=
+    : Bool
+    :=
   path.toString.endsWith ".bum" || path.toString.endsWith ".buc"
 
 private def sourceFiles : IO (List System.FilePath) := do
@@ -44,7 +45,8 @@ private def sourceFiles : IO (List System.FilePath) := do
 private
 def shortReason
     (reason : String)
-    : String :=
+    : String
+    :=
   reason.splitOn "\n" |>.head?.getD "parse failed"
 
 private
@@ -79,7 +81,8 @@ def sumInventory
 private
 def totalInventory
     (results : List FileResult)
-    : List (String × Nat) :=
+    : List (String × Nat)
+    :=
   results.foldl
     (fun total result =>
       match result.model with
@@ -102,7 +105,8 @@ def histogramAdd
 private
 def histogram
     (results : List FileResult)
-    : List (String × Nat) :=
+    : List (String × Nat)
+    :=
   (results.foldl
     (fun counts result =>
       if result.status.startsWith "FAIL:" then
@@ -125,7 +129,8 @@ private structure FormulaResult where
 private
 def checkFormula
     (file label formula : String)
-    : FormulaResult :=
+    : FormulaResult
+    :=
   let key := file ++ "\t" ++ label
   match Formula.parse formula with
   | .error reason => { key := key, status := "FAIL:" ++ EventB.Error.render reason }
@@ -140,7 +145,8 @@ def checkFormula
 private
 def formulaResults
     (results : List FileResult)
-    : List FormulaResult :=
+    : List FormulaResult
+    :=
   results.flatMap fun result =>
     match result.model with
     | none => []
@@ -149,7 +155,8 @@ def formulaResults
 private
 def formulaHistogram
     (results : List FormulaResult)
-    : List (String × Nat) :=
+    : List (String × Nat)
+    :=
   (results.foldl
     (fun counts result =>
       if result.status.startsWith "FAIL:" then histogramAdd result.status counts
@@ -173,7 +180,8 @@ name two ways within a file. -/
 private
 def rawIdentifiers
     (e : XmlElem)
-    : List (String × String) :=
+    : List (String × String)
+    :=
   let here :=
     if e.tag == "org.eventb.core.poIdentifier" then
       -- Rodin writes the identifier name as a plain `name` attribute, unnamespaced.
@@ -249,7 +257,8 @@ types rather than a diff of Unicode. -/
 private
 def compareType
     (key inferred gold : String)
-    : TypeResult :=
+    : TypeResult
+    :=
   if inferred == gold then { key := key, status := "PASS" }
   else match Ty.parse gold with
     | none => { key := key, status := s!"FAIL:ungrammatical gold type {gold}" }
@@ -260,7 +269,8 @@ def checkTypes
     (project : Project)
     (file : String)
     (gold : List (String × String))
-    : List TypeResult :=
+    : List TypeResult
+    :=
   match inferComponent project file with
   | .error e =>
       gold.map (fun (n, _) =>
@@ -278,7 +288,8 @@ def checkTypes
 private
 def typeHistogram
     (results : List TypeResult)
-    : List (String × Nat) :=
+    : List (String × Nat)
+    :=
   (results.foldl
     (fun counts r => if r.status.startsWith "FAIL:" then histogramAdd r.status counts
                      else counts)
@@ -302,7 +313,8 @@ mutual
 private
 def poNames
     (e : XmlElem)
-    : List String :=
+    : List String
+    :=
   let here :=
     if e.tag == "org.eventb.core.poSequent" then (e.attr? "name").toList else []
   here ++ poNamesList e.children
@@ -343,7 +355,8 @@ def checkPOs
     (project : Project)
     (file : String)
     (gold : List String)
-    : List PoResult :=
+    : List PoResult
+    :=
   let ours := (generate project file).map (·.name)
   let duplicateOurs := duplicateStrings [] ours
     |>.map fun n => { key := file ++ "\t" ++ n, status := "FAIL:duplicate generated PO name" }
@@ -358,7 +371,8 @@ def checkPOs
 private
 def poHistogram
     (results : List PoResult)
-    : List (String × Nat) :=
+    : List (String × Nat)
+    :=
   (results.foldl
     (fun counts r =>
       if r.status.startsWith "FAIL:" then
@@ -381,7 +395,8 @@ chain has to be resolved before they can be compared. -/
 private
 def refName
     (ref : String)
-    : String :=
+    : String
+    :=
   ((ref.splitOn "#").getLast!).replace "\\/" "/"
     |>.replace "\\\\" "\\"
     |>.replace "\\|" "|"
@@ -392,7 +407,8 @@ private
 partial
 def predicateSets
     (e : XmlElem)
-    : List (String × Option String × List String) :=
+    : List (String × Option String × List String)
+    :=
   let here :=
     if e.tag == "org.eventb.core.poPredicateSet" then
       [(((e.attr? "name").getD ""),
@@ -406,7 +422,8 @@ private
 def chainHyps
     (sets : List (String × Option String × List String))
     (start : Option String)
-    : List String :=
+    : List String
+    :=
   go sets.length start []
 where
   go : Nat → Option String → List String → List String
@@ -420,7 +437,8 @@ where
 private
 def predicateSetErrors
     (sets : List (String × Option String × List String))
-    : List String :=
+    : List String
+    :=
   let names := sets.map (·.1)
   -- Names such as SEQHYP are intentionally local to a sequent. Only duplicate
   -- top-level names are globally ambiguous in this flattened representation.
@@ -452,7 +470,8 @@ partial
 def goldHyps
     (e : XmlElem)
     (sets : List (String × Option String × List String))
-    : List (String × List String) :=
+    : List (String × List String)
+    :=
   let here :=
     if e.tag == "org.eventb.core.poSequent" then
       match e.attr? "name" with
@@ -474,7 +493,8 @@ private
 partial
 def goldGoals
     (e : XmlElem)
-    : List (String × String) :=
+    : List (String × String)
+    :=
   let here :=
     if e.tag == "org.eventb.core.poSequent" then
       match e.attr? "name" with
@@ -500,7 +520,8 @@ private
 partial
 def goalShapeErrors
     (e : XmlElem)
-    : List String :=
+    : List String
+    :=
   let here :=
     if e.tag == "org.eventb.core.poSequent" then
       match e.attr? "name" with
@@ -540,7 +561,8 @@ private def comparable (t : Term) : Term := Formula.stripAscriptions t
 private
 def equivalent
     (left right : Term)
-    : Bool :=
+    : Bool
+    :=
   Formula.alphaEq (comparable left) (comparable right)
 
 private
@@ -569,7 +591,8 @@ def multisetEqual
 private
 def hypothesesMatch
     (ours wanted : List Term)
-    : Bool :=
+    : Bool
+    :=
   multisetEqual (ours.map comparable) (wanted.map comparable)
 
 private structure GoalResult where
@@ -587,7 +610,8 @@ private structure CoverageResult where
 private
 def coverageReasonFor
     (hasName hasGoal derived goalOK hypsOK : Bool)
-    : String :=
+    : String
+    :=
   if !hasName then "no-sequent"
   else if !derived then "not-derived"
   else if !hasGoal then "no-sequent"
@@ -610,7 +634,8 @@ private
 def omittedInvariant
     (project : Project)
     (file name : String)
-    : Bool :=
+    : Bool
+    :=
   match lookupComponent project file, name.splitOn "/" with
   | some component, _ :: label :: _ =>
       match component.elem.children.find? (fun elem =>
@@ -632,7 +657,8 @@ def coverageDiagnostic
     (file : String)
     (obligation : Obligation)
     (reason : String)
-    : String :=
+    : String
+    :=
   if reason != "no-sequent" && reason != "not-derived" then "none"
   else if obligation.kind == "INV" && omittedInvariant project file obligation.name then
     "pinned-bpo-omits-plain-type-invariant"
@@ -652,7 +678,8 @@ private
 def goalAgrees
     (obligation : Obligation)
     (gold : List (String × String))
-    : Bool :=
+    : Bool
+    :=
   match obligation.goal, gold.find? (fun p => p.1 == obligation.name) with
   | some ours, some (_, wanted) =>
       match Formula.parse wanted with
@@ -664,7 +691,8 @@ private
 def hypothesesAgree
     (obligation : Obligation)
     (gold : List (String × List String))
-    : Bool :=
+    : Bool
+    :=
   match gold.find? (fun p => p.1 == obligation.name) with
   | none => false
   | some (_, wanted) =>
@@ -679,7 +707,8 @@ def coverage
     (names : List String)
     (goals : List (String × String))
     (hyps : List (String × List String))
-    : List CoverageResult :=
+    : List CoverageResult
+    :=
   (generate project file).map fun obligation =>
     let hasName := names.contains obligation.name
     let hasGoal := goals.any (fun p => p.1 == obligation.name)
@@ -699,7 +728,8 @@ def coverage
 private
 def coverageLine
     (record : CoverageResult)
-    : String :=
+    : String
+    :=
   String.intercalate "\t"
     [record.component, record.kind, record.name, record.derivation, record.reason,
       record.diagnostic]
@@ -707,7 +737,8 @@ def coverageLine
 private
 def coverageHistogram
     (records : List CoverageResult)
-    : List (String × Nat) :=
+    : List (String × Nat)
+    :=
   (records.foldl
     (fun counts record =>
       if record.reason == "matched" then counts
@@ -727,14 +758,16 @@ private def compatibilityDiagnosticNames : List String :=
 private
 def isKnownCompatibilityRecord
     (record : CoverageResult)
-    : Bool :=
+    : Bool
+    :=
   (record.reason == "no-sequent" || record.reason == "not-derived") &&
     compatibilityDiagnosticNames.contains record.diagnostic
 
 private
 def compatibilityRecords
     (records : List CoverageResult)
-    : List CoverageResult :=
+    : List CoverageResult
+    :=
   records.filter isKnownCompatibilityRecord
 
 #guard coverageReasonFor true true true false true == "goal-differs"
@@ -750,7 +783,8 @@ def checkGoals
     (project : Project)
     (file : String)
     (gold : List (String × String))
-    : List GoalResult :=
+    : List GoalResult
+    :=
   (generate project file).filterMap fun o =>
     match o.goal with
     | none => none
@@ -796,7 +830,8 @@ def checkHyps
     (project : Project)
     (file : String)
     (gold : List (String × List String))
-    : List GoalResult :=
+    : List GoalResult
+    :=
   (generate project file).filterMap fun o =>
     -- Scored for every obligation with a derived goal. An empty hypothesis list is a
     -- claim (INITIALISATION assumes nothing), not an absence of one.
@@ -819,7 +854,8 @@ def checkWWD
     (project : Project)
     (file : String)
     (gold : List (String × List String))
-    : List GoalResult :=
+    : List GoalResult
+    :=
   (generate project file).filterMap fun o =>
     if o.kind != "WWD" then none
     else
@@ -842,7 +878,8 @@ private
 def localResults
     (project : Project)
     (poResults : List PoResult)
-    : List P4Result :=
+    : List P4Result
+    :=
   let matched := poResults.filter (·.status == "PASS") |>.map (·.key)
   let obligations := (project.flatMap fun component => generate project component.name).filter
     fun obligation => matched.contains (obligation.component ++ "\t" ++ obligation.name)
@@ -857,7 +894,8 @@ def localResults
 private
 def goalHistogram
     (results : List GoalResult)
-    : List (String × Nat) :=
+    : List (String × Nat)
+    :=
   (results.foldl
     (fun counts r => if r.status.startsWith "FAIL:" then histogramAdd r.status counts
                      else counts)
@@ -881,7 +919,8 @@ def termShape
 private
 def p4Histogram
     (results : List P4Result)
-    : List (String × Nat) :=
+    : List (String × Nat)
+    :=
   (results.foldl (fun counts result =>
     if result.accepted then counts
     else histogramAdd (match result.obligation.goal with
@@ -892,7 +931,8 @@ def p4Histogram
 private
 def p4BaselineLine
     (result : P4Result)
-    : String :=
+    : String
+    :=
   let rule := result.result.rule.map Rule.label |>.getD "unproved"
   String.intercalate "\t"
     [result.obligation.component, result.obligation.name,
@@ -902,7 +942,8 @@ def p4BaselineLine
 private
 def nonemptyLines
     (source : String)
-    : List String :=
+    : List String
+    :=
   source.splitOn "\n" |>.filter (fun line => !line.isEmpty)
 
 private

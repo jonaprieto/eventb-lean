@@ -13,7 +13,8 @@ private def eqlBinding : EqlIntBinding Theory.empty positiveProject :=
 private
 def eqlEncode
     (_ : Unit)
-    : ValueEnv :=
+    : ValueEnv
+    :=
   { values := [("x", .integer 0)] }
 
 private def eqlTransition : CheckedBeforeAfter :=

@@ -42,13 +42,15 @@ private def provenanceField (value : String) : String := s!"{value.length}:{valu
 private
 def provenanceList
     (values : List String)
-    : String :=
+    : String
+    :=
   s!"{values.length}[{String.intercalate "" (values.map provenanceField)}]"
 
 private
 def modelProvenanceText
     (model : ModelArtifact)
-    : String :=
+    : String
+    :=
   String.intercalate "\n"
     ["component=" ++ provenanceField model.component
     , "kind=" ++ provenanceField model.kind.label
@@ -58,7 +60,8 @@ def modelProvenanceText
 def provenanceFingerprintOf
     (models : List ModelArtifact)
     (bpo statuses : String)
-    : String :=
+    : String
+    :=
   s!"eventb-v3-{String.hash (String.intercalate "\n---model---\n"
     (models.map modelProvenanceText) ++
     "\n---bpo---\n" ++ bpo ++ "\n---statuses---\n" ++ statuses)}"

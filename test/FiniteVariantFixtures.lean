@@ -24,7 +24,8 @@ private def finiteVariantProject : EventB.Typing.Project :=
 private
 def parsed?
     (source : String)
-    : Option EventB.Formula.Term :=
+    : Option EventB.Formula.Term
+    :=
   (EventB.Formula.parse source).toOption
 
 #guard match generateCheckedIn EventB.Theory.empty finiteVariantProject "M" with
@@ -190,7 +191,8 @@ private
 theorem validationFuelOfOk
     (env : ValueEnv)
     (h : ValueEnv.validationOk 128 [] env = true)
-    : ValueEnv.validateFuel 128 [] env = .ok PUnit.unit := by
+    : ValueEnv.validateFuel 128 [] env = .ok PUnit.unit
+    := by
   unfold ValueEnv.validationOk at h
   cases result : ValueEnv.validateFuel 128 [] env with
   | error error => simp [result] at h
@@ -238,7 +240,8 @@ private abbrev constantFiniteSemanticState :=
 private
 def constantFiniteStateOf
     (state : constantFiniteSourceState)
-    : constantFiniteSemanticState := by
+    : constantFiniteSemanticState
+    := by
   refine ⟨state.1.before, ?_⟩
   rcases state.property with ⟨declared, beforeValid, _, _⟩
   have sourceDeclarations : constantFiniteEventSourceBound.declarations = [] := by native_decide
@@ -383,7 +386,8 @@ private def constantFiniteAdapter : FiniteSetVariantAdapter (γ := constantFinit
 
 example
     : finiteVariantFiniteness constantFiniteVariant ∧
-      finiteVariantProgressSemantic constantFiniteVariant :=
+      finiteVariantProgressSemantic constantFiniteVariant
+    :=
   constantFiniteAdapter.sound
 
 end EventB.POG

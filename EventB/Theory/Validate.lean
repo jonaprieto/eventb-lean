@@ -60,24 +60,28 @@ structure Report where
 
 def Report.isValid
     (report : Report)
-    : Bool :=
+    : Bool
+    :=
   report.issues.all (·.severity != .error)
 
 def Report.errors
     (report : Report)
-    : List Issue :=
+    : List Issue
+    :=
   report.issues.filter (·.severity == .error)
 
 def Report.append
     (left right : Report)
-    : Report :=
+    : Report
+    :=
   { issues := left.issues ++ right.issues
     obligations := left.obligations ++ right.obligations }
 
 private
 def error
     (declaration field message : String)
-    : Issue :=
+    : Issue
+    :=
   { declaration, field, message }
 
 private
@@ -116,7 +120,8 @@ private
 def parameterIssues
     (name : String)
     (parameters : List (String × Ty))
-    : List Issue :=
+    : List Issue
+    :=
   match firstDuplicate [] (parameters.map (·.1)) with
   | some parameter => [error name "parameters" s!"parameter `{parameter}` is repeated"]
   | none => []
@@ -143,7 +148,8 @@ private
 def visibleTypeNames
     (theory : Theory.Env)
     (roots : List String)
-    : List String :=
+    : List String
+    :=
   let carriers := (Theory.symbolsIn theory roots).filterMap fun (_, symbol) =>
     if symbol.kind == .carrierSet then some symbol.name else none
   let datatypes := (Theory.declarationsIn theory roots).filterMap fun (_, declaration) =>
@@ -156,7 +162,8 @@ private
 def typeParameterIssues
     (name : String)
     (parameters : List String)
-    : List Issue :=
+    : List Issue
+    :=
   let empty := parameters.find? (· == "")
   let duplicate := firstDuplicate [] parameters
   let reserved := parameters.find? (fun parameter =>
@@ -179,7 +186,8 @@ def typeIssues
     (name field : String)
     (parameters : List String)
     (types : List (String × Ty))
-    : List Issue :=
+    : List Issue
+    :=
   let allowed := parameters ++ visibleTypeNames theory roots
   types.flatMap fun (_, type) =>
     (typeNames type).eraseDups |>.filterMap fun typeName =>
@@ -191,7 +199,8 @@ private
 def unresolvedTypeIssues
     (name field : String)
     (types : List (String × Ty))
-    : List Issue :=
+    : List Issue
+    :=
   types.flatMap fun (parameter, type) =>
     if hasMVar type then
       [error name field s!"type of `{parameter}` contains an unresolved metavariable"]
@@ -201,7 +210,8 @@ private
 def unresolvedResultIssue
     (name field : String)
     (type : Ty)
-    : List Issue :=
+    : List Issue
+    :=
   if hasMVar type then
     [error name field "type contains an unresolved metavariable"]
   else []
@@ -213,7 +223,8 @@ def expressionIssue
     (parameters : List (String × Ty))
     (name field : String)
     (term : Term)
-    : List Issue :=
+    : List Issue
+    :=
   match inferTermAt theory roots parameters term with
   | .ok _ => []
   | .error message => [error name field s!"not a well-typed expression: {message}"]
@@ -225,7 +236,8 @@ def predicateIssue
     (parameters : List (String × Ty))
     (name field : String)
     (term : Term)
-    : List Issue :=
+    : List Issue
+    :=
   match (checkPred term).run
       { env := parameters, theory, theoryRoots := roots } with
   | .ok _ => []
@@ -236,7 +248,8 @@ def definitionIssues
     (theory : Theory.Env)
     (roots : List String)
     (definition : Definition)
-    : List Issue :=
+    : List Issue
+    :=
   let typeParameterErrors := typeParameterIssues definition.name definition.typeParameters
   let parameterErrors := parameterIssues definition.name definition.parameters
   let parameterTypeErrors := unresolvedTypeIssues definition.name "parameters"
@@ -260,7 +273,8 @@ def rewriteIssues
     (theory : Theory.Env)
     (roots : List String)
     (rule : Rule)
-    : List Issue :=
+    : List Issue
+    :=
   let typeParameterErrors := typeParameterIssues rule.name rule.typeParameters
   let parameterErrors := parameterIssues rule.name rule.parameters
   let parameterTypeErrors := unresolvedTypeIssues rule.name "parameters" rule.parameters
@@ -294,7 +308,8 @@ def inferenceIssues
     (theory : Theory.Env)
     (roots : List String)
     (rule : Rule)
-    : List Issue :=
+    : List Issue
+    :=
   let typeParameterErrors := typeParameterIssues rule.name rule.typeParameters
   let parameterErrors := parameterIssues rule.name rule.parameters
   let parameterTypeErrors := unresolvedTypeIssues rule.name "parameters" rule.parameters
@@ -313,7 +328,8 @@ def theoremIssues
     (theory : Theory.Env)
     (roots : List String)
     (rule : Rule)
-    : List Issue :=
+    : List Issue
+    :=
   let typeParameterErrors := typeParameterIssues rule.name rule.typeParameters
   let parameterErrors := parameterIssues rule.name rule.parameters
   let parameterTypeErrors := unresolvedTypeIssues rule.name "parameters" rule.parameters
@@ -332,7 +348,8 @@ def datatypeIssues
     (theory : Theory.Env)
     (roots : List String)
     (datatype : Datatype)
-    : List Issue :=
+    : List Issue
+    :=
   let names := datatype.constructors.map (·.name)
   let duplicate := firstDuplicate [] names
   let duplicateErrors := match duplicate with
@@ -422,13 +439,15 @@ def declarationParts
 private
 def specNames
     (spec : Spec)
-    : List String :=
+    : List String
+    :=
   spec.symbols.map (·.name) ++ spec.declarations.flatMap declarationParts
 
 private
 def specNameIssues
     (spec : Spec)
-    : List Issue :=
+    : List Issue
+    :=
   match firstDuplicate [] (specNames spec) with
   | some name => [error spec.name "names" s!"name `{name}` is declared more than once"]
   | none => []
@@ -437,7 +456,8 @@ private
 def registrationIssues
     (env : Theory.Env)
     (spec : Spec)
-    : List Issue :=
+    : List Issue
+    :=
   match Theory.add env spec with
   | .ok _ => []
   | .error message => [error spec.name "registration" (EventB.Error.render message)]
@@ -446,13 +466,15 @@ def validateDeclaration
     (theory : Theory.Env)
     (roots : List String)
     (value : Declaration)
-    : Report :=
+    : Report
+    :=
   declaration theory roots value
 
 def validateSpec
     (env : Theory.Env)
     (spec : Spec)
-    : Report :=
+    : Report
+    :=
   let registrationErrors := registrationIssues env spec
   let checkingEnv := match Theory.add env spec with
     | .ok extended => extended

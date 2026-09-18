@@ -240,20 +240,23 @@ def bookProject : Typing.Project :=
 private
 def hasPO
     (machine name : String)
-    : Bool :=
+    : Bool
+    :=
   (POG.generate bookProject machine).any (·.name == name)
 
 private
 def goalText
     (machine name : String)
-    : Option String :=
+    : Option String
+    :=
   (POG.generate bookProject machine).find? (·.name == name) |>.bind
     (fun obligation => obligation.goal.map Formula.print)
 
 private
 def hypothesesText
     (machine name : String)
-    : Option (List String) :=
+    : Option (List String)
+    :=
   (POG.generate bookProject machine).find? (·.name == name) |>.map
     (fun obligation => obligation.hyps.map Formula.print)
 

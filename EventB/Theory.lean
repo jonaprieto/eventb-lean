@@ -98,14 +98,16 @@ def productType
 def Constructor.type
     (datatype : Datatype)
     (constructor : Constructor)
-    : Typing.Ty :=
+    : Typing.Ty
+    :=
   match productType constructor.arguments with
   | none => .given datatype.name
   | some arguments => .pow (.prod arguments (.given datatype.name))
 
 def Definition.type
     (value : Definition)
-    : Typing.Ty :=
+    : Typing.Ty
+    :=
   match productType (value.parameters.map (·.2)) with
   | none => value.result
   | some arguments => .pow (.prod arguments value.result)
@@ -135,20 +137,23 @@ def empty : Env :=
 
 def canonicalize
     (theory : Spec)
-    : Spec :=
+    : Spec
+    :=
   { theory with symbols := theory.symbols.map fun symbol =>
       { symbol with id := SymbolId.qualified theory.name symbol.name } }
 
 def declarationId
     (theory : String)
     (declaration : Declaration)
-    : SymbolId :=
+    : SymbolId
+    :=
   SymbolId.qualified theory declaration.name
 
 def lookupTheory?
     (env : Env)
     (name : String)
-    : Option Spec :=
+    : Option Spec
+    :=
   env.theories.find? (·.name == name)
 
 private
@@ -182,7 +187,8 @@ private
 def visibleTheoryNames
     (env : Env)
     (roots : List String)
-    : List String :=
+    : List String
+    :=
   let fuel := env.theories.length + roots.length + 1
   let names := roots.foldl (fun seen root => closureAux env fuel seen root) []
   (core.name :: names).eraseDups
@@ -191,7 +197,8 @@ def lookupIn?
     (env : Env)
     (roots : List String)
     (name : String)
-    : Option (String × Symbol) :=
+    : Option (String × Symbol)
+    :=
   visibleTheoryNames env roots |>.findSome? fun theoryName => do
     let theory ← lookupTheory? env theoryName
     let symbol ← theory.symbols.find? (fun symbol => symbol.name == name)
@@ -200,7 +207,8 @@ def lookupIn?
 def symbolsIn
     (env : Env)
     (roots : List String)
-    : List (String × Symbol) :=
+    : List (String × Symbol)
+    :=
   visibleTheoryNames env roots |>.flatMap fun theoryName =>
     match lookupTheory? env theoryName with
     | none => []
@@ -209,7 +217,8 @@ def symbolsIn
 def declarationsIn
     (env : Env)
     (roots : List String)
-    : List (String × Declaration) :=
+    : List (String × Declaration)
+    :=
   visibleTheoryNames env roots |>.flatMap fun theoryName =>
     match lookupTheory? env theoryName with
     | none => []
@@ -219,7 +228,8 @@ def namesWithApplication
     (env : Env)
     (roots : List String)
     (application : ApplicationKind)
-    : List String :=
+    : List String
+    :=
   let symbols := (symbolsIn env roots).filterMap fun (_, symbol) =>
     if symbol.application == some application then some symbol.name else none
   let definitions := if application == .total then
@@ -234,21 +244,24 @@ def definedness?
     (env : Env)
     (roots : List String)
     (name : String)
-    : List Definedness :=
+    : List Definedness
+    :=
   (lookupIn? env roots name).map (·.2.definedness) |>.getD []
 
 def declaration?
     (env : Env)
     (roots : List String)
     (name : String)
-    : Option (String × Declaration) :=
+    : Option (String × Declaration)
+    :=
   declarationsIn env roots |>.find? (·.2.name == name)
 
 def constructor?
     (env : Env)
     (roots : List String)
     (name : String)
-    : Option (String × Datatype × Constructor) :=
+    : Option (String × Datatype × Constructor)
+    :=
   declarationsIn env roots |>.findSome? fun (owner, declaration) =>
     match declaration with
     | .dataType datatype => datatype.constructors.find? (·.name == name) |>.map
@@ -259,13 +272,15 @@ def isDeclarationIn
     (env : Env)
     (roots : List String)
     (name : String)
-    : Bool :=
+    : Bool
+    :=
   (declaration? env roots name).isSome
 
 def definitionsIn
     (env : Env)
     (roots : List String)
-    : List (String × Definition) :=
+    : List (String × Definition)
+    :=
   declarationsIn env roots |>.filterMap fun (owner, declaration) =>
     match declaration with
     | .definitionDecl value => some (owner, value)
@@ -274,7 +289,8 @@ def definitionsIn
 def rewriteRulesIn
     (env : Env)
     (roots : List String)
-    : List (String × Rule) :=
+    : List (String × Rule)
+    :=
   declarationsIn env roots |>.filterMap fun (owner, declaration) =>
     match declaration with
     | .ruleDecl value => if value.kind == .rewrite then some (owner, value) else none
@@ -424,7 +440,8 @@ private
 def rewriteRoot
     (rules : List (String × Rule))
     (term : Formula.Term)
-    : Option Formula.Term :=
+    : Option Formula.Term
+    :=
   rules.findSome? fun (_, rule) => do
     let lhs ← rule.lhs
     let rhs ← rule.rhs
@@ -461,26 +478,30 @@ def normalize
     (env : Env)
     (roots : List String)
     (term : Formula.Term)
-    : Formula.Term :=
+    : Formula.Term
+    :=
   let rules := rewriteRulesIn env roots
   normalizeAux rules (termSize term * (rules.length + 1) + 1) term
 
 private
 def declarationNames
     (declarations : List Declaration)
-    : List String :=
+    : List String
+    :=
   declarations.map Declaration.name
 
 private
 def constructorNames
     (datatype : Datatype)
-    : List String :=
+    : List String
+    :=
   datatype.constructors.map (·.name)
 
 private
 def declarationParts
     (declaration : Declaration)
-    : List String :=
+    : List String
+    :=
   match declaration with
   | .dataType datatype => datatype.name :: constructorNames datatype
   | .definitionDecl definition => [definition.name]
@@ -489,14 +510,16 @@ def declarationParts
 private
 def declarationNamesAll
     (declarations : List Declaration)
-    : List String :=
+    : List String
+    :=
   declarations.flatMap declarationParts
 
 private
 def isDefinitionName
     (declarations : List Declaration)
     (name : String)
-    : Bool :=
+    : Bool
+    :=
   declarations.any fun declaration => match declaration with
     | .definitionDecl definition => definition.name == name
     | _ => false
@@ -507,7 +530,8 @@ private
 def typeParameterError
     (name : String)
     (parameters : List String)
-    : Option String :=
+    : Option String
+    :=
   if parameters.any (· == "") then
     some s!"declaration `{name}` has an empty type parameter"
   else match duplicateName parameters with
@@ -519,7 +543,8 @@ def typeParameterError
 private
 def declarationError
     (declaration : Declaration)
-    : Option String :=
+    : Option String
+    :=
   match declaration with
   | .dataType datatype =>
       if datatype.constructors.isEmpty then
@@ -554,7 +579,8 @@ private
 def validate
     (env : Env)
     (theory : Spec)
-    : List String :=
+    : List String
+    :=
   let names := theory.symbols.map (·.name)
   let declarationNames := declarationNamesAll theory.declarations
   let duplicate := firstDuplicate [] names
@@ -631,7 +657,8 @@ def validate
 def add
     (env : Env)
     (theory : Spec)
-    : Except EventB.Error Env :=
+    : Except EventB.Error Env
+    :=
   let theory := canonicalize theory
   match validate env theory with
   | error :: _ => .error (EventB.Error.theory error)
@@ -639,34 +666,39 @@ def add
 
 def register
     (specs : List Spec)
-    : Except EventB.Error Env :=
+    : Except EventB.Error Env
+    :=
   specs.foldlM add empty
 
 /-- Compatibility lookup for callers that have no component-specific scope yet. -/
 def lookup?
     (env : Env)
     (name : String)
-    : Option (String × Symbol) :=
+    : Option (String × Symbol)
+    :=
   lookupIn? env (env.theories.map (·.name)) name
 
 def isIdentifierIn
     (env : Env)
     (roots : List String)
     (name : String)
-    : Bool :=
+    : Bool
+    :=
   (lookupIn? env roots name).isSome || isDeclarationIn env roots name
 
 def isIdentifier
     (env : Env)
     (name : String)
-    : Bool :=
+    : Bool
+    :=
   isIdentifierIn env (env.theories.map (·.name)) name
 
 def typeIn?
     (env : Env)
     (roots : List String)
     (name : String)
-    : Option Typing.Ty :=
+    : Option Typing.Ty
+    :=
   match (lookupIn? env roots name).bind (·.2.type) with
   | some type => some type
   | none =>
@@ -677,7 +709,8 @@ def typeIn?
 def type?
     (env : Env)
     (name : String)
-    : Option Typing.Ty :=
+    : Option Typing.Ty
+    :=
   typeIn? env (env.theories.map (·.name)) name
 
 #guard (lookup? empty "BOOL").isSome
@@ -770,7 +803,8 @@ private def binderRewriteEnv : Env :=
 private
 def parseFormula!
     (source : String)
-    : Formula.Term :=
+    : Formula.Term
+    :=
   (Formula.parse source).toOption.getD (.id "?")
 
 #guard Definition.type

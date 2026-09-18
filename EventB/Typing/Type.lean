@@ -103,7 +103,8 @@ end
 
 def Ty.parse
     (s : String)
-    : Option Ty :=
+    : Option Ty
+    :=
   let cs := s.toList
   parseGo (cs.length + 1) cs |>.bind fun (t, rest) => if rest.isEmpty then some t else none
 

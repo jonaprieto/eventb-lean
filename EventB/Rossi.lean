@@ -32,20 +32,23 @@ private def whitespace (c : Char) : Bool := c.isWhitespace
 private
 def trim
     (s : String)
-    : String :=
+    : String
+    :=
   let left := s.toList.dropWhile whitespace
   String.ofList (left.reverse.dropWhile whitespace |>.reverse)
 
 private
 def lower
     (s : String)
-    : String :=
+    : String
+    :=
   String.ofList (s.toList.map Char.toLower)
 
 private
 def stripComments
     (source : String)
-    : Except String String :=
+    : Except String String
+    :=
   go source.toList .normal []
 where
   go : List Char → CommentMode → List Char → Except String String
@@ -69,7 +72,8 @@ private
 def wordPrefix?
     (word : String)
     (cs : List Char)
-    : Bool :=
+    : Bool
+    :=
   let wanted := (lower word).toList
   let actual := cs.take wanted.length |>.map Char.toLower
   actual == wanted && match cs.drop wanted.length with
@@ -79,7 +83,8 @@ def wordPrefix?
 private
 def splitStructural
     (source : String)
-    : String :=
+    : String
+    :=
   go (source.length + 1) source.toList true []
 where
   go : Nat → List Char → Bool → List Char → String
@@ -104,14 +109,16 @@ where
 private
 def lines
     (source : String)
-    : List Line :=
+    : List Line
+    :=
   (splitStructural source).splitOn "\n" |>.mapIdx fun number text =>
     { number := number + 1, text := trim text }
 
 private
 def firstWord?
     (s : String)
-    : Option (String × String) :=
+    : Option (String × String)
+    :=
   let cs := (trim s).toList
   let word := cs.takeWhile (fun c => !whitespace c)
   if word.isEmpty then none
@@ -122,7 +129,8 @@ def firstWord?
 private
 def head?
     (s : String)
-    : Option String :=
+    : Option String
+    :=
   firstWord? s |>.map (fun p => lower p.1)
 
 private def tail (s : String) : String := (firstWord? s).map (·.2) |>.getD ""
@@ -130,7 +138,8 @@ private def tail (s : String) : String := (firstWord? s).map (·.2) |>.getD ""
 private
 def words
     (s : String)
-    : List String :=
+    : List String
+    :=
   go s.toList [] []
 where
   go : List Char → List Char → List String → List String
@@ -147,39 +156,45 @@ private
 def lineError
     (line : Line)
     (message : String)
-    : String :=
+    : String
+    :=
   s!"line {line.number}: {message}"
 
 private
 def identAttrs
     (name : String)
-    : XmlAttrs :=
+    : XmlAttrs
+    :=
   [("org.eventb.core.identifier", name)]
 
 private
 def targetAttrs
     (name : String)
-    : XmlAttrs :=
+    : XmlAttrs
+    :=
   [("org.eventb.core.target", name)]
 
 private
 def labelAttrs
     (label formula : String)
     (isTheorem : Bool := false)
-    : XmlAttrs :=
+    : XmlAttrs
+    :=
   [("org.eventb.core.label", label), ("org.eventb.core.predicate", formula)] ++
     (if isTheorem then [("org.eventb.core.theorem", "true")] else [])
 
 private
 def assignmentAttrs
     (label formula : String)
-    : XmlAttrs :=
+    : XmlAttrs
+    :=
   [("org.eventb.core.label", label), ("org.eventb.core.assignment", formula)]
 
 private
 def removeTrailingColon
     (s : String)
-    : String :=
+    : String
+    :=
   if s.endsWith ":" then String.ofList (s.toList.reverse.drop 1 |>.reverse) else s
 
 private structure Labelled where
@@ -190,7 +205,8 @@ private structure Labelled where
 private
 def stripTheorem
     (source : String)
-    : Bool × String :=
+    : Bool × String
+    :=
   match firstWord? source with
   | some (word, rest) =>
       let isTheorem := lower word == "theorem"
@@ -200,7 +216,8 @@ def stripTheorem
 private
 def leadingLabel?
     (s : String)
-    : Option (String × String) :=
+    : Option (String × String)
+    :=
   let s := trim s
   if !s.startsWith "@" then none
   else
@@ -229,7 +246,8 @@ def labelled
 private
 def labelOnly?
     (source : String)
-    : Option String :=
+    : Option String
+    :=
   leadingLabel? source |>.filter (·.2.isEmpty) |>.map (·.1)
 
 private inductive PredicateKind where
@@ -244,7 +262,8 @@ private
 def predicateElem
     (kind : PredicateKind)
     (label formula : String)
-    : Elem :=
+    : Elem
+    :=
   match kind with
   | .axiom => .axiom (labelAttrs label formula) []
   | .theoremAxiom => .axiom (labelAttrs label formula true) []
@@ -276,7 +295,8 @@ private
 def predicateBoundary
     (stops : List String)
     (line : Line)
-    : Bool :=
+    : Bool
+    :=
   match head? line.text with
   | some head => isOneOf head stops
   | none => false
@@ -284,7 +304,8 @@ def predicateBoundary
 private
 def formulaBody
     (source : String)
-    : String :=
+    : String
+    :=
   let (_, source) := stripTheorem source
   match leadingLabel? source with
   | some (_, rest) => rest
@@ -293,7 +314,8 @@ def formulaBody
 private
 def startsWithFormulaOperator
     (source : String)
-    : Bool :=
+    : Bool
+    :=
   match Formula.lex source with
   | .ok (tok :: _) => match tok with
       | .op _ => true
@@ -303,7 +325,8 @@ def startsWithFormulaOperator
 private
 def formulaComplete
     (source : String)
-    : Bool :=
+    : Bool
+    :=
   match Formula.parse source with
   | .ok _ => true
   | .error _ => false
@@ -313,7 +336,8 @@ def collectPredicateText
     (stops : List String)
     (line : Line)
     (rest : List Line)
-    : String × List Line :=
+    : String × List Line
+    :=
   let initial := line.text
   let initialBody := formulaBody initial
   let (initial, rest) := if initialBody.isEmpty then
@@ -426,7 +450,8 @@ def assignmentLength?
 private
 def topLevelAssignments
     (source : String)
-    : List Nat :=
+    : List Nat
+    :=
   go source.length source.toList 0 0
 where
   go : Nat → List Char → Nat → Nat → List Nat
@@ -466,7 +491,8 @@ private
 def actionStart
     (source : String)
     (marker : Nat)
-    : Nat :=
+    : Nat
+    :=
   let chars := source.toList
   go chars marker false
 where
@@ -491,7 +517,8 @@ private
 def splitAtPositions
     (source : String)
     (starts : List Nat)
-    : List String :=
+    : List String
+    :=
   go source.toList 0 starts
 where
   go : List Char → Nat → List Nat → List String
@@ -506,7 +533,8 @@ where
 private
 def splitActionText
     (source : String)
-    : List String :=
+    : List String
+    :=
   match topLevelAssignments source with
   | [] => [source]
   | first :: rest =>
@@ -520,7 +548,8 @@ def splitActionText
 private
 def actionBody
     (source : String)
-    : String :=
+    : String
+    :=
   match topLevelAssignments source with
   | marker :: _ =>
       let chars := source.toList.drop marker
@@ -532,7 +561,8 @@ def actionBody
 private
 def actionComplete
     (source : String)
-    : Bool :=
+    : Bool
+    :=
   let body := match leadingLabel? source with
     | some (_, rest) => rest
     | none => source
@@ -544,7 +574,8 @@ private
 def collectActionText
     (line : Line)
     (rest : List Line)
-    : String × List Line :=
+    : String × List Line
+    :=
   go (rest.length + 1) line.text rest
 where
   go : Nat → String → List Line → String × List Line
@@ -588,7 +619,8 @@ private
 def sectionData
     (line : Line)
     (rest : List Line)
-    : String × List Line :=
+    : String × List Line
+    :=
   if !(tail line.text).isEmpty then (tail line.text, rest)
   else
     match skipBlank rest with
@@ -634,7 +666,8 @@ def names
     (stops : List String)
     (line : Line)
     (rest : List Line)
-    : Except String (List String × List Line) :=
+    : Except String (List String × List Line)
+    :=
   let first := if (tail line.text).isEmpty then [] else
     [{ number := line.number, text := tail line.text }]
   let (result, remaining) := collectNames (rest.length + 2) stops (first ++ rest)
@@ -644,7 +677,8 @@ def names
 private
 def setTokens
     (s : String)
-    : List String :=
+    : List String
+    :=
   go s.toList [] []
 where
   flush (current : List Char) (out : List String) : List String :=
@@ -749,7 +783,8 @@ def parseContext
 private
 def convergence
     (status : String)
-    : Option String :=
+    : Option String
+    :=
   if status == "ordinary" then some "0"
   else if status == "convergent" then some "1"
   else if status == "anticipated" then some "2"
@@ -982,7 +1017,8 @@ def parse
 
 def parseModel
     (source : String)
-    : Except EventB.Error (List Model) :=
+    : Except EventB.Error (List Model)
+    :=
   parse source |>.map (·.map (·.model))
 
 def read
