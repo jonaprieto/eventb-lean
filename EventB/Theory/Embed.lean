@@ -41,7 +41,10 @@ structure KernelRule where
   obligations : List Validate.Obligation := []
   deriving Repr
 
-private def reportText (report : Validate.Report) : String :=
+private
+def reportText
+    (report : Validate.Report)
+    : String :=
   String.intercalate "; " (report.errors.map (·.message))
 
 private def requireValid (env : Theory.Env) (roots : List String)
@@ -60,9 +63,13 @@ private def checkTypeParameters (context : KernelContext) (parameters : List Str
         unless (← inferType value).isSort do
           throwError s!"Lean instantiation for type parameter `{parameter}` is not a type"
 
-private def withParameters {α : Type} (context : KernelContext)
+private
+def withParameters
+    {α : Type}
+    (context : KernelContext)
     (parameters : List (String × Ty))
-    (continuation : KernelContext → List Expr → MetaM α) : MetaM α :=
+    (continuation : KernelContext → List Expr → MetaM α)
+    : MetaM α :=
   match parameters with
   | [] => continuation context []
   | (name, ty) :: rest => do
@@ -99,11 +106,18 @@ def translateDefinition (context : KernelContext) (definition : Definition) :
     checkedFunction context definition.parameters definition.result value
     pure { name := definition.name, kind := definition.kind, result := definition.result, value }
 
-private def productType : List Ty → Option Ty
+private
+def productType
+    : List Ty →
+      Option Ty
   | [] => none
   | type :: types => some (types.foldl (fun result next => .prod result next) type)
 
-private def productValues (value : Expr) : Nat → MetaM (List Expr)
+private
+def productValues
+    (value : Expr)
+    : Nat →
+      MetaM (List Expr)
   | 0 => pure []
   | 1 => pure [value]
   | count + 1 => do
@@ -119,8 +133,12 @@ private def uncurried (context : KernelContext) (parameters : List (String × Ty
     let applied := values.foldl (fun function argument => mkApp function argument) value
     mkLambdaFVars #[arguments] applied
 
-private def addDefinitionBinding (context : KernelContext) (definition : Definition)
-    (translated : KernelDefinition) : MetaM KernelContext :=
+private
+def addDefinitionBinding
+    (context : KernelContext)
+    (definition : Definition)
+    (translated : KernelDefinition)
+    : MetaM KernelContext :=
   match definition.parameters with
   | [] =>
       pure { context with bindings :=
@@ -155,7 +173,11 @@ private def constructorType (context : KernelContext) (arguments : List Ty) (res
     let type ← leanType context type
     mkArrow type result) result
 
-private def namedParameters : Nat → List Ty → List (String × Ty)
+private
+def namedParameters
+    : Nat →
+      List Ty →
+      List (String × Ty)
   | _, [] => []
   | index, type :: types =>
       ("arg" ++ toString index, type) :: namedParameters (index + 1) types
@@ -216,7 +238,11 @@ def addDatatypeBindings (context : KernelContext) (datatype : Datatype) (value :
                 value := function } :: resolved.functions }
   pure resolved
 
-private def implications : List Expr → Expr → MetaM Expr
+private
+def implications
+    : List Expr →
+      Expr →
+      MetaM Expr
   | [], conclusion => pure conclusion
   | premise :: premises, conclusion => do
       mkArrow premise (← implications premises conclusion)

@@ -8,16 +8,28 @@ namespace EventB.RossiBoundaryDemo
 
 open EventB
 
-private def childrenWith (tag : String) (elem : Elem) : List Elem :=
+private
+def childrenWith
+    (tag : String)
+    (elem : Elem)
+    : List Elem :=
   elem.children.filter (fun child => child.tag == "org.eventb.core." ++ tag)
 
-private def formulaOf (elem : Elem) : Option String :=
+private
+def formulaOf
+    (elem : Elem)
+    : Option String :=
   elem.attr? "org.eventb.core.predicate"
 
-private def assignmentOf (elem : Elem) : Option String :=
+private
+def assignmentOf
+    (elem : Elem)
+    : Option String :=
   elem.attr? "org.eventb.core.assignment"
 
-private def wrapped : String :=
+private
+def wrapped
+    : String :=
   "CONTEXT C\nSETS S\nCONSTANTS x y\nAXIOMS\n@a\nx ∈ S\n∧ y ∈ S\n@b\ny = y\nEND\n" ++
   "MACHINE M\nSEES C\nVARIABLES v w\nEVENTS\nEVENT INITIALISATION\nTHEN\n" ++
   "v := 0 v := 1\nEND\nEVENT update\nTHEN\n@set_v\n" ++

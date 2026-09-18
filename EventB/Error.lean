@@ -46,13 +46,21 @@ def io (message : String) : Error := { kind := .io, message }
 
 def cli (message : String) : Error := { kind := .cli, message }
 
-def withPath (error : Error) (path : String) : Error :=
+def withPath
+    (error : Error)
+    (path : String)
+    : Error :=
   { error with path := some path }
 
-def withContext (error : Error) (context : String) : Error :=
+def withContext
+    (error : Error)
+    (context : String)
+    : Error :=
   { error with context := context :: error.context }
 
-def render (error : Error) : String :=
+def render
+    (error : Error)
+    : String :=
   String.intercalate ": " (error.path.toList ++ error.context.reverse ++ [error.message])
 
 instance : ToString Error where

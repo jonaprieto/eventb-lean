@@ -43,12 +43,15 @@ structure Model where
   root : Elem
   deriving BEq, Repr
 
-def inventoryTags : List String :=
+def inventoryTags
+    : List String :=
   ["guard", "action", "event", "refinesEvent", "variable", "invariant", "parameter",
    "axiom", "constant", "machineFile", "seesContext", "refinesMachine", "extendsContext",
    "contextFile", "witness", "carrierSet"]
 
-def Elem.tag : Elem → String
+def Elem.tag
+    : Elem →
+      String
   | .machineFile _ _ => "org.eventb.core.machineFile"
   | .contextFile _ _ => "org.eventb.core.contextFile"
   | .seesContext _ _ => "org.eventb.core.seesContext"
@@ -68,7 +71,9 @@ def Elem.tag : Elem → String
   | .action _ _ => "org.eventb.core.action"
   | .extension tag _ _ => tag
 
-def Elem.attrs : Elem → XmlAttrs
+def Elem.attrs
+    : Elem →
+      XmlAttrs
   | .machineFile attrs _ => attrs
   | .contextFile attrs _ => attrs
   | .seesContext attrs _ => attrs
@@ -88,7 +93,9 @@ def Elem.attrs : Elem → XmlAttrs
   | .action attrs _ => attrs
   | .extension _ attrs _ => attrs
 
-def Elem.children : Elem → List Elem
+def Elem.children
+    : Elem →
+      List Elem
   | .machineFile _ children => children
   | .contextFile _ children => children
   | .seesContext _ children => children
@@ -108,13 +115,18 @@ def Elem.children : Elem → List Elem
   | .action _ children => children
   | .extension _ _ children => children
 
-def Elem.attr? (elem : Elem) (key : String) : Option String :=
+def Elem.attr?
+    (elem : Elem)
+    (key : String)
+    : Option String :=
   elem.attrs.find? (fun (name, _) => name == key) |>.map (·.2)
 
 /-- `Elem.children` is an 18-case match, so the equation compiler cannot see through it
 to know the sublist is smaller. Proving it once here lets every traversal below be a
 plain `def` with a `sizeOf` measure, instead of `partial`. -/
-theorem Elem.sizeOf_children (e : Elem) : sizeOf e.children < sizeOf e := by
+theorem Elem.sizeOf_children
+    (e : Elem)
+    : sizeOf e.children < sizeOf e := by
   cases e <;> simp +arith [Elem.children]
 
 -- `Elem` nests a `List Elem`, so every traversal needs its list case written out: a
@@ -122,50 +134,70 @@ theorem Elem.sizeOf_children (e : Elem) : sizeOf e.children < sizeOf e := by
 -- equation compiler, and the definition would have to be `partial`.
 mutual
 
-private def countTag (wanted : String) (elem : Elem) : Nat :=
+private
+def countTag
+    (wanted : String)
+    (elem : Elem)
+    : Nat :=
   (if elem.tag == wanted then 1 else 0) + countTagList wanted elem.children
 termination_by sizeOf elem
 decreasing_by exact Elem.sizeOf_children elem
 
-private def countTagList (wanted : String) : List Elem → Nat
+private
+def countTagList
+    (wanted : String)
+    : List Elem →
+      Nat
   | [] => 0
   | e :: es => countTag wanted e + countTagList wanted es
 termination_by es => sizeOf es
 
 end
 
-def Model.inventory (model : Model) : List (String × Nat) :=
+def Model.inventory
+    (model : Model)
+    : List (String × Nat) :=
   inventoryTags.map (fun tag => (tag, countTag ("org.eventb.core." ++ tag) model.root))
 
 /-- Attributes carrying an Event-B formula. `expression` is the variant used by
 `org.eventb.core.variant`, which the corpus does not exercise but Rodin emits. -/
-def formulaAttrs : List String :=
+def formulaAttrs
+    : List String :=
   ["org.eventb.core.predicate", "org.eventb.core.assignment", "org.eventb.core.expression"]
 
 mutual
 
 /-- Every formula in the model, in document order, tagged by the owning element's label
 so a P1 failure names the invariant or guard it came from. -/
-def Elem.formulas (elem : Elem) : List (String × String) :=
+def Elem.formulas
+    (elem : Elem)
+    : List (String × String) :=
   let label := (elem.attr? "org.eventb.core.label").getD (elem.tag.splitOn "." |>.getLast!)
   let here := formulaAttrs.filterMap (fun a => (elem.attr? a).map (fun f => (label, f)))
   here ++ Elem.formulasList elem.children
 termination_by sizeOf elem
 decreasing_by exact Elem.sizeOf_children elem
 
-def Elem.formulasList : List Elem → List (String × String)
+def Elem.formulasList
+    : List Elem →
+      List (String × String)
   | [] => []
   | e :: es => Elem.formulas e ++ Elem.formulasList es
 termination_by es => sizeOf es
 
 end
 
-def Model.formulas (model : Model) : List (String × String) :=
+def Model.formulas
+    (model : Model)
+    : List (String × String) :=
   model.root.formulas
 
 mutual
 
-private def mapElemList : List XmlElem → Except String (List Elem)
+private
+def mapElemList
+    : List XmlElem →
+      Except String (List Elem)
   | [] => .ok []
   | e :: es => do return (← mapElem e) :: (← mapElemList es)
 termination_by es => sizeOf es
@@ -209,7 +241,9 @@ def fromXml (xml : XmlElem) : Except EventB.Error Model := do
   | _ => .error (EventB.Error.model
       ("expected machineFile or contextFile root, got " ++ root.tag))
 
-def parseModel (source : ByteArray) : Except EventB.Error Model :=
+def parseModel
+    (source : ByteArray)
+    : Except EventB.Error Model :=
   match parseXml source with
   | .error err => .error (EventB.Error.model (err.pretty source))
   | .ok xml => fromXml xml

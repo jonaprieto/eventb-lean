@@ -9,7 +9,9 @@ open EventB EventB.Embedding EventB.Formula EventB.Theory
 
 theorem zeroReflexive (zero : Int) : zero = zero := rfl
 
-theorem addZero (value : Int) : value + 0 = value := by
+theorem addZero
+    (value : Int)
+    : value + 0 = value := by
   simp
 
 inductive Colour where

@@ -20,10 +20,14 @@ structure SourceRange where
 
 namespace SourceRange
 
-def synthetic (file : String := "<generated>") : SourceRange :=
+def synthetic
+    (file : String := "<generated>")
+    : SourceRange :=
   { file, beginPos := { line := 1, column := 0 }, finishPos := { line := 1, column := 0 } }
 
-def display (range : SourceRange) : String :=
+def display
+    (range : SourceRange)
+    : String :=
   s!"{range.file}:{range.beginPos.line}:{range.beginPos.column + 1}-" ++
     s!"{range.finishPos.line}:{range.finishPos.column + 1}"
 

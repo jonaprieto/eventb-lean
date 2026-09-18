@@ -58,12 +58,16 @@ private def unsupported :=
   | .error _ => true
   | .ok _ => false
 
-private def baseSymbol : EventB.Prelude.Symbol :=
+private
+def baseSymbol
+    : EventB.Prelude.Symbol :=
   { name := "LIMIT", kind := .constant, type := some .int,
     description := "A base constant.", id := EventB.Prelude.SymbolId.unqualified "LIMIT",
     source := EventB.SourceRange.synthetic }
 
-private def base : Spec :=
+private
+def base
+    : Spec :=
   { name := "Base", symbols := [baseSymbol] }
 
 #guard match Theory.add Theory.empty base with

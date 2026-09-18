@@ -62,83 +62,153 @@ eventb_machine BridgeController where
     action act1 : cars := cars - 1
     action act2 : gate := FALSE
 
-def widgetProject : Typing.Project :=
+def widgetProject
+    : Typing.Project :=
   [ { name := "WidgetCtx", elem := WidgetCtx }
   , { name := "BridgeBase", elem := BridgeBase }
   , { name := "BridgeController", elem := BridgeController } ]
 
 namespace WidgetProofs
 
-theorem initialInv1 (limit _cars : Int) (_gate : Bool)
-    (_ : 0 ≤ limit) (_ : 0 < limit) : True := by
+theorem initialInv1
+    (limit _cars : Int)
+    (_gate : Bool)
+    (_ : 0 ≤ limit)
+    (_ : 0 < limit)
+    : True := by
   trivial
 
-theorem initialInv2 (limit _cars : Int) (_gate : Bool)
-    (_ : 0 ≤ limit) (_ : 0 < limit) : false = true → 0 < limit := by
+theorem initialInv2
+    (limit _cars : Int)
+    (_gate : Bool)
+    (_ : 0 ≤ limit)
+    (_ : 0 < limit)
+    : false = true →
+      0 < limit := by
   intro contradiction
   cases contradiction
 
-theorem initialSim (limit _cars : Int) (_gate : Bool)
-    (_ : 0 ≤ limit) (_ : 0 < limit) : (0 : Int) = 0 := by
+theorem initialSim
+    (limit _cars : Int)
+    (_gate : Bool)
+    (_ : 0 ≤ limit)
+    (_ : 0 < limit)
+    : (0 : Int) = 0 := by
   rfl
 
-theorem enterInv1 (limit cars : Int) (gate : Bool)
-    (_ : 0 ≤ limit) (_ : 0 < limit) (_ : 0 ≤ cars) (_ : cars ≤ limit)
-    (_ : True) (_ : gate = true → cars < limit)
-    (_ : gate = false ∧ cars + 1 < limit) : True := by
+theorem enterInv1
+    (limit cars : Int)
+    (gate : Bool)
+    (_ : 0 ≤ limit)
+    (_ : 0 < limit)
+    (_ : 0 ≤ cars)
+    (_ : cars ≤ limit)
+    (_ : True)
+    (_ : gate = true → cars < limit)
+    (_ : gate = false ∧ cars + 1 < limit)
+    : True := by
   trivial
 
-theorem enterInv2 (limit cars : Int) (gate : Bool)
-    (_ : 0 ≤ limit) (_ : 0 < limit) (_ : 0 ≤ cars) (_ : cars ≤ limit)
-    (_ : True) (_ : gate = true → cars < limit)
-    (_ : gate = false ∧ cars + 1 < limit) :
-    true = true → cars + 1 < limit := by
+theorem enterInv2
+    (limit cars : Int)
+    (gate : Bool)
+    (_ : 0 ≤ limit)
+    (_ : 0 < limit)
+    (_ : 0 ≤ cars)
+    (_ : cars ≤ limit)
+    (_ : True)
+    (_ : gate = true → cars < limit)
+    (_ : gate = false ∧ cars + 1 < limit)
+    : true = true →
+      cars + 1 < limit := by
   intro _
   exact ‹gate = false ∧ cars + 1 < limit›.2
 
-theorem enterGuard (limit cars : Int) (gate : Bool)
-    (_ : 0 ≤ limit) (_ : 0 < limit) (_ : 0 ≤ cars) (_ : cars ≤ limit)
-    (_ : True) (_ : gate = true → cars < limit)
-    (condition : gate = false ∧ cars + 1 < limit) : cars < limit := by
+theorem enterGuard
+    (limit cars : Int)
+    (gate : Bool)
+    (_ : 0 ≤ limit)
+    (_ : 0 < limit)
+    (_ : 0 ≤ cars)
+    (_ : cars ≤ limit)
+    (_ : True)
+    (_ : gate = true → cars < limit)
+    (condition : gate = false ∧ cars + 1 < limit)
+    : cars < limit := by
   omega
 
-theorem enterSim (limit cars : Int) (gate : Bool)
-    (_ : 0 ≤ limit) (_ : 0 < limit) (_ : 0 ≤ cars) (_ : cars ≤ limit)
-    (_ : True) (_ : gate = true → cars < limit)
-    (_ : gate = false ∧ cars + 1 < limit) :
-    cars + 1 = cars + 1 := by
+theorem enterSim
+    (limit cars : Int)
+    (gate : Bool)
+    (_ : 0 ≤ limit)
+    (_ : 0 < limit)
+    (_ : 0 ≤ cars)
+    (_ : cars ≤ limit)
+    (_ : True)
+    (_ : gate = true → cars < limit)
+    (_ : gate = false ∧ cars + 1 < limit)
+    : cars + 1 = cars + 1 := by
   rfl
 
-theorem leaveInv1 (limit cars : Int) (gate : Bool)
-    (_ : 0 ≤ limit) (_ : 0 < limit) (_ : 0 ≤ cars) (_ : cars ≤ limit)
-    (_ : True) (_ : gate = true → cars < limit)
-    (_ : gate = true ∧ 0 < cars) : True := by
+theorem leaveInv1
+    (limit cars : Int)
+    (gate : Bool)
+    (_ : 0 ≤ limit)
+    (_ : 0 < limit)
+    (_ : 0 ≤ cars)
+    (_ : cars ≤ limit)
+    (_ : True)
+    (_ : gate = true → cars < limit)
+    (_ : gate = true ∧ 0 < cars)
+    : True := by
   trivial
 
-theorem leaveInv2 (limit cars : Int) (gate : Bool)
-    (_ : 0 ≤ limit) (_ : 0 < limit) (_ : 0 ≤ cars) (_ : cars ≤ limit)
-    (_ : True) (_ : gate = true → cars < limit)
-    (_ : gate = true ∧ 0 < cars) :
-    false = true → cars - 1 < limit := by
+theorem leaveInv2
+    (limit cars : Int)
+    (gate : Bool)
+    (_ : 0 ≤ limit)
+    (_ : 0 < limit)
+    (_ : 0 ≤ cars)
+    (_ : cars ≤ limit)
+    (_ : True)
+    (_ : gate = true → cars < limit)
+    (_ : gate = true ∧ 0 < cars)
+    : false = true →
+      cars - 1 < limit := by
   intro contradiction
   cases contradiction
 
-theorem leaveGuard (limit cars : Int) (gate : Bool)
-    (_ : 0 ≤ limit) (_ : 0 < limit) (_ : 0 ≤ cars) (_ : cars ≤ limit)
-    (_ : True) (_ : gate = true → cars < limit)
-    (condition : gate = true ∧ 0 < cars) : 0 < cars := by
+theorem leaveGuard
+    (limit cars : Int)
+    (gate : Bool)
+    (_ : 0 ≤ limit)
+    (_ : 0 < limit)
+    (_ : 0 ≤ cars)
+    (_ : cars ≤ limit)
+    (_ : True)
+    (_ : gate = true → cars < limit)
+    (condition : gate = true ∧ 0 < cars)
+    : 0 < cars := by
   exact condition.2
 
-theorem leaveSim (limit cars : Int) (gate : Bool)
-    (_ : 0 ≤ limit) (_ : 0 < limit) (_ : 0 ≤ cars) (_ : cars ≤ limit)
-    (_ : True) (_ : gate = true → cars < limit)
-    (_ : gate = true ∧ 0 < cars) :
-    cars - 1 = cars - 1 := by
+theorem leaveSim
+    (limit cars : Int)
+    (gate : Bool)
+    (_ : 0 ≤ limit)
+    (_ : 0 < limit)
+    (_ : 0 ≤ cars)
+    (_ : cars ≤ limit)
+    (_ : True)
+    (_ : gate = true → cars < limit)
+    (_ : gate = true ∧ 0 < cars)
+    : cars - 1 = cars - 1 := by
   rfl
 
 end WidgetProofs
 
-private def widgetProofs : List (String × String) :=
+private
+def widgetProofs
+    : List (String × String) :=
   [ ("INITIALISATION/inv1_1/INV", "WidgetProofs.initialInv1")
   , ("INITIALISATION/inv1_2/INV", "WidgetProofs.initialInv2")
   , ("INITIALISATION/act1/SIM", "WidgetProofs.initialSim")
@@ -151,11 +221,18 @@ private def widgetProofs : List (String × String) :=
   , ("leave/grd1/GRD", "WidgetProofs.leaveGuard")
   , ("leave/act1/SIM", "WidgetProofs.leaveSim") ]
 
-private def widgetAxioms (declaration : String) : List String :=
+private
+def widgetAxioms
+    (declaration : String)
+    : List String :=
   if declaration == "WidgetProofs.enterGuard" then ["Quot.sound", "propext"] else []
 
-private def attachWidgetProof (ledger : Trust.Ledger)
-    (obligations : List POG.Obligation) (name declaration : String) : Trust.Ledger :=
+private
+def attachWidgetProof
+    (ledger : Trust.Ledger)
+    (obligations : List POG.Obligation)
+    (name declaration : String)
+    : Trust.Ledger :=
   match obligations.find? (·.name == name) with
   | none => ledger
   | some obligation =>
@@ -166,7 +243,8 @@ private def attachWidgetProof (ledger : Trust.Ledger)
       | .ok updated => updated
       | .error _ => ledger
 
-def widgetLedger : Trust.Ledger :=
+def widgetLedger
+    : Trust.Ledger :=
   let obligations := POG.generate widgetProject "BridgeController"
   let initial := Trust.Ledger.ofObligations obligations
   widgetProofs.foldl (fun ledger (name, declaration) =>

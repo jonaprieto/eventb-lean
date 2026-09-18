@@ -10,34 +10,57 @@ value; the POs are the fields of `Proved` / `Refines`. Add surface syntax
 universe u v
 
 /-- Guarded event: guard on the pre-state, action as a before-after relation. -/
-structure Event (σ : Type u) where
+structure Event
+    (σ : Type u)
+    where
   grd : σ → Prop
   act : σ → σ → Prop
 
 /-- Event-B events with explicit local parameters.  The parameter is chosen once
     before the guard and action are evaluated; it is never smuggled into the
     machine state or reused from another event. -/
-structure ParameterizedEvent (σ : Type u) (π : Type v) where
+structure ParameterizedEvent
+    (σ : Type u)
+    (π : Type v)
+    where
   grd : π → σ → Prop
   act : π → σ → σ → Prop
 
-def ParameterizedEvent.enabled {σ : Type u} {π : Type v}
-    (event : ParameterizedEvent σ π) (state : σ) : Prop :=
+def ParameterizedEvent.enabled
+    {σ : Type u}
+    {π : Type v}
+    (event : ParameterizedEvent σ π)
+    (state : σ)
+    : Prop :=
   ∃ parameter, event.grd parameter state
 
-def ParameterizedEvent.step {σ : Type u} {π : Type v}
-    (event : ParameterizedEvent σ π) (before after : σ) : Prop :=
+def ParameterizedEvent.step
+    {σ : Type u}
+    {π : Type v}
+    (event : ParameterizedEvent σ π)
+    (before after : σ)
+    : Prop :=
   ∃ parameter, event.grd parameter before ∧ event.act parameter before after
 
-def ParameterizedEvent.invariantPreserved {σ : Type u} {π : Type v}
-    (event : ParameterizedEvent σ π) (invariant : σ → Prop) : Prop :=
+def ParameterizedEvent.invariantPreserved
+    {σ : Type u}
+    {π : Type v}
+    (event : ParameterizedEvent σ π)
+    (invariant : σ → Prop)
+    : Prop :=
   ∀ parameter before after, invariant before → event.grd parameter before →
     event.act parameter before after → invariant after
 
-theorem ParameterizedEvent.step_invariant {σ : Type u} {π : Type v}
-    {event : ParameterizedEvent σ π} {invariant : σ → Prop}
-    (preserved : event.invariantPreserved invariant) :
-    ∀ before after, invariant before → event.step before after → invariant after := by
+theorem ParameterizedEvent.step_invariant
+    {σ : Type u}
+    {π : Type v}
+    {event : ParameterizedEvent σ π}
+    {invariant : σ → Prop}
+    (preserved : event.invariantPreserved invariant)
+    : ∀ before after,
+      invariant before →
+      event.step before after →
+      invariant after := by
   intro before after invariantBefore step
   obtain ⟨parameter, guard, action⟩ := step
   exact preserved parameter before after invariantBefore guard action
@@ -46,9 +69,13 @@ theorem ParameterizedEvent.step_invariant {σ : Type u} {π : Type v}
     from the concrete parameter and glued states, so enabledness and simulation use
     the same witness rather than an unrelated abstract event. -/
 structure ParameterizedEventRefinement
-    {γ α : Type u} {πγ πα : Type v}
-    (concrete : ParameterizedEvent γ πγ) (abstract : ParameterizedEvent α πα)
-    (gluing : γ → α → Prop) : Prop where
+    {γ α : Type u}
+    {πγ πα : Type v}
+    (concrete : ParameterizedEvent γ πγ)
+    (abstract : ParameterizedEvent α πα)
+    (gluing : γ → α → Prop)
+    : Prop
+    where
   guard : ∀ parameter concreteState abstractState,
     gluing concreteState abstractState → concrete.grd parameter concreteState →
       ∃ abstractParameter, abstract.grd abstractParameter abstractState
@@ -61,15 +88,18 @@ structure ParameterizedEventRefinement
           gluing concreteAfter abstractAfter
 
 theorem ParameterizedEventRefinement.stepSim
-    {γ α : Type u} {πγ πα : Type v}
-    {concrete : ParameterizedEvent γ πγ} {abstract : ParameterizedEvent α πα}
+    {γ α : Type u}
+    {πγ πα : Type v}
+    {concrete : ParameterizedEvent γ πγ}
+    {abstract : ParameterizedEvent α πα}
     {gluing : γ → α → Prop}
-    (contract : ParameterizedEventRefinement concrete abstract gluing) :
-    ∀ concreteState concreteAfter abstractState,
+    (contract : ParameterizedEventRefinement concrete abstract gluing)
+    : ∀ concreteState concreteAfter abstractState,
       gluing concreteState abstractState →
       concrete.step concreteState concreteAfter →
-        ∃ abstractAfter, abstract.step abstractState abstractAfter ∧
-          gluing concreteAfter abstractAfter := by
+      ∃ abstractAfter,
+      abstract.step abstractState abstractAfter ∧
+      gluing concreteAfter abstractAfter := by
   intro concreteState concreteAfter abstractState glued step
   obtain ⟨parameter, guard, action⟩ := step
   obtain ⟨abstractParameter, abstractAfter, abstractGuard, abstractAction, gluedAfter⟩ :=
@@ -78,94 +108,159 @@ theorem ParameterizedEventRefinement.stepSim
 
 /-- A deterministic before-after relation. The state update is evaluated from the
 pre-state, which is the semantic rule for parallel assignment. -/
-def functionalAction {σ : Type u} (update : σ → σ) : σ → σ → Prop :=
+def functionalAction
+    {σ : Type u}
+    (update : σ → σ)
+    : σ →
+      σ →
+      Prop :=
   fun before after => after = update before
 
-def deterministicAction {σ : Type u} (action : σ → σ → Prop) : Prop :=
+def deterministicAction
+    {σ : Type u}
+    (action : σ → σ → Prop)
+    : Prop :=
   ∀ before after₁ after₂, action before after₁ → action before after₂ → after₁ = after₂
 
-theorem functionalAction_deterministic {σ : Type u} (update : σ → σ) :
-    deterministicAction (functionalAction update) := by
+theorem functionalAction_deterministic
+    {σ : Type u}
+    (update : σ → σ)
+    : deterministicAction (functionalAction update) := by
   intro before after₁ after₂ h₁ h₂
   simpa [functionalAction] using h₁.trans h₂.symm
 
 def State (α : Type u) := String → α
 
-def State.update {α : Type u} (state : State α) (name : String) (value : α) : State α :=
+def State.update
+    {α : Type u}
+    (state : State α)
+    (name : String)
+    (value : α)
+    : State α :=
   fun current => if current == name then value else state current
 
 /-- Parallel assignments read every right-hand side from the same pre-state. -/
-def parallelUpdate {α : Type u} (updates : List (String × (State α → α)))
-    (state : State α) : State α :=
+def parallelUpdate
+    {α : Type u}
+    (updates : List (String × (State α → α)))
+    (state : State α)
+    : State α :=
   fun name => match updates.find? (·.1 == name) with
     | some (_, rhs) => rhs state
     | none => state name
 
-theorem parallelUpdate_deterministic {α : Type u} (updates : List (String × (State α → α))) :
-    deterministicAction
-      (functionalAction (fun state : State α => parallelUpdate updates state)) := by
+theorem parallelUpdate_deterministic
+    {α : Type u}
+    (updates : List (String × (State α → α)))
+    : deterministicAction (functionalAction (fun state : State α => parallelUpdate updates state)) := by
   intro before after₁ after₂ h₁ h₂
   simpa [functionalAction] using h₁.trans h₂.symm
 
-theorem State.update_same {α : Type u} (state : State α) (name : String) (value : α) :
-    State.update state name value name = value := by
+theorem State.update_same
+    {α : Type u}
+    (state : State α)
+    (name : String)
+    (value : α)
+    : State.update state name value name = value := by
   simp [State.update]
 
-theorem State.update_other {α : Type u} (state : State α) {name other : String}
-    (different : other ≠ name) (value : α) :
-    State.update state name value other = state other := by
+theorem State.update_other
+    {α : Type u}
+    (state : State α)
+    {name other : String}
+    (different : other ≠ name)
+    (value : α)
+    : State.update state name value other = state other := by
   simp [State.update, different]
 
 /-- Event-B machine. `inv` is the invariant, `init` the initialisation predicate. -/
-structure Machine (σ : Type u) where
+structure Machine
+    (σ : Type u)
+    where
   inv    : σ → Prop
   init   : σ → Prop
   events : List (Event σ)
 
 /-- One step = some enabled event fires. -/
-def Machine.step {σ : Type u} (M : Machine σ) (s s' : σ) : Prop :=
+def Machine.step
+    {σ : Type u}
+    (M : Machine σ)
+    (s s' : σ)
+    : Prop :=
   ∃ e ∈ M.events, e.grd s ∧ e.act s s'
 
 /-- Reachable states. -/
-inductive Reach {σ : Type u} (M : Machine σ) : σ → Prop where
+inductive Reach
+    {σ : Type u}
+    (M : Machine σ)
+    : σ →
+      Prop
+    where
   | init {s}    : M.init s → Reach M s
   | step {s s'} : Reach M s → M.step s s' → Reach M s'
 
 /-- The two consistency POs Rodin's POG would emit: INV/INITIALISATION and INV/event. -/
-structure Proved {σ : Type u} (M : Machine σ) : Prop where
+structure Proved
+    {σ : Type u}
+    (M : Machine σ)
+    : Prop
+    where
   invInit : ∀ s, M.init s → M.inv s
   invStep : ∀ s s', M.inv s → M.step s s' → M.inv s'
 
 /-- Event-local invariant proof obligations assembled into the machine proof. -/
-structure InvariantProof {σ : Type u} (M : Machine σ) : Prop where
+structure InvariantProof
+    {σ : Type u}
+    (M : Machine σ)
+    : Prop
+    where
   init : ∀ s, M.init s → M.inv s
   event : ∀ e, e ∈ M.events → ∀ s s', M.inv s → e.grd s → e.act s s' → M.inv s'
 
-theorem InvariantProof.toProved {σ : Type u} {M : Machine σ} (h : InvariantProof M) :
-    Proved M := by
+theorem InvariantProof.toProved
+    {σ : Type u}
+    {M : Machine σ}
+    (h : InvariantProof M)
+    : Proved M := by
   constructor
   · exact h.init
   · rintro s s' hi ⟨e, he, hg, ha⟩
     exact h.event e he s s' hi hg ha
 
 /-- Discharged POs ⟹ invariant holds on every reachable state. -/
-theorem Proved.sound {σ : Type u} {M : Machine σ} (h : Proved M) :
-    ∀ s, Reach M s → M.inv s := by
+theorem Proved.sound
+    {σ : Type u}
+    {M : Machine σ}
+    (h : Proved M)
+    : ∀ s,
+      Reach M s →
+      M.inv s := by
   intro s r
   induction r with
   | init hi      => exact h.invInit _ hi
   | step _ hs ih => exact h.invStep _ _ ih hs
 
 /-- Refinement POs, gluing invariant `J`. Forward simulation. -/
-structure Refines {γ α : Type u} (C : Machine γ) (A : Machine α) (J : γ → α → Prop) : Prop where
+structure Refines
+    {γ α : Type u}
+    (C : Machine γ)
+    (A : Machine α)
+    (J : γ → α → Prop)
+    : Prop
+    where
   initSim : ∀ c, C.init c → ∃ a, A.init a ∧ J c a
   stepSim : ∀ c c' a, J c a → C.step c c' → ∃ a', A.step a a' ∧ J c' a'
 
 /-- Local refinement contract for one concrete event. It makes guard strengthening,
 action simulation, and target-event membership explicit instead of hiding them in a
 single opaque machine-level relation. -/
-structure EventRefinement {γ α : Type u} (C : Machine γ) (A : Machine α)
-    (J : γ → α → Prop) : Type (max u u) where
+structure EventRefinement
+    {γ α : Type u}
+    (C : Machine γ)
+    (A : Machine α)
+    (J : γ → α → Prop)
+    : Type (max u u)
+    where
   abstractEvent : Event γ → Event α
   abstractMember : ∀ concrete, concrete ∈ C.events → abstractEvent concrete ∈ A.events
   guard : ∀ concrete c a, concrete ∈ C.events → J c a → concrete.grd c →
@@ -173,9 +268,18 @@ structure EventRefinement {γ α : Type u} (C : Machine γ) (A : Machine α)
   action : ∀ concrete c c' a, concrete ∈ C.events → J c a → concrete.grd c →
     concrete.act c c' → ∃ a', (abstractEvent concrete).act a a' ∧ J c' a'
 
-theorem EventRefinement.stepSim {γ α : Type u} {C : Machine γ} {A : Machine α}
-    {J : γ → α → Prop} (h : EventRefinement C A J) :
-    ∀ c c' a, J c a → C.step c c' → ∃ a', A.step a a' ∧ J c' a' := by
+theorem EventRefinement.stepSim
+    {γ α : Type u}
+    {C : Machine γ}
+    {A : Machine α}
+    {J : γ → α → Prop}
+    (h : EventRefinement C A J)
+    : ∀ c c' a,
+      J c a →
+      C.step c c' →
+      ∃ a',
+      A.step a a' ∧
+      J c' a' := by
   rintro c c' a hJ ⟨concrete, concreteMember, concreteGuard, concreteAction⟩
   let abstract := h.abstractEvent concrete
   have abstractMember : abstract ∈ A.events := h.abstractMember concrete concreteMember
@@ -186,18 +290,37 @@ theorem EventRefinement.stepSim {γ α : Type u} {C : Machine γ} {A : Machine �
 
 /-- A complete refinement proof separates initialization simulation from local event
 contracts, then derives the machine-level simulation used by reachability theorems. -/
-structure RefinementProof {γ α : Type u} (C : Machine γ) (A : Machine α)
-    (J : γ → α → Prop) : Type (max u u) where
+structure RefinementProof
+    {γ α : Type u}
+    (C : Machine γ)
+    (A : Machine α)
+    (J : γ → α → Prop)
+    : Type (max u u)
+    where
   init : ∀ c, C.init c → ∃ a, A.init a ∧ J c a
   events : EventRefinement C A J
 
-theorem RefinementProof.toRefines {γ α : Type u} {C : Machine γ} {A : Machine α}
-    {J : γ → α → Prop} (h : RefinementProof C A J) : Refines C A J := by
+theorem RefinementProof.toRefines
+    {γ α : Type u}
+    {C : Machine γ}
+    {A : Machine α}
+    {J : γ → α → Prop}
+    (h : RefinementProof C A J)
+    : Refines C A J := by
   exact { initSim := h.init, stepSim := h.events.stepSim }
 
 /-- Soundness: every reachable concrete state is glued to a reachable abstract state. -/
-theorem Refines.sound {γ α : Type u} {C : Machine γ} {A : Machine α} {J : γ → α → Prop}
-    (h : Refines C A J) : ∀ c, Reach C c → ∃ a, Reach A a ∧ J c a := by
+theorem Refines.sound
+    {γ α : Type u}
+    {C : Machine γ}
+    {A : Machine α}
+    {J : γ → α → Prop}
+    (h : Refines C A J)
+    : ∀ c,
+      Reach C c →
+      ∃ a,
+      Reach A a ∧
+      J c a := by
   intro c r
   induction r with
   | init hi =>
@@ -209,9 +332,18 @@ theorem Refines.sound {γ α : Type u} {C : Machine γ} {A : Machine α} {J : γ
       exact ⟨a', .step hra ha', hJ'⟩
 
 /-- Abstract invariant transfers to the refinement for free. -/
-theorem Refines.inv_transfer {γ α : Type u} {C : Machine γ} {A : Machine α} {J : γ → α → Prop}
-    (hr : Refines C A J) (hp : Proved A) :
-    ∀ c, Reach C c → ∃ a, A.inv a ∧ J c a := by
+theorem Refines.inv_transfer
+    {γ α : Type u}
+    {C : Machine γ}
+    {A : Machine α}
+    {J : γ → α → Prop}
+    (hr : Refines C A J)
+    (hp : Proved A)
+    : ∀ c,
+      Reach C c →
+      ∃ a,
+      A.inv a ∧
+      J c a := by
   intro c r
   obtain ⟨a, hra, hJ⟩ := hr.sound c r
   exact ⟨a, hp.sound a hra, hJ⟩
@@ -221,19 +353,28 @@ theorem Refines.inv_transfer {γ α : Type u} {C : Machine γ} {A : Machine α} 
    interfaces: a parser/POG supplies the formulas, while a model supplies
    their meaning and a proof supplies the contract. -/
 
-def State.frame {α : Type u} (names : List String)
-    (before after : State α) : Prop :=
+def State.frame
+    {α : Type u}
+    (names : List String)
+    (before after : State α)
+    : Prop :=
   ∀ name, name ∈ names → after name = before name
 
-def framePreserved {σ : Type u} {α : Type v} (read : σ → α)
-    (action : σ → σ → Prop) : Prop :=
+def framePreserved
+    {σ : Type u}
+    {α : Type v}
+    (read : σ → α)
+    (action : σ → σ → Prop)
+    : Prop :=
   ∀ before after, action before after → read after = read before
 
-theorem State.parallelUpdate_frame_at {α : Type u}
-    (updates : List (String × (State α → α))) (state : State α)
+theorem State.parallelUpdate_frame_at
+    {α : Type u}
+    (updates : List (String × (State α → α)))
+    (state : State α)
     {name : String}
-    (notUpdated : ∀ update ∈ updates, update.1 ≠ name) :
-    parallelUpdate updates state name = state name := by
+    (notUpdated : ∀ update ∈ updates, update.1 ≠ name)
+    : parallelUpdate updates state name = state name := by
   induction updates with
   | nil => rfl
   | cons head tail ih =>
@@ -247,67 +388,111 @@ theorem State.parallelUpdate_frame_at {α : Type u}
       · simp [equal]
         exact ih tailNotUpdated
 
-theorem State.frame_of_parallelUpdate {α : Type u}
-    (updates : List (String × (State α → α))) (state : State α)
+theorem State.frame_of_parallelUpdate
+    {α : Type u}
+    (updates : List (String × (State α → α)))
+    (state : State α)
     (names : List String)
-    (notUpdated : ∀ name, name ∈ names → ∀ update ∈ updates, update.1 ≠ name) :
-    State.frame names state (parallelUpdate updates state) := by
+    (notUpdated : ∀ name, name ∈ names → ∀ update ∈ updates, update.1 ≠ name)
+    : State.frame names state (parallelUpdate updates state) := by
   intro name member
   exact State.parallelUpdate_frame_at updates state (notUpdated name member)
 
-def gluingPreserved {γ α : Type u} (J : γ → α → Prop)
-    (concrete : Event γ) (abstract : Event α) : Prop :=
+def gluingPreserved
+    {γ α : Type u}
+    (J : γ → α → Prop)
+    (concrete : Event γ)
+    (abstract : Event α)
+    : Prop :=
   ∀ c c' a, J c a → concrete.grd c → concrete.act c c' →
     ∃ a', abstract.act a a' ∧ J c' a'
 
-def guardStrengthened {γ α : Type u} (J : γ → α → Prop)
-    (concrete : Event γ) (abstract : Event α) : Prop :=
+def guardStrengthened
+    {γ α : Type u}
+    (J : γ → α → Prop)
+    (concrete : Event γ)
+    (abstract : Event α)
+    : Prop :=
   ∀ c a, J c a → concrete.grd c → abstract.grd a
 
-def actionSimulates {γ α : Type u} (J : γ → α → Prop)
-    (concrete : Event γ) (abstract : Event α) : Prop :=
+def actionSimulates
+    {γ α : Type u}
+    (J : γ → α → Prop)
+    (concrete : Event γ)
+    (abstract : Event α)
+    : Prop :=
   ∀ c c' a, J c a → concrete.grd c → concrete.act c c' →
     ∃ a', abstract.act a a' ∧ J c' a'
 
-theorem EventRefinement.guardPO {γ α : Type u} {C : Machine γ} {A : Machine α}
-    {J : γ → α → Prop} (h : EventRefinement C A J)
-    (concrete : Event γ) (member : concrete ∈ C.events) :
-    guardStrengthened J concrete (h.abstractEvent concrete) := by
+theorem EventRefinement.guardPO
+    {γ α : Type u}
+    {C : Machine γ}
+    {A : Machine α}
+    {J : γ → α → Prop}
+    (h : EventRefinement C A J)
+    (concrete : Event γ)
+    (member : concrete ∈ C.events)
+    : guardStrengthened J concrete (h.abstractEvent concrete) := by
   intro c a hJ guard
   exact h.guard concrete c a member hJ guard
 
-theorem EventRefinement.actionPO {γ α : Type u} {C : Machine γ} {A : Machine α}
-    {J : γ → α → Prop} (h : EventRefinement C A J)
-    (concrete : Event γ) (member : concrete ∈ C.events) :
-    actionSimulates J concrete (h.abstractEvent concrete) := by
+theorem EventRefinement.actionPO
+    {γ α : Type u}
+    {C : Machine γ}
+    {A : Machine α}
+    {J : γ → α → Prop}
+    (h : EventRefinement C A J)
+    (concrete : Event γ)
+    (member : concrete ∈ C.events)
+    : actionSimulates J concrete (h.abstractEvent concrete) := by
   intro c c' a hJ guard action
   exact h.action concrete c c' a member hJ guard action
 
-theorem EventRefinement.gluingPO {γ α : Type u} {C : Machine γ} {A : Machine α}
-    {J : γ → α → Prop} (h : EventRefinement C A J)
-    (concrete : Event γ) (member : concrete ∈ C.events) :
-    gluingPreserved J concrete (h.abstractEvent concrete) :=
+theorem EventRefinement.gluingPO
+    {γ α : Type u}
+    {C : Machine γ}
+    {A : Machine α}
+    {J : γ → α → Prop}
+    (h : EventRefinement C A J)
+    (concrete : Event γ)
+    (member : concrete ∈ C.events)
+    : gluingPreserved J concrete (h.abstractEvent concrete) :=
   h.actionPO concrete member
 
-structure WitnessContract (σ α : Type u) (pre : σ → Prop)
-    (defined : σ → Prop) (predicate : σ → α → Prop) : Prop where
+structure WitnessContract
+    (σ α : Type u)
+    (pre : σ → Prop)
+    (defined : σ → Prop)
+    (predicate : σ → α → Prop)
+    : Prop
+    where
   feasible : ∀ state, pre state → ∃ witness, predicate state witness
   wellDefined : ∀ state, pre state → defined state
 
-def nonIncreasing {σ : Type u} (variant : σ → Nat)
-    (action : σ → σ → Prop) : Prop :=
+def nonIncreasing
+    {σ : Type u}
+    (variant : σ → Nat)
+    (action : σ → σ → Prop)
+    : Prop :=
   ∀ before after, action before after → variant after ≤ variant before
 
-def strictlyDecreases {σ : Type u} (variant : σ → Nat)
-    (action : σ → σ → Prop) : Prop :=
+def strictlyDecreases
+    {σ : Type u}
+    (variant : σ → Nat)
+    (action : σ → σ → Prop)
+    : Prop :=
   ∀ before after, action before after → variant after < variant before
 
-structure AnticipatedVariant (σ : Type u) where
+structure AnticipatedVariant
+    (σ : Type u)
+    where
   measure : σ → Nat
   action : σ → σ → Prop
   nonIncrease : nonIncreasing measure action
 
-structure ConvergentVariant (σ : Type u) where
+structure ConvergentVariant
+    (σ : Type u)
+    where
   measure : σ → Nat
   action : σ → σ → Prop
   decrease : strictlyDecreases measure action
@@ -316,7 +501,11 @@ inductive IntegerVariantMode where
   | anticipated
   | convergent
 
-def integerVariantProgress : IntegerVariantMode → Int → Int → Prop
+def integerVariantProgress
+    : IntegerVariantMode →
+      Int →
+      Int →
+      Prop
   | .anticipated, after, before => after ≤ before
   | .convergent, after, before => after < before
 
@@ -327,26 +516,42 @@ inductive FiniteVariantMode where
   | anticipated
   | convergent
 
-def finiteSubset {α : Type u} (after before : List α) : Prop :=
+def finiteSubset
+    {α : Type u}
+    (after before : List α)
+    : Prop :=
   ∀ value, value ∈ after → value ∈ before
 
-def finiteProperSubset {α : Type u} (after before : List α) : Prop :=
+def finiteProperSubset
+    {α : Type u}
+    (after before : List α)
+    : Prop :=
   finiteSubset after before ∧ ∃ value, value ∈ before ∧ value ∉ after
 
-def finiteVariantProgress {α : Type u} : FiniteVariantMode → List α → List α → Prop
+def finiteVariantProgress
+    {α : Type u}
+    : FiniteVariantMode →
+      List α →
+      List α →
+      Prop
   | .anticipated, after, before => finiteSubset after before
   | .convergent, after, before => finiteProperSubset after before
 
-example : finiteVariantProgress .anticipated [1] [1, 2] := by
+example
+    : finiteVariantProgress .anticipated [1] [1, 2] := by
   intro value member
   simp_all
 
-example : ¬ finiteVariantProgress .convergent [1] [1] := by
+example
+    : ¬ finiteVariantProgress .convergent [1] [1] := by
   intro progress
   rcases progress.2 with ⟨value, member, absent⟩
   simp_all
 
-structure FiniteSetVariant (σ : Type u) (α : Type v) where
+structure FiniteSetVariant
+    (σ : Type u)
+    (α : Type v)
+    where
   mode : FiniteVariantMode
   measure : σ → List α
   action : σ → σ → Prop
@@ -357,7 +562,9 @@ structure FiniteSetVariant (σ : Type u) (α : Type v) where
 /- An integer variant carries one semantic source identity shared by its naturality
    (NAT) and progress (VAR) obligations. The adapter that knows POG names maps both
    obligations to this identity; this layer does not depend on that representation. -/
-structure IntegerVariant (σ : Type u) where
+structure IntegerVariant
+    (σ : Type u)
+    where
   source : String
   mode : IntegerVariantMode
   measure : σ → Int
@@ -366,20 +573,32 @@ structure IntegerVariant (σ : Type u) where
   progress : ∀ before after, action before after →
     integerVariantProgress mode (measure after) (measure before)
 
-def integerVariantNaturality {σ : Type u} (contract : IntegerVariant σ) : Prop :=
+def integerVariantNaturality
+    {σ : Type u}
+    (contract : IntegerVariant σ)
+    : Prop :=
   ∀ state, 0 ≤ contract.measure state
 
-def integerVariantProgressSemantic {σ : Type u} (contract : IntegerVariant σ) : Prop :=
+def integerVariantProgressSemantic
+    {σ : Type u}
+    (contract : IntegerVariant σ)
+    : Prop :=
   ∀ before after, contract.action before after →
     integerVariantProgress contract.mode
       (contract.measure after) (contract.measure before)
 
-def finiteVariantFiniteness {σ : Type u} {α : Type v}
-    (contract : FiniteSetVariant σ α) : Prop :=
+def finiteVariantFiniteness
+    {σ : Type u}
+    {α : Type v}
+    (contract : FiniteSetVariant σ α)
+    : Prop :=
   ∀ state, contract.finite state
 
-def finiteVariantProgressSemantic {σ : Type u} {α : Type v}
-    (contract : FiniteSetVariant σ α) : Prop :=
+def finiteVariantProgressSemantic
+    {σ : Type u}
+    {α : Type v}
+    (contract : FiniteSetVariant σ α)
+    : Prop :=
   ∀ before after, contract.action before after →
     finiteVariantProgress contract.mode
       (contract.measure after) (contract.measure before)
@@ -388,7 +607,10 @@ def finiteVariantProgressSemantic {σ : Type u} {α : Type v}
     finite list; strict progress is checked against an explicitly supplied
     well-founded relation, while anticipated non-increase remains a separate
     contract above. -/
-structure WellFoundedVariant (σ : Type u) (α : Type v) where
+structure WellFoundedVariant
+    (σ : Type u)
+    (α : Type v)
+    where
   measure : σ → α
   relation : α → α → Prop
   wellFounded : WellFounded relation
@@ -396,20 +618,30 @@ structure WellFoundedVariant (σ : Type u) (α : Type v) where
   progress : ∀ before after, action before after →
     relation (measure after) (measure before)
 
-def wellFoundedVariantProgressSemantic {σ : Type u} {α : Type v}
-    (contract : WellFoundedVariant σ α) : Prop :=
+def wellFoundedVariantProgressSemantic
+    {σ : Type u}
+    {α : Type v}
+    (contract : WellFoundedVariant σ α)
+    : Prop :=
   ∀ before after, contract.action before after →
     contract.relation (contract.measure after) (contract.measure before)
 
-theorem WellFoundedVariant.progressSemantic {σ : Type u} {α : Type v}
-    (contract : WellFoundedVariant σ α) :
-    wellFoundedVariantProgressSemantic contract :=
+theorem WellFoundedVariant.progressSemantic
+    {σ : Type u}
+    {α : Type v}
+    (contract : WellFoundedVariant σ α)
+    : wellFoundedVariantProgressSemantic contract :=
   contract.progress
 
 /- A merge contract names the event coverage that is otherwise easy to lose when
    several concrete events refine one abstract event. -/
-structure MergeSimulation {γ α : Type u} (C : Machine γ) (A : Machine α)
-    (J : γ → α → Prop) : Type (max u u) where
+structure MergeSimulation
+    {γ α : Type u}
+    (C : Machine γ)
+    (A : Machine α)
+    (J : γ → α → Prop)
+    : Type (max u u)
+    where
   abstractEvent : Event α
   abstractMember : abstractEvent ∈ A.events
   concreteEvents : List (Event γ)
@@ -420,9 +652,18 @@ structure MergeSimulation {γ α : Type u} (C : Machine γ) (A : Machine α)
   action : ∀ concrete c c' a, concrete ∈ concreteEvents → J c a → concrete.grd c →
     concrete.act c c' → ∃ a', abstractEvent.act a a' ∧ J c' a'
 
-theorem MergeSimulation.stepSim {γ α : Type u} {C : Machine γ} {A : Machine α}
-    {J : γ → α → Prop} (h : MergeSimulation C A J) :
-    ∀ c c' a, J c a → C.step c c' → ∃ a', A.step a a' ∧ J c' a' := by
+theorem MergeSimulation.stepSim
+    {γ α : Type u}
+    {C : Machine γ}
+    {A : Machine α}
+    {J : γ → α → Prop}
+    (h : MergeSimulation C A J)
+    : ∀ c c' a,
+      J c a →
+      C.step c c' →
+      ∃ a',
+      A.step a a' ∧
+      J c' a' := by
   rintro c c' a hJ ⟨concrete, concreteMember, concreteGuard, concreteAction⟩
   have concreteInMerge := h.covered concrete concreteMember
   have abstractGuard := h.guard concrete c a concreteInMerge hJ concreteGuard
@@ -433,8 +674,13 @@ theorem MergeSimulation.stepSim {γ α : Type u} {C : Machine γ} {A : Machine �
 /- A split contract handles one concrete event whose enabled behavior may select one
    of several abstract events. The step theorem is local to the named concrete event;
    other concrete events require their own refinement contract. -/
-structure SplitSimulation {γ α : Type u} (C : Machine γ) (A : Machine α)
-    (J : γ → α → Prop) : Type (max u u) where
+structure SplitSimulation
+    {γ α : Type u}
+    (C : Machine γ)
+    (A : Machine α)
+    (J : γ → α → Prop)
+    : Type (max u u)
+    where
   concreteEvent : Event γ
   concreteMember : concreteEvent ∈ C.events
   abstractEvents : List (Event α)
@@ -446,10 +692,19 @@ structure SplitSimulation {γ α : Type u} (C : Machine γ) (A : Machine α)
     concreteEvent.grd c → abstract.grd a → concreteEvent.act c c' →
     ∃ a', abstract.act a a' ∧ J c' a'
 
-theorem SplitSimulation.stepSim {γ α : Type u} {C : Machine γ} {A : Machine α}
-    {J : γ → α → Prop} (h : SplitSimulation C A J) :
-    ∀ c c' a, J c a → h.concreteEvent.grd c → h.concreteEvent.act c c' →
-      ∃ a', A.step a a' ∧ J c' a' := by
+theorem SplitSimulation.stepSim
+    {γ α : Type u}
+    {C : Machine γ}
+    {A : Machine α}
+    {J : γ → α → Prop}
+    (h : SplitSimulation C A J)
+    : ∀ c c' a,
+      J c a →
+      h.concreteEvent.grd c →
+      h.concreteEvent.act c c' →
+      ∃ a',
+      A.step a a' ∧
+      J c' a' := by
   intro c c' a hJ concreteGuard concreteAction
   obtain ⟨abstract, abstractMember, abstractGuard⟩ := h.guard c a hJ concreteGuard
   obtain ⟨a', abstractAction, hJ'⟩ :=
@@ -457,7 +712,10 @@ theorem SplitSimulation.stepSim {γ α : Type u} {C : Machine γ} {A : Machine �
   exact ⟨a', ⟨abstract, h.abstractMember abstract abstractMember,
     abstractGuard, abstractAction⟩, hJ'⟩
 
-def variantDecreasesAt (variant : Nat → Nat) (before after : Nat) : Bool :=
+def variantDecreasesAt
+    (variant : Nat → Nat)
+    (before after : Nat)
+    : Bool :=
   variant after < variant before
 
 #guard !variantDecreasesAt (fun _ => 0) 0 0
@@ -465,24 +723,32 @@ def variantDecreasesAt (variant : Nat → Nat) (before after : Nat) : Bool :=
 /- ------------------------------------------------------------------ -/
 /- Self-check: bounded counter, refined by (counter, remaining budget). -/
 
-theorem mem_single {α : Type u} {a b : α} (h : a ∈ [b]) : a = b := by
+theorem mem_single
+    {α : Type u}
+    {a b : α}
+    (h : a ∈ [b])
+    : a = b := by
   simp at h; exact h
 
 /-- Abstract: `n` counts up to 10. -/
 def incA : Event Nat := { grd := fun n => n < 10, act := fun n n' => n' = n + 1 }
-def A : Machine Nat :=
+def A
+    : Machine Nat :=
   { inv := fun n => n ≤ 10, init := fun n => n = 0, events := [incA] }
 
 /-- Concrete: carries the variant `10 - n` explicitly; the guard reads the budget. -/
-def incC : Event (Nat × Nat) :=
+def incC
+    : Event (Nat × Nat) :=
   { grd := fun c => 0 < c.2, act := fun c c' => c' = (c.1 + 1, c.2 - 1) }
-def C : Machine (Nat × Nat) :=
+def C
+    : Machine (Nat × Nat) :=
   { inv := fun c => c.1 + c.2 = 10, init := fun c => c = (0, 10), events := [incC] }
 
 /-- Gluing invariant. -/
 def J : Nat × Nat → Nat → Prop := fun c n => c.1 = n ∧ c.1 + c.2 = 10
 
-theorem A_proved : Proved A := by
+theorem A_proved
+    : Proved A := by
   constructor
   · intro s hs
     have : s = 0 := hs
@@ -496,7 +762,8 @@ theorem A_proved : Proved A := by
     show s' ≤ 10
     omega
 
-theorem C_refines_A : Refines C A J := by
+theorem C_refines_A
+    : Refines C A J := by
   constructor
   · intro c hc
     have : c = (0, 10) := hc
@@ -510,7 +777,8 @@ theorem C_refines_A : Refines C A J := by
     exact ⟨n + 1, ⟨incA, List.mem_singleton.mpr rfl, by show n < 10; omega, rfl⟩,
            by show c.1 + 1 = n + 1 ∧ (c.1 + 1) + (c.2 - 1) = 10; omega⟩
 
-def C_event_refinement : EventRefinement C A J := by
+def C_event_refinement
+    : EventRefinement C A J := by
   refine { abstractEvent := fun _ => incA, abstractMember := ?_, guard := ?_, action := ?_ }
   · intro concrete hconcrete
     have : concrete = incC := mem_single hconcrete
@@ -537,7 +805,8 @@ def C_event_refinement : EventRefinement C A J := by
       show c.1 + 1 = n + 1 ∧ (c.1 + 1) + (c.2 - 1) = 10
       omega⟩
 
-def C_merge_refinement : MergeSimulation C A J := by
+def C_merge_refinement
+    : MergeSimulation C A J := by
   refine
     { abstractEvent := incA
       abstractMember := ?_
@@ -564,15 +833,17 @@ def C_merge_refinement : MergeSimulation C A J := by
     subst this
     exact C_event_refinement.action incC c c' n (List.mem_singleton.mpr rfl) hJ hg ha
 
-theorem C_refines_A_from_merge_contract : Refines C A J := by
+theorem C_refines_A_from_merge_contract
+    : Refines C A J := by
   refine { initSim := C_refines_A.initSim, stepSim := C_merge_refinement.stepSim }
 
-theorem positiveWitness : WitnessContract Unit Unit
-    (fun _ => True) (fun _ => True) (fun _ _ => True) :=
+theorem positiveWitness
+    : WitnessContract Unit Unit (fun _ => True) (fun _ => True) (fun _ _ => True) :=
   { feasible := fun _ _ => ⟨(), trivial⟩
     wellDefined := fun _ _ => trivial }
 
-def positiveConvergentVariant : ConvergentVariant (Nat × Nat) :=
+def positiveConvergentVariant
+    : ConvergentVariant (Nat × Nat) :=
   { measure := fun state => state.2
     action := fun before after => incC.grd before ∧ incC.act before after
     decrease := by
@@ -583,14 +854,19 @@ def positiveConvergentVariant : ConvergentVariant (Nat × Nat) :=
       change before.2 - 1 < before.2
       omega }
 
-def C_local_refinement : RefinementProof C A J :=
+def C_local_refinement
+    : RefinementProof C A J :=
   { init := C_refines_A.initSim, events := C_event_refinement }
 
-theorem C_refines_A_from_event_contracts : Refines C A J :=
+theorem C_refines_A_from_event_contracts
+    : Refines C A J :=
   C_local_refinement.toRefines
 
 /-- The payoff: concrete machine inherits `n ≤ 10` without re-proving it. -/
-example : ∀ c, Reach C c → c.1 ≤ 10 := by
+example
+    : ∀ c,
+      Reach C c →
+      c.1 ≤ 10 := by
   intro c r
   obtain ⟨n, hn, hJ⟩ := C_refines_A.inv_transfer A_proved c r
   have h1 : n ≤ 10 := hn

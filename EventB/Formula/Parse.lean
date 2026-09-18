@@ -61,15 +61,23 @@ end
 
 instance : BEq Term := ⟨termBeq⟩
 
-private theorem congrArg₂' {α β γ : Type} (f : α → β → γ)
-    {left left' : α} {right right' : β}
-    (leftEq : left = left') (rightEq : right = right') :
-    f left right = f left' right' := by
+private
+theorem congrArg₂'
+    {α β γ : Type}
+    (f : α → β → γ)
+    {left left' : α}
+    {right right' : β}
+    (leftEq : left = left')
+    (rightEq : right = right')
+    : f left right = f left' right' := by
   cases leftEq
   cases rightEq
   rfl
 
-theorem Term.eq_of_beq {left right : Term} (equal : left == right) : left = right := by
+theorem Term.eq_of_beq
+    {left right : Term}
+    (equal : left == right)
+    : left = right := by
   change termBeq left right = true at equal
   exact (Term.rec
     (motive_1 := fun left => ∀ right, termBeq left right = true → left = right)
@@ -145,7 +153,9 @@ theorem Term.eq_of_beq {left right : Term} (equal : left == right) : left = righ
           exact congrArg₂' List.cons (ihHead otherHead equal.1) (ihTail otherTail equal.2))
     left) right equal
 
-theorem Term.beq_self (term : Term) : termBeq term term = true := by
+theorem Term.beq_self
+    (term : Term)
+    : termBeq term term = true := by
   exact Term.rec
     (motive_1 := fun term => termBeq term term = true)
     (motive_2 := fun terms => termListBeq terms terms = true)
@@ -205,17 +215,25 @@ private def infixLevel : String → Option Level
 
 /-- Prefix operators. `ℙ`/`ℙ1` take a parenthesised argument but parse as any other
 prefix, and the unary minus binds tighter than every infix operator. -/
-private def prefixPower : String → Option Nat
+private
+def prefixPower
+    : String →
+      Option Nat
   | "¬" => some 16
   | "−" => some 85
   | "ℙ" | "ℙ1" | "⋂" | "⋃" => some 95
   | _ => none
 
-private def isBinder (s : String) : Bool :=
+private
+def isBinder
+    (s : String)
+    : Bool :=
   s == "∀" || s == "∃" || s == "λ" || s == "⋂" || s == "⋃"
 
 /-- `{a, b, c}` parses as nested commas; the set node wants the elements. -/
-def flattenCommas : Term → List Term
+def flattenCommas
+    : Term →
+      List Term
   | .bin "," a b => flattenCommas a ++ flattenCommas b
   | t => [t]
 
@@ -223,7 +241,11 @@ private structure St where
   toks : Array Tok
   pos  : Nat
 
-private def hasRemainingOperator (s : St) (operator : String) : Bool :=
+private
+def hasRemainingOperator
+    (s : St)
+    (operator : String)
+    : Bool :=
   (s.toks.toList.drop s.pos).any fun token =>
     match token with
     | .op value => value == operator
@@ -231,7 +253,11 @@ private def hasRemainingOperator (s : St) (operator : String) : Bool :=
 
 private def peek (s : St) : Option Tok := s.toks[s.pos]?
 
-private def expect (s : St) (o : String) : Except String St :=
+private
+def expect
+    (s : St)
+    (o : String)
+    : Except String St :=
   match peek s with
   | some (.op x) => if x == o then .ok { s with pos := s.pos + 1 }
                     else .error s!"expected {o}, found {x}"
@@ -246,7 +272,12 @@ mutual
 -- says the position advances. `fuel` states the bound: seeded at the token count, it
 -- can only run out if some branch consumed nothing. Same obligation as in `Lex`, and
 -- the same note applies: grip's graded parsers discharge it by construction.
-private def parseAt : Nat → St → Nat → Except String (Term × St)
+private
+def parseAt
+    : Nat →
+      St →
+      Nat →
+      Except String (Term × St)
   | 0, _, _ => .error "parser made no progress"
   | fuel + 1, s, minPower => do
       let (lhs, s) ← parsePrefix fuel s
@@ -255,7 +286,13 @@ termination_by fuel _ _ => fuel
 
 /-- The operator loop of `parseAt`, split out because it needs the decremented fuel and
 a `where` clause cannot see it. -/
-private def parseInfix : Nat → Nat → Term → St → Except String (Term × St)
+private
+def parseInfix
+    : Nat →
+      Nat →
+      Term →
+      St →
+      Except String (Term × St)
   | 0, _, lhs, s => .ok (lhs, s)
   | fuel + 1, minPower, lhs, s => do
     match peek s with
@@ -284,7 +321,11 @@ private def parseInfix : Nat → Nat → Term → St → Except String (Term × 
     | _ => .ok (lhs, s)
 termination_by fuel _ _ _ => fuel
 
-private def parsePrefix : Nat → St → Except String (Term × St)
+private
+def parsePrefix
+    : Nat →
+      St →
+      Except String (Term × St)
   | 0, _ => .error "parser made no progress"
   | fuel + 1, s => do
   match peek s with
@@ -340,7 +381,12 @@ termination_by fuel _ => fuel
 
 /-- Application, image and inverse all bind tighter than any infix operator and chain
 freely: `f(x)(y)`, `r[s][t]`, `f∼(x)`. -/
-private def parsePostfix : Nat → Term → St → Except String (Term × St)
+private
+def parsePostfix
+    : Nat →
+      Term →
+      St →
+      Except String (Term × St)
   | 0, t, s => .ok (t, s)
   | fuel + 1, t, s => do
   match peek s with
@@ -376,7 +422,9 @@ private def parseTokensText (toks : List Tok) : Except String Term := do
   | none => .ok t
   | some tok => .error s!"trailing input at {tok.render}"
 
-def parseTokens (toks : List Tok) : Except EventB.Error Term :=
+def parseTokens
+    (toks : List Tok)
+    : Except EventB.Error Term :=
   (parseTokensText toks).mapError EventB.Error.formula
 
 def parse (source : String) : Except EventB.Error Term := do
@@ -385,7 +433,9 @@ def parse (source : String) : Except EventB.Error Term := do
 /-- Fully parenthesised, so the printer states the tree rather than relying on the
 reader's memory of the precedence table. Round-tripping is what the P1 gate checks:
 `parse (print (parse s)) = parse s`. -/
-def print : Term → String
+def print
+    : Term →
+      String
   | .id s => s
   | .num n => toString n
   | .bin o a b => "(" ++ print a ++ " " ++ o ++ " " ++ print b ++ ")"
@@ -401,7 +451,10 @@ def print : Term → String
 /-! Self-checks for the parts the corpus does not pin down: ASCII aliases (Rodin
 normalises them away before writing a file) and the precedence decisions. -/
 
-private def sameTree (a b : String) : Bool :=
+private
+def sameTree
+    (a b : String)
+    : Bool :=
   match parse a, parse b with
   | .ok x, .ok y => x == y
   | _, _ => false
@@ -455,13 +508,18 @@ private def sameTree (a b : String) : Bool :=
 
 /-- The names a binder pattern introduces. Substitution must skip exactly these and
 descend past everything else. -/
-def patternNames : Term → List String
+def patternNames
+    : Term →
+      List String
   | .id n => [n]
   | .bin "⦂" a _ => patternNames a
   | .bin _ a b => patternNames a ++ patternNames b
   | _ => []
 
-private def allNames : Term → List String
+private
+def allNames
+    : Term →
+      List String
   | .id n => [n]
   | .num _ => []
   | .bin _ a b => allNames a ++ allNames b
@@ -470,13 +528,22 @@ private def allNames : Term → List String
   | .set ts => ts.flatMap allNames
   | .bind _ p b => allNames p ++ allNames b
 
-private def freshName (base : String) (used : List String) : Nat → String
+private
+def freshName
+    (base : String)
+    (used : List String)
+    : Nat →
+      String
   | 0 => base ++ "0"
   | fuel + 1 =>
       if used.contains base then freshName (base ++ "0") used fuel else base
 
-private def makeRenames : List String → List String → List String →
-    List (String × String) × List String
+private
+def makeRenames
+    : List String →
+      List String →
+      List String →
+      List (String × String) × List String
   | [], _, used => ([], used)
   | name :: names, conflicts, used =>
       let renamed := if conflicts.contains name then
@@ -485,7 +552,11 @@ private def makeRenames : List String → List String → List String →
       let (rest, finalUsed) := makeRenames names conflicts (renamed :: used)
       ((name, renamed) :: rest, finalUsed)
 
-private def renameBound (mapping : List (String × String)) : Term → Term
+private
+def renameBound
+    (mapping : List (String × String))
+    : Term →
+      Term
   | .id name => .id (mapping.find? (fun pair => pair.1 == name) |>.map (·.2) |>.getD name)
   | .num value => .num value
   | .bin op a b => .bin op (renameBound mapping a) (renameBound mapping b)
@@ -501,7 +572,10 @@ private def renameBound (mapping : List (String × String)) : Term → Term
 
 mutual
 
-private def termFuel : Term → Nat
+private
+def termFuel
+    : Term →
+      Nat
   | .id _ | .num _ => 1
   | .bin _ a b => 1 + termFuel a + termFuel b
   | .pre _ a | .post _ a => 1 + termFuel a
@@ -509,7 +583,10 @@ private def termFuel : Term → Nat
   | .set ts => 1 + termFuelList ts
   | .bind _ p b => 1 + termFuel p + termFuel b
 
-private def termFuelList : List Term → Nat
+private
+def termFuelList
+    : List Term →
+      Nat
   | [] => 0
   | t :: ts => termFuel t + termFuelList ts
 
@@ -519,7 +596,12 @@ mutual
 
 /-- Fuelled implementation of simultaneous substitution. Fuel lets the binder case
 alpha-rename before descending without weakening termination to a partial function. -/
-private def substFuel : Nat → List (String × Term) → Term → Term
+private
+def substFuel
+    : Nat →
+      List (String × Term) →
+      Term →
+      Term
   | 0, _, term => term
   | _fuel + 1, σ, .id n =>
       match σ.find? (fun p => p.1 == n) with
@@ -546,7 +628,12 @@ private def substFuel : Nat → List (String × Term) → Term → Term
       .bind k renamedPattern
         (substFuel fuel (σ.filter (fun q => !renamedBound.contains q.1)) renamedBody)
 
-private def substListFuel : Nat → List (String × Term) → List Term → List Term
+private
+def substListFuel
+    : Nat →
+      List (String × Term) →
+      List Term →
+      List Term
   | 0, _, terms => terms
   | _fuel + 1, _, [] => []
   | fuel + 1, σ, term :: terms =>
@@ -556,7 +643,10 @@ end
 
 /-- Simultaneous substitution. Simultaneous matters: an event assigning `a ≔ b` and
 `b ≔ a` swaps them, and capture-avoiding binders preserve the same semantics. -/
-def subst (σ : List (String × Term)) (term : Term) : Term :=
+def subst
+    (σ : List (String × Term))
+    (term : Term)
+    : Term :=
   substFuel (termFuel term + 1) σ term
 
 mutual
@@ -564,7 +654,9 @@ mutual
 /-- Drop the type ascriptions Rodin writes into `.bpo` predicates. They carry no logical
 content, and a generator has no reason to reproduce them, so comparisons are modulo
 ascription. -/
-def stripAscriptions : Term → Term
+def stripAscriptions
+    : Term →
+      Term
   | .bin "⦂" a _ => stripAscriptions a
   | .bin o a b => .bin o (stripAscriptions a) (stripAscriptions b)
   | .pre o a => .pre o (stripAscriptions a)
@@ -575,7 +667,9 @@ def stripAscriptions : Term → Term
   | .bind k p b => .bind k (stripAscriptions p) (stripAscriptions b)
   | t => t
 
-def stripList : List Term → List Term
+def stripList
+    : List Term →
+      List Term
   | [] => []
   | t :: ts => stripAscriptions t :: stripList ts
 
@@ -584,7 +678,9 @@ end
 /-- Compare formulas modulo the names chosen for bound variables. Rodin alpha-renames
 bound identifiers when an event parameter would collide with one; those names carry no
 logical content and must not make the P3b statement gate reject the same formula. -/
-def alphaEq (left right : Term) : Bool :=
+def alphaEq
+    (left right : Term)
+    : Bool :=
   go left right [] [] 0
 where
   lookup (name : String) (env : List (String × Nat)) : Option Nat :=

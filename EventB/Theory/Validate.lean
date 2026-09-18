@@ -58,27 +58,43 @@ structure Report where
   obligations : List Obligation := []
   deriving BEq, Repr, Inhabited
 
-def Report.isValid (report : Report) : Bool :=
+def Report.isValid
+    (report : Report)
+    : Bool :=
   report.issues.all (·.severity != .error)
 
-def Report.errors (report : Report) : List Issue :=
+def Report.errors
+    (report : Report)
+    : List Issue :=
   report.issues.filter (·.severity == .error)
 
-def Report.append (left right : Report) : Report :=
+def Report.append
+    (left right : Report)
+    : Report :=
   { issues := left.issues ++ right.issues
     obligations := left.obligations ++ right.obligations }
 
-private def error (declaration field message : String) : Issue :=
+private
+def error
+    (declaration field message : String)
+    : Issue :=
   { declaration, field, message }
 
-private def firstDuplicate (seen : List String) : List String → Option String
+private
+def firstDuplicate
+    (seen : List String)
+    : List String →
+      Option String
   | [] => none
   | name :: names =>
       if seen.contains name then some name else firstDuplicate (name :: seen) names
 
 mutual
 
-private def termSize : Term → Nat
+private
+def termSize
+    : Term →
+      Nat
   | .id _ | .num _ => 1
   | .bin _ left right => termSize left + termSize right + 1
   | .pre _ term | .post _ term => termSize term + 1
@@ -87,30 +103,47 @@ private def termSize : Term → Nat
   | .set terms => termSizeList terms + 1
   | .bind _ pattern body => termSize pattern + termSize body + 1
 
-private def termSizeList : List Term → Nat
+private
+def termSizeList
+    : List Term →
+      Nat
   | [] => 0
   | term :: terms => termSize term + termSizeList terms
 
 end
 
-private def parameterIssues (name : String) (parameters : List (String × Ty)) : List Issue :=
+private
+def parameterIssues
+    (name : String)
+    (parameters : List (String × Ty))
+    : List Issue :=
   match firstDuplicate [] (parameters.map (·.1)) with
   | some parameter => [error name "parameters" s!"parameter `{parameter}` is repeated"]
   | none => []
 
-private def hasMVar : Ty → Bool
+private
+def hasMVar
+    : Ty →
+      Bool
   | .mvar _ => true
   | .pow type => hasMVar type
   | .prod left right => hasMVar left || hasMVar right
   | _ => false
 
-private def typeNames : Ty → List String
+private
+def typeNames
+    : Ty →
+      List String
   | .given name => [name]
   | .pow type => typeNames type
   | .prod left right => typeNames left ++ typeNames right
   | _ => []
 
-private def visibleTypeNames (theory : Theory.Env) (roots : List String) : List String :=
+private
+def visibleTypeNames
+    (theory : Theory.Env)
+    (roots : List String)
+    : List String :=
   let carriers := (Theory.symbolsIn theory roots).filterMap fun (_, symbol) =>
     if symbol.kind == .carrierSet then some symbol.name else none
   let datatypes := (Theory.declarationsIn theory roots).filterMap fun (_, declaration) =>
@@ -119,7 +152,11 @@ private def visibleTypeNames (theory : Theory.Env) (roots : List String) : List 
     | _ => none
   (carriers ++ datatypes).eraseDups
 
-private def typeParameterIssues (name : String) (parameters : List String) : List Issue :=
+private
+def typeParameterIssues
+    (name : String)
+    (parameters : List String)
+    : List Issue :=
   let empty := parameters.find? (· == "")
   let duplicate := firstDuplicate [] parameters
   let reserved := parameters.find? (fun parameter =>
@@ -135,8 +172,14 @@ private def typeParameterIssues (name : String) (parameters : List String) : Lis
             s!"type parameter `{parameter}` is reserved by the core prelude"]
       | none => []
 
-private def typeIssues (theory : Theory.Env) (roots : List String)
-    (name field : String) (parameters : List String) (types : List (String × Ty)) : List Issue :=
+private
+def typeIssues
+    (theory : Theory.Env)
+    (roots : List String)
+    (name field : String)
+    (parameters : List String)
+    (types : List (String × Ty))
+    : List Issue :=
   let allowed := parameters ++ visibleTypeNames theory roots
   types.flatMap fun (_, type) =>
     (typeNames type).eraseDups |>.filterMap fun typeName =>
@@ -144,34 +187,56 @@ private def typeIssues (theory : Theory.Env) (roots : List String)
       else some (error name field
         s!"type `{typeName}` is neither a type parameter nor a visible type")
 
-private def unresolvedTypeIssues (name field : String) (types : List (String × Ty)) :
-    List Issue :=
+private
+def unresolvedTypeIssues
+    (name field : String)
+    (types : List (String × Ty))
+    : List Issue :=
   types.flatMap fun (parameter, type) =>
     if hasMVar type then
       [error name field s!"type of `{parameter}` contains an unresolved metavariable"]
     else []
 
-private def unresolvedResultIssue (name field : String) (type : Ty) : List Issue :=
+private
+def unresolvedResultIssue
+    (name field : String)
+    (type : Ty)
+    : List Issue :=
   if hasMVar type then
     [error name field "type contains an unresolved metavariable"]
   else []
 
-private def expressionIssue (theory : Theory.Env) (roots : List String)
-    (parameters : List (String × Ty)) (name field : String) (term : Term) :
-    List Issue :=
+private
+def expressionIssue
+    (theory : Theory.Env)
+    (roots : List String)
+    (parameters : List (String × Ty))
+    (name field : String)
+    (term : Term)
+    : List Issue :=
   match inferTermAt theory roots parameters term with
   | .ok _ => []
   | .error message => [error name field s!"not a well-typed expression: {message}"]
 
-private def predicateIssue (theory : Theory.Env) (roots : List String)
-    (parameters : List (String × Ty)) (name field : String) (term : Term) : List Issue :=
+private
+def predicateIssue
+    (theory : Theory.Env)
+    (roots : List String)
+    (parameters : List (String × Ty))
+    (name field : String)
+    (term : Term)
+    : List Issue :=
   match (checkPred term).run
       { env := parameters, theory, theoryRoots := roots } with
   | .ok _ => []
   | .error message => [error name field s!"not a well-formed predicate: {message}"]
 
-private def definitionIssues (theory : Theory.Env) (roots : List String)
-    (definition : Definition) : List Issue :=
+private
+def definitionIssues
+    (theory : Theory.Env)
+    (roots : List String)
+    (definition : Definition)
+    : List Issue :=
   let typeParameterErrors := typeParameterIssues definition.name definition.typeParameters
   let parameterErrors := parameterIssues definition.name definition.parameters
   let parameterTypeErrors := unresolvedTypeIssues definition.name "parameters"
@@ -190,8 +255,12 @@ private def definitionIssues (theory : Theory.Env) (roots : List String)
   typeParameterErrors ++ parameterErrors ++ parameterTypeErrors ++ resultTypeErrors ++
     typeErrors ++ bodyErrors ++ resultErrors
 
-private def rewriteIssues (theory : Theory.Env) (roots : List String)
-    (rule : Rule) : List Issue :=
+private
+def rewriteIssues
+    (theory : Theory.Env)
+    (roots : List String)
+    (rule : Rule)
+    : List Issue :=
   let typeParameterErrors := typeParameterIssues rule.name rule.typeParameters
   let parameterErrors := parameterIssues rule.name rule.parameters
   let parameterTypeErrors := unresolvedTypeIssues rule.name "parameters" rule.parameters
@@ -220,8 +289,12 @@ private def rewriteIssues (theory : Theory.Env) (roots : List String)
         orientationErrors
   | _, _ => typeParameterErrors ++ parameterErrors ++ parameterTypeErrors ++ typeErrors ++ missing
 
-private def inferenceIssues (theory : Theory.Env) (roots : List String)
-    (rule : Rule) : List Issue :=
+private
+def inferenceIssues
+    (theory : Theory.Env)
+    (roots : List String)
+    (rule : Rule)
+    : List Issue :=
   let typeParameterErrors := typeParameterIssues rule.name rule.typeParameters
   let parameterErrors := parameterIssues rule.name rule.parameters
   let parameterTypeErrors := unresolvedTypeIssues rule.name "parameters" rule.parameters
@@ -235,8 +308,12 @@ private def inferenceIssues (theory : Theory.Env) (roots : List String)
   typeParameterErrors ++ parameterErrors ++ parameterTypeErrors ++ typeErrors ++ premiseErrors ++
     conclusionErrors
 
-private def theoremIssues (theory : Theory.Env) (roots : List String)
-    (rule : Rule) : List Issue :=
+private
+def theoremIssues
+    (theory : Theory.Env)
+    (roots : List String)
+    (rule : Rule)
+    : List Issue :=
   let typeParameterErrors := typeParameterIssues rule.name rule.typeParameters
   let parameterErrors := parameterIssues rule.name rule.parameters
   let parameterTypeErrors := unresolvedTypeIssues rule.name "parameters" rule.parameters
@@ -250,8 +327,12 @@ private def theoremIssues (theory : Theory.Env) (roots : List String)
   typeParameterErrors ++ parameterErrors ++ parameterTypeErrors ++ typeErrors ++ premiseErrors ++
     conclusionErrors
 
-private def datatypeIssues (theory : Theory.Env) (roots : List String)
-    (datatype : Datatype) : List Issue :=
+private
+def datatypeIssues
+    (theory : Theory.Env)
+    (roots : List String)
+    (datatype : Datatype)
+    : List Issue :=
   let names := datatype.constructors.map (·.name)
   let duplicate := firstDuplicate [] names
   let duplicateErrors := match duplicate with
@@ -272,7 +353,10 @@ private def datatypeIssues (theory : Theory.Env) (roots : List String)
   duplicateErrors ++ emptyError ++ typeParameterErrors ++ typeErrors ++
     constructorTypeErrors
 
-private def declarationObligations : Declaration → List Obligation
+private
+def declarationObligations
+    : Declaration →
+      List Obligation
   | .dataType datatype =>
       [{ declaration := datatype.name, field := "declaration", kind := .declarationType
          status := .checked }]
@@ -308,7 +392,11 @@ private def declarationObligations : Declaration → List Obligation
              status := .open, premises := rule.premises, conclusion := rule.conclusion }]
       | _ => []
 
-def declaration (theory : Theory.Env) (roots : List String) : Declaration → Report
+def declaration
+    (theory : Theory.Env)
+    (roots : List String)
+    : Declaration →
+      Report
   | .dataType datatype =>
       { issues := datatypeIssues theory roots datatype
         obligations := declarationObligations (.dataType datatype) }
@@ -323,29 +411,48 @@ def declaration (theory : Theory.Env) (roots : List String) : Declaration → Re
           | _ => [error rule.name "kind" "declaration kind is not a supported rule"]
         obligations := declarationObligations (.ruleDecl rule) }
 
-private def declarationParts : Declaration → List String
+private
+def declarationParts
+    : Declaration →
+      List String
   | .dataType datatype => datatype.name :: datatype.constructors.map (·.name)
   | .definitionDecl definition => [definition.name]
   | .ruleDecl rule => [rule.name]
 
-private def specNames (spec : Spec) : List String :=
+private
+def specNames
+    (spec : Spec)
+    : List String :=
   spec.symbols.map (·.name) ++ spec.declarations.flatMap declarationParts
 
-private def specNameIssues (spec : Spec) : List Issue :=
+private
+def specNameIssues
+    (spec : Spec)
+    : List Issue :=
   match firstDuplicate [] (specNames spec) with
   | some name => [error spec.name "names" s!"name `{name}` is declared more than once"]
   | none => []
 
-private def registrationIssues (env : Theory.Env) (spec : Spec) : List Issue :=
+private
+def registrationIssues
+    (env : Theory.Env)
+    (spec : Spec)
+    : List Issue :=
   match Theory.add env spec with
   | .ok _ => []
   | .error message => [error spec.name "registration" (EventB.Error.render message)]
 
-def validateDeclaration (theory : Theory.Env) (roots : List String)
-    (value : Declaration) : Report :=
+def validateDeclaration
+    (theory : Theory.Env)
+    (roots : List String)
+    (value : Declaration)
+    : Report :=
   declaration theory roots value
 
-def validateSpec (env : Theory.Env) (spec : Spec) : Report :=
+def validateSpec
+    (env : Theory.Env)
+    (spec : Spec)
+    : Report :=
   let registrationErrors := registrationIssues env spec
   let checkingEnv := match Theory.add env spec with
     | .ok extended => extended
@@ -392,7 +499,9 @@ def validateSpec (env : Theory.Env) (spec : Spec) : Report :=
       rhs := some (.bin "+" (.id "x") (.num 0)) })).issues.any
   (fun issue => issue.field == "orientation")
 
-private def scopedSpec : Spec :=
+private
+def scopedSpec
+    : Spec :=
   { name := "Bounds"
     symbols := [Symbol.mk "LIMIT" .constant (some .int) "A visible theory constant." none []
       (SymbolId.unqualified "LIMIT") SourceRange.synthetic]

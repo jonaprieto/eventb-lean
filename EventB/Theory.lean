@@ -65,38 +65,54 @@ inductive Declaration where
   | ruleDecl (value : Rule)
   deriving BEq, Repr, Inhabited
 
-def Declaration.name : Declaration → String
+def Declaration.name
+    : Declaration →
+      String
   | .dataType value => value.name
   | .definitionDecl value => value.name
   | .ruleDecl value => value.name
 
-def Declaration.kind : Declaration → DeclarationKind
+def Declaration.kind
+    : Declaration →
+      DeclarationKind
   | .dataType _ => .datatype
   | .definitionDecl value => match value.kind with
     | .definitional => .definition
     | .axiomatic => .axiom
   | .ruleDecl value => value.kind
 
-def Declaration.typeParameters : Declaration → List String
+def Declaration.typeParameters
+    : Declaration →
+      List String
   | .dataType value => value.parameters
   | .definitionDecl value => value.typeParameters
   | .ruleDecl value => value.typeParameters
 
-private def productType : List Typing.Ty → Option Typing.Ty
+private
+def productType
+    : List Typing.Ty →
+      Option Typing.Ty
   | [] => none
   | type :: types => some <| types.foldl (fun result next => .prod result next) type
 
-def Constructor.type (datatype : Datatype) (constructor : Constructor) : Typing.Ty :=
+def Constructor.type
+    (datatype : Datatype)
+    (constructor : Constructor)
+    : Typing.Ty :=
   match productType constructor.arguments with
   | none => .given datatype.name
   | some arguments => .pow (.prod arguments (.given datatype.name))
 
-def Definition.type (value : Definition) : Typing.Ty :=
+def Definition.type
+    (value : Definition)
+    : Typing.Ty :=
   match productType (value.parameters.map (·.2)) with
   | none => value.result
   | some arguments => .pow (.prod arguments value.result)
 
-def Declaration.expressionType? : Declaration → Option Typing.Ty
+def Declaration.expressionType?
+    : Declaration →
+      Option Typing.Ty
   | .definitionDecl value => some value.type
   | _ => none
 
@@ -111,28 +127,48 @@ structure Env where
   theories : List Spec := []
   deriving Repr, Inhabited
 
-def core : Spec :=
+def core
+    : Spec :=
   { name := "EventB.Core", symbols := coreSymbols }
 
-def empty : Env :=
+def empty
+    : Env :=
   { theories := [core] }
 
-def canonicalize (theory : Spec) : Spec :=
+def canonicalize
+    (theory : Spec)
+    : Spec :=
   { theory with symbols := theory.symbols.map fun symbol =>
       { symbol with id := SymbolId.qualified theory.name symbol.name } }
 
-def declarationId (theory : String) (declaration : Declaration) : SymbolId :=
+def declarationId
+    (theory : String)
+    (declaration : Declaration)
+    : SymbolId :=
   SymbolId.qualified theory declaration.name
 
-def lookupTheory? (env : Env) (name : String) : Option Spec :=
+def lookupTheory?
+    (env : Env)
+    (name : String)
+    : Option Spec :=
   env.theories.find? (·.name == name)
 
-private def firstDuplicate (seen : List String) : List String → Option String
+private
+def firstDuplicate
+    (seen : List String)
+    : List String →
+      Option String
   | [] => none
   | name :: names =>
     if seen.contains name then some name else firstDuplicate (name :: seen) names
 
-private def closureAux (env : Env) : Nat → List String → String → List String
+private
+def closureAux
+    (env : Env)
+    : Nat →
+      List String →
+      String →
+      List String
   | 0, seen, _ => seen
   | fuel + 1, seen, name =>
     if seen.contains name then seen
@@ -144,31 +180,48 @@ private def closureAux (env : Env) : Nat → List String → String → List Str
           (fun seen imported => closureAux env fuel seen imported) seen
         name :: seen
 
-private def visibleTheoryNames (env : Env) (roots : List String) : List String :=
+private
+def visibleTheoryNames
+    (env : Env)
+    (roots : List String)
+    : List String :=
   let fuel := env.theories.length + roots.length + 1
   let names := roots.foldl (fun seen root => closureAux env fuel seen root) []
   (core.name :: names).eraseDups
 
-def lookupIn? (env : Env) (roots : List String) (name : String) : Option (String × Symbol) :=
+def lookupIn?
+    (env : Env)
+    (roots : List String)
+    (name : String)
+    : Option (String × Symbol) :=
   visibleTheoryNames env roots |>.findSome? fun theoryName => do
     let theory ← lookupTheory? env theoryName
     let symbol ← theory.symbols.find? (fun symbol => symbol.name == name)
     return (theory.name, symbol)
 
-def symbolsIn (env : Env) (roots : List String) : List (String × Symbol) :=
+def symbolsIn
+    (env : Env)
+    (roots : List String)
+    : List (String × Symbol) :=
   visibleTheoryNames env roots |>.flatMap fun theoryName =>
     match lookupTheory? env theoryName with
     | none => []
     | some theory => theory.symbols.map (theory.name, ·)
 
-def declarationsIn (env : Env) (roots : List String) : List (String × Declaration) :=
+def declarationsIn
+    (env : Env)
+    (roots : List String)
+    : List (String × Declaration) :=
   visibleTheoryNames env roots |>.flatMap fun theoryName =>
     match lookupTheory? env theoryName with
     | none => []
     | some theory => theory.declarations.map (theory.name, ·)
 
-def namesWithApplication (env : Env) (roots : List String) (application : ApplicationKind) :
-    List String :=
+def namesWithApplication
+    (env : Env)
+    (roots : List String)
+    (application : ApplicationKind)
+    : List String :=
   let symbols := (symbolsIn env roots).filterMap fun (_, symbol) =>
     if symbol.application == some application then some symbol.name else none
   let definitions := if application == .total then
@@ -179,37 +232,60 @@ def namesWithApplication (env : Env) (roots : List String) (application : Applic
     else []
   (symbols ++ definitions).eraseDups
 
-def definedness? (env : Env) (roots : List String) (name : String) : List Definedness :=
+def definedness?
+    (env : Env)
+    (roots : List String)
+    (name : String)
+    : List Definedness :=
   (lookupIn? env roots name).map (·.2.definedness) |>.getD []
 
-def declaration? (env : Env) (roots : List String) (name : String) :
-    Option (String × Declaration) :=
+def declaration?
+    (env : Env)
+    (roots : List String)
+    (name : String)
+    : Option (String × Declaration) :=
   declarationsIn env roots |>.find? (·.2.name == name)
 
-def constructor? (env : Env) (roots : List String) (name : String) :
-    Option (String × Datatype × Constructor) :=
+def constructor?
+    (env : Env)
+    (roots : List String)
+    (name : String)
+    : Option (String × Datatype × Constructor) :=
   declarationsIn env roots |>.findSome? fun (owner, declaration) =>
     match declaration with
     | .dataType datatype => datatype.constructors.find? (·.name == name) |>.map
         (owner, datatype, ·)
     | _ => none
 
-def isDeclarationIn (env : Env) (roots : List String) (name : String) : Bool :=
+def isDeclarationIn
+    (env : Env)
+    (roots : List String)
+    (name : String)
+    : Bool :=
   (declaration? env roots name).isSome
 
-def definitionsIn (env : Env) (roots : List String) : List (String × Definition) :=
+def definitionsIn
+    (env : Env)
+    (roots : List String)
+    : List (String × Definition) :=
   declarationsIn env roots |>.filterMap fun (owner, declaration) =>
     match declaration with
     | .definitionDecl value => some (owner, value)
     | _ => none
 
-def rewriteRulesIn (env : Env) (roots : List String) : List (String × Rule) :=
+def rewriteRulesIn
+    (env : Env)
+    (roots : List String)
+    : List (String × Rule) :=
   declarationsIn env roots |>.filterMap fun (owner, declaration) =>
     match declaration with
     | .ruleDecl value => if value.kind == .rewrite then some (owner, value) else none
     | _ => none
 
-private def termSize : Formula.Term → Nat
+private
+def termSize
+    : Formula.Term →
+      Nat
   | .id _ | .num _ => 1
   | .bin _ left right => termSize left + termSize right + 1
   | .pre _ term | .post _ term => termSize term + 1
@@ -218,7 +294,11 @@ private def termSize : Formula.Term → Nat
   | .set terms => terms.foldl (fun size term => size + termSize term) 1
   | .bind _ pattern body => termSize pattern + termSize body + 1
 
-private def patternShape : Formula.Term → Formula.Term → Bool
+private
+def patternShape
+    : Formula.Term →
+      Formula.Term →
+      Bool
   | .id _, .id _ => true
   | .bin leftOp leftA leftB, .bin rightOp rightA rightB =>
       leftOp == rightOp && patternShape leftA rightA && patternShape leftB rightB
@@ -226,7 +306,12 @@ private def patternShape : Formula.Term → Formula.Term → Bool
 
 mutual
 
-private def referencesBound : Nat → List String → Formula.Term → Bool
+private
+def referencesBound
+    : Nat →
+      List String →
+      Formula.Term →
+      Bool
   | 0, _, _ => false
   | _ + 1, bound, .id name => bound.contains name
   | _ + 1, _, .num _ => false
@@ -245,7 +330,12 @@ private def referencesBound : Nat → List String → Formula.Term → Bool
 
 termination_by fuel _ _ => fuel
 
-private def referencesBoundList : Nat → List String → List Formula.Term → Bool
+private
+def referencesBoundList
+    : Nat →
+      List String →
+      List Formula.Term →
+      Bool
   | 0, _, _ => false
   | _ + 1, _, [] => false
   | fuel + 1, bound, term :: terms =>
@@ -255,9 +345,16 @@ termination_by fuel _ _ => fuel
 
 end
 
-private def matchRewrite : Nat → List String → List (String × String) → List String →
-    Formula.Term → Formula.Term → List (String × Formula.Term) →
-    Option (List (String × Formula.Term))
+private
+def matchRewrite
+    : Nat →
+      List String →
+      List (String × String) →
+      List String →
+      Formula.Term →
+      Formula.Term →
+      List (String × Formula.Term) →
+      Option (List (String × Formula.Term))
   | 0, _, _, _, _, _, _ => none
   | _ + 1, parameters, bound, targetBound, .id name, target, substitutions =>
       match bound.find? (·.1 == name) with
@@ -325,8 +422,11 @@ private def matchRewrite : Nat → List String → List (String × String) → L
   | _, _, _, _, _, _, _ => none
 termination_by fuel _ _ _ _ _ _ => fuel
 
-private def rewriteRoot (rules : List (String × Rule)) (term : Formula.Term) :
-    Option Formula.Term :=
+private
+def rewriteRoot
+    (rules : List (String × Rule))
+    (term : Formula.Term)
+    : Option Formula.Term :=
   rules.findSome? fun (_, rule) => do
     let lhs ← rule.lhs
     let rhs ← rule.rhs
@@ -335,7 +435,12 @@ private def rewriteRoot (rules : List (String × Rule)) (term : Formula.Term) :
       let substitutions ← matchRewrite fuel (rule.parameters.map (·.1)) [] [] lhs term []
       some (Formula.subst substitutions rhs)
 
-private def normalizeAux (rules : List (String × Rule)) : Nat → Formula.Term → Formula.Term
+private
+def normalizeAux
+    (rules : List (String × Rule))
+    : Nat →
+      Formula.Term →
+      Formula.Term
   | 0, term => term
   | fuel + 1, term =>
       match rewriteRoot rules term with
@@ -354,33 +459,57 @@ private def normalizeAux (rules : List (String × Rule)) : Nat → Formula.Term 
             (normalizeAux rules fuel body)
         | _ => term
 
-def normalize (env : Env) (roots : List String) (term : Formula.Term) : Formula.Term :=
+def normalize
+    (env : Env)
+    (roots : List String)
+    (term : Formula.Term)
+    : Formula.Term :=
   let rules := rewriteRulesIn env roots
   normalizeAux rules (termSize term * (rules.length + 1) + 1) term
 
-private def declarationNames (declarations : List Declaration) : List String :=
+private
+def declarationNames
+    (declarations : List Declaration)
+    : List String :=
   declarations.map Declaration.name
 
-private def constructorNames (datatype : Datatype) : List String :=
+private
+def constructorNames
+    (datatype : Datatype)
+    : List String :=
   datatype.constructors.map (·.name)
 
-private def declarationParts (declaration : Declaration) : List String :=
+private
+def declarationParts
+    (declaration : Declaration)
+    : List String :=
   match declaration with
   | .dataType datatype => datatype.name :: constructorNames datatype
   | .definitionDecl definition => [definition.name]
   | .ruleDecl rule => [rule.name]
 
-private def declarationNamesAll (declarations : List Declaration) : List String :=
+private
+def declarationNamesAll
+    (declarations : List Declaration)
+    : List String :=
   declarations.flatMap declarationParts
 
-private def isDefinitionName (declarations : List Declaration) (name : String) : Bool :=
+private
+def isDefinitionName
+    (declarations : List Declaration)
+    (name : String)
+    : Bool :=
   declarations.any fun declaration => match declaration with
     | .definitionDecl definition => definition.name == name
     | _ => false
 
 private def duplicateName (names : List String) : Option String := firstDuplicate [] names
 
-private def typeParameterError (name : String) (parameters : List String) : Option String :=
+private
+def typeParameterError
+    (name : String)
+    (parameters : List String)
+    : Option String :=
   if parameters.any (· == "") then
     some s!"declaration `{name}` has an empty type parameter"
   else match duplicateName parameters with
@@ -389,7 +518,10 @@ private def typeParameterError (name : String) (parameters : List String) : Opti
         | some symbol => some s!"type parameter `{symbol.name}` is reserved by the core prelude"
         | none => none
 
-private def declarationError (declaration : Declaration) : Option String :=
+private
+def declarationError
+    (declaration : Declaration)
+    : Option String :=
   match declaration with
   | .dataType datatype =>
       if datatype.constructors.isEmpty then
@@ -420,7 +552,11 @@ private def declarationError (declaration : Declaration) : Option String :=
           | some name => some s!"rule parameter `{name}` is repeated"
           | none => none
 
-private def validate (env : Env) (theory : Spec) : List String :=
+private
+def validate
+    (env : Env)
+    (theory : Spec)
+    : List String :=
   let names := theory.symbols.map (·.name)
   let declarationNames := declarationNamesAll theory.declarations
   let duplicate := firstDuplicate [] names
@@ -494,26 +630,45 @@ private def validate (env : Env) (theory : Spec) : List String :=
   | some name => errors ++ [s!"theory `{name}` is not registered"]
   | none => errors
 
-def add (env : Env) (theory : Spec) : Except EventB.Error Env :=
+def add
+    (env : Env)
+    (theory : Spec)
+    : Except EventB.Error Env :=
   let theory := canonicalize theory
   match validate env theory with
   | error :: _ => .error (EventB.Error.theory error)
   | [] => .ok { env with theories := theory :: env.theories }
 
-def register (specs : List Spec) : Except EventB.Error Env :=
+def register
+    (specs : List Spec)
+    : Except EventB.Error Env :=
   specs.foldlM add empty
 
 /-- Compatibility lookup for callers that have no component-specific scope yet. -/
-def lookup? (env : Env) (name : String) : Option (String × Symbol) :=
+def lookup?
+    (env : Env)
+    (name : String)
+    : Option (String × Symbol) :=
   lookupIn? env (env.theories.map (·.name)) name
 
-def isIdentifierIn (env : Env) (roots : List String) (name : String) : Bool :=
+def isIdentifierIn
+    (env : Env)
+    (roots : List String)
+    (name : String)
+    : Bool :=
   (lookupIn? env roots name).isSome || isDeclarationIn env roots name
 
-def isIdentifier (env : Env) (name : String) : Bool :=
+def isIdentifier
+    (env : Env)
+    (name : String)
+    : Bool :=
   isIdentifierIn env (env.theories.map (·.name)) name
 
-def typeIn? (env : Env) (roots : List String) (name : String) : Option Typing.Ty :=
+def typeIn?
+    (env : Env)
+    (roots : List String)
+    (name : String)
+    : Option Typing.Ty :=
   match (lookupIn? env roots name).bind (·.2.type) with
   | some type => some type
   | none =>
@@ -521,7 +676,10 @@ def typeIn? (env : Env) (roots : List String) (name : String) : Option Typing.Ty
       | some (_, datatype, constructor) => some (constructor.type datatype)
       | none => (declaration? env roots name).bind (·.2.expressionType?)
 
-def type? (env : Env) (name : String) : Option Typing.Ty :=
+def type?
+    (env : Env)
+    (name : String)
+    : Option Typing.Ty :=
   typeIn? env (env.theories.map (·.name)) name
 
 #guard (lookup? empty "BOOL").isSome
@@ -530,7 +688,9 @@ def type? (env : Env) (name : String) : Option Typing.Ty :=
 #guard (lookupIn? empty [] "notVisible").isNone
 #guard namesWithApplication empty [] .total |>.contains "bool"
 
-private def imported : Env :=
+private
+def imported
+    : Env :=
   match add empty
       { name := "Base", symbols :=
         [{ name := "LIMIT", kind := .constant, type := some .int
@@ -562,7 +722,9 @@ private def imported : Env :=
   | .error _ => true
   | .ok _ => false
 
-private def declarationEnv : Env :=
+private
+def declarationEnv
+    : Env :=
   match add empty
       { name := "Data", declarations :=
         [.dataType (Datatype.mk "Colour" []
@@ -578,7 +740,9 @@ private def declarationEnv : Env :=
 #guard typeIn? declarationEnv ["Data"] "zero" == some .int
 #guard namesWithApplication declarationEnv ["Data"] .total |>.contains "zero"
 
-private def rewriteEnv : Env :=
+private
+def rewriteEnv
+    : Env :=
   match add empty
       { name := "Rewrite", declarations := [.ruleDecl
           { name := "add_zero", kind := .rewrite, parameters := [("x", .int)]
@@ -586,7 +750,9 @@ private def rewriteEnv : Env :=
   | .ok env => env
   | .error _ => empty
 
-private def binderRewriteEnv : Env :=
+private
+def binderRewriteEnv
+    : Env :=
   match add empty
       { name := "BinderRewrite", declarations :=
         [.ruleDecl
@@ -611,7 +777,10 @@ private def binderRewriteEnv : Env :=
   | .ok env => env
   | .error _ => empty
 
-private def parseFormula! (source : String) : Formula.Term :=
+private
+def parseFormula!
+    (source : String)
+    : Formula.Term :=
   (Formula.parse source).toOption.getD (.id "?")
 
 #guard Definition.type

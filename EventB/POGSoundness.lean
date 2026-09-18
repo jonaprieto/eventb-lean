@@ -13,20 +13,32 @@ namespace EventB.POG
 
 universe u
 
-structure FormulaModel (σ : Type u) where
+structure FormulaModel
+    (σ : Type u)
+    where
   denote : EventB.Formula.Term → σ → Prop
 
-def validSequent {σ : Type u} (hyps : List (σ → Prop)) (goal : σ → Prop) : Prop :=
+def validSequent
+    {σ : Type u}
+    (hyps : List (σ → Prop))
+    (goal : σ → Prop)
+    : Prop :=
   ∀ state, (∀ hypothesis ∈ hyps, hypothesis state) → goal state
 
-def validHypotheses {σ : Type u} (hyps : List (σ → Prop)) : Prop :=
+def validHypotheses
+    {σ : Type u}
+    (hyps : List (σ → Prop))
+    : Prop :=
   ∀ state, ∀ hypothesis ∈ hyps, hypothesis state
 
 /- This is deliberately named unchecked: a formula-shaped record is not a generated
    Rodin obligation. The accepting entry point below requires exact membership in the
    strict generator output. -/
-def FormulaModel.validUnchecked {σ : Type u} (model : FormulaModel σ)
-    (obligation : Obligation) : Prop :=
+def FormulaModel.validUnchecked
+    {σ : Type u}
+    (model : FormulaModel σ)
+    (obligation : Obligation)
+    : Prop :=
   match obligation.kind, obligation.goal with
   | _, some goal => validSequent (obligation.hyps.map model.denote) (model.denote goal)
   | "WWD", none => validHypotheses (obligation.hyps.map model.denote)
@@ -36,12 +48,17 @@ theorem validSequent.intro {σ : Type u} {hyps : List (σ → Prop)} {goal : σ 
     (proof : ∀ state, (∀ hypothesis ∈ hyps, hypothesis state) → goal state) :
     validSequent hyps goal := proof
 
-def Obligation.sourceBound (project : EventB.Typing.Project)
-    (obligation : Obligation) : Bool :=
+def Obligation.sourceBound
+    (project : EventB.Typing.Project)
+    (obligation : Obligation)
+    : Bool :=
   EventB.POG.generatedSourceBound project obligation
 
-def Obligation.checkedIn (theory : EventB.Theory.Env)
-    (project : EventB.Typing.Project) (obligation : Obligation) : Prop :=
+def Obligation.checkedIn
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (obligation : Obligation)
+    : Prop :=
   match generateCheckedIn theory project obligation.component with
   | .ok generated => obligation ∈ generated ∧ obligation.sourceBound project = true
   | .error _ => False
@@ -49,16 +66,22 @@ def Obligation.checkedIn (theory : EventB.Theory.Env)
 /- A caller-defined `denote` function is useful for local algebraic fixtures, but it
    is not a project semantics. Keep the name fail-closed until a source-bound
    adequacy theorem ties it to the typed evaluator and the Rodin translation. -/
-def FormulaModel.valid {σ : Type u} (_model : FormulaModel σ)
-    (_theory : EventB.Theory.Env) (_project : EventB.Typing.Project)
-    (_obligation : Obligation) : Prop :=
+def FormulaModel.valid
+    {σ : Type u}
+    (_model : FormulaModel σ)
+    (_theory : EventB.Theory.Env)
+    (_project : EventB.Typing.Project)
+    (_obligation : Obligation)
+    : Prop :=
   False
 
-theorem FormulaModel.valid_of {σ : Type u} (model : FormulaModel σ)
+theorem FormulaModel.valid_of
+    {σ : Type u}
+    (model : FormulaModel σ)
     (obligation : Obligation)
-    (proof : validSequent (obligation.hyps.map model.denote)
-      (obligation.goal.map model.denote |>.getD fun _ => False)) :
-    obligation.goal.isSome → model.validUnchecked obligation := by
+    (proof : validSequent (obligation.hyps.map model.denote) (obligation.goal.map model.denote |>.getD fun _ => False))
+    : obligation.goal.isSome →
+      model.validUnchecked obligation := by
   intro hasGoal
   cases goal : obligation.goal with
   | none => simp [goal] at hasGoal
@@ -72,7 +95,9 @@ inductive POClass where
   | eql | mrg | vwd | nat | fin | var
   deriving BEq, Repr
 
-def POClass.ofKind : String → Option POClass
+def POClass.ofKind
+    : String →
+      Option POClass
   | "INV" => some .inv
   | "WD" => some .wd
   | "GRD" => some .grd
@@ -89,24 +114,34 @@ def POClass.ofKind : String → Option POClass
   | "VAR" => some .var
   | _ => none
 
-def POClass.valuationSupported : POClass → Bool
+def POClass.valuationSupported
+    : POClass →
+      Bool
   | .thm | .wd | .vwd | .wfis | .wwd | .fin => true
   | _ => false
 
-def POClass.transitionValuationSupported : POClass → Bool
+def POClass.transitionValuationSupported
+    : POClass →
+      Bool
   | .inv | .grd | .sim | .fis | .mrg | .eql | .nat | .var => true
   | _ => false
 
-def Obligation.semanticShapeValid (obligation : Obligation) : Bool :=
+def Obligation.semanticShapeValid
+    (obligation : Obligation)
+    : Bool :=
   (POClass.ofKind obligation.kind).isSome && obligation.shapeValid &&
     !obligation.component.isEmpty && !obligation.name.isEmpty && obligation.diagnostics.isEmpty
 
-def Obligation.valuationSupported (obligation : Obligation) : Bool :=
+def Obligation.valuationSupported
+    (obligation : Obligation)
+    : Bool :=
   match POClass.ofKind obligation.kind with
   | some poClass => poClass.valuationSupported
   | none => false
 
-def Obligation.transitionValuationSupported (obligation : Obligation) : Bool :=
+def Obligation.transitionValuationSupported
+    (obligation : Obligation)
+    : Bool :=
   match POClass.ofKind obligation.kind with
   | some poClass => poClass.transitionValuationSupported
   | none => false
@@ -136,7 +171,11 @@ inductive ValueType where
   | pair (left right : ValueType)
   deriving Repr
 
-private def valueTypeBeq : ValueType → ValueType → Bool
+private
+def valueTypeBeq
+    : ValueType →
+      ValueType →
+      Bool
   | .integer, .integer | .boolean, .boolean => true
   | .given left, .given right => left == right
   | .finiteSet none, .finiteSet none => true
@@ -147,7 +186,10 @@ private def valueTypeBeq : ValueType → ValueType → Bool
 
 instance : BEq ValueType := ⟨valueTypeBeq⟩
 
-private def valueTypeDecEq : (left right : ValueType) → Decidable (left = right)
+private
+def valueTypeDecEq
+    : (left right : ValueType) →
+      Decidable (left = right)
   | .integer, .integer => isTrue rfl
   | .boolean, .boolean => isTrue rfl
   | .given left, .given right =>
@@ -206,7 +248,10 @@ inductive Value where
 
 mutual
 
-private def valueDecEq : (left right : Value) → Decidable (left = right)
+private
+def valueDecEq
+    : (left right : Value) →
+      Decidable (left = right)
   | .integer left, .integer right =>
       if equal : left = right then isTrue (by cases equal; rfl)
       else isFalse (by intro proof; cases proof; exact equal rfl)
@@ -265,7 +310,10 @@ private def valueDecEq : (left right : Value) → Decidable (left = right)
     .booleanSet, .integerSet | .booleanSet, .naturalSet | .booleanSet, .natural1Set =>
       isFalse (by intro proof; cases proof)
 
-private def valueListDecEq : (left right : List Value) → Decidable (left = right)
+private
+def valueListDecEq
+    : (left right : List Value) →
+      Decidable (left = right)
   | [], [] => isTrue rfl
   | left :: lefts, right :: rights =>
       match valueDecEq left right, valueListDecEq lefts rights with
@@ -278,7 +326,9 @@ end
 
 instance : DecidableEq Value := valueDecEq
 
-def Value.typeOf : Value → ValueType
+def Value.typeOf
+    : Value →
+      ValueType
   | .integer _ => .integer
   | .boolean _ => .boolean
   | .atom carrier _ => .given carrier
@@ -289,11 +339,16 @@ def Value.typeOf : Value → ValueType
   | .integerSet | .naturalSet | .natural1Set => .finiteSet (some .integer)
   | .booleanSet => .finiteSet (some .boolean)
 
-def Value.setType : List Value → ValueType
+def Value.setType
+    : List Value →
+      ValueType
   | [] => .finiteSet none
   | first :: _ => .finiteSet (some first.typeOf)
 
-def ValueType.compatible : ValueType → ValueType → Bool
+def ValueType.compatible
+    : ValueType →
+      ValueType →
+      Bool
   | .given left, .given right => left == right
   | .finiteSet left, .finiteSet right =>
       match left, right with
@@ -303,10 +358,16 @@ def ValueType.compatible : ValueType → ValueType → Bool
       compatible left₁ left₂ && compatible right₁ right₂
   | left, right => left == right
 
-def Value.sameType (left right : Value) : Bool :=
+def Value.sameType
+    (left right : Value)
+    : Bool :=
   ValueType.compatible left.typeOf right.typeOf
 
-private def Value.isWellFormed : Nat → Value → Bool
+private
+def Value.isWellFormed
+    : Nat →
+      Value →
+      Bool
   | 0, _ => false
   | fuel + 1, .integer _ | fuel + 1, .boolean _ | fuel + 1, .atom _ _ | fuel + 1, .integerSet |
       fuel + 1, .naturalSet | fuel + 1, .natural1Set | fuel + 1, .booleanSet => true
@@ -325,7 +386,11 @@ decreasing_by
 
 mutual
 
-def valueEqual : Nat → Value → Value → Except EvalError Bool
+def valueEqual
+    : Nat →
+      Value →
+      Value →
+      Except EvalError Bool
   | 0, _, _ => .error .fuelExhausted
   | fuel + 1, .integer left, .integer right => .ok (left == right)
   | fuel + 1, .boolean left, .boolean right => .ok (left == right)
@@ -346,14 +411,22 @@ def valueEqual : Nat → Value → Value → Except EvalError Bool
   | fuel + 1, .powerSet left, .powerSet right => .ok (left == right)
   | fuel + 1, _, _ => .ok false
 
-def memberOf : Nat → Value → List Value → Except EvalError Bool
+def memberOf
+    : Nat →
+      Value →
+      List Value →
+      Except EvalError Bool
   | 0, _, _ => .error .fuelExhausted
   | fuel + 1, value, [] => .ok false
   | fuel + 1, value, candidate :: candidates => do
       let equal ← valueEqual fuel value candidate
       if equal then .ok true else memberOf fuel value candidates
 
-def subsetOf : Nat → List Value → List Value → Except EvalError Bool
+def subsetOf
+    : Nat →
+      List Value →
+      List Value →
+      Except EvalError Bool
   | 0, _, _ => .error .fuelExhausted
   | fuel + 1, left, right =>
       if left == right then .ok true
@@ -365,7 +438,9 @@ def subsetOf : Nat → List Value → List Value → Except EvalError Bool
 
 end
 
-def Value.makeSet (values : List Value) : Except EvalError Value :=
+def Value.makeSet
+    (values : List Value)
+    : Except EvalError Value :=
   match values with
   | [] => .ok (.set [])
   | first :: rest =>
@@ -375,7 +450,9 @@ def Value.makeSet (values : List Value) : Except EvalError Value :=
           |>.getD first.typeOf
         .error (.typeMismatch first.typeOf actual)
 
-def ValueType.ofTy : EventB.Typing.Ty → Option ValueType
+def ValueType.ofTy
+    : EventB.Typing.Ty →
+      Option ValueType
   | .int => some .integer
   | .bool => some .boolean
   | .given name => some (.given name)
@@ -386,15 +463,24 @@ def ValueType.ofTy : EventB.Typing.Ty → Option ValueType
       pure (.pair left right)
   | .mvar _ => none
 
-def Value.typeMatches (expected : ValueType) (actual : ValueType) : Bool :=
+def Value.typeMatches
+    (expected : ValueType)
+    (actual : ValueType)
+    : Bool :=
   ValueType.compatible expected actual
 
-def Value.matchesTy (value : Value) (expected : EventB.Typing.Ty) : Bool :=
+def Value.matchesTy
+    (value : Value)
+    (expected : EventB.Typing.Ty)
+    : Bool :=
   match ValueType.ofTy expected with
   | some expected => Value.typeMatches expected value.typeOf
   | none => false
 
-def Value.contains (fuel : Nat) (value collection : Value) : Except EvalError Bool :=
+def Value.contains
+    (fuel : Nat)
+    (value collection : Value)
+    : Except EvalError Bool :=
   if fuel == 0 then .error .fuelExhausted
   else match collection, value with
     | .set values, value =>
@@ -424,19 +510,33 @@ structure ValueEnv where
   carriers : List (String × List String) := []
   deriving Repr, Inhabited, DecidableEq
 
-def ValueEnv.lookup (env : ValueEnv) (name : String) : Option Value :=
+def ValueEnv.lookup
+    (env : ValueEnv)
+    (name : String)
+    : Option Value :=
   env.values.find? (·.1 == name) |>.map (·.2)
 
-def ValueEnv.set (env : ValueEnv) (name : String) (value : Value) : ValueEnv :=
+def ValueEnv.set
+    (env : ValueEnv)
+    (name : String)
+    (value : Value)
+    : ValueEnv :=
   { values := (name, value) :: env.values.filter (fun binding => binding.1 != name)
     carriers := env.carriers }
 
-def ValueEnv.carrierContains (env : ValueEnv) (carrier name : String) : Bool :=
+def ValueEnv.carrierContains
+    (env : ValueEnv)
+    (carrier name : String)
+    : Bool :=
   match env.carriers.find? (·.1 == carrier) with
   | some (_, members) => members.contains name
   | none => false
 
-def ValueEnv.valueIsWellFormed : Nat → ValueEnv → Value → Bool
+def ValueEnv.valueIsWellFormed
+    : Nat →
+      ValueEnv →
+      Value →
+      Bool
   | 0, _, _ => false
   | fuel + 1, env, .atom carrier name => env.carrierContains carrier name
   | fuel + 1, env, .pair left right => valueIsWellFormed fuel env left &&
@@ -452,8 +552,10 @@ termination_by fuel => fuel
 decreasing_by
   all_goals omega
 
-def ValueEnv.declaredType? (declarations : List (String × EventB.Typing.Ty))
-    (name : String) : Option EventB.Typing.Ty :=
+def ValueEnv.declaredType?
+    (declarations : List (String × EventB.Typing.Ty))
+    (name : String)
+    : Option EventB.Typing.Ty :=
   declarations.find? (·.1 == name) |>.map (·.2)
 
 def ValueEnv.validateFuel (fuel : Nat) (declarations : List (String × EventB.Typing.Ty))
@@ -475,22 +577,33 @@ def ValueEnv.validateFuel (fuel : Nat) (declarations : List (String × EventB.Ty
       .error .invalidValue
     else .ok ()
 
-def ValueEnv.validate (declarations : List (String × EventB.Typing.Ty))
-    (env : ValueEnv) : Except EvalError Unit :=
+def ValueEnv.validate
+    (declarations : List (String × EventB.Typing.Ty))
+    (env : ValueEnv)
+    : Except EvalError Unit :=
   ValueEnv.validateFuel 128 declarations env
 
-def ValueEnv.validationOk (fuel : Nat) (declarations : List (String × EventB.Typing.Ty))
-    (env : ValueEnv) : Bool :=
+def ValueEnv.validationOk
+    (fuel : Nat)
+    (declarations : List (String × EventB.Typing.Ty))
+    (env : ValueEnv)
+    : Bool :=
   match ValueEnv.validateFuel fuel declarations env with
   | .ok () => true
   | .error _ => false
 
-def valueMatches (actual expected : Value) : Bool :=
+def valueMatches
+    (actual expected : Value)
+    : Bool :=
   match valueEqual 128 actual expected with
   | .ok result => result
   | .error _ => false
 
-def ValueEnv.lookupMatches (env : ValueEnv) (name : String) (expected : Value) : Bool :=
+def ValueEnv.lookupMatches
+    (env : ValueEnv)
+    (name : String)
+    (expected : Value)
+    : Bool :=
   match env.lookup name with
   | some actual => valueMatches actual expected
   | none => false
@@ -509,8 +622,13 @@ structure CheckedBeforeAfter where
   declarations : List (String × EventB.Typing.Ty)
   deriving Repr, DecidableEq
 
-private def exceptDecEq {α β : Type} [DecidableEq α] [DecidableEq β] :
-    (left right : Except α β) → Decidable (left = right)
+private
+def exceptDecEq
+    {α β : Type}
+    [DecidableEq α]
+    [DecidableEq β]
+    : (left right : Except α β) →
+      Decidable (left = right)
   | .error left, .error right =>
       match decEq left right with
       | isTrue equal => isTrue (by cases equal; rfl)
@@ -540,7 +658,11 @@ private theorem xPrimeEndsWith : "x'".endsWith "'" = true := by native_decide
 private theorem xEndsWith : "x".endsWith "'" = false := by native_decide
 private theorem xPrimeBase : ("x'".dropEnd 1).copy = "x" := by native_decide
 
-private def EvalView.lookup (view : EvalView) (name : String) : Except EvalError Value :=
+private
+def EvalView.lookup
+    (view : EvalView)
+    (name : String)
+    : Except EvalError Value :=
   if name.endsWith "'" then
     match view.after with
     | none => .error (.unsupported (.id name))
@@ -553,7 +675,12 @@ private def EvalView.lookup (view : EvalView) (name : String) : Except EvalError
     | some value => .ok value
     | none => .error (.unbound name)
 
-private def EvalView.bind (view : EvalView) (name : String) (value : Value) : EvalView :=
+private
+def EvalView.bind
+    (view : EvalView)
+    (name : String)
+    (value : Value)
+    : EvalView :=
   if name.endsWith "'" then
     let base := (name.dropEnd 1).copy
     { view with after := some ((view.after.getD view.before).set base value) }
@@ -563,7 +690,11 @@ private def EvalView.bind (view : EvalView) (name : String) (value : Value) : Ev
 /- Binder evaluation is deliberately one-sided: these finite witness candidates
    can establish an existential, but failure to find one is reported unsupported
    rather than falsely reported as a negative result. -/
-private def binderCandidate (view : EvalView) : EventB.Formula.Term → Option Value
+private
+def binderCandidate
+    (view : EvalView)
+    : EventB.Formula.Term →
+      Option Value
   | .id "ℤ" | .id "ℕ" => some (.integer 0)
   | .id "ℕ1" => some (.integer 1)
   | .id "BOOL" => some (.boolean true)
@@ -573,7 +704,12 @@ private def binderCandidate (view : EvalView) : EventB.Formula.Term → Option V
       | _ => none
   | _ => none
 
-def filterSetByMembership : Nat → String → List Value → List Value → Except EvalError (List Value)
+def filterSetByMembership
+    : Nat →
+      String →
+      List Value →
+      List Value →
+      Except EvalError (List Value)
   | 0, _, _, _ => .error .fuelExhausted
   | fuel + 1, _, [], _ => .ok []
   | fuel + 1, op, value :: values, right => do
@@ -583,7 +719,11 @@ def filterSetByMembership : Nat → String → List Value → List Value → Exc
         .ok (value :: rest)
       else .ok rest
 
-private def relationValidateFunction : Nat → List Value → Except EvalError Unit
+private
+def relationValidateFunction
+    : Nat →
+      List Value →
+      Except EvalError Unit
   | 0, _ => .error .fuelExhausted
   | fuel + 1, [] => .ok ()
   | fuel + 1, relation :: relations =>
@@ -598,7 +738,11 @@ private def relationValidateFunction : Nat → List Value → Except EvalError U
           else relationValidateFunction fuel relations
       | _ => .error .invalidRelation
 
-private def relationType : Nat → List Value → Except EvalError (Option (ValueType × ValueType))
+private
+def relationType
+    : Nat →
+      List Value →
+      Except EvalError (Option (ValueType × ValueType))
   | 0, _ => .error .fuelExhausted
   | fuel + 1, [] => .ok none
   | fuel + 1, .pair input output :: relations => do
@@ -612,7 +756,12 @@ private def relationType : Nat → List Value → Except EvalError (Option (Valu
           else .error .invalidRelation
   | _, _ :: _ => .error .invalidRelation
 
-private def relationApply : Nat → Value → List Value → Except EvalError (Option Value)
+private
+def relationApply
+    : Nat →
+      Value →
+      List Value →
+      Except EvalError (Option Value)
   | 0, _, _ => .error .fuelExhausted
   | fuel + 1, argument, [] => .ok none
   | fuel + 1, argument, relation :: relations =>
@@ -627,7 +776,12 @@ private def relationApply : Nat → Value → List Value → Except EvalError (O
           else relationApply fuel argument relations
       | _ => .error .invalidRelation
 
-private def relationImage : Nat → Value → List Value → Except EvalError (List Value)
+private
+def relationImage
+    : Nat →
+      Value →
+      List Value →
+      Except EvalError (List Value)
   | 0, _, _ => .error .fuelExhausted
   | fuel + 1, argument, [] => .ok []
   | fuel + 1, argument, relation :: relations =>
@@ -638,7 +792,13 @@ private def relationImage : Nat → Value → List Value → Except EvalError (L
           if equal then .ok (output :: rest) else .ok rest
       | _ => .error .invalidRelation
 
-private def relationRestrict : Nat → Bool → List Value → List Value → Except EvalError (List Value)
+private
+def relationRestrict
+    : Nat →
+      Bool →
+      List Value →
+      List Value →
+      Except EvalError (List Value)
   | 0, _, _, _ => .error .fuelExhausted
   | fuel + 1, _, [], _ => .ok []
   | fuel + 1, domain, relation :: relations, allowed =>
@@ -649,7 +809,13 @@ private def relationRestrict : Nat → Bool → List Value → List Value → Ex
           if equal then .ok (relation :: rest) else .ok rest
       | _ => .error .invalidRelation
 
-private def relationDrop : Nat → Bool → List Value → List Value → Except EvalError (List Value)
+private
+def relationDrop
+    : Nat →
+      Bool →
+      List Value →
+      List Value →
+      Except EvalError (List Value)
   | 0, _, _, _ => .error .fuelExhausted
   | fuel + 1, _, [], _ => .ok []
   | fuel + 1, domain, relation :: relations, dropped =>
@@ -660,7 +826,12 @@ private def relationDrop : Nat → Bool → List Value → List Value → Except
           if equal then .ok rest else .ok (relation :: rest)
       | _ => .error .invalidRelation
 
-private def relationOverride : Nat → List Value → List Value → Except EvalError (List Value)
+private
+def relationOverride
+    : Nat →
+      List Value →
+      List Value →
+      Except EvalError (List Value)
   | 0, _, _ => .error .fuelExhausted
   | fuel + 1, left, right => do
       let rightDomains ← right.mapM fun relation =>
@@ -672,7 +843,12 @@ private def relationOverride : Nat → List Value → List Value → Except Eval
 
 mutual
 
-private def evalValueFuel : Nat → EvalView → EventB.Formula.Term → Except EvalError Value
+private
+def evalValueFuel
+    : Nat →
+      EvalView →
+      EventB.Formula.Term →
+      Except EvalError Value
   | 0, _, _ => .error .fuelExhausted
   | fuel + 1, view, .id name =>
       if name == "ℤ" then .ok .integerSet
@@ -799,8 +975,12 @@ private def evalValueFuel : Nat → EvalView → EventB.Formula.Term → Except 
       Value.makeSet values
   | _, _, term => .error (.unsupported term)
 
-private def evalValueListFuel : Nat → EvalView → List EventB.Formula.Term →
-    Except EvalError (List Value)
+private
+def evalValueListFuel
+    : Nat →
+      EvalView →
+      List EventB.Formula.Term →
+      Except EvalError (List Value)
   | 0, _, _ => .error .fuelExhausted
   | _fuel + 1, _, [] => .ok []
   | fuel + 1, view, term :: terms => do
@@ -808,7 +988,12 @@ private def evalValueListFuel : Nat → EvalView → List EventB.Formula.Term �
       let values ← evalValueListFuel fuel view terms
       pure (value :: values)
 
-private def evalPredicateFuel : Nat → EvalView → EventB.Formula.Term → Except EvalError Bool
+private
+def evalPredicateFuel
+    : Nat →
+      EvalView →
+      EventB.Formula.Term →
+      Except EvalError Bool
   | 0, _, _ => .error .fuelExhausted
   | fuel + 1, _, .id "⊤" => .ok true
   | fuel + 1, _, .id "⊥" => .ok false
@@ -887,29 +1072,48 @@ private def evalPredicateFuel : Nat → EvalView → EventB.Formula.Term → Exc
 
 end
 
-private def evalValueWithFuel (fuel : Nat) (env : ValueEnv)
-    (term : EventB.Formula.Term) : Except EvalError Value :=
+private
+def evalValueWithFuel
+    (fuel : Nat)
+    (env : ValueEnv)
+    (term : EventB.Formula.Term)
+    : Except EvalError Value :=
   evalValueFuel fuel { before := env } term
 
-private def evalPredicateWithFuel (fuel : Nat) (env : ValueEnv)
-    (term : EventB.Formula.Term) : Except EvalError Bool :=
+private
+def evalPredicateWithFuel
+    (fuel : Nat)
+    (env : ValueEnv)
+    (term : EventB.Formula.Term)
+    : Except EvalError Bool :=
   evalPredicateFuel fuel { before := env } term
 
 /- Public, error-aware wrappers keep the recursive evaluator implementation private while
    allowing typed adequacy fixtures to name the exact fuel they validate. -/
-def evalValueAtFuel (fuel : Nat) (env : ValueEnv)
-    (term : EventB.Formula.Term) : Except EvalError Value :=
+def evalValueAtFuel
+    (fuel : Nat)
+    (env : ValueEnv)
+    (term : EventB.Formula.Term)
+    : Except EvalError Value :=
   evalValueWithFuel fuel env term
 
-def evalPredicateAtFuel (fuel : Nat) (env : ValueEnv)
-    (term : EventB.Formula.Term) : Except EvalError Bool :=
+def evalPredicateAtFuel
+    (fuel : Nat)
+    (env : ValueEnv)
+    (term : EventB.Formula.Term)
+    : Except EvalError Bool :=
   evalPredicateWithFuel fuel env term
 
 /-- Complete existential evaluation only over a caller-supplied finite domain.
     The ordinary binder evaluator remains deliberately one-sided for infinite or
     implicit Event-B types; this API makes the completeness boundary explicit. -/
-def evalPredicateOverFiniteDomain (fuel : Nat) (env : ValueEnv) (binder : String)
-    (candidates : List Value) (body : EventB.Formula.Term) : Except EvalError Bool :=
+def evalPredicateOverFiniteDomain
+    (fuel : Nat)
+    (env : ValueEnv)
+    (binder : String)
+    (candidates : List Value)
+    (body : EventB.Formula.Term)
+    : Except EvalError Bool :=
   match candidates with
   | [] => .ok false
   | candidate :: rest =>
@@ -919,10 +1123,15 @@ def evalPredicateOverFiniteDomain (fuel : Nat) (env : ValueEnv) (binder : String
       | .error error => .error error
 termination_by candidates.length
 
-theorem evalPredicateOverFiniteDomain_true (fuel : Nat) (env : ValueEnv)
-    (binder : String) (candidates : List Value) (body : EventB.Formula.Term)
-    (evaluated : evalPredicateOverFiniteDomain fuel env binder candidates body = .ok true) :
-    ∃ candidate, candidate ∈ candidates ∧
+theorem evalPredicateOverFiniteDomain_true
+    (fuel : Nat)
+    (env : ValueEnv)
+    (binder : String)
+    (candidates : List Value)
+    (body : EventB.Formula.Term)
+    (evaluated : evalPredicateOverFiniteDomain fuel env binder candidates body = .ok true)
+    : ∃ candidate,
+      candidate ∈ candidates ∧
       evalPredicateAtFuel fuel (env.set binder candidate) body = .ok true := by
   induction candidates with
   | nil => simp [evalPredicateOverFiniteDomain] at evaluated
@@ -938,8 +1147,11 @@ theorem evalPredicateOverFiniteDomain_true (fuel : Nat) (env : ValueEnv)
               exact ⟨witness, by simp [member], holds⟩
           | true => exact ⟨candidate, by simp, head⟩
 
-theorem ValueEnv.lookup_set_self (env : ValueEnv) (name : String) (value : Value) :
-    (env.set name value).lookup name = some value := by
+theorem ValueEnv.lookup_set_self
+    (env : ValueEnv)
+    (name : String)
+    (value : Value)
+    : (env.set name value).lookup name = some value := by
   simp [ValueEnv.lookup, ValueEnv.set]
 
 theorem evalWitnessIntegerZeroDivOne (env : ValueEnv) :
@@ -956,24 +1168,27 @@ theorem evalWitnessIntegerZeroDivOne (env : ValueEnv) :
     ValueType.compatible, valueEqual, integerCompatible, pNotPrime,
     Bind.bind, Except.bind]
 
-theorem evalPredicateIntegerOneEqOne (env : ValueEnv) :
-    evalPredicateAtFuel 128 env (.bin "=" (.num 1) (.num 1)) = .ok true := by
+theorem evalPredicateIntegerOneEqOne
+    (env : ValueEnv)
+    : evalPredicateAtFuel 128 env (.bin "=" (.num 1) (.num 1)) = .ok true := by
   have integerCompatible : (ValueType.integer == ValueType.integer) = true := by
     native_decide
   simp [evalPredicateAtFuel, evalPredicateWithFuel, evalPredicateFuel,
     evalValueFuel, Value.sameType, Value.typeOf, ValueType.compatible,
     valueEqual, integerCompatible, Bind.bind, Except.bind]
 
-theorem evalPredicateIntegerOneNeZero (env : ValueEnv) :
-    evalPredicateAtFuel 128 env (.bin "≠" (.num 1) (.num 0)) = .ok true := by
+theorem evalPredicateIntegerOneNeZero
+    (env : ValueEnv)
+    : evalPredicateAtFuel 128 env (.bin "≠" (.num 1) (.num 0)) = .ok true := by
   have integerCompatible : (ValueType.integer == ValueType.integer) = true := by
     native_decide
   simp [evalPredicateAtFuel, evalPredicateWithFuel, evalPredicateFuel,
     evalValueFuel, Value.sameType, Value.typeOf, ValueType.compatible,
     valueEqual, integerCompatible, Bind.bind, Except.bind]
 
-theorem evalPredicateFiniteZero (env : ValueEnv) :
-    evalPredicateAtFuel 128 env (.app (.id "finite") (.set [.num 0])) = .ok true := by
+theorem evalPredicateFiniteZero
+    (env : ValueEnv)
+    : evalPredicateAtFuel 128 env (.app (.id "finite") (.set [.num 0])) = .ok true := by
   have values : evalValueListFuel 126 { before := env } [.num 0] = .ok [.integer 0] := by
     simp [evalValueListFuel, evalValueFuel, Bind.bind, Except.bind]
     rfl
@@ -981,8 +1196,9 @@ theorem evalPredicateFiniteZero (env : ValueEnv) :
     values, Value.makeSet, Value.sameType, Value.typeOf, ValueType.compatible,
     Bind.bind, Except.bind]
 
-theorem evalValueFiniteZero (env : ValueEnv) :
-    evalValueAtFuel 128 env (.set [.num 0]) = .ok (.set [.integer 0]) := by
+theorem evalValueFiniteZero
+    (env : ValueEnv)
+    : evalValueAtFuel 128 env (.set [.num 0]) = .ok (.set [.integer 0]) := by
   have values : evalValueListFuel 127 { before := env } [.num 0] = .ok [.integer 0] := by
     simp [evalValueListFuel, evalValueFuel, Bind.bind, Except.bind]
     rfl
@@ -990,15 +1206,18 @@ theorem evalValueFiniteZero (env : ValueEnv) :
     Value.makeSet, Value.sameType, Value.typeOf, ValueType.compatible,
     Bind.bind, Except.bind]
 
-theorem evalValueIdentifierSingletonZero :
-    evalValueAtFuel 127 { values := [("S", .set [.integer 0])] } (.id "S") =
+theorem evalValueIdentifierSingletonZero
+    : evalValueAtFuel 127 { values := [("S", .set [.integer 0])] } (.id "S") =
       .ok (.set [.integer 0]) := by
   have xNotEndsWith : ¬ "S".endsWith "'" = true := by native_decide
   simp [evalValueAtFuel, evalValueWithFuel, evalValueFuel, EvalView.lookup,
     ValueEnv.lookup, ValueEnv.valueIsWellFormed, xNotEndsWith, Bind.bind, Except.bind]
 
-def evalBeforeAfter (fuel : Nat) (transition : CheckedBeforeAfter)
-    (term : EventB.Formula.Term) : Except EvalError Bool :=
+def evalBeforeAfter
+    (fuel : Nat)
+    (transition : CheckedBeforeAfter)
+    (term : EventB.Formula.Term)
+    : Except EvalError Bool :=
   if ValueEnv.validationOk fuel transition.declarations transition.before &&
       ValueEnv.validationOk fuel transition.declarations transition.after then
     evalPredicateFuel fuel { before := transition.before, after := some transition.after } term
@@ -1054,8 +1273,10 @@ theorem evalBeforeAfterZeroSetSubset
     values, Value.makeSet, Value.setType, Value.sameType, Value.typeOf, ValueType.compatible,
     Value.contains, memberOf, subsetOf, valueEqual, integerCompatible, Bind.bind, Except.bind]
 
-private theorem valueTypeCompatibleSelf : ∀ valueType : ValueType,
-    valueType.compatible valueType = true := by
+private
+theorem valueTypeCompatibleSelf
+    : ∀ valueType : ValueType,
+      valueType.compatible valueType = true := by
   intro valueType
   cases valueType with
   | integer => rfl
@@ -1149,18 +1370,25 @@ theorem evalBeforeAfterZeroLeZero
   simp [evalBeforeAfter, beforeValid, afterValid, evalPredicateFuel, evalValueFuel,
     Bind.bind, Except.bind]
 
-def assignmentPredicateWithFuel (fuel : Nat) (transition : CheckedBeforeAfter)
-    (predicate : EventB.Formula.Term) : Prop :=
+def assignmentPredicateWithFuel
+    (fuel : Nat)
+    (transition : CheckedBeforeAfter)
+    (predicate : EventB.Formula.Term)
+    : Prop :=
   evalBeforeAfter fuel transition predicate = .ok true
 
-def assignmentPredicate (transition : CheckedBeforeAfter)
-    (predicate : EventB.Formula.Term) : Prop :=
+def assignmentPredicate
+    (transition : CheckedBeforeAfter)
+    (predicate : EventB.Formula.Term)
+    : Prop :=
   assignmentPredicateWithFuel 128 transition predicate
 
 /-- The executable before/after evaluator turns an integer EQL equality into the
     corresponding equality of the two checked integer observations. -/
 theorem eqlIntegerAfterEqBefore
-    (fuel : Nat) (name : String) (transition : CheckedBeforeAfter)
+    (fuel : Nat)
+    (name : String)
+    (transition : CheckedBeforeAfter)
     (beforeValue afterValue : Int)
     (beforeValid : ValueEnv.validationOk fuel transition.declarations transition.before = true)
     (afterValid : ValueEnv.validationOk fuel transition.declarations transition.after = true)
@@ -1178,8 +1406,8 @@ theorem eqlIntegerAfterEqBefore
     (afterLookup : transition.after.lookup ((name ++ "'").dropEnd 1).copy =
       some (.integer afterValue))
     (evaluated : assignmentPredicateWithFuel fuel transition
-      (.bin "=" (.id (name ++ "'")) (.id name))) :
-    afterValue = beforeValue := by
+      (.bin "=" (.id (name ++ "'")) (.id name)))
+    : afterValue = beforeValue := by
   have primeEndsWith : (name ++ "'").endsWith "'" = true := by
     rw [String.endsWith_eq_endsWith_toSlice]
     rw [String.Slice.endsWith_string_iff]
@@ -1226,10 +1454,16 @@ theorem eqlIntegerAfterEqBefore
                   notBoolean] using evaluated
               exact eq_of_beq equal
 
-def evalValue : ValueEnv → EventB.Formula.Term → Except EvalError Value :=
+def evalValue
+    : ValueEnv →
+      EventB.Formula.Term →
+      Except EvalError Value :=
   evalValueWithFuel 128
 
-def evalPredicate : ValueEnv → EventB.Formula.Term → Except EvalError Bool :=
+def evalPredicate
+    : ValueEnv →
+      EventB.Formula.Term →
+      Except EvalError Bool :=
   evalPredicateWithFuel 128
 
 #guard match evalValue
@@ -1303,8 +1537,12 @@ private def ValueEnv.parallelAssign (env : ValueEnv)
       (fun result ((name, _), value) => result.set name value) env
     pure { before := env, after := after }
 
-private def ValueEnv.parallelAssignTerms (env : ValueEnv)
-    (targets : List String) (rhs : List EventB.Formula.Term) : Except EvalError BeforeAfter :=
+private
+def ValueEnv.parallelAssignTerms
+    (env : ValueEnv)
+    (targets : List String)
+    (rhs : List EventB.Formula.Term)
+    : Except EvalError BeforeAfter :=
   if targets.length != rhs.length then .error .assignmentArity
   else ValueEnv.parallelAssign env (targets.zip rhs)
 
@@ -1331,16 +1569,23 @@ def ValueEnv.parallelAssignTypedFuel (fuel : Nat)
     CheckedBeforeAfter.make fuel declarations env after
 
 def ValueEnv.parallelAssignTyped
-    (declarations : List (String × EventB.Typing.Ty)) (env : ValueEnv)
-    (updates : List (String × EventB.Formula.Term)) : Except EvalError CheckedBeforeAfter :=
+    (declarations : List (String × EventB.Typing.Ty))
+    (env : ValueEnv)
+    (updates : List (String × EventB.Formula.Term))
+    : Except EvalError CheckedBeforeAfter :=
   ValueEnv.parallelAssignTypedFuel 128 declarations env updates
 
-def declarationNames (elem : EventB.Elem) (tag : String) : List String :=
+def declarationNames
+    (elem : EventB.Elem)
+    (tag : String)
+    : List String :=
   elem.children.filter (fun child => child.tag == "org.eventb.core." ++ tag)
     |>.filterMap (·.attr? "org.eventb.core.identifier")
 
-def dedupTypedBindings (seen : List String) : List (String × EventB.Typing.Ty) →
-    List (String × EventB.Typing.Ty)
+def dedupTypedBindings
+    (seen : List String)
+    : List (String × EventB.Typing.Ty) →
+      List (String × EventB.Typing.Ty)
   | [] => []
   | binding :: rest =>
       if seen.contains binding.1 then dedupTypedBindings seen rest
@@ -1373,22 +1618,28 @@ def ComponentValuation.fromProject (theory : EventB.Theory.Env)
       variables := variables.eraseDups }
   pure valuation
 
-def ComponentValuation.declarationsForEvent (valuation : ComponentValuation)
-    (project : EventB.Typing.Project) (event : String) :
-    List (String × EventB.Typing.Ty) :=
+def ComponentValuation.declarationsForEvent
+    (valuation : ComponentValuation)
+    (project : EventB.Typing.Project)
+    (event : String)
+    : List (String × EventB.Typing.Ty) :=
   let parameterNames := valuation.eventParams.flatMap (·.2.map (·.1))
   let globals := valuation.types.filter (fun binding => !parameterNames.contains binding.1)
   let eventBindings := EventB.Typing.visibleEventBindings project valuation.eventParams
     valuation.component event
   dedupTypedBindings [] (globals ++ eventBindings)
 
-def ComponentValuation.validate (valuation : ComponentValuation)
-    (project : EventB.Typing.Project) (event : String) (env : ValueEnv) :
-    Except EvalError Unit :=
+def ComponentValuation.validate
+    (valuation : ComponentValuation)
+    (project : EventB.Typing.Project)
+    (event : String)
+    (env : ValueEnv)
+    : Except EvalError Unit :=
   ValueEnv.validate (valuation.declarationsForEvent project event) env
 
-def deterministicActionAssignments (action : EventB.Elem) :
-    Except EvalError (List (String × EventB.Formula.Term)) :=
+def deterministicActionAssignments
+    (action : EventB.Elem)
+    : Except EvalError (List (String × EventB.Formula.Term)) :=
   match action.attr? "org.eventb.core.assignment" with
   | none => .ok []
   | some source =>
@@ -1405,9 +1656,11 @@ def deterministicActionAssignments (action : EventB.Elem) :
               | _ => .error (.invalidTarget (EventB.Formula.print target))
       | .ok term => .error (.unsupported term)
 
-def ComponentValuation.eventAssignments (valuation : ComponentValuation)
-    (project : EventB.Typing.Project) (event : String) :
-    Except EvalError (List (String × EventB.Formula.Term)) :=
+def ComponentValuation.eventAssignments
+    (valuation : ComponentValuation)
+    (project : EventB.Typing.Project)
+    (event : String)
+    : Except EvalError (List (String × EventB.Formula.Term)) :=
   match EventB.Typing.lookupComponent project valuation.component with
   | none => .error (.unbound valuation.component)
   | some component =>
@@ -1431,9 +1684,12 @@ def ComponentValuation.parallelAssign (valuation : ComponentValuation)
   else
     ValueEnv.parallelAssignTyped (valuation.declarationsForEvent project event) env updates
 
-def assignmentRelation (fuel : Nat)
-    (declarations : List (String × EventB.Typing.Ty)) (transition : CheckedBeforeAfter)
-    (updates : List (String × EventB.Formula.Term)) : Prop :=
+def assignmentRelation
+    (fuel : Nat)
+    (declarations : List (String × EventB.Typing.Ty))
+    (transition : CheckedBeforeAfter)
+    (updates : List (String × EventB.Formula.Term))
+    : Prop :=
   transition.declarations = declarations ∧
     ValueEnv.validationOk fuel declarations transition.before = true ∧
     ValueEnv.validationOk fuel declarations transition.after = true ∧
@@ -1495,7 +1751,9 @@ theorem assignmentPredicate_x_self_zero :
 
 mutual
 
-def supportsValue : EventB.Formula.Term → Bool
+def supportsValue
+    : EventB.Formula.Term →
+      Bool
   | .id name => !name.endsWith "'"
   | .num _ => true
   | .pre "−" value => supportsValue value
@@ -1510,7 +1768,9 @@ def supportsValue : EventB.Formula.Term → Bool
   | .app function argument | .img function argument =>
       supportsValue function && supportsValue argument
 
-def supportsValueList : List EventB.Formula.Term → Bool
+def supportsValueList
+    : List EventB.Formula.Term →
+      Bool
   | [] => true
   | value :: values => supportsValue value && supportsValueList values
 
@@ -1518,7 +1778,9 @@ end
 
 #guard supportsValue (.app (.id "f") (.num 0))
 
-def supportsPredicate : EventB.Formula.Term → Bool
+def supportsPredicate
+    : EventB.Formula.Term →
+      Bool
   | .id _ => true
   | .pre "¬" predicate => supportsPredicate predicate
   | .pre _ _ => false
@@ -1550,7 +1812,9 @@ def supportsPredicate : EventB.Formula.Term → Bool
 
 mutual
 
-def supportsBeforeAfterValue : EventB.Formula.Term → Bool
+def supportsBeforeAfterValue
+    : EventB.Formula.Term →
+      Bool
   | .id _ => true
   | .num _ => true
   | .pre "−" value => supportsBeforeAfterValue value
@@ -1565,7 +1829,9 @@ def supportsBeforeAfterValue : EventB.Formula.Term → Bool
   | .app function argument | .img function argument =>
       supportsBeforeAfterValue function && supportsBeforeAfterValue argument
 
-def supportsBeforeAfterValueList : List EventB.Formula.Term → Bool
+def supportsBeforeAfterValueList
+    : List EventB.Formula.Term →
+      Bool
   | [] => true
   | value :: values => supportsBeforeAfterValue value && supportsBeforeAfterValueList values
 
@@ -1584,7 +1850,9 @@ end
   | .error (.typeMismatch _ _) => true
   | _ => false
 
-def supportsBeforeAfterPredicate : EventB.Formula.Term → Bool
+def supportsBeforeAfterPredicate
+    : EventB.Formula.Term →
+      Bool
   | .id _ => true
   | .pre "¬" predicate => supportsBeforeAfterPredicate predicate
   | .pre _ _ => false
@@ -1603,7 +1871,9 @@ def supportsBeforeAfterPredicate : EventB.Formula.Term → Bool
   | .app (.id "finite") argument => supportsBeforeAfterValue argument
   | .num _ | .set _ | .post _ _ | .app _ _ | .img _ _ | .bind _ _ _ => false
 
-private def typedBindingProject : EventB.Typing.Project :=
+private
+def typedBindingProject
+    : EventB.Typing.Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -1613,7 +1883,9 @@ private def typedBindingProject : EventB.Typing.Project :=
           [.action [("org.eventb.core.label", "set"),
                     ("org.eventb.core.assignment", "x ≔ 1")] []]] }]
 
-private def badTypedBindingProject : EventB.Typing.Project :=
+private
+def badTypedBindingProject
+    : EventB.Typing.Project :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -1667,22 +1939,36 @@ structure TypedFormulaModel where
   complete : ∀ env, ValueEnv.validationOk fuel declarations env = true → wellFormed env
   supports : EventB.Formula.Term → Bool
 
-def TypedFormulaModel.denote (_model : TypedFormulaModel)
-    (term : EventB.Formula.Term) (env : ValueEnv) : Prop :=
+def TypedFormulaModel.denote
+    (_model : TypedFormulaModel)
+    (term : EventB.Formula.Term)
+    (env : ValueEnv)
+    : Prop :=
   evalPredicateAtFuel _model.fuel env term = .ok true
 
-def TypedFormulaModel.on {τ : Type u} (model : TypedFormulaModel)
-    (encode : τ → ValueEnv) : FormulaModel τ :=
+def TypedFormulaModel.on
+    {τ : Type u}
+    (model : TypedFormulaModel)
+    (encode : τ → ValueEnv)
+    : FormulaModel τ :=
   { denote := fun term state => model.denote term (encode state) }
 
-def TypedFormulaModel.defined (_model : TypedFormulaModel)
-    (term : EventB.Formula.Term) (env : ValueEnv) : Prop :=
+def TypedFormulaModel.defined
+    (_model : TypedFormulaModel)
+    (term : EventB.Formula.Term)
+    (env : ValueEnv)
+    : Prop :=
   ∃ value, evalPredicateAtFuel _model.fuel env term = .ok value
 
-def TypedFormulaModel.formulaModel (model : TypedFormulaModel) : FormulaModel ValueEnv :=
+def TypedFormulaModel.formulaModel
+    (model : TypedFormulaModel)
+    : FormulaModel ValueEnv :=
   { denote := model.denote }
 
-def TypedFormulaModel.validUnchecked (model : TypedFormulaModel) (obligation : Obligation) : Prop :=
+def TypedFormulaModel.validUnchecked
+    (model : TypedFormulaModel)
+    (obligation : Obligation)
+    : Prop :=
   if obligation.semanticShapeValid = true && obligation.valuationSupported = true then
     match obligation.kind, obligation.goal with
     | _, some goal =>
@@ -1701,11 +1987,13 @@ def TypedFormulaModel.validUnchecked (model : TypedFormulaModel) (obligation : O
   else False
 
 theorem TypedFormulaModel.valid_on
-    {τ : Type u} (model : TypedFormulaModel) (encode : τ → ValueEnv)
+    {τ : Type u}
+    (model : TypedFormulaModel)
+    (encode : τ → ValueEnv)
     (obligation : Obligation)
     (valid : model.validUnchecked obligation)
-    (wellFormed : ∀ state, model.wellFormed (encode state)) :
-    FormulaModel.validUnchecked (model.on encode) obligation := by
+    (wellFormed : ∀ state, model.wellFormed (encode state))
+    : FormulaModel.validUnchecked (model.on encode) obligation := by
   unfold TypedFormulaModel.validUnchecked at valid
   unfold FormulaModel.validUnchecked
   by_cases shape : obligation.semanticShapeValid = true
@@ -1733,8 +2021,10 @@ theorem TypedFormulaModel.valid_on
    a reachable/invariant state; the caller must provide the domain and prove every
    encoded semantic state lies in it. -/
 def TypedFormulaModel.validOnDomain
-    (model : TypedFormulaModel) (domain : ValueEnv → Prop)
-    (obligation : Obligation) : Prop :=
+    (model : TypedFormulaModel)
+    (domain : ValueEnv → Prop)
+    (obligation : Obligation)
+    : Prop :=
   if obligation.semanticShapeValid = true && obligation.valuationSupported = true then
     match obligation.kind, obligation.goal with
     | _, some goal =>
@@ -1752,11 +2042,14 @@ def TypedFormulaModel.validOnDomain
   else False
 
 theorem TypedFormulaModel.validOnDomain_on
-    {τ : Type u} (model : TypedFormulaModel) (domain : ValueEnv → Prop)
-    (encode : τ → ValueEnv) (obligation : Obligation)
+    {τ : Type u}
+    (model : TypedFormulaModel)
+    (domain : ValueEnv → Prop)
+    (encode : τ → ValueEnv)
+    (obligation : Obligation)
     (valid : model.validOnDomain domain obligation)
-    (stateDomain : ∀ state, domain (encode state)) :
-    FormulaModel.validUnchecked (model.on encode) obligation := by
+    (stateDomain : ∀ state, domain (encode state))
+    : FormulaModel.validUnchecked (model.on encode) obligation := by
   unfold TypedFormulaModel.validOnDomain at valid
   unfold FormulaModel.validUnchecked
   by_cases shape : obligation.semanticShapeValid = true
@@ -1779,9 +2072,12 @@ theorem TypedFormulaModel.validOnDomain_on
     · simp [TypedFormulaModel.validOnDomain, shape, valuation] at valid
   · simp [TypedFormulaModel.validOnDomain, shape] at valid
 
-def TypedFormulaModel.valid (model : TypedFormulaModel)
-    (theory : EventB.Theory.Env) (project : EventB.Typing.Project)
-    (obligation : Obligation) : Prop :=
+def TypedFormulaModel.valid
+    (model : TypedFormulaModel)
+    (theory : EventB.Theory.Env)
+    (project : EventB.Typing.Project)
+    (obligation : Obligation)
+    : Prop :=
   obligation.checkedIn theory project ∧
     (match EventB.Typing.inferComponentDetailsCheckedIn theory project obligation.component with
     | .ok details => model.declarations = details.types
@@ -1795,20 +2091,31 @@ structure TypedTransitionModel where
   inhabited : ∃ transition, wellFormed transition
   supports : EventB.Formula.Term → Bool
 
-def TypedTransitionModel.denote (model : TypedTransitionModel)
-    (term : EventB.Formula.Term) (transition : CheckedBeforeAfter) : Prop :=
+def TypedTransitionModel.denote
+    (model : TypedTransitionModel)
+    (term : EventB.Formula.Term)
+    (transition : CheckedBeforeAfter)
+    : Prop :=
   evalBeforeAfter model.fuel transition term = .ok true
 
-def TypedTransitionModel.on {τ : Type u} (model : TypedTransitionModel)
-    (encode : τ → CheckedBeforeAfter) : FormulaModel τ :=
+def TypedTransitionModel.on
+    {τ : Type u}
+    (model : TypedTransitionModel)
+    (encode : τ → CheckedBeforeAfter)
+    : FormulaModel τ :=
   { denote := fun term state => model.denote term (encode state) }
 
-def TypedTransitionModel.defined (model : TypedTransitionModel)
-    (term : EventB.Formula.Term) (transition : CheckedBeforeAfter) : Prop :=
+def TypedTransitionModel.defined
+    (model : TypedTransitionModel)
+    (term : EventB.Formula.Term)
+    (transition : CheckedBeforeAfter)
+    : Prop :=
   ∃ value, evalBeforeAfter model.fuel transition term = .ok value
 
-def TypedTransitionModel.validUnchecked (model : TypedTransitionModel)
-    (obligation : Obligation) : Prop :=
+def TypedTransitionModel.validUnchecked
+    (model : TypedTransitionModel)
+    (obligation : Obligation)
+    : Prop :=
   if obligation.semanticShapeValid = true && obligation.transitionValuationSupported = true then
     match obligation.goal with
     | some goal =>
@@ -1822,11 +2129,13 @@ def TypedTransitionModel.validUnchecked (model : TypedTransitionModel)
   else False
 
 theorem TypedTransitionModel.valid_on
-    {τ : Type u} (model : TypedTransitionModel)
-    (encode : τ → CheckedBeforeAfter) (obligation : Obligation)
+    {τ : Type u}
+    (model : TypedTransitionModel)
+    (encode : τ → CheckedBeforeAfter)
+    (obligation : Obligation)
     (valid : model.validUnchecked obligation)
-    (wellFormed : ∀ state, model.wellFormed (encode state)) :
-    FormulaModel.validUnchecked (model.on encode) obligation := by
+    (wellFormed : ∀ state, model.wellFormed (encode state))
+    : FormulaModel.validUnchecked (model.on encode) obligation := by
   unfold TypedTransitionModel.validUnchecked at valid
   unfold FormulaModel.validUnchecked
   by_cases shape : obligation.semanticShapeValid = true
@@ -1852,7 +2161,8 @@ theorem TypedTransitionModel.valid_on
 def TypedTransitionModel.validOnDomain
     (model : TypedTransitionModel)
     (domain : CheckedBeforeAfter → Prop)
-    (obligation : Obligation) : Prop :=
+    (obligation : Obligation)
+    : Prop :=
   if obligation.semanticShapeValid = true && obligation.transitionValuationSupported = true then
     match obligation.goal with
     | some goal =>
@@ -1866,12 +2176,14 @@ def TypedTransitionModel.validOnDomain
   else False
 
 theorem TypedTransitionModel.validOnDomain_on
-    {τ : Type u} (model : TypedTransitionModel)
+    {τ : Type u}
+    (model : TypedTransitionModel)
     (domain : CheckedBeforeAfter → Prop)
-    (encode : τ → CheckedBeforeAfter) (obligation : Obligation)
+    (encode : τ → CheckedBeforeAfter)
+    (obligation : Obligation)
     (valid : model.validOnDomain domain obligation)
-    (domainValid : ∀ state, domain (encode state)) :
-    FormulaModel.validUnchecked (model.on encode) obligation := by
+    (domainValid : ∀ state, domain (encode state))
+    : FormulaModel.validUnchecked (model.on encode) obligation := by
   unfold TypedTransitionModel.validOnDomain at valid
   unfold FormulaModel.validUnchecked
   by_cases shape : obligation.semanticShapeValid = true
@@ -1888,28 +2200,40 @@ theorem TypedTransitionModel.validOnDomain_on
     · simp [TypedTransitionModel.validOnDomain, shape, valuation] at valid
   · simp [TypedTransitionModel.validOnDomain, shape] at valid
 
-structure TransitionSourceCoverage (τ : Type u) where
+structure TransitionSourceCoverage
+    (τ : Type u)
+    where
   encode : τ → CheckedBeforeAfter
   source : CheckedBeforeAfter → Prop
   sourceComplete : ∀ transition, source transition → ∃ state, encode state = transition
 
 theorem TransitionSourceCoverage.sourceState
-    {τ : Type u} (coverage : TransitionSourceCoverage τ)
-    (transition : CheckedBeforeAfter) (source : coverage.source transition) :
-    ∃ state, coverage.encode state = transition :=
+    {τ : Type u}
+    (coverage : TransitionSourceCoverage τ)
+    (transition : CheckedBeforeAfter)
+    (source : coverage.source transition)
+    : ∃ state,
+      coverage.encode state = transition :=
   coverage.sourceComplete transition source
 
 /- A transition domain must be bound to the concrete event's checked assignment
    relation before it can be an accepting API. The legacy singleton model is kept
    only for local evaluator fixtures. -/
-def TypedTransitionModel.valid (_model : TypedTransitionModel)
-    (_theory : EventB.Theory.Env) (_project : EventB.Typing.Project)
-    (_obligation : Obligation) : Prop :=
+def TypedTransitionModel.valid
+    (_model : TypedTransitionModel)
+    (_theory : EventB.Theory.Env)
+    (_project : EventB.Typing.Project)
+    (_obligation : Obligation)
+    : Prop :=
   False
 
-private def TypedTransitionModel.ofAssignment (fuel : Nat)
-    (declarations : List (String × EventB.Typing.Ty)) (env : ValueEnv)
-    (updates : List (String × EventB.Formula.Term)) : Option TypedTransitionModel :=
+private
+def TypedTransitionModel.ofAssignment
+    (fuel : Nat)
+    (declarations : List (String × EventB.Typing.Ty))
+    (env : ValueEnv)
+    (updates : List (String × EventB.Formula.Term))
+    : Option TypedTransitionModel :=
   match ValueEnv.parallelAssignTypedFuel fuel declarations env updates with
   | .error _ => none
   | .ok transition =>
@@ -1919,12 +2243,16 @@ private def TypedTransitionModel.ofAssignment (fuel : Nat)
           inhabited := ⟨transition, rfl⟩
           supports := supportsBeforeAfterPredicate }
 
-private def incrementTransition : CheckedBeforeAfter :=
+private
+def incrementTransition
+    : CheckedBeforeAfter :=
   { before := { values := [("x", .integer 1)] }
     after := { values := [("x", .integer 2)] }
     declarations := [("x", .int)] }
 
-private def incrementModel : TypedTransitionModel :=
+private
+def incrementModel
+    : TypedTransitionModel :=
   { fuel := 64
     wellFormed := fun transition => transition = incrementTransition
     inhabited := ⟨incrementTransition, rfl⟩
@@ -2105,7 +2433,10 @@ example : ¬ TypedTransitionModel.validUnchecked incrementModel
   | .error .fuelExhausted => true
   | _ => false
 
-private def typedFormulaModel (supports : EventB.Formula.Term → Bool) : TypedFormulaModel :=
+private
+def typedFormulaModel
+    (supports : EventB.Formula.Term → Bool)
+    : TypedFormulaModel :=
   { declarations := [("x", .int)]
     fuel := 128
     wellFormed := fun env => ValueEnv.validationOk 128 [("x", .int)] env = true
@@ -2116,8 +2447,10 @@ private def typedFormulaModel (supports : EventB.Formula.Term → Bool) : TypedF
 
 private def typedEnv : ValueEnv := { values := [("x", .integer 0)] }
 
-private theorem typedEnvWellFormed (supports : EventB.Formula.Term → Bool) :
-    (typedFormulaModel supports).wellFormed typedEnv := by
+private
+theorem typedEnvWellFormed
+    (supports : EventB.Formula.Term → Bool)
+    : (typedFormulaModel supports).wellFormed typedEnv := by
   change ValueEnv.validationOk 128 [("x", .int)] typedEnv = true
   native_decide
 
@@ -2148,7 +2481,8 @@ private theorem typedFormulaValid :
         evalPredicateWithFuel, evalPredicateFuel, evalValue, evalValueWithFuel, evalValueFuel,
         Bind.bind, Except.bind]
 
-def constantTypedFormulaModel : TypedFormulaModel :=
+def constantTypedFormulaModel
+    : TypedFormulaModel :=
   { declarations := []
     fuel := 128
     wellFormed := fun env => ValueEnv.validationOk 128 [] env = true
@@ -2184,10 +2518,13 @@ theorem constantTypedFormulaModel_taut_valid :
         Value.typeOf, ValueType.compatible, valueEqual, integerCompatible,
         Bind.bind, Except.bind]
 
-private def constantTransition : CheckedBeforeAfter :=
+private
+def constantTransition
+    : CheckedBeforeAfter :=
   { before := {}, after := {}, declarations := [] }
 
-def constantTypedTransitionModel : TypedTransitionModel :=
+def constantTypedTransitionModel
+    : TypedTransitionModel :=
   { fuel := 128
     wellFormed := fun transition => transition = constantTransition
     inhabited := ⟨constantTransition, rfl⟩
@@ -2295,12 +2632,15 @@ theorem typedTransitionModel_closed_validOnDomain
     rw [fuel]
     exact evaluated
 
-private def stutterTransition : CheckedBeforeAfter :=
+private
+def stutterTransition
+    : CheckedBeforeAfter :=
   { before := { values := [("x", .integer 0)] }
     after := { values := [("x", .integer 0)] }
     declarations := [("x", .int)] }
 
-def stutterTypedTransitionModel : TypedTransitionModel :=
+def stutterTypedTransitionModel
+    : TypedTransitionModel :=
   { fuel := 128
     wellFormed := fun transition => transition = stutterTransition
     inhabited := ⟨stutterTransition, rfl⟩
@@ -2463,14 +2803,14 @@ example : ¬ TypedFormulaModel.validUnchecked (typedFormulaModel supportsPredica
   simp [TypedFormulaModel.validUnchecked, typedFormulaModel, supportsPredicate]
 
 /- Negative control: a missing goal is never silently treated as a valid sequent. -/
-example : ¬ FormulaModel.validUnchecked
-    ({ denote := fun _ _ => True } : FormulaModel Unit)
+example
+    : ¬ FormulaModel.validUnchecked ({ denote := fun _ _ => True } : FormulaModel Unit)
     { name := "missing/INV", kind := "INV" } := by
   simp [FormulaModel.validUnchecked]
 
 /- Positive control: a caller-provided interpretation can discharge an obligation. -/
-example : FormulaModel.validUnchecked
-    ({ denote := fun _ _ => True } : FormulaModel Unit)
+example
+    : FormulaModel.validUnchecked ({ denote := fun _ _ => True } : FormulaModel Unit)
     { name := "true/THM", kind := "THM", goal := some (.id "⊤") } := by
   simp [FormulaModel.validUnchecked, validSequent]
 

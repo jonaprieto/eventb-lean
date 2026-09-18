@@ -39,7 +39,10 @@ def ranSub (r : Rel α β) (s : Set β) : Rel α β := {p ∈ r | p.2 ∉ s}
 /-- Override `r  q`: `q` wins wherever it is defined. -/
 def override (r q : Rel α β) : Rel α β := q ∪ domSub (dom q) r
 
-def comp (r : Rel α β) (q : Rel β γ) : Rel α γ :=
+def comp
+    (r : Rel α β)
+    (q : Rel β γ)
+    : Rel α γ :=
   {p | ∃ b, (p.1, b) ∈ r ∧ (b, p.2) ∈ q}
 
 @[simp] theorem mem_dom (r : Rel α β) (a : α) :
@@ -67,40 +70,78 @@ def comp (r : Rel α β) (q : Rel β γ) : Rel α γ :=
     (a, b) ∈ override r q ↔ (a, b) ∈ q ∨ ((a, b) ∈ r ∧ a ∉ dom q) := by
   simp [override]
 
-def partition (s : Set α) (parts : List (Set α)) : Prop :=
+def partition
+    (s : Set α)
+    (parts : List (Set α))
+    : Prop :=
   s = parts.foldr (· ∪ ·) ∅ ∧ parts.Pairwise (fun a b => Disjoint a b)
 
 /-- `r` is functional: no argument is related to two results. -/
-def IsFun (r : Rel α β) : Prop :=
+def IsFun
+    (r : Rel α β)
+    : Prop :=
   ∀ a b₁ b₂, (a, b₁) ∈ r → (a, b₂) ∈ r → b₁ = b₂
 
 /-- The arrow families, each a *set of relations*, which is how Event-B states them and
 why membership in an arrow is a predicate rather than a typing judgement. -/
-def rel (s : Set α) (t : Set β) : Set (Rel α β) :=
+def rel
+    (s : Set α)
+    (t : Set β)
+    : Set (Rel α β) :=
   {r | dom r ⊆ s ∧ ran r ⊆ t}
 /-- The three arrow families Rodin spells with private-use codepoints U+E100..U+E102:
 surjective, total, and total surjective *relations*. They have no standard Unicode
 spelling, which is why they are easy to lose when copying an operator table. -/
-def srel (s : Set α) (t : Set β) : Set (Rel α β) :=
+def srel
+    (s : Set α)
+    (t : Set β)
+    : Set (Rel α β) :=
   {r | r ∈ rel s t ∧ ran r = t}
-def trel (s : Set α) (t : Set β) : Set (Rel α β) :=
+def trel
+    (s : Set α)
+    (t : Set β)
+    : Set (Rel α β) :=
   {r | r ∈ rel s t ∧ dom r = s}
-def strel (s : Set α) (t : Set β) : Set (Rel α β) :=
+def strel
+    (s : Set α)
+    (t : Set β)
+    : Set (Rel α β) :=
   {r | r ∈ rel s t ∧ dom r = s ∧ ran r = t}
 
-def pfun (s : Set α) (t : Set β) : Set (Rel α β) :=
+def pfun
+    (s : Set α)
+    (t : Set β)
+    : Set (Rel α β) :=
   {r | r ∈ rel s t ∧ IsFun r}
-def tfun (s : Set α) (t : Set β) : Set (Rel α β) :=
+def tfun
+    (s : Set α)
+    (t : Set β)
+    : Set (Rel α β) :=
   {r | r ∈ pfun s t ∧ dom r = s}
-def pinj (s : Set α) (t : Set β) : Set (Rel α β) :=
+def pinj
+    (s : Set α)
+    (t : Set β)
+    : Set (Rel α β) :=
   {r | r ∈ pfun s t ∧ IsFun (inv r)}
-def tinj (s : Set α) (t : Set β) : Set (Rel α β) :=
+def tinj
+    (s : Set α)
+    (t : Set β)
+    : Set (Rel α β) :=
   {r | r ∈ tfun s t ∧ IsFun (inv r)}
-def psurj (s : Set α) (t : Set β) : Set (Rel α β) :=
+def psurj
+    (s : Set α)
+    (t : Set β)
+    : Set (Rel α β) :=
   {r | r ∈ pfun s t ∧ ran r = t}
-def tsurj (s : Set α) (t : Set β) : Set (Rel α β) :=
+def tsurj
+    (s : Set α)
+    (t : Set β)
+    : Set (Rel α β) :=
   {r | r ∈ tfun s t ∧ ran r = t}
-def tbij (s : Set α) (t : Set β) : Set (Rel α β) :=
+def tbij
+    (s : Set α)
+    (t : Set β)
+    : Set (Rel α β) :=
   {r | r ∈ tinj s t ∧ ran r = t}
 
 /-- Cartesian product as an Event-B *value*, a set of pairs. -/
@@ -123,7 +164,10 @@ def NAT : Set Int := {n | 0 ≤ n}
 def NAT1 : Set Int := {n | 1 ≤ n}
 
 /-- Event-B's maximum is defined only for a nonempty set bounded above. -/
-noncomputable def max (s : Set Int) : Int :=
+noncomputable
+def max
+    (s : Set Int)
+    : Int :=
   open Classical in
   if h : ∃ m, m ∈ s ∧ ∀ x ∈ s, x ≤ m then h.choose else Classical.arbitrary Int
 
@@ -137,13 +181,20 @@ noncomputable def max (s : Set Int) : Int :=
   simp only [max, dif_pos h]
   exact h.choose_spec.2
 
-theorem max_eq {s : Set Int} {m : Int}
-    (hs : ∃ x, x ∈ s ∧ ∀ y ∈ s, y ≤ x) (hm : m ∈ s)
-    (hmax : ∀ x ∈ s, x ≤ m) : max s = m := by
+theorem max_eq
+    {s : Set Int}
+    {m : Int}
+    (hs : ∃ x, x ∈ s ∧ ∀ y ∈ s, y ≤ x)
+    (hm : m ∈ s)
+    (hmax : ∀ x ∈ s, x ≤ m)
+    : max s = m := by
   exact le_antisymm (hmax _ (max_mem hs)) (max_le hs _ hm)
 
 /-- Event-B's minimum is defined only for a nonempty set bounded below. -/
-noncomputable def min (s : Set Int) : Int :=
+noncomputable
+def min
+    (s : Set Int)
+    : Int :=
   open Classical in
   if h : ∃ m, m ∈ s ∧ ∀ x ∈ s, m ≤ x then h.choose else Classical.arbitrary Int
 
@@ -157,26 +208,45 @@ noncomputable def min (s : Set Int) : Int :=
   simp only [min, dif_pos h]
   exact h.choose_spec.2
 
-theorem min_eq {s : Set Int} {m : Int}
-    (hs : ∃ x, x ∈ s ∧ ∀ y ∈ s, x ≤ y) (hm : m ∈ s)
-    (hmin : ∀ x ∈ s, m ≤ x) : min s = m := by
+theorem min_eq
+    {s : Set Int}
+    {m : Int}
+    (hs : ∃ x, x ∈ s ∧ ∀ y ∈ s, x ≤ y)
+    (hm : m ∈ s)
+    (hmin : ∀ x ∈ s, m ≤ x)
+    : min s = m := by
   exact le_antisymm (min_le hs _ hm) (hmin _ (min_mem hs))
 
 /-- Function application. Event-B's `f(x)` is defined only when `x ∈ dom f` and `f` is
 functional there; outside that it is an arbitrary value, and the well-definedness
 obligation is what rules the bad case out. Choice is the honest encoding: it makes `f(x)`
 total in Lean while leaving every fact about it dependent on the WD hypothesis. -/
-noncomputable def app [Nonempty β] (f : Rel α β) (a : α) : β :=
+noncomputable
+def app
+    [Nonempty β]
+    (f : Rel α β)
+    (a : α)
+    : β :=
   open Classical in
   if h : ∃ b, (a, b) ∈ f then h.choose else Classical.arbitrary β
 
-theorem app_mem [Nonempty β] {f : Rel α β} {a : α} (h : ∃ b, (a, b) ∈ f) :
-    (a, app f a) ∈ f := by
+theorem app_mem
+    [Nonempty β]
+    {f : Rel α β}
+    {a : α}
+    (h : ∃ b, (a, b) ∈ f)
+    : (a, app f a) ∈ f := by
   simp only [app, dif_pos h]
   exact h.choose_spec
 
-theorem app_eq [Nonempty β] {f : Rel α β} {a : α} {b : β}
-    (hf : IsFun f) (hab : (a, b) ∈ f) : app f a = b :=
+theorem app_eq
+    [Nonempty β]
+    {f : Rel α β}
+    {a : α}
+    {b : β}
+    (hf : IsFun f)
+    (hab : (a, b) ∈ f)
+    : app f a = b :=
   hf a _ _ (app_mem ⟨b, hab⟩) hab
 
 end B

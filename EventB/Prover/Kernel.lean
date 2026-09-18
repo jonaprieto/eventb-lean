@@ -19,7 +19,9 @@ inductive Rule where
   | hypothesisProjection
   deriving BEq, Repr, Inhabited
 
-def Rule.label : Rule → String
+def Rule.label
+    : Rule →
+      String
   | .exactHypothesis => "exact-hypothesis"
   | .true => "true"
   | .reflexive => "reflexive"
@@ -37,15 +39,24 @@ structure Result where
 
 def Result.discharged (result : Result) : Bool := result.rule.isSome
 
-private def withHypLocals {α : Type} (hypotheses : List Expr)
-    (locals : List Expr) (body : List Expr → MetaM α) : MetaM α :=
+private
+def withHypLocals
+    {α : Type}
+    (hypotheses : List Expr)
+    (locals : List Expr)
+    (body : List Expr → MetaM α)
+    : MetaM α :=
   match hypotheses with
   | [] => body locals
   | hypothesis :: rest =>
       withLocalDeclD (Name.mkSimple s!"h{locals.length}") hypothesis fun localVar =>
         withHypLocals rest (locals ++ [localVar]) body
 
-private def lambda (locals : List Expr) (body : Expr) : MetaM Expr :=
+private
+def lambda
+    (locals : List Expr)
+    (body : Expr)
+    : MetaM Expr :=
   mkLambdaFVars locals.toArray body
 
 private def reflexiveProof (goal : Expr) : MetaM (Option Expr) := do
@@ -55,8 +66,10 @@ private def reflexiveProof (goal : Expr) : MetaM (Option Expr) := do
       if ← isDefEq left right then some <$> mkAppM ``Eq.refl #[left] else pure none
   | _ => pure none
 
-private theorem zeroLtIntOfNatSucc (n : Nat) :
-    Int.ofNat 0 < Int.ofNat (Nat.succ n) := by
+private
+theorem zeroLtIntOfNatSucc
+    (n : Nat)
+    : Int.ofNat 0 < Int.ofNat (Nat.succ n) := by
   exact Int.ofNat_lt.mpr (Nat.zero_lt_succ n)
 
 private def zeroLtNumeralProof (goal : Expr) : MetaM (Option Expr) := do
@@ -126,7 +139,12 @@ private def projection (pairs : List (Expr × Expr)) (goal : Expr) :
     | _ => pure ()
   pure none
 
-private def ruleProof : Nat → List (Expr × Expr) → Expr → MetaM (Option (Rule × Expr))
+private
+def ruleProof
+    : Nat →
+      List (Expr × Expr) →
+      Expr →
+      MetaM (Option (Rule × Expr))
   | 0, pairs, goal => do
       if let some proof ← projection pairs goal then
         pure (some (.hypothesisProjection, proof))

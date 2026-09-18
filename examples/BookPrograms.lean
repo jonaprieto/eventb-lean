@@ -281,7 +281,8 @@ eventb_machine Inverse1 where
     guard grd2 : "f((r + 1 + q) ÷ 2) ≤ n"
     action act1 : "r ≔ (r + 1 + q) ÷ 2"
 
-def programsProject : Typing.Project :=
+def programsProject
+    : Typing.Project :=
   [ { name := "NotationCtx", elem := NotationCtx }
   , { name := "NotationMachine", elem := NotationMachine }
   , { name := "MathCtx", elem := MathCtx }
@@ -300,7 +301,10 @@ def programsProject : Typing.Project :=
   , { name := "Inverse0", elem := Inverse0 }
   , { name := "Inverse1", elem := Inverse1 } ]
 
-private def hasPO (machine name : String) : Bool :=
+private
+def hasPO
+    (machine name : String)
+    : Bool :=
   (POG.generate programsProject machine).any (·.name == name)
 
 #guard hasPO "NotationMachine" "INITIALISATION/inv0_1/INV"
@@ -317,7 +321,10 @@ private def hasPO (machine name : String) : Bool :=
 #guard hasPO "SimpleProgram" "progress/NAT"
 #guard hasPO "SimpleProgram" "progress/VAR"
 
-private def goalText (machine name : String) : Option String :=
+private
+def goalText
+    (machine name : String)
+    : Option String :=
   (POG.generate programsProject machine).find? (·.name == name) |>.bind
     (·.goal.map Formula.print)
 

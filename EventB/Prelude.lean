@@ -38,13 +38,19 @@ structure SymbolId where
 
 namespace SymbolId
 
-def unqualified (name : String) : SymbolId :=
+def unqualified
+    (name : String)
+    : SymbolId :=
   { owner := "", name }
 
-def qualified (owner name : String) : SymbolId :=
+def qualified
+    (owner name : String)
+    : SymbolId :=
   { owner, name }
 
-def display (id : SymbolId) : String :=
+def display
+    (id : SymbolId)
+    : String :=
   if id.owner.isEmpty then id.name else id.owner ++ "::" ++ id.name
 
 end SymbolId
@@ -60,29 +66,48 @@ structure Symbol where
   source : SourceRange := SourceRange.synthetic
   deriving Repr, Inhabited
 
-private def carrier (name description : String) : Symbol :=
+private
+def carrier
+    (name description : String)
+    : Symbol :=
   { name, kind := .carrierSet, type := some (.pow .int), description,
     id := SymbolId.unqualified name, source := SourceRange.synthetic }
 
-private def constant (name description : String) (type : Ty) : Symbol :=
+private
+def constant
+    (name description : String)
+    (type : Ty)
+    : Symbol :=
   { name, kind := .constant, type := some type, description,
     id := SymbolId.unqualified name, source := SourceRange.synthetic }
 
-private def predicate (name description : String) (application : ApplicationKind) : Symbol :=
+private
+def predicate
+    (name description : String)
+    (application : ApplicationKind)
+    : Symbol :=
   { name, kind := .predicate, type := none, description, application := some application,
     id := SymbolId.unqualified name, source := SourceRange.synthetic }
 
-private def expression (name description : String) (application : ApplicationKind)
-    (definedness : List Definedness := []) : Symbol :=
+private
+def expression
+    (name description : String)
+    (application : ApplicationKind)
+    (definedness : List Definedness := [])
+    : Symbol :=
   { name, kind := .expression, type := none, description, application := some application,
     definedness, id := SymbolId.unqualified name, source := SourceRange.synthetic }
 
 private def coreSource : SourceRange := SourceRange.synthetic "EventB.Prelude"
 
-private def coreSymbol (symbol : Symbol) : Symbol :=
+private
+def coreSymbol
+    (symbol : Symbol)
+    : Symbol :=
   { symbol with id := SymbolId.qualified "EventB.Core" symbol.name, source := coreSource }
 
-def coreSymbols : List Symbol :=
+def coreSymbols
+    : List Symbol :=
   [ carrier "ℤ" "The set of all integers."
   , carrier "ℕ" "The set of natural numbers."
   , carrier "ℕ1" "The set of positive natural numbers."
@@ -117,16 +142,24 @@ def coreSymbols : List Symbol :=
   , expression "id" "The identity relation on a set." .total
   ] |>.map coreSymbol
 
-def lookup? (name : String) : Option Symbol :=
+def lookup?
+    (name : String)
+    : Option Symbol :=
   coreSymbols.find? (·.name == name)
 
-def isIdentifier (name : String) : Bool :=
+def isIdentifier
+    (name : String)
+    : Bool :=
   (lookup? name).isSome
 
-def type? (name : String) : Option Ty :=
+def type?
+    (name : String)
+    : Option Ty :=
   (lookup? name).bind (·.type)
 
-def application? (name : String) : Option ApplicationKind :=
+def application?
+    (name : String)
+    : Option ApplicationKind :=
   (lookup? name).bind (·.application)
 
 #guard (lookup? "BOOL").isSome

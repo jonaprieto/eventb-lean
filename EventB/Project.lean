@@ -11,7 +11,9 @@ inductive ModelKind where
   | context
   deriving BEq, Repr, Inhabited
 
-def ModelKind.label : ModelKind → String
+def ModelKind.label
+    : ModelKind →
+      String
   | .machine => "machine"
   | .context => "context"
 
@@ -27,10 +29,16 @@ instance : Repr ModelArtifact where
   reprPrec artifact _ := Std.Format.text
     s!"ModelArtifact({artifact.component}, {artifact.bytes.size} bytes)"
 
-def ModelArtifact.byteString (artifact : ModelArtifact) : String :=
+def ModelArtifact.byteString
+    (artifact : ModelArtifact)
+    : String :=
   (String.fromUTF8? artifact.bytes).getD ""
 
-private def artifactError (artifact : ModelArtifact) (message : String) : EventB.Error :=
+private
+def artifactError
+    (artifact : ModelArtifact)
+    (message : String)
+    : EventB.Error :=
   match artifact.path with
   | some path => (EventB.Error.model message).withPath path
   | none => EventB.Error.model message

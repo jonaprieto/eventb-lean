@@ -4,16 +4,24 @@ import EventB.POGSoundness
 
 namespace EventB.POG
 
-private def setEnv : ValueEnv :=
+private
+def setEnv
+    : ValueEnv :=
   { values := [("S", .set [.integer 0, .integer 1])] }
 
-private def badSetEnv : ValueEnv :=
+private
+def badSetEnv
+    : ValueEnv :=
   { values := [("S", .set [.integer 0, .boolean true])] }
 
-private def integerUniverseEnv : ValueEnv :=
+private
+def integerUniverseEnv
+    : ValueEnv :=
   { values := [("S", .integerSet)] }
 
-private def setTransition : CheckedBeforeAfter :=
+private
+def setTransition
+    : CheckedBeforeAfter :=
   { before := setEnv
     after := { values := [("S", .set [.integer 1])] }
     declarations := [("S", .pow .int)] }
@@ -37,7 +45,9 @@ private def setTransition : CheckedBeforeAfter :=
   | .error _ => true
   | .ok _ => false
 
-private def witnessBody : EventB.Formula.Term :=
+private
+def witnessBody
+    : EventB.Formula.Term :=
   .bin "=" (.id "p") (.num 0)
 
 #guard evalPredicateOverFiniteDomain 128 {} "p"
@@ -45,8 +55,10 @@ private def witnessBody : EventB.Formula.Term :=
 #guard evalPredicateOverFiniteDomain 128 {} "p"
     [.integer 1, .integer 2] witnessBody == .ok false
 
-example : ∃ candidate, candidate ∈ ([.integer 0, .integer 1] : List Value) ∧
-    evalPredicateAtFuel 128 (({} : ValueEnv).set "p" candidate) witnessBody = .ok true := by
+example
+    : ∃ candidate,
+      candidate ∈ ([.integer 0, .integer 1] : List Value) ∧
+      evalPredicateAtFuel 128 (({} : ValueEnv).set "p" candidate) witnessBody = .ok true := by
   apply evalPredicateOverFiniteDomain_true 128 {} "p"
     [.integer 0, .integer 1] witnessBody
   native_decide

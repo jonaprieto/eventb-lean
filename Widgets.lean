@@ -14,33 +14,53 @@ namespace EventB.Widgets
 open Lean Server Elab Command
 open EventB Formula POG ProofWidgets
 
-private def elementWith (tag : String) (attributes : List (String × Json))
-    (children : List Html) : Html :=
+private
+def elementWith
+    (tag : String)
+    (attributes : List (String × Json))
+    (children : List Html)
+    : Html :=
   .element tag attributes.toArray children.toArray
 
-private def element (tag : String) (children : List Html) : Html :=
+private
+def element
+    (tag : String)
+    (children : List Html)
+    : Html :=
   elementWith tag [] children
 
 private def text (value : String) : Html := .text value
 
 private def classes (value : String) : String × Json := ("className", .str value)
 
-private def badge (label colorClass : String) : Html :=
+private
+def badge
+    (label colorClass : String)
+    : Html :=
   elementWith "span" [classes s!"f7 b dib ml2 ph1 ba br-pill {colorClass}"] [text label]
 
-private def formula (value : Formula.Term) : Html :=
+private
+def formula
+    (value : Formula.Term)
+    : Html :=
   elementWith "pre" [classes "overflow-auto mv2 pa2 ba br1"] [
       element "code" [text (Formula.print value)]
     ]
 
-private def hypothesisList (hyps : List Formula.Term) : Html :=
+private
+def hypothesisList
+    (hyps : List Formula.Term)
+    : Html :=
   if hyps.isEmpty then
     elementWith "p" [classes "mv1 o-70"] [text "none"]
   else
     elementWith "ul" [classes "mv2 pl3"]
       (hyps.map fun hypothesis => element "li" [formula hypothesis])
 
-private def evidenceLabel : Trust.Evidence → String
+private
+def evidenceLabel
+    : Trust.Evidence →
+      String
   | .none => "none"
   | .kernel declaration axioms =>
       if axioms.isEmpty then s!"Lean declaration {declaration}"
@@ -52,10 +72,17 @@ private def evidenceLabel : Trust.Evidence → String
   | .rodinImportedProvenance _ _ _ _ manual =>
       s!"Rodin provenance ({if manual then "manual" else "automatic"})"
 
-private def hypothesisOnly (obligation : Obligation) : Bool :=
+private
+def hypothesisOnly
+    (obligation : Obligation)
+    : Bool :=
   obligation.kind == "WWD" && obligation.goal.isNone
 
-private def obligationBody (obligation : Obligation) (entry : Trust.Entry) : Html :=
+private
+def obligationBody
+    (obligation : Obligation)
+    (entry : Trust.Entry)
+    : Html :=
   elementWith "div" [classes "pa2"] [
     elementWith "p" [classes "mv1 o-70"] [
       text s!"{obligation.hyps.length} hypotheses · {entry.mode.label}"
@@ -82,7 +109,10 @@ private def obligationBody (obligation : Obligation) (entry : Trust.Entry) : Htm
       ]
   ]
 
-private def kindClass : String → String
+private
+def kindClass
+    : String →
+      String
   | "INV" => "blue"
   | "GRD" => "gold"
   | "SIM" => "purple"
@@ -99,7 +129,10 @@ private def kindClass : String → String
   | "VAR" => "teal"
   | _ => "grey"
 
-private def kindTitle : String → String
+private
+def kindTitle
+    : String →
+      String
   | "INV" => "Invariant preservation"
   | "GRD" => "Guard strengthening"
   | "SIM" => "Action simulation"
@@ -116,13 +149,24 @@ private def kindTitle : String → String
   | "VAR" => "Variant decrease"
   | kind => kind
 
-private def fallbackEntry (obligation : Obligation) : Trust.Entry :=
+private
+def fallbackEntry
+    (obligation : Obligation)
+    : Trust.Entry :=
   (Trust.Ledger.ofObligations [obligation]).entries.head!
 
-private def entryFor (ledger : Trust.Ledger) (obligation : Obligation) : Trust.Entry :=
+private
+def entryFor
+    (ledger : Trust.Ledger)
+    (obligation : Obligation)
+    : Trust.Entry :=
   (ledger.displayEntry? obligation.component obligation.name).getD (fallbackEntry obligation)
 
-private def obligationCard (ledger : Trust.Ledger) (obligation : Obligation) : Html :=
+private
+def obligationCard
+    (ledger : Trust.Ledger)
+    (obligation : Obligation)
+    : Html :=
   let entry := entryFor ledger obligation
   elementWith "details" [classes "mv1 ba br1"] [
     elementWith "summary" [classes "pointer pa2"] [
@@ -136,23 +180,39 @@ private def obligationCard (ledger : Trust.Ledger) (obligation : Obligation) : H
     obligationBody obligation entry
   ]
 
-private def kinds : List String :=
+private
+def kinds
+    : List String :=
   ["INV", "WD", "GRD", "SIM", "THM", "WFIS", "WWD", "FIS", "EQL", "MRG",
    "VWD", "FIN", "NAT", "VAR"]
 
-private def countKind (kind : String) (obligations : List Obligation) : Nat :=
+private
+def countKind
+    (kind : String)
+    (obligations : List Obligation)
+    : Nat :=
   obligations.countP (·.kind == kind)
 
-private def countDerived (obligations : List Obligation) : Nat :=
+private
+def countDerived
+    (obligations : List Obligation)
+    : Nat :=
   obligations.countP (·.goal.isSome)
 
-private def stat (label value accent : String) : Html :=
+private
+def stat
+    (label value accent : String)
+    : Html :=
   elementWith "div" [classes "ba br2 pa2 mr2 mb2"] [
       elementWith "div" [classes s!"f3 b {accent}"] [text value],
       elementWith "div" [classes "f7 o-70"] [text label]
     ]
 
-private def summary (obligations : List Obligation) (ledger : Trust.Ledger) : Html :=
+private
+def summary
+    (obligations : List Obligation)
+    (ledger : Trust.Ledger)
+    : Html :=
   elementWith "div" [classes "flex flex-wrap mv2"] [
       stat "total obligations" (toString obligations.length) "blue",
       stat "goals derived" (toString (countDerived obligations)) "green",
@@ -161,12 +221,19 @@ private def summary (obligations : List Obligation) (ledger : Trust.Ledger) : Ht
       stat "open / unproved" (toString (ledger.count .unproved)) "red"
     ]
 
-private def openAttribute (isOpen : Bool) : List (String × Json) :=
+private
+def openAttribute
+    (isOpen : Bool)
+    : List (String × Json) :=
   if isOpen then [("open", .bool true)] else []
 
-private def kindSection (kind : String) (obligations : List Obligation)
-    (ledger : Trust.Ledger) (isOpen : Bool) :
-    Option Html :=
+private
+def kindSection
+    (kind : String)
+    (obligations : List Obligation)
+    (ledger : Trust.Ledger)
+    (isOpen : Bool)
+    : Option Html :=
   if obligations.isEmpty then
     none
   else
@@ -180,34 +247,66 @@ private def kindSection (kind : String) (obligations : List Obligation)
         (obligations.map (obligationCard ledger))
     ]
 
-private def firstKind (obligations : List Obligation) : Option String :=
+private
+def firstKind
+    (obligations : List Obligation)
+    : Option String :=
   kinds.find? (fun kind => countKind kind obligations > 0)
 
-private def componentChildren (elem : Elem) (kind : String) : List Elem :=
+private
+def componentChildren
+    (elem : Elem)
+    (kind : String)
+    : List Elem :=
   elem.children.filter (fun child => child.tag == "org.eventb.core." ++ kind)
 
-private def componentAttr (elem : Elem) (key : String) : Option String :=
+private
+def componentAttr
+    (elem : Elem)
+    (key : String)
+    : Option String :=
   elem.attr? ("org.eventb.core." ++ key)
 
-private def shortTarget (target : String) : String :=
+private
+def shortTarget
+    (target : String)
+    : String :=
   (target.splitOn "/").getLast!
 
-private def componentTargets (elem : Elem) (kind : String) : List String :=
+private
+def componentTargets
+    (elem : Elem)
+    (kind : String)
+    : List String :=
   (componentChildren elem kind).filterMap (componentAttr · "target") |>.map shortTarget
 
-private def componentNames (elem : Elem) (kind : String) : List String :=
+private
+def componentNames
+    (elem : Elem)
+    (kind : String)
+    : List String :=
   (componentChildren elem kind).filterMap (componentAttr · "identifier")
 
-private def namesText (names : List String) : String :=
+private
+def namesText
+    (names : List String)
+    : String :=
   names.foldl (fun acc name => if acc.isEmpty then name else acc ++ ", " ++ name) ""
 
-private def infoLine (label value : String) : Html :=
+private
+def infoLine
+    (label value : String)
+    : Html :=
   elementWith "p" [classes "mv1"] [
     elementWith "span" [classes "b"] [text s!"{label}: "],
     text (if value.isEmpty then "none" else value)
   ]
 
-private def nameList (label : String) (names : List String) : Html :=
+private
+def nameList
+    (label : String)
+    (names : List String)
+    : Html :=
   elementWith "div" [classes "mb2"] [
     elementWith "h4" [classes "mt2 mb1 f6"] [text label],
     if names.isEmpty then
@@ -217,7 +316,11 @@ private def nameList (label : String) (names : List String) : Html :=
         (names.map fun name => element "li" [text name])
   ]
 
-private def labelledFormula (elem : Elem) (formulaAttr : String) : Html :=
+private
+def labelledFormula
+    (elem : Elem)
+    (formulaAttr : String)
+    : Html :=
   let label := (componentAttr elem "label").getD "unnamed"
   match componentAttr elem formulaAttr with
   | some source =>
@@ -229,7 +332,11 @@ private def labelledFormula (elem : Elem) (formulaAttr : String) : Html :=
     | .error _ => infoLine label source
   | none => infoLine label "missing formula"
 
-private def labelledFormulas (elem : Elem) (kind formulaAttr : String) : Html :=
+private
+def labelledFormulas
+    (elem : Elem)
+    (kind formulaAttr : String)
+    : Html :=
   let formulas := componentChildren elem kind
   elementWith "div" [classes "mb2"] [
     elementWith "h4" [classes "mt2 mb1 f6"] [text kind],
@@ -239,7 +346,10 @@ private def labelledFormulas (elem : Elem) (kind formulaAttr : String) : Html :=
       element "div" (formulas.map (labelledFormula · formulaAttr))
   ]
 
-private def eventCard (ev : Elem) : Html :=
+private
+def eventCard
+    (ev : Elem)
+    : Html :=
   let name := (componentAttr ev "label").getD "unnamed event"
   let refinedTargets := componentTargets ev "refinesEvent"
   let parameters := componentNames ev "parameter"
@@ -256,7 +366,10 @@ private def eventCard (ev : Elem) : Html :=
     ]
   ]
 
-private def eventList (elem : Elem) : Html :=
+private
+def eventList
+    (elem : Elem)
+    : Html :=
   let events := componentChildren elem "event"
   elementWith "div" [classes "mb2"] [
     elementWith "h4" [classes "mt2 mb1 f6"] [text "Events"],
@@ -265,7 +378,11 @@ private def eventList (elem : Elem) : Html :=
     else element "div" (events.map eventCard)
   ]
 
-private def obligationStats (project : Typing.Project) (name : String) : Html :=
+private
+def obligationStats
+    (project : Typing.Project)
+    (name : String)
+    : Html :=
   let obligations := POG.generate project name
   let ledger := Trust.Ledger.ofObligations obligations
   elementWith "div" [classes "flex flex-wrap mv2"] [
@@ -275,7 +392,11 @@ private def obligationStats (project : Typing.Project) (name : String) : Html :=
     stat "trust ledger" ledger.summary "orange"
   ]
 
-private def modelPanel (kind name : String) (body : List Html) : Html :=
+private
+def modelPanel
+    (kind name : String)
+    (body : List Html)
+    : Html :=
   elementWith "details" [classes "mv2", ("open", .bool true)] [
     elementWith "summary" [classes "pointer b"] [
       text s!"Event-B {kind} · {name}"
@@ -284,7 +405,10 @@ private def modelPanel (kind name : String) (body : List Html) : Html :=
   ]
 
 /-- Render the declarations and proof-relevant surface of one project component. -/
-def renderComponent (project : Typing.Project) (name : String) : Html :=
+def renderComponent
+    (project : Typing.Project)
+    (name : String)
+    : Html :=
   match Typing.lookupComponent project name with
   | none => modelPanel "component" name [infoLine "error" "component not found"]
   | some component =>
@@ -309,7 +433,11 @@ def renderComponent (project : Typing.Project) (name : String) : Html :=
     | _ => modelPanel "component" name [infoLine "error" "unsupported component kind"]
 
 /-- Render obligations for a project component under an explicit theory environment. -/
-private def scopedLedger (ledger : Trust.Ledger) (obligations : List Obligation) : Trust.Ledger :=
+private
+def scopedLedger
+    (ledger : Trust.Ledger)
+    (obligations : List Obligation)
+    : Trust.Ledger :=
   { entries := obligations.map fun obligation => entryFor ledger obligation }
 
 /-- Render obligations with evidence supplied by the caller.
@@ -318,8 +446,12 @@ The default widget has no proof backend and therefore supplies an empty ledger. 
 the ledger explicit here prevents cards from silently discarding imported or replayed
 evidence when a front end does have it.
 -/
-def renderProjectInWithLedger (theory : Theory.Env) (project : Typing.Project)
-    (machine : String) (ledger : Trust.Ledger) : Html :=
+def renderProjectInWithLedger
+    (theory : Theory.Env)
+    (project : Typing.Project)
+    (machine : String)
+    (ledger : Trust.Ledger)
+    : Html :=
   let obligations := POG.generateIn theory project machine
   let ledger := scopedLedger ledger obligations
   let first := firstKind obligations
@@ -342,16 +474,26 @@ def renderProjectInWithLedger (theory : Theory.Env) (project : Typing.Project)
     ]
   ]
 
-def renderProjectIn (theory : Theory.Env) (project : Typing.Project) (machine : String) : Html :=
+def renderProjectIn
+    (theory : Theory.Env)
+    (project : Typing.Project)
+    (machine : String)
+    : Html :=
   renderProjectInWithLedger theory project machine
     (Trust.Ledger.ofObligations (POG.generateIn theory project machine))
 
-def renderProjectWithLedger (project : Typing.Project) (machine : String)
-    (ledger : Trust.Ledger) : Html :=
+def renderProjectWithLedger
+    (project : Typing.Project)
+    (machine : String)
+    (ledger : Trust.Ledger)
+    : Html :=
   renderProjectInWithLedger Theory.empty project machine ledger
 
 /-- Compatibility widget for projects using only the core prelude. -/
-def renderProject (project : Typing.Project) (machine : String) : Html :=
+def renderProject
+    (project : Typing.Project)
+    (machine : String)
+    : Html :=
   renderProjectIn Theory.empty project machine
 
 /-- Display generated obligations without changing the ordinary text POG command. -/

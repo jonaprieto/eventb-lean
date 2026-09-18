@@ -19,7 +19,10 @@ eventb_machine LspMachine where
   event step where
     action act : state := state + 1
 
-private def symbolName (owner symbol : String) : Name :=
+private
+def symbolName
+    (owner symbol : String)
+    : Name :=
   Name.mkSimple ("EventB.DSL.symbol." ++ owner ++ "." ++ symbol)
 
 private def requireRange (owner symbol : String) : CommandElabM Unit := do

@@ -71,7 +71,10 @@ Unlike `resolve`, this recurses on the *result* of a lookup, which can be larger
 its argument, so there is no structural measure. `fuel` is the bound argued above; the
 public `zonk` seeds it, and running out would mean the substitution grew during the
 traversal, which it cannot. -/
-def zonkAux : Nat → Ty → M Ty
+def zonkAux
+    : Nat →
+      Ty →
+      M Ty
   | 0, t => return t
   | fuel + 1, t => do
     match ← resolve t with
@@ -81,7 +84,11 @@ def zonkAux : Nat → Ty → M Ty
 
 def zonk (t : Ty) : M Ty := do zonkAux ((← substWeight) + t.size + 1) t
 
-def occursAux : Nat → Nat → Ty → M Bool
+def occursAux
+    : Nat →
+      Nat →
+      Ty →
+      M Bool
   | 0, _, _ => return false
   | fuel + 1, n, t => do
     match ← resolve t with
@@ -93,7 +100,11 @@ def occursAux : Nat → Nat → Ty → M Bool
 def occurs (n : Nat) (t : Ty) : M Bool := do
   occursAux ((← substWeight) + t.size + 1) n t
 
-def unifyAux : Nat → Ty → Ty → M Unit
+def unifyAux
+    : Nat →
+      Ty →
+      Ty →
+      M Unit
   | 0, _, _ => return ()
   | fuel + 1, a, b => do
   match ← resolve a, ← resolve b with
@@ -120,7 +131,10 @@ def unify (a b : Ty) : M Unit := do
 def lookup? (name : String) : M (Option Ty) := do
   return ((← get).env.find? (fun p => p.1 == name)).map (·.2)
 
-def bind (name : String) (t : Ty) : M Unit :=
+def bind
+    (name : String)
+    (t : Ty)
+    : M Unit :=
   modify fun s => { s with env := (name, t) :: s.env }
 
 /-- Run a typing action in a lexical environment and restore that environment afterward. -/
@@ -153,7 +167,9 @@ private def asSet (t : Ty) : M Ty := do
 
 /-- Relational predicates: both sides are expressions, and the pair is what constrains
 them. `∈` relates an element to a set, `⊆` two sets, the orderings two integers. -/
-private def relational : List String :=
+private
+def relational
+    : List String :=
   ["=", "≠", "∈", "∉", "⊂", "⊄", "⊆", "⊈", "<", "≤", ">", "≥"]
 
 private def connectives : List String := ["⇔", "⇒", "∧", "∨"]
@@ -162,14 +178,19 @@ private def connectives : List String := ["⇔", "⇒", "∧", "∨"]
 private def setBinary : List String := ["∪", "∩", "∖"]
 
 /-- Relation and function arrows, all `ℙ(A) × ℙ(B) → ℙ(ℙ(A×B))`. -/
-private def arrows : List String :=
+private
+def arrows
+    : List String :=
   ["↔", "", "", "", "⇸", "→", "⤔", "↣", "⤀", "↠", "⤖"]
 
 /-- Domain and range restriction: `◁ ⩤` take a set on the left, `▷ ⩥` on the right. -/
 private def domRestrict : List String := ["◁", "⩤"]
 private def ranRestrict : List String := ["▷", "⩥"]
 
-private theorem termSizePos (t : Term) : 1 ≤ sizeOf t := by
+private
+theorem termSizePos
+    (t : Term)
+    : 1 ≤ sizeOf t := by
   cases t <;> simp +arith [Term.id.sizeOf_spec, Term.num.sizeOf_spec,
     Term.bin.sizeOf_spec, Term.pre.sizeOf_spec, Term.post.sizeOf_spec,
     Term.app.sizeOf_spec, Term.img.sizeOf_spec, Term.set.sizeOf_spec,
@@ -177,7 +198,11 @@ private theorem termSizePos (t : Term) : 1 ≤ sizeOf t := by
 
 mutual
 
-private def primedBases (bound : List String) : Term → List String
+private
+def primedBases
+    (bound : List String)
+    : Term →
+      List String
   | .id name =>
       if name.endsWith "'" && !bound.contains name then [name.dropEnd 1 |>.copy] else []
   | .num _ => []
@@ -187,7 +212,11 @@ private def primedBases (bound : List String) : Term → List String
   | .set terms => primedBasesList bound terms
   | .bind _ pattern body => primedBases (patternNames pattern ++ bound) body
 
-private def primedBasesList (bound : List String) : List Term → List String
+private
+def primedBasesList
+    (bound : List String)
+    : List Term →
+      List String
   | [] => []
   | term :: rest => primedBases bound term ++ primedBasesList bound rest
 
@@ -274,7 +303,9 @@ decreasing_by
 /-- The arguments of a comma-separated application, typed left to right. Walking the
 comma spine here rather than calling `flattenCommas` keeps the recursion structural:
 the results of `flattenCommas` are subterms, but nothing in its type says so. -/
-def inferCommaList : Term → M (List Ty)
+def inferCommaList
+    : Term →
+      M (List Ty)
   | .bin "," a b => do return (← inferCommaList a) ++ (← inferCommaList b)
   | t => do return [← inferExpr t]
 
@@ -297,7 +328,10 @@ private def ascriptionType (t : Term) : M Ty := do
   | _ => throw s!"unsupported binder type: {Formula.print t}"
 
 /-- Bind every identifier in a binder pattern to a fresh or ascribed type. -/
-def bindPattern (t : Term) (expected : Option Ty := none) : M Unit := do
+def bindPattern
+    (t : Term)
+    (expected : Option Ty := none)
+    : M Unit := do
   match t with
   | .id n => bind n (expected.getD (← fresh))
   | .bin "⦂" pattern type => bindPattern pattern (some (← ascriptionType type))

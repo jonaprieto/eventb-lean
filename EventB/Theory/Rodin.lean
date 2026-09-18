@@ -17,17 +17,29 @@ open EventB EventB.Formula EventB.Prelude EventB.Typing
 private def ns := "org.eventb.theory.core."
 private def tag (name : String) : String := ns ++ name
 
-private def attr (elem : XmlElem) (names : List String) : Option String :=
+private
+def attr
+    (elem : XmlElem)
+    (names : List String)
+    : Option String :=
   names.findSome? elem.attr?
 
-private def required (path : List String) (elem : XmlElem) (names : List String) :
-    Except String String :=
+private
+def required
+    (path : List String)
+    (elem : XmlElem)
+    (names : List String)
+    : Except String String :=
   match attr elem names with
   | some value => pure value
   | none => .error s!"{String.intercalate "/" path}: missing `{names.head!}`"
 
-private def checkChildren (path : List String) (elem : XmlElem) (allowed : List String) :
-    Except String Unit :=
+private
+def checkChildren
+    (path : List String)
+    (elem : XmlElem)
+    (allowed : List String)
+    : Except String Unit :=
   match elem.children.find? (fun child => !allowed.contains child.tag) with
   | none => pure ()
   | some child => .error s!"{String.intercalate "/" path}: unsupported child `{child.tag}`"
@@ -38,7 +50,11 @@ private def parseType (path : List String) (elem : XmlElem) : Except String Ty :
   | some type => pure type
   | none => .error s!"{String.intercalate "/" path}: invalid type `{source}`"
 
-private def parseFormula (path : List String) (source : String) : Except String Term :=
+private
+def parseFormula
+    (path : List String)
+    (source : String)
+    : Except String Term :=
   match Formula.parse source with
   | .ok term => pure term
   | .error error => .error s!"{String.intercalate "/" path}: invalid formula: {error}"
@@ -91,15 +107,21 @@ private def parseDatatype (path : List String) (elem : XmlElem) :
     (parseConstructor (path ++ ["datatypeConstructor"]))
   pure (.dataType { name, parameters, constructors })
 
-private def parseParameters (path : List String) (elem : XmlElem) :
-    Except String (List (String × Ty)) :=
+private
+def parseParameters
+    (path : List String)
+    (elem : XmlElem)
+    : Except String (List (String × Ty)) :=
   elem.children.filter (·.tag == tag "parameter") |>.mapM fun child => do
     let name ← required (path ++ [child.tag]) child ["identifier", "name"]
     let type ← parseType (path ++ [child.tag]) child
     pure (name, type)
 
-private def parseTypeParameters (path : List String) (elem : XmlElem) :
-    Except String (List String) :=
+private
+def parseTypeParameters
+    (path : List String)
+    (elem : XmlElem)
+    : Except String (List String) :=
   elem.children.filter (·.tag == tag "typeParameter") |>.mapM fun child =>
     required (path ++ [child.tag]) child ["identifier", "name"]
 
@@ -163,7 +185,10 @@ private def parseRoot (root : XmlElem) : Except String Spec := do
   let declarations := values.filterMap (fun value => value.2.2)
   pure (Theory.canonicalize { name, imports, symbols, declarations })
 
-def importSpec (env : Env) (source : String) : Except EventB.Error Spec :=
+def importSpec
+    (env : Env)
+    (source : String)
+    : Except EventB.Error Spec :=
   match parseXmlString source with
   | .error error => .error (EventB.Error.theory
       s!"invalid Rodin theory XML: {error.pretty source.toUTF8}")
@@ -176,7 +201,10 @@ def importSpec (env : Env) (source : String) : Except EventB.Error Spec :=
           else .error (EventB.Error.theory
             (report.errors.map (·.message) |>.intersperse "; " |>.foldl (· ++ ·) ""))
 
-private def escape (source : String) : String :=
+private
+def escape
+    (source : String)
+    : String :=
   source.toList.foldl (fun output char => output ++ match char with
     | '&' => "&amp;"
     | '<' => "&lt;"
@@ -185,13 +213,20 @@ private def escape (source : String) : String :=
     | '\'' => "&apos;"
     | char => char.toString) ""
 
-private def attrs (values : List (String × String)) : String :=
+private
+def attrs
+    (values : List (String × String))
+    : String :=
   values.foldl (fun output (name, value) =>
     output ++ " " ++ name ++ "=\"" ++ escape value ++ "\"") ""
 
 mutual
 
-private def render : Nat → XmlElem → Except String String
+private
+def render
+    : Nat →
+      XmlElem →
+      Except String String
   | 0, _ => .error "Rodin theory XML is too deeply nested"
   | fuel + 1, elem => do
       let head := "<" ++ elem.tag ++ attrs elem.attrs
@@ -200,7 +235,11 @@ private def render : Nat → XmlElem → Except String String
         let children ← renderChildren fuel elem.children
         pure (head ++ ">" ++ children ++ "</" ++ elem.tag ++ ">")
 
-private def renderChildren : Nat → List XmlElem → Except String String
+private
+def renderChildren
+    : Nat →
+      List XmlElem →
+      Except String String
   | 0, _ => .error "Rodin theory XML is too deeply nested"
   | _, [] => pure ""
   | fuel + 1, child :: children => do
@@ -210,7 +249,10 @@ private def renderChildren : Nat → List XmlElem → Except String String
 
 end
 
-private def symbolElem (symbol : Symbol) : XmlElem :=
+private
+def symbolElem
+    (symbol : Symbol)
+    : XmlElem :=
   { tag := tag "symbol"
     attrs := [("identifier", symbol.name), ("kind", match symbol.kind with
       | .carrierSet => "carrierSet"
@@ -223,26 +265,41 @@ private def symbolElem (symbol : Symbol) : XmlElem :=
         | .wellDefined => "wellDefined")) |>.toList)
     children := [] }
 
-private def constructorElem (constructor : Constructor) : XmlElem :=
+private
+def constructorElem
+    (constructor : Constructor)
+    : XmlElem :=
   { tag := tag "datatypeConstructor", attrs := [("identifier", constructor.name)]
     children := constructor.arguments.map fun type =>
       { tag := tag "constructorArgument", attrs := [("type", type.print)], children := [] } }
 
-private def datatypeElem (datatype : Datatype) : XmlElem :=
+private
+def datatypeElem
+    (datatype : Datatype)
+    : XmlElem :=
   let parameters : List XmlElem := datatype.parameters.map fun parameter =>
     { tag := tag "typeParameter", attrs := [("identifier", parameter)], children := [] }
   { tag := tag "datatypeDefinition", attrs := [("identifier", datatype.name)],
         children := parameters ++ datatype.constructors.map constructorElem }
 
-private def typeParameterElems (parameters : List String) : List XmlElem :=
+private
+def typeParameterElems
+    (parameters : List String)
+    : List XmlElem :=
   parameters.map fun parameter =>
     { tag := tag "typeParameter", attrs := [("identifier", parameter)], children := [] }
 
-private def parameterElem (parameter : String × Ty) : XmlElem :=
+private
+def parameterElem
+    (parameter : String × Ty)
+    : XmlElem :=
   { tag := tag "parameter", attrs := [("identifier", parameter.1), ("type", parameter.2.print)],
     children := [] }
 
-private def declarationElems : Declaration → List XmlElem
+private
+def declarationElems
+    : Declaration →
+      List XmlElem
   | .dataType datatype =>
       [datatypeElem datatype]
   | .definitionDecl definition =>
