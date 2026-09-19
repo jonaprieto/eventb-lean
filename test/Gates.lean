@@ -70,8 +70,8 @@ def checkFile
 
 private
 def sumInventory
-    : List (String × Nat) →
-      List (String × Nat) →
+    : List (String × Nat) →  -- running inventory totals
+      List (String × Nat) →  -- inventory to add in
       List (String × Nat)
   | [], _ => []
   | _, [] => []
@@ -205,8 +205,8 @@ end
 
 private
 def dedupFirst
-    : List (String × String) →
-      List (String × String) →
+    : List (String × String) →  -- name/type pairs to dedup
+      List (String × String) →  -- deduped pairs so far (reversed)
       List (String × String)
   | [], acc => acc.reverse
   | (n, t) :: rest, acc =>
@@ -577,8 +577,8 @@ def removeEquivalent
 
 private
 def multisetEqual
-    : List Term →
-      List Term →
+    : List Term →  -- terms to match
+      List Term →  -- terms to match against
       Bool
   | [], [] => true
   | [], _ :: _ => false
@@ -957,8 +957,8 @@ def removeExact
 
 private
 def multisetSubset
-    : List String →
-      List String →
+    : List String →  -- expected lines (subset)
+      List String →  -- actual lines to check against
       Bool
   | [], _ => true
   | line :: rest, actual =>

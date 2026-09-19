@@ -74,8 +74,8 @@ its argument, so there is no structural measure. `fuel` is the bound argued abov
 public `zonk` seeds it, and running out would mean the substitution grew during the
 traversal, which it cannot. -/
 def zonkAux
-    : Nat →
-      Ty →
+    : Nat →  -- fuel, bounded by substitution size
+      Ty →   -- type to resolve
       M Ty
   | 0, t => return t
   | fuel + 1, t => do
@@ -87,9 +87,9 @@ def zonkAux
 def zonk (t : Ty) : M Ty := do zonkAux ((← substWeight) + t.size + 1) t
 
 def occursAux
-    : Nat →
-      Nat →
-      Ty →
+    : Nat →  -- fuel, bounded by substitution size
+      Nat →  -- metavariable index to find
+      Ty →   -- type to search within
       M Bool
   | 0, _, _ => return false
   | fuel + 1, n, t => do
@@ -106,9 +106,9 @@ def occurs
   occursAux ((← substWeight) + t.size + 1) n t
 
 def unifyAux
-    : Nat →
-      Ty →
-      Ty →
+    : Nat →  -- fuel, bounded by substitution size
+      Ty →   -- left-hand type
+      Ty →   -- right-hand type
       M Unit
   | 0, _, _ => return ()
   | fuel + 1, a, b => do

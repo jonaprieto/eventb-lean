@@ -532,9 +532,9 @@ inductive IntegerVariantMode where
   | convergent
 
 def integerVariantProgress
-    : IntegerVariantMode →
-      Int →
-      Int →
+    : IntegerVariantMode →  -- anticipated or convergent
+      Int →                 -- value after the transition
+      Int →                 -- value before the transition
       Prop
   | .anticipated, after, before => after ≤ before
   | .convergent, after, before => after < before
@@ -562,9 +562,9 @@ def finiteProperSubset
 
 def finiteVariantProgress
     {α : Type u}
-    : FiniteVariantMode →
-      List α →
-      List α →
+    : FiniteVariantMode →  -- anticipated or convergent
+      List α →             -- set after the transition
+      List α →             -- set before the transition
       Prop
   | .anticipated, after, before => finiteSubset after before
   | .convergent, after, before => finiteProperSubset after before

@@ -127,8 +127,8 @@ private
 def go
     (table : Array (List Char × String))
     (acc : List Tok)
-    : Nat →
-      List Char →
+    : Nat →        -- fuel, seeded at input length
+      List Char →  -- remaining characters to lex
       Except String (List Tok)
   | _, [] => .ok acc.reverse
   | 0, _ => .error "lexer made no progress"

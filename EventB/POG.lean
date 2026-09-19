@@ -328,9 +328,9 @@ been gathered so far rather than looping. -/
 def inheritedChildren
     (p : Project)
     (tag : String)
-    : Nat →
-      String →
-      Elem →
+    : Nat →     -- depth, bounds walk by component count
+      String →  -- current machine name
+      Elem →    -- event element
       List Elem
   | 0, _, ev => childrenOf ev tag
   | depth + 1, machine, ev =>
@@ -403,9 +403,9 @@ win; `depth` bounds the walk by the component count, as elsewhere. -/
 private
 def eventActions
     (p : Project)
-    : Nat →
-      String →
-      Elem →
+    : Nat →     -- depth, bounds walk by component count
+      String →  -- current machine name
+      Elem →    -- event element
       List Elem
   | 0, machine, ev =>
       match lookupComponent p machine with
@@ -464,8 +464,8 @@ def refinementTransitionActions
 def eventSubst
     (p : Project)
     : Nat →
-      String →
-      Elem →
+      String →  -- current machine name
+      Elem →    -- event element
       List (String × Term)
   | 0, machine, ev =>
       (transitionActions p machine ev).flatMap substOf
@@ -845,8 +845,8 @@ private
 def wdFreshName
     (base : String)
     (used : List String)
-    : Nat →
-      Nat →
+    : Nat →  -- candidate suffix index
+      Nat →  -- fuel, decremented per attempt
       String
   | _, 0 => base ++ s!"{used.length + 1}"
   | index, fuel + 1 =>
@@ -941,9 +941,9 @@ mutual
 
 private
 def wdTermAux
-    : Nat →
-      WdContext →
-      Term →
+    : Nat →        -- fuel, bounded by term size
+      WdContext →  -- well-definedness context
+      Term →       -- term to analyze for WD
       Option Term
   | 0, _, _ => none
   | _, _, .num _ | _, _, .id _ => some wdTop
@@ -1010,9 +1010,9 @@ def wdTermAux
 
 private
 def wdTerms
-    : Nat →
-      WdContext →
-      List Term →
+    : Nat →        -- fuel, bounded by term size
+      WdContext →  -- well-definedness context
+      List Term →  -- terms to analyze for WD
       Option Term
   | 0, _, _ => none
   | _, _, [] => some wdTop

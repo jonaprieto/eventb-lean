@@ -206,8 +206,8 @@ def constructorType
 
 private
 def namedParameters
-    : Nat →
-      List Ty →
+    : Nat →      -- index for auto-generated arg names
+      List Ty →  -- argument types to name
       List (String × Ty)
   | _, [] => []
   | index, type :: types =>
@@ -284,8 +284,8 @@ def addDatatypeBindings
 
 private
 def implications
-    : List Expr →
-      Expr →
+    : List Expr →  -- premises to chain as arrows
+      Expr →       -- final conclusion type
       MetaM Expr
   | [], conclusion => pure conclusion
   | premise :: premises, conclusion => do

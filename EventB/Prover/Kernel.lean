@@ -165,9 +165,9 @@ def projection
 
 private
 def ruleProof
-    : Nat →
-      List (Expr × Expr) →
-      Expr →
+    : Nat →                 -- fuel, bounds proof-search depth
+      List (Expr × Expr) →  -- hypothesis type/proof pairs
+      Expr →                -- goal to prove
       MetaM (Option (Rule × Expr))
   | 0, pairs, goal => do
       if let some proof ← projection pairs goal then

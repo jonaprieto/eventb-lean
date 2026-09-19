@@ -144,9 +144,9 @@ def duplicateNames
 private
 def rawInitializationActions
     (p : Project)
-    : Nat →
-      String →
-      Elem →
+    : Nat →     -- depth, bounds walk by component count
+      String →  -- current machine name
+      Elem →    -- event element
       List Elem
   | 0, _, ev => childrenOf ev "action"
   | depth + 1, machine, ev =>
@@ -208,9 +208,9 @@ def allEqual
 private
 def refinementCycle
     (p : Project)
-    : Nat →
-      List String →
-      String →
+    : Nat →          -- fuel, bounds walk by component count
+      List String →  -- machines already visited
+      String →       -- current machine name
       Bool
   | 0, _, _ => true
   | fuel + 1, seen, name =>
@@ -227,9 +227,9 @@ def refinementCycle
 private
 def dependencyCycle
     (p : Project)
-    : Nat →
-      List String →
-      String →
+    : Nat →          -- fuel, bounds walk by component count
+      List String →  -- components already visited
+      String →       -- current component name
       Bool
   | 0, _, _ => true
   | fuel + 1, seen, name =>
@@ -247,9 +247,9 @@ def dependencyCycle
 private
 def effectiveEventActions
     (p : Project)
-    : Nat →
-      String →
-      Elem →
+    : Nat →     -- depth, bounds walk by component count
+      String →  -- current machine name
+      Elem →    -- event element
       List Elem
   | 0, machine, ev =>
       match lookupComponent p machine with
@@ -449,9 +449,9 @@ private
 def inheritedEventBindings
     (p : Project)
     (records : List ((String × String) × List (String × Ty)))
-    : Nat →
-      String →
-      String →
+    : Nat →     -- depth, bounds walk by component count
+      String →  -- current machine name
+      String →  -- current event name
       List (String × Ty)
   | 0, _, _ => []
   | depth + 1, machine, event =>
@@ -495,9 +495,9 @@ def visibleEventBindings
 a chain that reaches it has revisited one, meaning the dependency graph has a cycle. -/
 def closureAux
     (p : Project)
-    : Nat →
-      List String →
-      String →
+    : Nat →          -- depth, bounds walk by component count
+      List String →  -- components visited so far
+      String →       -- current component name
       List String × List String
   | 0, visited, _ => (visited, [])
   | depth + 1, visited, name =>

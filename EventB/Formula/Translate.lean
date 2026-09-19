@@ -322,8 +322,8 @@ def withPattern
 
 private
 def mkExistsLocals
-    : List Expr →
-      Expr →
+    : List Expr →  -- local variables to bind
+      Expr →       -- body to wrap in existentials
       MetaM Expr
   | [], body => pure body
   | localVar :: locals, body => do
@@ -332,8 +332,8 @@ def mkExistsLocals
 
 private
 def mkForallLocals
-    : List Expr →
-      Expr →
+    : List Expr →  -- local variables to bind
+      Expr →       -- body to wrap in foralls
       MetaM Expr
   | [], body => pure body
   | localVar :: locals, body => do
@@ -678,9 +678,9 @@ mutual
 
 private
 def translateExprList
-    : Nat →
-      KernelContext →
-      List Formula.Term →
+    : Nat →                -- fuel, bounded by term size
+      KernelContext →      -- translation environment
+      List Formula.Term →  -- terms to translate
       MetaM (List KernelTerm)
   | 0, _, _ => throwError "formula translation recursion limit reached"
   | _ + 1, _, [] => pure []
@@ -691,11 +691,11 @@ def translateExprList
 
 private
 def translateComprehension
-    : Nat →
-      KernelContext →
-      Formula.Term →
-      Formula.Term →
-      Option Ty →
+    : Nat →            -- fuel, bounded by term size
+      KernelContext →  -- translation environment
+      Formula.Term →   -- bound-variable pattern
+      Formula.Term →   -- body of the comprehension
+      Option Ty →      -- expected result type
       MetaM KernelTerm
   | fuel, context, pattern, body, expected => do
       withPattern context pattern none fun bodyContext locals patternValue patternType => do
@@ -718,11 +718,11 @@ def translateComprehension
 
 private
 def translateLambda
-    : Nat →
-      KernelContext →
-      Formula.Term →
-      Formula.Term →
-      Option Ty →
+    : Nat →            -- fuel, bounded by term size
+      KernelContext →  -- translation environment
+      Formula.Term →   -- bound-variable pattern
+      Formula.Term →   -- body of the lambda
+      Option Ty →      -- expected relation type
       MetaM KernelTerm
   | fuel, context, pattern, body, expected => do
       let (inputExpected, outputExpected) ← match expected with
@@ -762,11 +762,11 @@ def translateLambda
 
 private
 def translateEquality
-    : Nat →
-      KernelContext →
-      Formula.Term →
-      Formula.Term →
-      Bool →
+    : Nat →            -- fuel, bounded by term size
+      KernelContext →  -- translation environment
+      Formula.Term →   -- left-hand side of equality
+      Formula.Term →   -- right-hand side of equality
+      Bool →           -- true when comparing with ≠
       MetaM Expr
   | fuel, context, leftTerm, rightTerm, negated => do
       let (left, right) ← if leftTerm == .set [] || isLambda leftTerm then
@@ -783,10 +783,10 @@ def translateEquality
 
 private
 def translateExprExpected
-    : Nat →
-      KernelContext →
-      Option Ty →
-      Formula.Term →
+    : Nat →            -- fuel, bounded by term size
+      KernelContext →  -- translation environment
+      Option Ty →      -- expected type, if known
+      Formula.Term →   -- term to translate
       MetaM KernelTerm
   | 0, _, _, _ => throwError "formula translation recursion limit reached"
   | _ + 1, context, some (.pow type), .set [] => do
@@ -801,10 +801,10 @@ def translateExprExpected
 
 private
 def translateApplicationArgument
-    : Nat →
-      KernelContext →
-      Ty →
-      Formula.Term →
+    : Nat →            -- fuel, bounded by term size
+      KernelContext →  -- translation environment
+      Ty →             -- expected argument type
+      Formula.Term →   -- argument being translated
       MetaM KernelTerm
   | 0, _, _, _ => throwError "formula translation recursion limit reached"
   | fuel + 1, context, .prod left right, .bin "," first rest => do
@@ -818,9 +818,9 @@ def translateApplicationArgument
 
 private
 def translateExpr
-    : Nat →
-      KernelContext →
-      Formula.Term →
+    : Nat →            -- fuel, bounded by term size
+      KernelContext →  -- translation environment
+      Formula.Term →   -- term to translate
       MetaM KernelTerm
   | 0, _, _ => throwError "formula translation recursion limit reached"
   | _ + 1, context, .num value =>
@@ -1056,9 +1056,9 @@ def translateExpr
 
 private
 def translatePred
-    : Nat →
-      KernelContext →
-      Formula.Term →
+    : Nat →            -- fuel, bounded by term size
+      KernelContext →  -- translation environment
+      Formula.Term →   -- predicate to translate
       MetaM Expr
   | 0, _, _ => throwError "formula translation recursion limit reached"
   | _ + 1, _, .id "⊤" => pure (mkConst ``True)

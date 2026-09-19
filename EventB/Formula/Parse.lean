@@ -280,9 +280,9 @@ mutual
 -- the same note applies: grip's graded parsers discharge it by construction.
 private
 def parseAt
-    : Nat →
-      St →
-      Nat →
+    : Nat →  -- fuel, decremented per token
+      St →   -- parser state
+      Nat →  -- minimum binding power
       Except String (Term × St)
   | 0, _, _ => .error "parser made no progress"
   | fuel + 1, s, minPower => do
@@ -294,10 +294,10 @@ termination_by fuel _ _ => fuel
 a `where` clause cannot see it. -/
 private
 def parseInfix
-    : Nat →
-      Nat →
-      Term →
-      St →
+    : Nat →   -- fuel, decremented per operator
+      Nat →   -- minimum binding power
+      Term →  -- left-hand side parsed so far
+      St →    -- parser state
       Except String (Term × St)
   | 0, _, lhs, s => .ok (lhs, s)
   | fuel + 1, minPower, lhs, s => do
@@ -329,8 +329,8 @@ termination_by fuel _ _ _ => fuel
 
 private
 def parsePrefix
-    : Nat →
-      St →
+    : Nat →  -- fuel, decremented per token
+      St →   -- parser state
       Except String (Term × St)
   | 0, _ => .error "parser made no progress"
   | fuel + 1, s => do
@@ -389,9 +389,9 @@ termination_by fuel _ => fuel
 freely: `f(x)(y)`, `r[s][t]`, `f∼(x)`. -/
 private
 def parsePostfix
-    : Nat →
-      Term →
-      St →
+    : Nat →   -- fuel, decremented per token
+      Term →  -- term parsed so far
+      St →    -- parser state
       Except String (Term × St)
   | 0, t, s => .ok (t, s)
   | fuel + 1, t, s => do
@@ -553,10 +553,10 @@ def freshName
 
 private
 def makeRenames
-    : List String →
-      List String →
-      List String →
-      List (String × String) × List String
+    : List String →                         -- names to rename
+      List String →                         -- names that would conflict
+      List String →                         -- names already in use
+      List (String × String) × List String  -- renamed pairs, updated used names
   | [], _, used => ([], used)
   | name :: names, conflicts, used =>
       let renamed := if conflicts.contains name then
@@ -611,9 +611,9 @@ mutual
 alpha-rename before descending without weakening termination to a partial function. -/
 private
 def substFuel
-    : Nat →
-      List (String × Term) →
-      Term →
+    : Nat →                   -- fuel, bound for alpha-renaming binders
+      List (String × Term) →  -- substitution mapping
+      Term →                  -- term being substituted into
       Term
   | 0, _, term => term
   | _fuel + 1, σ, .id n =>
@@ -643,9 +643,9 @@ def substFuel
 
 private
 def substListFuel
-    : Nat →
-      List (String × Term) →
-      List Term →
+    : Nat →                   -- fuel, bound for alpha-renaming binders
+      List (String × Term) →  -- substitution mapping
+      List Term →             -- terms being substituted into
       List Term
   | 0, _, terms => terms
   | _fuel + 1, _, [] => []

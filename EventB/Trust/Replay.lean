@@ -26,8 +26,8 @@ structure Report where
 
 private
 def mkImplications
-    : List Expr →
-      Expr →
+    : List Expr →  -- premises to chain as arrows
+      Expr →       -- final conclusion type
       MetaM Expr
   | [], conclusion => pure conclusion
   | premise :: premises, conclusion => do
