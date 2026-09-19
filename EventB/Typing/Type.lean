@@ -51,8 +51,8 @@ that fact lives inside `takeWhile` and the literal patterns rather than in a typ
 `fuel` states it. Seeded at the input length, it cannot run out on a terminating scan. -/
 private
 def parseGo
-    : Nat →
-      List Char →
+    : Nat →        -- fuel, seeded at input length
+      List Char →  -- remaining characters to parse
       Option (Ty × List Char)
   | 0, _ => none
   | fuel + 1, cs => do
@@ -61,9 +61,9 @@ def parseGo
 
 private
 def parseProducts
-    : Nat →
-      Ty →
-      List Char →
+    : Nat →        -- fuel, seeded at input length
+      Ty →         -- left operand parsed so far
+      List Char →  -- remaining characters to parse
       Option (Ty × List Char)
   | 0, lhs, cs => some (lhs, cs)
   | fuel + 1, lhs, cs =>
@@ -75,8 +75,8 @@ def parseProducts
 
 private
 def parseAtom
-    : Nat →
-      List Char →
+    : Nat →        -- fuel, seeded at input length
+      List Char →  -- remaining characters to parse
       Option (Ty × List Char)
   | 0, _ => none
   | fuel + 1, cs =>

@@ -180,8 +180,8 @@ inductive ValueType where
 
 private
 def valueTypeBeq
-    : ValueType →
-      ValueType →
+    : ValueType →  -- left-hand type
+      ValueType →  -- right-hand type
       Bool
   | .integer, .integer | .boolean, .boolean => true
   | .given left, .given right => left == right
@@ -353,8 +353,8 @@ def Value.setType
   | first :: _ => .finiteSet (some first.typeOf)
 
 def ValueType.compatible
-    : ValueType →
-      ValueType →
+    : ValueType →  -- left-hand type
+      ValueType →  -- right-hand type
       Bool
   | .given left, .given right => left == right
   | .finiteSet left, .finiteSet right =>
@@ -373,8 +373,8 @@ def Value.sameType
 
 private
 def Value.isWellFormed
-    : Nat →
-      Value →
+    : Nat →    -- fuel, recursion bound
+      Value →  -- value to check
       Bool
   | 0, _ => false
   | fuel + 1, .integer _ | fuel + 1, .boolean _ | fuel + 1, .atom _ _ | fuel + 1, .integerSet |
@@ -395,9 +395,9 @@ decreasing_by
 mutual
 
 def valueEqual
-    : Nat →
-      Value →
-      Value →
+    : Nat →    -- fuel, evaluator recursion bound
+      Value →  -- left-hand value
+      Value →  -- right-hand value
       Except EvalError Bool
   | 0, _, _ => .error .fuelExhausted
   | fuel + 1, .integer left, .integer right => .ok (left == right)
@@ -420,9 +420,9 @@ def valueEqual
   | fuel + 1, _, _ => .ok false
 
 def memberOf
-    : Nat →
-      Value →
-      List Value →
+    : Nat →         -- fuel, evaluator recursion bound
+      Value →       -- value being searched for
+      List Value →  -- collection to search
       Except EvalError Bool
   | 0, _, _ => .error .fuelExhausted
   | fuel + 1, value, [] => .ok false
@@ -431,9 +431,9 @@ def memberOf
       if equal then .ok true else memberOf fuel value candidates
 
 def subsetOf
-    : Nat →
-      List Value →
-      List Value →
+    : Nat →         -- fuel, evaluator recursion bound
+      List Value →  -- left-hand set
+      List Value →  -- right-hand set
       Except EvalError Bool
   | 0, _, _ => .error .fuelExhausted
   | fuel + 1, left, right =>
@@ -548,9 +548,9 @@ def ValueEnv.carrierContains
   | none => false
 
 def ValueEnv.valueIsWellFormed
-    : Nat →
-      ValueEnv →
-      Value →
+    : Nat →       -- fuel, recursion bound
+      ValueEnv →  -- carrier/value environment
+      Value →     -- value to check
       Bool
   | 0, _, _ => false
   | fuel + 1, env, .atom carrier name => env.carrierContains carrier name
@@ -732,10 +732,10 @@ def binderCandidate
   | _ => none
 
 def filterSetByMembership
-    : Nat →
-      String →
-      List Value →
-      List Value →
+    : Nat →         -- fuel, evaluator recursion bound
+      String →      -- set operator (∩ or ∖)
+      List Value →  -- values being filtered
+      List Value →  -- set to test membership against
       Except EvalError (List Value)
   | 0, _, _, _ => .error .fuelExhausted
   | fuel + 1, _, [], _ => .ok []
@@ -748,8 +748,8 @@ def filterSetByMembership
 
 private
 def relationValidateFunction
-    : Nat →
-      List Value →
+    : Nat →         -- fuel, evaluator recursion bound
+      List Value →  -- relation as list of pairs
       Except EvalError Unit
   | 0, _ => .error .fuelExhausted
   | fuel + 1, [] => .ok ()
@@ -767,8 +767,8 @@ def relationValidateFunction
 
 private
 def relationType
-    : Nat →
-      List Value →
+    : Nat →         -- fuel, evaluator recursion bound
+      List Value →  -- relation as list of pairs
       Except EvalError (Option (ValueType × ValueType))
   | 0, _ => .error .fuelExhausted
   | fuel + 1, [] => .ok none
@@ -785,9 +785,9 @@ def relationType
 
 private
 def relationApply
-    : Nat →
-      Value →
-      List Value →
+    : Nat →         -- fuel, evaluator recursion bound
+      Value →       -- input value to look up
+      List Value →  -- relation as list of pairs
       Except EvalError (Option Value)
   | 0, _, _ => .error .fuelExhausted
   | fuel + 1, argument, [] => .ok none
@@ -805,9 +805,9 @@ def relationApply
 
 private
 def relationImage
-    : Nat →
-      Value →
-      List Value →
+    : Nat →         -- fuel, evaluator recursion bound
+      Value →       -- input value to look up
+      List Value →  -- relation as list of pairs
       Except EvalError (List Value)
   | 0, _, _ => .error .fuelExhausted
   | fuel + 1, argument, [] => .ok []
@@ -821,10 +821,10 @@ def relationImage
 
 private
 def relationRestrict
-    : Nat →
-      Bool →
-      List Value →
-      List Value →
+    : Nat →         -- fuel, evaluator recursion bound
+      Bool →        -- true = domain-side, false = range-side
+      List Value →  -- relation as list of pairs
+      List Value →  -- allowed values on that side
       Except EvalError (List Value)
   | 0, _, _, _ => .error .fuelExhausted
   | fuel + 1, _, [], _ => .ok []
@@ -838,10 +838,10 @@ def relationRestrict
 
 private
 def relationDrop
-    : Nat →
-      Bool →
-      List Value →
-      List Value →
+    : Nat →         -- fuel, evaluator recursion bound
+      Bool →        -- true = domain-side, false = range-side
+      List Value →  -- relation as list of pairs
+      List Value →  -- values to drop on that side
       Except EvalError (List Value)
   | 0, _, _, _ => .error .fuelExhausted
   | fuel + 1, _, [], _ => .ok []
@@ -855,9 +855,9 @@ def relationDrop
 
 private
 def relationOverride
-    : Nat →
-      List Value →
-      List Value →
+    : Nat →         -- fuel, evaluator recursion bound
+      List Value →  -- relation being overridden
+      List Value →  -- relation that overrides it
       Except EvalError (List Value)
   | 0, _, _ => .error .fuelExhausted
   | fuel + 1, left, right => do
@@ -872,9 +872,9 @@ mutual
 
 private
 def evalValueFuel
-    : Nat →
-      EvalView →
-      EventB.Formula.Term →
+    : Nat →                  -- fuel, evaluator recursion bound
+      EvalView →             -- before/after variable state
+      EventB.Formula.Term →  -- term to evaluate
       Except EvalError Value
   | 0, _, _ => .error .fuelExhausted
   | fuel + 1, view, .id name =>
@@ -1004,9 +1004,9 @@ def evalValueFuel
 
 private
 def evalValueListFuel
-    : Nat →
-      EvalView →
-      List EventB.Formula.Term →
+    : Nat →                       -- fuel, evaluator recursion bound
+      EvalView →                  -- before/after variable state
+      List EventB.Formula.Term →  -- terms to evaluate
       Except EvalError (List Value)
   | 0, _, _ => .error .fuelExhausted
   | _fuel + 1, _, [] => .ok []
@@ -1017,9 +1017,9 @@ def evalValueListFuel
 
 private
 def evalPredicateFuel
-    : Nat →
-      EvalView →
-      EventB.Formula.Term →
+    : Nat →                  -- fuel, evaluator recursion bound
+      EvalView →             -- before/after variable state
+      EventB.Formula.Term →  -- predicate term to evaluate
       Except EvalError Bool
   | 0, _, _ => .error .fuelExhausted
   | fuel + 1, _, .id "⊤" => .ok true

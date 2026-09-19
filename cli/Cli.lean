@@ -675,8 +675,8 @@ def runProve
 
 private
 def findObligation
-    : List Report →
-      String →
+    : List Report →  -- reports to search
+      String →       -- obligation name to find
       Option (String × Obligation)
   | [], _ => none
   | report :: rest, name =>

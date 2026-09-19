@@ -219,8 +219,8 @@ def sourceValue
   | .two => 2
 
 def decrement
-    : BoundedState →
-      BoundedState →
+    : BoundedState →  -- state before the transition
+      BoundedState →  -- state after the transition
       Prop
   | .one, .zero => True
   | .two, .one => True

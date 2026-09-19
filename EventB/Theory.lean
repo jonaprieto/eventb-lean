@@ -168,9 +168,9 @@ def firstDuplicate
 private
 def closureAux
     (env : Env)
-    : Nat →
-      List String →
-      String →
+    : Nat →          -- fuel, bounded by theory count
+      List String →  -- theories already visited
+      String →       -- theory name to process
       List String
   | 0, seen, _ => seen
   | fuel + 1, seen, name =>
@@ -310,8 +310,8 @@ def termSize
 
 private
 def patternShape
-    : Formula.Term →
-      Formula.Term →
+    : Formula.Term →  -- left-hand pattern
+      Formula.Term →  -- right-hand pattern
       Bool
   | .id _, .id _ => true
   | .bin leftOp leftA leftB, .bin rightOp rightA rightB =>
@@ -322,9 +322,9 @@ mutual
 
 private
 def referencesBound
-    : Nat →
-      List String →
-      Formula.Term →
+    : Nat →           -- fuel, bounded by term size
+      List String →   -- bound variable names
+      Formula.Term →  -- term to search
       Bool
   | 0, _, _ => false
   | _ + 1, bound, .id name => bound.contains name
@@ -346,9 +346,9 @@ termination_by fuel _ _ => fuel
 
 private
 def referencesBoundList
-    : Nat →
-      List String →
-      List Formula.Term →
+    : Nat →                -- fuel, bounded by term size
+      List String →        -- bound variable names
+      List Formula.Term →  -- terms to search
       Bool
   | 0, _, _ => false
   | _ + 1, _, [] => false
@@ -361,13 +361,13 @@ end
 
 private
 def matchRewrite
-    : Nat →
-      List String →
-      List (String × String) →
-      List String →
-      Formula.Term →
-      Formula.Term →
-      List (String × Formula.Term) →
+    : Nat →                           -- fuel, bounded by term size
+      List String →                   -- rule's parameter names
+      List (String × String) →        -- pattern-name to target-name bindings
+      List String →                   -- names already bound on target side
+      Formula.Term →                  -- rule's left-hand-side pattern
+      Formula.Term →                  -- target term being matched
+      List (String × Formula.Term) →  -- substitutions found so far
       Option (List (String × Formula.Term))
   | 0, _, _, _, _, _, _ => none
   | _ + 1, parameters, bound, targetBound, .id name, target, substitutions =>
@@ -453,8 +453,8 @@ def rewriteRoot
 private
 def normalizeAux
     (rules : List (String × Rule))
-    : Nat →
-      Formula.Term →
+    : Nat →           -- fuel, bounds rewrite iterations
+      Formula.Term →  -- term being rewritten
       Formula.Term
   | 0, term => term
   | fuel + 1, term =>

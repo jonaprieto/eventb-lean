@@ -200,8 +200,8 @@ def symbolLocation?
 
 private
 def formulaIdentifiersAux
-    : Nat →
-      Syntax →
+    : Nat →     -- fuel, bounds syntax-tree recursion
+      Syntax →  -- syntax node to scan for idents
       List Syntax
   | 0, _ => []
   | fuel + 1, stx =>

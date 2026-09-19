@@ -264,8 +264,8 @@ mutual
 
 private
 def render
-    : Nat →
-      XmlElem →
+    : Nat →      -- fuel, bounds XML nesting depth
+      XmlElem →  -- element to render
       Except String String
   | 0, _ => .error "Rodin theory XML is too deeply nested"
   | fuel + 1, elem => do
@@ -277,8 +277,8 @@ def render
 
 private
 def renderChildren
-    : Nat →
-      List XmlElem →
+    : Nat →           -- fuel, bounds XML nesting depth
+      List XmlElem →  -- child elements to render
       Except String String
   | 0, _ => .error "Rodin theory XML is too deeply nested"
   | _, [] => pure ""

@@ -418,9 +418,9 @@ private
 def parsePredicates
     (kind : PredicateKind)
     (stops : List String)
-    : Nat →
-      Nat →
-      List Line →
+    : Nat →        -- fuel, bounded by line count
+      Nat →        -- label numbering index
+      List Line →  -- remaining source lines
       Except String (List Elem × List Line)
   | 0, _, _ => .error "Rossi parser ran out of fuel"
   | fuel + 1, index, source =>
@@ -480,8 +480,8 @@ where
 
 private
 def charAt?
-    : List Char →
-      Nat →
+    : List Char →  -- characters to index into
+      Nat →        -- index to look up
       Option Char
   | [], _ => none
   | c :: _, 0 => some c
@@ -593,9 +593,9 @@ where
 
 private
 def parseActions
-    : Nat →
-      Nat →
-      List Line →
+    : Nat →        -- fuel, bounded by line count
+      Nat →        -- label numbering index
+      List Line →  -- remaining source lines
       Except String (List Elem × List Line)
   | 0, _, _ => .error "Rossi parser ran out of fuel"
   | fuel + 1, index, source =>
@@ -629,9 +629,9 @@ def sectionData
 
 private
 def collectNames
-    : Nat →
-      List String →
-      List Line →
+    : Nat →          -- fuel, bounded by line count
+      List String →  -- section-boundary keywords
+      List Line →    -- remaining source lines
       List String × List Line
   | 0, _, source => ([], source)
   | fuel + 1, stops, source =>
@@ -646,9 +646,9 @@ def collectNames
 
 private
 def collectText
-    : Nat →
-      List String →
-      List Line →
+    : Nat →          -- fuel, bounded by line count
+      List String →  -- section-boundary keywords
+      List Line →    -- remaining source lines
       List String × List Line
   | 0, _, source => ([], source)
   | fuel + 1, stops, source =>
@@ -694,8 +694,8 @@ where
 
 private
 def parseSetDecls
-    : Nat →
-      List String →
+    : Nat →          -- fuel, bounded by text length
+      List String →  -- set-declaration tokens
       Except String (List (String × Option String))
   | 0, _ => .error "too many set declarations"
   | _, [] => .ok []
@@ -732,9 +732,9 @@ def setElements
 
 private
 def parseContextBody
-    : Nat →
-      List Elem →
-      List Line →
+    : Nat →        -- fuel, bounded by line count
+      List Elem →  -- children parsed so far
+      List Line →  -- remaining source lines
       Except String (Elem × List Line)
   | 0, _, _ => .error "Rossi parser ran out of fuel"
   | fuel + 1, children, source =>
@@ -819,11 +819,11 @@ def eventStatus
 
 private
 def parseEventBody
-    : Nat →
-      String →
-      Option String →
-      List Elem →
-      List Line →
+    : Nat →            -- fuel, bounded by line count
+      String →         -- event name
+      Option String →  -- convergence status
+      List Elem →      -- children parsed so far
+      List Line →      -- remaining source lines
       Except String (Elem × List Line)
   | 0, _, _, _, _ => .error "Rossi parser ran out of fuel"
   | fuel + 1, name, status, children, source =>
@@ -893,9 +893,9 @@ def parseEvent
 
 private
 def parseEvents
-    : Nat →
-      List Elem →
-      List Line →
+    : Nat →        -- fuel, bounded by line count
+      List Elem →  -- events parsed so far
+      List Line →  -- remaining source lines
       Except String (List Elem × List Line)
   | 0, _, _ => .error "Rossi parser ran out of fuel"
   | fuel + 1, events, source =>
@@ -922,9 +922,9 @@ def parseEvents
 
 private
 def parseMachineBody
-    : Nat →
-      List Elem →
-      List Line →
+    : Nat →        -- fuel, bounded by line count
+      List Elem →  -- children parsed so far
+      List Line →  -- remaining source lines
       Except String (Elem × List Line)
   | 0, _, _ => .error "Rossi parser ran out of fuel"
   | fuel + 1, children, source =>
@@ -986,8 +986,8 @@ def parseMachine
 
 private
 def parseComponents
-    : Nat →
-      List Line →
+    : Nat →        -- fuel, bounded by line count
+      List Line →  -- remaining source lines
       Except String (List Component)
   | 0, _ => .error "Rossi parser ran out of fuel"
   | fuel + 1, source =>

@@ -324,9 +324,9 @@ def predicateSets
 private
 def chainPredicates
     (sets : List PredicateSet)
-    : Nat →
-      Option String →
-      List String →
+    : Nat →            -- fuel, bounded by set count
+      Option String →  -- predicate-set name, if any
+      List String →    -- accumulated predicate texts
       Option (List String)
   | 0, some _, _ => none
   | _, none, acc => some acc
@@ -460,8 +460,8 @@ def removeEquivalent
 
 private
 def hypothesisMultisetEqual
-    : List Formula.Term →
-      List Formula.Term →
+    : List Formula.Term →  -- hypotheses to match
+      List Formula.Term →  -- hypotheses to match against
       Bool
   | [], [] => true
   | [], _ :: _ => false
