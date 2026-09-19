@@ -19,7 +19,8 @@ private
 def diagnosticText
     (paths : List System.FilePath)
     (error : EventB.Error)
-    : IO TermColor.Text := do
+    : IO TermColor.Text
+    := do
   let candidates := error.path.toList.map System.FilePath.mk ++ paths
   match candidates.head? with
   | none => pure (TermColor.Text.plain error.render)
@@ -40,7 +41,8 @@ private
 def printError
     (paths : List System.FilePath)
     (error : EventB.Error)
-    : IO Unit := do
+    : IO Unit
+    := do
   let stderr ← IO.getStderr
   let target ← TermColor.targetWithTty .auto (← stderr.isTty)
   let text ← diagnosticText paths error
@@ -84,7 +86,8 @@ def stem
 private
 def sourceFiles
     (dir : System.FilePath)
-    : IO (List System.FilePath) := do
+    : IO (List System.FilePath)
+    := do
   let mut paths : List System.FilePath := []
   for entry in ← dir.readDir do
     if !(← entry.path.isDir) && isSource entry.path then
@@ -97,7 +100,8 @@ private
 partial
 def rossiFiles
     (dir : System.FilePath)
-    : IO (List System.FilePath) := do
+    : IO (List System.FilePath)
+    := do
   let mut paths : List System.FilePath := []
   for entry in ← dir.readDir do
     if ← entry.path.isDir then
@@ -112,7 +116,8 @@ private
 partial
 def theoryFiles
     (dir : System.FilePath)
-    : IO (List System.FilePath) := do
+    : IO (List System.FilePath)
+    := do
   let mut paths : List System.FilePath := []
   for entry in ← dir.readDir do
     if ← entry.path.isDir then
@@ -124,7 +129,8 @@ def theoryFiles
 private
 def bpoFiles
     (dir : System.FilePath)
-    : IO (List System.FilePath) := do
+    : IO (List System.FilePath)
+    := do
   let mut paths : List System.FilePath := []
   for entry in ← dir.readDir do
     if !(← entry.path.isDir) && isBpo entry.path then
@@ -154,7 +160,8 @@ private structure ProjectData where
 private
 def loadTheories
     (paths : List System.FilePath)
-    : IO (Theory.Env × List EventB.Error) := do
+    : IO (Theory.Env × List EventB.Error)
+    := do
   let mut pending := paths
   let mut env := Theory.empty
   let mut errors : List EventB.Error := []
@@ -189,7 +196,8 @@ def loadTheories
 private
 def readSource
     (path : System.FilePath)
-    : IO (Except EventB.Error Source) := do
+    : IO (Except EventB.Error Source)
+    := do
   try
     match ← readModel path with
     | .ok model =>
@@ -214,7 +222,8 @@ def readSource
 private
 def readRossi
     (path : System.FilePath)
-    : IO (Except EventB.Error (List Source)) := do
+    : IO (Except EventB.Error (List Source))
+    := do
   match ← Rossi.read path with
   | .error reason => return .error (reason.withPath path.toString)
   | .ok components =>
@@ -224,7 +233,8 @@ def readRossi
 private
 def loadProject
     (path : System.FilePath)
-    : IO ProjectData := do
+    : IO ProjectData
+    := do
   let mut sources : List Source := []
   let mut errors : List EventB.Error := []
   let isDir ← path.isDir
@@ -330,7 +340,10 @@ def fatalErrors
     :=
   data.errors ++ rs.flatMap (·.errors)
 
-private def kinds : List String :=
+private
+def kinds
+    : List String
+    :=
   ["INV", "WD", "GRD", "SIM", "THM", "WFIS", "WWD", "FIS", "EQL", "MRG",
    "VWD", "FIN", "NAT", "VAR"]
 
@@ -355,7 +368,8 @@ private
 def printCheckDiagnostics
     (data : ProjectData)
     (rs : List Report)
-    : IO Unit := do
+    : IO Unit
+    := do
   for error in fatalErrors data rs do
     printError data.paths error
 
@@ -378,7 +392,10 @@ private inductive Action where
   | prove (dir : System.FilePath)
   | diff (dir : System.FilePath)
 
-private def pathParam : Param System.FilePath :=
+private
+def pathParam
+    : Param System.FilePath
+    :=
   Param.map System.FilePath.mk Param.path
 
 private
@@ -400,7 +417,10 @@ private def summarySpec :=
   Spec.map2 Action.summary (projectArg "Project directory or .eventb file")
     (Spec.switch "json" none "Emit one JSON summary")
 
-private def command : Command Action :=
+private
+def command
+    : Command Action
+    :=
   group "eventb" [
     cmd "check" (Spec.map Action.check checkSpec)
       (description := "Typecheck a project and list generated obligations."),
@@ -483,7 +503,8 @@ private
 def runCheckWithKinds
     (args : CheckArgs)
     (kinds : Option (List String))
-    : IO UInt32 := do
+    : IO UInt32
+    := do
   let data ← loadProject args.dir
   if data.sources.isEmpty then
     for error in data.errors do
@@ -585,7 +606,8 @@ private
 def runSummary
     (dir : System.FilePath)
     (json : Bool)
-    : IO UInt32 := do
+    : IO UInt32
+    := do
   let data ← loadProject dir
   if data.sources.isEmpty then
     for error in data.errors do
@@ -631,7 +653,8 @@ def runSummary
 private
 def runTheory
     (path : System.FilePath)
-    : IO UInt32 := do
+    : IO UInt32
+    := do
   let paths ← if ← path.isDir then theoryFiles path
     else if isTheory path then pure [path]
     else pure []
@@ -652,7 +675,8 @@ def runTheory
 private
 def runProve
     (dir : System.FilePath)
-    : IO UInt32 := do
+    : IO UInt32
+    := do
   let data ← loadProject dir
   if data.sources.isEmpty then
     for error in data.errors do
@@ -688,7 +712,8 @@ private
 def runPo
     (dir : System.FilePath)
     (name : String)
-    : IO UInt32 := do
+    : IO UInt32
+    := do
   let data ← loadProject dir
   if data.sources.isEmpty then
     for error in data.errors do
@@ -742,7 +767,8 @@ end
 private
 def readGoldPOs
     (path : System.FilePath)
-    : IO (Except String (List String)) := do
+    : IO (Except String (List String))
+    := do
   try
     let bytes ← IO.FS.readBinFile path
     match parseXml bytes with
@@ -852,7 +878,8 @@ def reportEntry
 private
 def runReport
     (dir : System.FilePath)
-    : IO UInt32 := do
+    : IO UInt32
+    := do
   let data ← loadProject dir
   if data.sources.isEmpty then
     for error in data.errors do
@@ -897,7 +924,8 @@ def findSource
 private
 def runDiff
     (dir : System.FilePath)
-    : IO UInt32 := do
+    : IO UInt32
+    := do
   let data ← loadProject dir
   if data.sources.isEmpty then
     printError [dir]
@@ -959,7 +987,8 @@ def runAction
 
 def main
     (args : List String)
-    : IO UInt32 := do
+    : IO UInt32
+    := do
   try
     Argus.Term.main command args runAction
   catch error =>

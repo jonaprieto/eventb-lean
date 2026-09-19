@@ -53,7 +53,8 @@ def requireValid
     (env : Theory.Env)
     (roots : List String)
     (declaration : Declaration)
-    : MetaM Unit := do
+    : MetaM Unit
+    := do
   let report := Validate.validateDeclaration env roots declaration
   unless report.isValid do
     throwError s!"invalid theory declaration: {reportText report}"
@@ -62,7 +63,8 @@ private
 def checkTypeParameters
     (context : KernelContext)
     (parameters : List String)
-    : MetaM Unit := do
+    : MetaM Unit
+    := do
   for parameter in parameters do
     match context.signature.carriers.find? (·.1 == parameter) with
     | none =>
@@ -93,7 +95,8 @@ def functionType
     (context : KernelContext)
     (parameters : List (String × Ty))
     (result : Ty)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   let result ← leanType context result
   parameters.foldrM (fun (_, ty) result => do
     let type ← leanType context ty
@@ -105,7 +108,8 @@ def checkedFunction
     (parameters : List (String × Ty))
     (result : Ty)
     (value : Expr)
-    : MetaM Unit := do
+    : MetaM Unit
+    := do
   let expected ← functionType context parameters result
   let actual ← inferType value
   unless ← isDefEq actual expected do
@@ -114,7 +118,8 @@ def checkedFunction
 def translateDefinition
     (context : KernelContext)
     (definition : Definition)
-    : MetaM KernelDefinition := do
+    : MetaM KernelDefinition
+    := do
   requireValid context.theory context.roots (.definitionDecl definition)
   checkTypeParameters context definition.typeParameters
   withParameters context definition.parameters fun bodyContext parameters => do
@@ -150,7 +155,8 @@ def uncurried
     (context : KernelContext)
     (parameters : List (String × Ty))
     (value : Expr)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   let some argumentType := productType (parameters.map (·.2)) | unreachable!
   withLocalDeclD `arguments (← leanType context argumentType) fun arguments => do
     let values ← productValues arguments parameters.length
@@ -187,7 +193,8 @@ formula context. Declarations are resolved in theory order, so a definition may 
 an earlier definition while still requiring explicit model and datatype denotations. -/
 def translateDefinitions
     (context : KernelContext)
-    : MetaM KernelContext := do
+    : MetaM KernelContext
+    := do
   let mut resolved := context
   for (_, definition) in Theory.definitionsIn context.theory context.roots do
     let translated ← translateDefinition resolved definition
@@ -199,7 +206,8 @@ def constructorType
     (context : KernelContext)
     (arguments : List Ty)
     (result : Expr)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   arguments.foldrM (fun type result => do
     let type ← leanType context type
     mkArrow type result) result
@@ -219,7 +227,8 @@ def checkedUncurriedFunction
     (name : String)
     (argument result : Ty)
     (value : Expr)
-    : MetaM Unit := do
+    : MetaM Unit
+    := do
   let argumentType ← leanType context argument
   let resultType ← leanType context result
   let actual ← inferType value
@@ -232,7 +241,8 @@ def checkDatatype
     (datatype : Datatype)
     (value : Expr)
     (constructors : List (String × Expr))
-    : MetaM KernelDatatype := do
+    : MetaM KernelDatatype
+    := do
   requireValid context.theory context.roots (.dataType datatype)
   checkTypeParameters context datatype.parameters
   unless (← inferType value).isSort do
@@ -256,7 +266,8 @@ def addDatatypeBindings
     (datatype : Datatype)
     (value : Expr)
     (constructors : List (String × Expr))
-    : MetaM KernelContext := do
+    : MetaM KernelContext
+    := do
   let checked ← checkDatatype context datatype value constructors
   let mut resolved := context
   for (declaration, constructor) in datatype.constructors.zip checked.constructors do
@@ -294,7 +305,8 @@ def implications
 def translateRule
     (context : KernelContext)
     (rule : Rule)
-    : MetaM KernelRule := do
+    : MetaM KernelRule
+    := do
   requireValid context.theory context.roots (.ruleDecl rule)
   checkTypeParameters context rule.typeParameters
   withParameters context rule.parameters fun bodyContext parameters => do

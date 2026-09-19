@@ -62,7 +62,9 @@ eventb_machine BridgeController where
     action act1 : cars := cars - 1
     action act2 : gate := FALSE
 
-def widgetProject : Typing.Project :=
+def widgetProject
+    : Typing.Project
+    :=
   [ { name := "WidgetCtx", elem := WidgetCtx }
   , { name := "BridgeBase", elem := BridgeBase }
   , { name := "BridgeController", elem := BridgeController } ]
@@ -216,7 +218,10 @@ theorem leaveSim
 
 end WidgetProofs
 
-private def widgetProofs : List (String × String) :=
+private
+def widgetProofs
+    : List (String × String)
+    :=
   [ ("INITIALISATION/inv1_1/INV", "WidgetProofs.initialInv1")
   , ("INITIALISATION/inv1_2/INV", "WidgetProofs.initialInv2")
   , ("INITIALISATION/act1/SIM", "WidgetProofs.initialSim")
@@ -253,7 +258,9 @@ def attachWidgetProof
       | .ok updated => updated
       | .error _ => ledger
 
-def widgetLedger : Trust.Ledger :=
+def widgetLedger
+    : Trust.Ledger
+    :=
   let obligations := POG.generate widgetProject "BridgeController"
   let initial := Trust.Ledger.ofObligations obligations
   widgetProofs.foldl (fun ledger (name, declaration) =>
@@ -262,7 +269,8 @@ def widgetLedger : Trust.Ledger :=
 private
 def validateWidgetProofs
     (limit cars gate : Expr)
-    : MetaM Unit := do
+    : MetaM Unit
+    := do
   let context : Embedding.KernelContext :=
     { bindings :=
         [{ name := "LIMIT", ty := .int, value := limit }

@@ -4,7 +4,10 @@ import EventB.POG.EQLAdapter
 
 namespace EventB.POG
 
-private def eqlBinding : EqlIntBinding Theory.empty positiveProject :=
+private
+def eqlBinding
+    : EqlIntBinding Theory.empty positiveProject
+    :=
   (EqlIntBinding.fromProject? Theory.empty positiveProject "B" "step" "x").get
     (by native_decide)
 
@@ -17,17 +20,25 @@ def eqlEncode
     :=
   { values := [("x", .integer 0)] }
 
-private def eqlTransition : CheckedBeforeAfter :=
+private
+def eqlTransition
+    : CheckedBeforeAfter
+    :=
   { before := eqlEncode ()
     after := eqlEncode ()
     declarations := [("x", .int)] }
 
-private theorem eqlAssignment :
-    ValueEnv.parallelAssignTypedFuel 128 [("x", .int)] (eqlEncode ())
-      [("x", .id "x")] = .ok eqlTransition := by
+private
+theorem eqlAssignment
+    : ValueEnv.parallelAssignTypedFuel 128 [("x", .int)] (eqlEncode ())
+      [("x", .id "x")] = .ok eqlTransition
+    := by
   native_decide
 
-private def eqlBridge : EqlIntEventBridge eqlBinding Unit :=
+private
+def eqlBridge
+    : EqlIntEventBridge eqlBinding Unit
+    :=
   { fuel := 128
     encode := eqlEncode
     event :=
@@ -94,12 +105,17 @@ private def eqlBridge : EqlIntEventBridge eqlBinding Unit :=
       rw [declarations, updates]
       exact ⟨eqlTransition, eqlAssignment, rfl⟩ }
 
-private def eqlAdapter : EqlIntAdapter Theory.empty positiveProject Unit :=
+private
+def eqlAdapter
+    : EqlIntAdapter Theory.empty positiveProject Unit
+    :=
   { binding := eqlBinding
     bridge := eqlBridge
     sequent := eqlBridge.sequent_of_goal_hypothesis (by native_decide) }
 
-example : framePreserved eqlAdapter.bridge.read eqlAdapter.bridge.event.act :=
+example
+    : framePreserved eqlAdapter.bridge.read eqlAdapter.bridge.event.act
+    :=
   eqlAdapter.sound
 
 end EventB.POG

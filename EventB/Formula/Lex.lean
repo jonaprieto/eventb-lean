@@ -28,7 +28,9 @@ def Tok.render
 
 /-- Alias to canonical spelling. Longest match wins, so order here does not matter, but
 every canonical operator must also map to itself. -/
-def operators : List (String × String) :=
+def operators
+    : List (String × String)
+    :=
   -- Predicate calculus.
   [("⇔", "⇔"), ("<=>", "⇔"), ("⇒", "⇒"), ("=>", "⇒"),
    ("∧", "∧"), ("&", "∧"), ("∨", "∨"), ("or", "∨"), ("¬", "¬"), ("not", "¬"),
@@ -77,7 +79,9 @@ def operators : List (String × String) :=
 /-- Longest first, so `<<:` is never read as `<` followed by `<:`. Held as a `Char`
 list per alias because the scanner works on `List Char`, and sorted once: re-sorting a
 130-entry table on every token turned the corpus scan into minutes. -/
-def operatorTable : Array (List Char × String) :=
+def operatorTable
+    : Array (List Char × String)
+    :=
   (operators.mergeSort (fun a b => b.1.length < a.1.length)).map
     (fun (alias, canon) => (alias.toList, canon)) |>.toArray
 

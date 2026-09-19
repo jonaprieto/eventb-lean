@@ -17,7 +17,9 @@ structure FileResult where
   status : String
   model : Option Model := none
 
-def expectedInventory : List (String × Nat) :=
+def expectedInventory
+    : List (String × Nat)
+    :=
   [("guard", 467), ("action", 410), ("event", 308), ("refinesEvent", 222),
    ("variable", 180), ("invariant", 142), ("parameter", 137), ("axiom", 68),
    ("constant", 33), ("machineFile", 22), ("seesContext", 22),
@@ -31,7 +33,10 @@ def isSource
     :=
   path.toString.endsWith ".bum" || path.toString.endsWith ".buc"
 
-private def sourceFiles : IO (List System.FilePath) := do
+private
+def sourceFiles
+    : IO (List System.FilePath)
+    := do
   let mut paths : List System.FilePath := []
   let corpus : System.FilePath := "corpus"
   for project in ← corpus.readDir do
@@ -52,7 +57,8 @@ def shortReason
 private
 def checkFile
     (path : System.FilePath)
-    : IO FileResult := do
+    : IO FileResult
+    := do
   try
     let source ← IO.FS.readBinFile path
     let parsed :=
@@ -238,7 +244,8 @@ def conflictingIdentifiers
 private
 def readGoldTypes
     (path : System.FilePath)
-    : IO (List (String × String)) := do
+    : IO (List (String × String))
+    := do
   match parseXml (← IO.FS.readBinFile path) with
   | .error _ => throw (IO.userError s!"cannot parse Rodin type oracle {path}")
   | .ok xml =>
@@ -334,7 +341,8 @@ end
 private
 def readGoldPOs
     (path : System.FilePath)
-    : IO (List String) := do
+    : IO (List String)
+    := do
   match parseXml (← IO.FS.readBinFile path) with
   | .error _ => throw (IO.userError s!"cannot parse Rodin PO oracle {path}")
   | .ok xml =>
@@ -540,7 +548,8 @@ def goalShapeErrors
 private
 def readGoldGoals
     (path : System.FilePath)
-    : IO (List (String × String)) := do
+    : IO (List (String × String))
+    := do
   match parseXml (← IO.FS.readBinFile path) with
   | .error _ => throw (IO.userError s!"cannot parse Rodin goal oracle {path}")
   | .ok xml =>
@@ -619,8 +628,10 @@ def coverageReasonFor
   else if !hypsOK then "hypotheses-differ"
   else "matched"
 
-private theorem deletedGoldSequentIsCoverageLoss :
-    coverageReasonFor false false false false false == "no-sequent" := by decide
+private
+theorem deletedGoldSequentIsCoverageLoss
+    : coverageReasonFor false false false false false == "no-sequent"
+    := by decide
 
 private
 def isPlainTypeInvariant
@@ -748,7 +759,10 @@ def coverageHistogram
     []).mergeSort (fun left right =>
     if left.2 == right.2 then left.1 < right.1 else right.2 < left.2)
 
-private def compatibilityDiagnosticNames : List String :=
+private
+def compatibilityDiagnosticNames
+    : List String
+    :=
   ["pinned-bpo-omits-plain-type-invariant",
    "pinned-bpo-omits-definedness-sequent",
    "pinned-bpo-omits-refinement-guard-sequent",
@@ -808,7 +822,8 @@ def checkGoals
 private
 def readGoldHyps
     (path : System.FilePath)
-    : IO (List (String × List String)) := do
+    : IO (List (String × List String))
+    := do
   match parseXml (← IO.FS.readBinFile path) with
   | .error _ => throw (IO.userError s!"cannot parse Rodin hypothesis oracle {path}")
   | .ok xml =>
@@ -972,7 +987,8 @@ def multisetSubset
 private
 def baselineDiff
     (baseline actual : List String)
-    : IO Bool := do
+    : IO Bool
+    := do
   if baseline == actual then
     pure true
   else
@@ -989,7 +1005,8 @@ private
 def writeBaseline
     (path : String)
     (lines : List String)
-    : IO Unit := do
+    : IO Unit
+    := do
   IO.FS.writeFile path (String.intercalate "\n" lines ++ "\n")
 
 private
@@ -1002,7 +1019,8 @@ def writeStatus
     (compatibilityCount : Nat)
     (p4 : List P4Result)
     (inventory : List (String × Nat))
-    : IO Unit := do
+    : IO Unit
+    := do
   let passed := results.countP (fun result => result.status == "PASS")
   let fpass := formulas.countP (fun result => result.status == "PASS")
   let tpass := types.countP (fun result => result.status == "PASS")
@@ -1047,7 +1065,8 @@ def writeStatus
 private
 def run
     (args : List String)
-    : IO UInt32 := do
+    : IO UInt32
+    := do
   let knownArgs := ["--histogram", "--coverage", "--status", "--bless"]
   let unknownArgs := args.filter (fun arg => !knownArgs.contains arg)
   if !unknownArgs.isEmpty then

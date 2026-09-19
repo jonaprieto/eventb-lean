@@ -66,7 +66,9 @@ def render
     :=
   String.intercalate ": " (error.path.toList ++ error.context.reverse ++ [error.message])
 
-instance : ToString Error where
+instance
+    : ToString Error
+    where
   toString := render
 
 end Error

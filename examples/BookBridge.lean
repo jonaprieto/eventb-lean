@@ -225,7 +225,9 @@ partial/total functions, domain restriction, images, lambdas, quantifiers, inter
 boolean values, simultaneous assignments, witnesses, theorem predicates and refinement
 targets.  These are deliberately real `Elem` trees, not comments or parser-only tests. -/
 
-def bookProject : Typing.Project :=
+def bookProject
+    : Typing.Project
+    :=
   [ { name := "BridgeCtx", elem := BridgeCtx }
   , { name := "Bridge0", elem := Bridge0 }
   , { name := "Bridge1", elem := Bridge1 }

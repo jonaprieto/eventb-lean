@@ -64,7 +64,8 @@ def lambda
 private
 def reflexiveProof
     (goal : Expr)
-    : MetaM (Option Expr) := do
+    : MetaM (Option Expr)
+    := do
   let goal ← whnf goal
   match goal with
   | .app (.app (.app (.const ``Eq _) _) left) right =>
@@ -81,7 +82,8 @@ theorem zeroLtIntOfNatSucc
 private
 def zeroLtNumeralProof
     (goal : Expr)
-    : MetaM (Option Expr) := do
+    : MetaM (Option Expr)
+    := do
   let (function, arguments) := goal.getAppFnArgs
   if function == ``Int.lt && arguments.size == 2 then
     let left := arguments[0]!
@@ -104,7 +106,8 @@ private
 def basicProof
     (pairs : List (Expr × Expr))
     (goal : Expr)
-    : MetaM (Option (Rule × Expr)) := do
+    : MetaM (Option (Rule × Expr))
+    := do
   for pair in pairs do
     if ← isDefEq pair.1 goal then
       return some (.exactHypothesis, pair.2)
@@ -123,7 +126,8 @@ def basicProof
 private
 def andParts
     (goal : Expr)
-    : MetaM (Option (Expr × Expr)) := do
+    : MetaM (Option (Expr × Expr))
+    := do
   let goal ← whnf goal
   match goal with
   | .app (.app (.const ``And _) left) right => pure (some (left, right))
@@ -132,7 +136,8 @@ def andParts
 private
 def orParts
     (goal : Expr)
-    : MetaM (Option (Expr × Expr)) := do
+    : MetaM (Option (Expr × Expr))
+    := do
   let goal ← whnf goal
   match goal with
   | .app (.app (.const ``Or _) left) right => pure (some (left, right))
@@ -141,7 +146,8 @@ def orParts
 private
 def implicationParts
     (goal : Expr)
-    : MetaM (Option (Expr × Expr)) := do
+    : MetaM (Option (Expr × Expr))
+    := do
   let goal ← whnf goal
   match goal with
   | .forallE _ premise body _ => pure (some (premise, body))
@@ -151,7 +157,8 @@ private
 def projection
     (pairs : List (Expr × Expr))
     (goal : Expr)
-    : MetaM (Option Expr) := do
+    : MetaM (Option Expr)
+    := do
   for pair in pairs do
     let hypothesis ← whnf pair.1
     match hypothesis with
@@ -209,7 +216,8 @@ def ruleProof
 def prove
     (context : KernelContext)
     (obligation : Obligation)
-    : MetaM Result := do
+    : MetaM Result
+    := do
   let goal ← match obligation.goal with
     | some value => Embedding.translatePredicate context value
     | none => throwError s!"obligation `{obligation.name}` has no translated goal"
@@ -224,7 +232,8 @@ def prove
 def validate
     (context : KernelContext)
     (obligation : Obligation)
-    : MetaM Result := do
+    : MetaM Result
+    := do
   let result ← prove context obligation
   match result.proof with
   | none => pure result

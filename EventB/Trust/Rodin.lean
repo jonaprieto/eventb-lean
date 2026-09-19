@@ -59,7 +59,8 @@ def natValue
 private
 def parseStatus
     (elem : XmlElem)
-    : Except String Status := do
+    : Except String Status
+    := do
   unless elem.tag == "org.eventb.core.psStatus" do
     throw s!"unsupported proof-status child `{elem.tag}`"
   unless elem.children.isEmpty do
@@ -101,7 +102,8 @@ def validateStatuses
 
 def importStatuses
     (source : String)
-    : Except EventB.Error (List Status) := do
+    : Except EventB.Error (List Status)
+    := do
   let root ← match parseXmlString source with
     | .ok root => pure root
     | .error error => .error (EventB.Error.trust
@@ -168,7 +170,8 @@ def attachVerified
     (obligation : POG.Obligation)
     (provenance : Provenance)
     (manual : Bool)
-    : Except EventB.Error Ledger := do
+    : Except EventB.Error Ledger
+    := do
   ledger.validate
   let evidence := .rodinImportedProvenance provenance.models provenance.bpo provenance.statuses
     (provenanceDigest provenance) manual
@@ -202,7 +205,8 @@ def attachVerified
 private
 def rootModel
     (artifact : ModelArtifact)
-    : Except EventB.Error (String × String) := do
+    : Except EventB.Error (String × String)
+    := do
   let source := artifact.byteString
   let root ← match parseXmlString source with
     | .ok root => pure root
@@ -218,7 +222,8 @@ def rootModel
 private
 def parseModelProject
     (provenance : Provenance)
-    : Except EventB.Error Project := do
+    : Except EventB.Error Project
+    := do
   match projectFromArtifacts provenance.models with
   | .ok project => pure project
   | .error error => .error error
@@ -228,7 +233,8 @@ def generatedModelObligation
     (theory : Theory.Env)
     (obligation : POG.Obligation)
     (provenance : Provenance)
-    : Except EventB.Error Unit := do
+    : Except EventB.Error Unit
+    := do
   let project ← parseModelProject provenance
   let generated ← match POG.generateCheckedIn theory project obligation.component with
     | .ok obligations => pure obligations
@@ -475,7 +481,8 @@ private
 def validateHypotheses
     (obligation : POG.Obligation)
     (bpo : XmlElem)
-    : Except EventB.Error Unit := do
+    : Except EventB.Error Unit
+    := do
   let sequent ← match findPoSequent bpo obligation.name with
     | some sequent => pure sequent
     | none => .error (EventB.Error.trust
@@ -496,7 +503,8 @@ private
 def validateGoal
     (obligation : POG.Obligation)
     (bpo : XmlElem)
-    : Except EventB.Error Unit := do
+    : Except EventB.Error Unit
+    := do
   let expected ← match obligation.goal with
     | some goal => pure goal
     | none => .error (EventB.Error.trust
@@ -523,7 +531,8 @@ def validateProvenanceIn
     (obligation : POG.Obligation)
     (provenance : Provenance)
     (status : Status)
-    : Except EventB.Error Unit := do
+    : Except EventB.Error Unit
+    := do
   let target ← match provenance.models with
     | target :: _ => pure target
     | [] => .error (EventB.Error.trust "Rodin provenance has no model artifacts")
@@ -585,7 +594,8 @@ def attachProvenanceIn
     (obligation : POG.Obligation)
     (provenance : Provenance)
     (status : Status)
-    : Except EventB.Error Ledger := do
+    : Except EventB.Error Ledger
+    := do
   validateProvenanceIn theory obligation provenance status
   attachVerified ledger obligation provenance status.manual
 
@@ -608,7 +618,10 @@ def attach
   .error (EventB.Error.trust
     "Rodin.attach requires model, PO, and proof-status provenance; use attachProvenance")
 
-private def sampleObligation : POG.Obligation :=
+private
+def sampleObligation
+    : POG.Obligation
+    :=
   { component := "Sample", name := "INITIALISATION/inv/INV", kind := "INV"
     goal := some (.bin "∈" (.num 0) (.id "ℤ")) }
 
@@ -618,7 +631,10 @@ private def sampleSource :=
     "org.eventb.core.confidence=\"1000\" org.eventb.core.psManual=\"true\"/>" ++
     "</org.eventb.core.psFile>"
 
-private def sampleModel : ModelArtifact :=
+private
+def sampleModel
+    : ModelArtifact
+    :=
   { component := "Sample"
     kind := .machine
     bytes := ("<?xml version=\"1.0\"?><org.eventb.core.machineFile " ++

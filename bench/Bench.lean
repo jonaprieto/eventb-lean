@@ -8,7 +8,8 @@ open EventB
 use syntax a `.bum` never contains: type ascriptions on bound variables. -/
 def main
     (args : List String)
-    : IO Unit := do
+    : IO Unit
+    := do
   let path := args.getLast?.getD "/tmp/allpo.txt"
   let text ← try IO.FS.readFile path catch _ =>
     throw <| IO.userError s!"bench: input file not found: {path} (run spike/extract.py first)"

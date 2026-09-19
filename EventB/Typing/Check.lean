@@ -541,7 +541,8 @@ def addComponentMode
     (strict : Bool)
     (p : Project)
     (c : Component)
-    : M (List String) := do
+    : M (List String)
+    := do
   let mut errs : List String := []
   -- Carrier sets and constants first, so axioms can refer to them in any order.
   for s in childrenOf c.elem "carrierSet" do
@@ -769,7 +770,10 @@ def inferComponent
     :=
   inferComponentIn Theory.empty p name
 
-private def missingReferenceProject : Project :=
+private
+def missingReferenceProject
+    : Project
+    :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.seesContext [("org.eventb.core.target", "Missing")] []]
@@ -781,7 +785,10 @@ private def missingReferenceProject : Project :=
         errors.contains "unresolved theory reference MissingTheory"
   | .error _ => false
 
-private def cyclicRefinementProject : Project :=
+private
+def cyclicRefinementProject
+    : Project
+    :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.refinesMachine [("org.eventb.core.target", "B")] []] }
@@ -793,7 +800,10 @@ private def cyclicRefinementProject : Project :=
   | .ok (_, errors) => errors.any (fun error => error.contains "refinement cycle")
   | .error _ => false
 
-private def multipleParentProject : Project :=
+private
+def multipleParentProject
+    : Project
+    :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")] [] }
    , { name := "B"
@@ -807,7 +817,10 @@ private def multipleParentProject : Project :=
   | .ok (_, errors) => errors.any (fun error => error.contains "multiple refinement parents")
   | .error _ => false
 
-private def contextCycleProject : Project :=
+private
+def contextCycleProject
+    : Project
+    :=
   [{ name := "C1"
      elem := .contextFile [("org.eventb.core.name", "C1")]
        [.extendsContext [("org.eventb.core.target", "C2")] []] }
@@ -822,7 +835,10 @@ private def contextCycleProject : Project :=
   | .ok (_, errors) => errors.any (fun error => error.contains "dependency cycle")
   | .error _ => false
 
-private def initializationGuardProject : Project :=
+private
+def initializationGuardProject
+    : Project
+    :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -834,7 +850,10 @@ private def initializationGuardProject : Project :=
   | .ok (_, errors) => errors.any (fun error => error.contains "must not declare guards")
   | .error _ => false
 
-private def duplicateInitializationProject : Project :=
+private
+def duplicateInitializationProject
+    : Project
+    :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.event [("org.eventb.core.label", "INITIALISATION")] []
@@ -844,7 +863,10 @@ private def duplicateInitializationProject : Project :=
   | .ok (_, errors) => errors.any (fun error => error.contains "exactly one INITIALISATION")
   | .error _ => false
 
-private def duplicateEventLabelProject : Project :=
+private
+def duplicateEventLabelProject
+    : Project
+    :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.event [("org.eventb.core.label", "INITIALISATION")] []
@@ -855,7 +877,10 @@ private def duplicateEventLabelProject : Project :=
   | .ok (_, errors) => errors.any (fun error => error.contains "duplicate event label step")
   | .error _ => false
 
-private def primedPredicateProject : Project :=
+private
+def primedPredicateProject
+    : Project
+    :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -867,7 +892,10 @@ private def primedPredicateProject : Project :=
   | .ok result => result.diagnostics.any (fun error => error.contains "unresolved")
   | .error _ => false
 
-private def invalidVariantProject : Project :=
+private
+def invalidVariantProject
+    : Project
+    :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "b")] []
@@ -880,7 +908,10 @@ private def invalidVariantProject : Project :=
   | .ok (_, errors) => errors.any (fun error => error.contains "variant expression")
   | .error _ => false
 
-private def invalidReferenceKindProject : Project :=
+private
+def invalidReferenceKindProject
+    : Project
+    :=
   [{ name := "C"
      elem := .contextFile [("org.eventb.core.name", "C")]
        [.refinesMachine [("org.eventb.core.target", "M")] []] }
@@ -891,7 +922,10 @@ private def invalidReferenceKindProject : Project :=
   | .ok (_, errors) => errors.any (fun error => error.contains "not legal from C")
   | .error _ => false
 
-private def missingVariantExpressionProject : Project :=
+private
+def missingVariantExpressionProject
+    : Project
+    :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variant [] [], .event [("org.eventb.core.label", "INITIALISATION")] []] }]
@@ -900,7 +934,10 @@ private def missingVariantExpressionProject : Project :=
   | .ok (_, errors) => errors.any (fun error => error.contains "variant in M has no expression")
   | .error _ => false
 
-private def duplicateRefinementTargetProject : Project :=
+private
+def duplicateRefinementTargetProject
+    : Project
+    :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.event [("org.eventb.core.label", "step")] []] }
@@ -917,7 +954,10 @@ private def duplicateRefinementTargetProject : Project :=
       errors.any (fun error => error.contains "duplicate refinement reference step")
   | .error _ => false
 
-private def componentNameMismatchProject : Project :=
+private
+def componentNameMismatchProject
+    : Project
+    :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "Other")]
        [.event [("org.eventb.core.label", "INITIALISATION")] []] }]
@@ -926,7 +966,10 @@ private def componentNameMismatchProject : Project :=
   | .ok (_, errors) => errors.any (fun error => error.contains "XML name is Other")
   | .error _ => false
 
-private def primedBinderProject : Project :=
+private
+def primedBinderProject
+    : Project
+    :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -941,7 +984,10 @@ private def primedBinderProject : Project :=
   | .ok (_, errors) => errors.isEmpty
   | .error _ => false
 
-private def strictScopeProject : Project :=
+private
+def strictScopeProject
+    : Project
+    :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -970,7 +1016,10 @@ private def strictScopeProject : Project :=
   | .ok details => details.diagnostics.any (fun error => error.contains "unbound identifier p")
   | .error _ => false
 
-private def duplicateAssignmentProject : Project :=
+private
+def duplicateAssignmentProject
+    : Project
+    :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -992,7 +1041,8 @@ def inferTermAtText
     (roots : List String)
     (env : List (String × Ty))
     (t : Term)
-    : Except String Ty := do
+    : Except String Ty
+    := do
   let (ty, st) ← (inferExpr t).run { env, theory, theoryRoots := roots }
   let (ty, _) ← (zonk ty).run st
   if containsMVar ty then
@@ -1012,7 +1062,8 @@ def inferTermIn
     (theory : Theory.Env)
     (env : List (String × Ty))
     (t : Term)
-    : Except EventB.Error Ty := do
+    : Except EventB.Error Ty
+    := do
   let roots := theory.theories.map (·.name)
   inferTermAt theory roots env t
 
@@ -1085,7 +1136,10 @@ def inferOne
 #guard inferOne [("x", .int), ("x'", .int), ("y", .int), ("y'", .int)] []
     "x, y :∣ x' = y' ∧ y' = x' + 1" "x" == some "ℤ"
 
-private def demoTheory : Theory.Env :=
+private
+def demoTheory
+    : Theory.Env
+    :=
   match Theory.add Theory.empty
       { name := "Demo", symbols :=
         [{ name := "LIMIT", kind := .constant, type := some .int

@@ -40,7 +40,8 @@ def fileJson
 
 def main
     (args : List String)
-    : IO UInt32 := do
+    : IO UInt32
+    := do
   let mut failed := false
   for path in args do
     match ← Rossi.read path with

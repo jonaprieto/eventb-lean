@@ -521,7 +521,10 @@ def validateSpec
       rhs := some (.bin "+" (.id "x") (.num 0)) })).issues.any
   (fun issue => issue.field == "orientation")
 
-private def scopedSpec : Spec :=
+private
+def scopedSpec
+    : Spec
+    :=
   { name := "Bounds"
     symbols := [Symbol.mk "LIMIT" .constant (some .int) "A visible theory constant." none []
       (SymbolId.unqualified "LIMIT") SourceRange.synthetic]

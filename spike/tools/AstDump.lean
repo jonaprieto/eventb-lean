@@ -26,7 +26,8 @@ where
 
 def main
     (args : List String)
-    : IO Unit := do
+    : IO Unit
+    := do
   let path := args.head!
   let text ← IO.FS.readFile path
   for l in text.splitOn "\n" do

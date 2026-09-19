@@ -1113,7 +1113,8 @@ def assignmentWdGoal
     (roots totalKeywords : List String)
     (types : List (String × Ty))
     (action : Elem)
-    : Option Term := do
+    : Option Term
+    := do
   let source ← attrOf action "assignment"
   let parsed ← Formula.parse source |>.toOption
   match parsed with
@@ -1149,7 +1150,8 @@ def variantType
     (roots : List String)
     (types : List (String × Ty))
     (variant : Elem)
-    : Option Ty := do
+    : Option Ty
+    := do
   let source ← attrOf variant "expression"
   let term ← Formula.parse source |>.toOption
   (inferTermAt theory roots types term).toOption
@@ -1157,7 +1159,8 @@ def variantType
 private
 def variantTerm
     (variant : Elem)
-    : Option Term := do
+    : Option Term
+    := do
   let source ← attrOf variant "expression"
   Formula.parse source |>.toOption
 
@@ -1165,7 +1168,8 @@ private
 def witnessFeasibility
     (types visibleParams : List (String × Ty))
     (witness : Elem)
-    : Option Term := do
+    : Option Term
+    := do
   let predicate ← Formula.parse ((attrOf witness "predicate").getD "") |>.toOption
   let witnessVar ← witnessVariable witness
   let (_, type) ← (visibleParams.find? (fun pair => pair.1 == witnessVar) <|>
@@ -1265,8 +1269,14 @@ def eventHyps
     (Formula.parse ((attrOf g "predicate").getD "")).toOption
 
 /-- Obligations for one machine or context under a native theory environment. -/
-private def generateInMode (strict : Bool) (theory : Theory.Env) (p : Project)
-    (name : String) : List Obligation := Id.run do
+private
+def generateInMode
+    (strict : Bool)
+    (theory : Theory.Env)
+    (p : Project)
+    (name : String)
+    : List Obligation
+    := Id.run do
   match lookupComponent p name with
   | none => return []
   | some c =>
@@ -1626,7 +1636,8 @@ def locateEql?
     (theory : Theory.Env)
     (p : Project)
     (component event eqlVariable : String)
-    : Except EventB.Error (Option (EqlOrigin × Obligation)) := do
+    : Except EventB.Error (Option (EqlOrigin × Obligation))
+    := do
   let generated ← generateCheckedIn theory p component
   let concrete ← match lookupComponent p component with
     | some value => pure value
@@ -1747,7 +1758,8 @@ def locateWitness?
     (theory : Theory.Env)
     (p : Project)
     (component event witnessLabel kind : String)
-    : Except EventB.Error (Option (WitnessOrigin × Obligation)) := do
+    : Except EventB.Error (Option (WitnessOrigin × Obligation))
+    := do
   if kind != "WFIS" && kind != "WWD" then
     throw (EventB.Error.typing s!"unsupported witness obligation kind {kind}")
   let generated ← generateCheckedIn theory p component
@@ -1815,7 +1827,8 @@ def locateSim?
     (theory : Theory.Env)
     (p : Project)
     (component event abstractActionLabel : String)
-    : Except EventB.Error (Option (SimOrigin × Obligation)) := do
+    : Except EventB.Error (Option (SimOrigin × Obligation))
+    := do
   let generated ← generateCheckedIn theory p component
   let concrete ← match lookupComponent p component with
     | some value => pure value
@@ -1978,12 +1991,18 @@ def generateChecked
     :=
   generateCheckedIn Theory.empty p name
 
-private def checkedMissingProject : Project :=
+private
+def checkedMissingProject
+    : Project
+    :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.seesContext [("org.eventb.core.target", "Missing")] []] }]
 
-private def defaultInitializationProject : Project :=
+private
+def defaultInitializationProject
+    : Project
+    :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -1992,7 +2011,10 @@ private def defaultInitializationProject : Project :=
         , .event [("org.eventb.core.label", "INITIALISATION")]
           []] }]
 
-private def rightWitnessProject : Project :=
+private
+def rightWitnessProject
+    : Project
+    :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -2020,7 +2042,10 @@ private def rightWitnessProject : Project :=
              , .action [("org.eventb.core.label", "set"),
                         ("org.eventb.core.assignment", "x ≔ q + 1")] []]] }]
 
-private def hiddenParameterChild : Component :=
+private
+def hiddenParameterChild
+    : Component
+    :=
   { name := "C"
     elem := .machineFile [("org.eventb.core.name", "C")]
       [.refinesMachine [("org.eventb.core.target", "B")] []
@@ -2032,7 +2057,10 @@ private def hiddenParameterChild : Component :=
           , .guard [("org.eventb.core.label", "hidden"),
                     ("org.eventb.core.predicate", "p = 0")] []]] }
 
-private def dataRefinementProject : Project :=
+private
+def dataRefinementProject
+    : Project
+    :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.variable [("org.eventb.core.identifier", "a")] []
@@ -2060,7 +2088,10 @@ private def dataRefinementProject : Project :=
              , .action [("org.eventb.core.label", "set"),
                         ("org.eventb.core.assignment", "b ≔ b + 1")] []]] }]
 
-private def mergeProject : Project :=
+private
+def mergeProject
+    : Project
+    :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -2090,7 +2121,10 @@ private def mergeProject : Project :=
              , .action [("org.eventb.core.label", "set"),
                         ("org.eventb.core.assignment", "x ≔ x")] []]] }]
 
-private def nonEqualityWitnessProject : Project :=
+private
+def nonEqualityWitnessProject
+    : Project
+    :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -2118,7 +2152,10 @@ private def nonEqualityWitnessProject : Project :=
              , .action [("org.eventb.core.label", "set"),
                         ("org.eventb.core.assignment", "x ≔ q")] []]] }]
 
-private def extendedParameterProject : Project :=
+private
+def extendedParameterProject
+    : Project
+    :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -2141,7 +2178,10 @@ private def extendedParameterProject : Project :=
              , .action [("org.eventb.core.label", "set_y"),
                         ("org.eventb.core.assignment", "y ≔ p")] []]] }]
 
-private def initializationRefinementProject : Project :=
+private
+def initializationRefinementProject
+    : Project
+    :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -2156,7 +2196,10 @@ private def initializationRefinementProject : Project :=
           , .variable [("org.eventb.core.identifier", "x")] []
           , .event [("org.eventb.core.label", "INITIALISATION")] []] }]
 
-private def functionUpdateWdProject : Project :=
+private
+def functionUpdateWdProject
+    : Project
+    :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "f")] []

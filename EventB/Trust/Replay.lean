@@ -38,7 +38,8 @@ private
 def statement
     (context : Embedding.KernelContext)
     (obligation : POG.Obligation)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   let goal ← match obligation.goal with
     | some goal => Embedding.translatePredicate context goal
     | none => throwError s!"obligation `{obligation.name}` has no translated goal"
@@ -66,7 +67,8 @@ def proofFingerprint
 private
 def proofTerm
     (declaration : String)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   let name := declarationName declaration
   let info ← getConstInfo name
   if info.isUnsafe then
@@ -108,7 +110,8 @@ def declarationDependencies
 private
 def axiomNames
     (initial : List Name)
-    : MetaM NameSet := do
+    : MetaM NameSet
+    := do
   let mut pending := initial
   let mut seen : NameSet := {}
   let mut axioms : NameSet := {}
@@ -135,14 +138,16 @@ def sortedNames
 private
 def actualAxioms
     (proof : Expr)
-    : MetaM (List String) := do
+    : MetaM (List String)
+    := do
   let names ← axiomNames proof.getUsedConstants.toList
   pure (sortedNames names)
 
 private
 def expectedAxioms
     (evidence : Evidence)
-    : MetaM (String × List String) := do
+    : MetaM (String × List String)
+    := do
   match evidence with
   | .kernel declaration axioms =>
       pure (declaration, axioms.map fun name => (name.toName).toString false)
@@ -155,7 +160,8 @@ def validateTerm
     (proof : Expr)
     (declaration : String := "<term>")
     (declaredAxioms : List String := [])
-    : MetaM Report := do
+    : MetaM Report
+    := do
   unless obligation.diagnostics.isEmpty do
     throwError s!"obligation `{obligation.name}` has diagnostics"
   unless obligation.goal.isSome do
@@ -182,7 +188,8 @@ def replayKernel
     (context : Embedding.KernelContext)
     (obligation : POG.Obligation)
     (evidence : Evidence)
-    : MetaM Report := do
+    : MetaM Report
+    := do
   let (declaration, declaredAxioms) ← expectedAxioms evidence
   let proof ← proofTerm declaration
   let proof ← specializeProof proof context.bindings
@@ -229,7 +236,8 @@ def validateEntry
     (context : Embedding.KernelContext)
     (obligation : POG.Obligation)
     (entry : Entry)
-    : MetaM Report := do
+    : MetaM Report
+    := do
   unless entry.component == obligation.component && entry.obligation == obligation.name do
     throwError s!"evidence entry does not identify `{obligation.component}:{obligation.name}`"
   unless entry.fingerprint == Trust.fingerprint obligation.canonical do
@@ -250,7 +258,9 @@ def validateEntry
 
 namespace TestFixtures
 
-theorem propextTrue : True := by
+theorem propextTrue
+    : True
+    := by
   have h : True = True := propext Iff.rfl
   exact Eq.mp h True.intro
 
@@ -262,7 +272,10 @@ theorem reflexive (value : Int) : value = value := rfl
 
 end TestFixtures
 
-private def replayObligation : POG.Obligation :=
+private
+def replayObligation
+    : POG.Obligation
+    :=
   { component := "Replay"
     name := "true/THM"
     kind := "THM"
