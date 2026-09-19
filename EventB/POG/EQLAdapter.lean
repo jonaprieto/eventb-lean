@@ -108,9 +108,12 @@ def EqlIntBinding.action
     ValueEnv.parallelAssignTypedFuel fuel binding.declarations before binding.updates =
         .ok transition ∧ transition.after = after
 
-def EqlIntBinding.goal {theory : EventB.Theory.Env}
-    {project : EventB.Typing.Project} (binding : EqlIntBinding theory project) :
-    EventB.Formula.Term := eqlGoal binding.eqlVariable
+def EqlIntBinding.goal
+    {theory : EventB.Theory.Env}
+    {project : EventB.Typing.Project}
+    (binding : EqlIntBinding theory project)
+    : EventB.Formula.Term
+    := eqlGoal binding.eqlVariable
 
 structure EqlIntEventBridge
     {theory : EventB.Theory.Env}
@@ -272,7 +275,9 @@ theorem EqlIntAdapter.sound
 /- Kernel fixtures.  The parent event has no action; the concrete event's
    deterministic self-assignment is therefore the exact source of B/step/x/EQL. -/
 
-def positiveProject : EventB.Typing.Project :=
+def positiveProject
+    : EventB.Typing.Project
+    :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [.variable [("org.eventb.core.identifier", "x")] []

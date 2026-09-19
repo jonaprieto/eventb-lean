@@ -47,9 +47,13 @@ def FormulaModel.validUnchecked
   | "WWD", none => validHypotheses (obligation.hyps.map model.denote)
   | _, none => False
 
-theorem validSequent.intro {σ : Type u} {hyps : List (σ → Prop)} {goal : σ → Prop}
-    (proof : ∀ state, (∀ hypothesis ∈ hyps, hypothesis state) → goal state) :
-    validSequent hyps goal := proof
+theorem validSequent.intro
+    {σ : Type u}
+    {hyps : List (σ → Prop)}
+    {goal : σ → Prop}
+    (proof : ∀ state, (∀ hypothesis ∈ hyps, hypothesis state) → goal state)
+    : validSequent hyps goal
+    := proof
 
 def Obligation.sourceBound
     (project : EventB.Typing.Project)
@@ -578,7 +582,8 @@ def ValueEnv.validateFuel
     (fuel : Nat)
     (declarations : List (String × EventB.Typing.Ty))
     (env : ValueEnv)
-    : Except EvalError Unit := do
+    : Except EvalError Unit
+    := do
   let declarationNames := declarations.map (·.1)
   let envNames := env.values.map (·.1)
   if let some duplicate := declarationNames.find? (fun name => declarationNames.count name > 1) then
@@ -669,7 +674,8 @@ def CheckedBeforeAfter.make
     (fuel : Nat)
     (declarations : List (String × EventB.Typing.Ty))
     (before after : ValueEnv)
-    : Except EvalError CheckedBeforeAfter := do
+    : Except EvalError CheckedBeforeAfter
+    := do
   if before.carriers != after.carriers then .error .invalidValue
   ValueEnv.validateFuel fuel declarations before
   ValueEnv.validateFuel fuel declarations after
@@ -1188,10 +1194,12 @@ theorem ValueEnv.lookup_set_self
     := by
   simp [ValueEnv.lookup, ValueEnv.set]
 
-theorem evalWitnessIntegerZeroDivOne (env : ValueEnv) :
-    evalPredicateAtFuel 128 env
+theorem evalWitnessIntegerZeroDivOne
+    (env : ValueEnv)
+    : evalPredicateAtFuel 128 env
       (.bind "∃" (.bin "⦂" (.id "p") (.id "ℤ"))
-        (.bin "=" (.id "p") (.bin "÷" (.num 0) (.num 1)))) = .ok true := by
+        (.bin "=" (.id "p") (.bin "÷" (.num 0) (.num 1)))) = .ok true
+    := by
   have pNotPrime : "p".endsWith "'" = false := by native_decide
   have integerCompatible : (ValueType.integer == ValueType.integer) = true := by
     native_decide
@@ -1244,9 +1252,10 @@ theorem evalValueFiniteZero
     Value.makeSet, Value.sameType, Value.typeOf, ValueType.compatible,
     Bind.bind, Except.bind]
 
-theorem evalValueIdentifierSingletonZero :
-    evalValueAtFuel 127 { values := [("S", .set [.integer 0])] } (.id "S") =
-      .ok (.set [.integer 0]) := by
+theorem evalValueIdentifierSingletonZero
+    : evalValueAtFuel 127 { values := [("S", .set [.integer 0])] } (.id "S") =
+      .ok (.set [.integer 0])
+    := by
   have xNotEndsWith : ¬ "S".endsWith "'" = true := by native_decide
   simp [evalValueAtFuel, evalValueWithFuel, evalValueFuel, EvalView.lookup,
     ValueEnv.lookup, ValueEnv.valueIsWellFormed, xNotEndsWith, Bind.bind, Except.bind]
@@ -1278,9 +1287,9 @@ theorem evalBeforeAfterIntegerOneOrOne
 theorem evalBeforeAfterZeroSetNeEmpty
     (transition : CheckedBeforeAfter)
     (beforeValid : ValueEnv.validationOk 128 transition.declarations transition.before = true)
-    (afterValid : ValueEnv.validationOk 128 transition.declarations transition.after = true) :
-    evalBeforeAfter 128 transition
-      (.bin "≠" (.set [.num 0]) (.set [])) = .ok true := by
+    (afterValid : ValueEnv.validationOk 128 transition.declarations transition.after = true)
+    : evalBeforeAfter 128 transition (.bin "≠" (.set [.num 0]) (.set [])) = .ok true
+    := by
   have leftValues :
       evalValueListFuel 126 { before := transition.before, after := some transition.after }
           [.num 0] = .ok [.integer 0] := by
@@ -1299,9 +1308,9 @@ theorem evalBeforeAfterZeroSetNeEmpty
 theorem evalBeforeAfterZeroSetSubset
     (transition : CheckedBeforeAfter)
     (beforeValid : ValueEnv.validationOk 128 transition.declarations transition.before = true)
-    (afterValid : ValueEnv.validationOk 128 transition.declarations transition.after = true) :
-    evalBeforeAfter 128 transition
-      (.bin "⊆" (.set [.num 0]) (.set [.num 0])) = .ok true := by
+    (afterValid : ValueEnv.validationOk 128 transition.declarations transition.after = true)
+    : evalBeforeAfter 128 transition (.bin "⊆" (.set [.num 0]) (.set [.num 0])) = .ok true
+    := by
   have values :
       evalValueListFuel 126 { before := transition.before, after := some transition.after }
           [.num 0] = .ok [.integer 0] := by
@@ -1395,18 +1404,18 @@ theorem evalBeforeAfterIdentifierFinite
 theorem evalBeforeAfterZeroNat
     (transition : CheckedBeforeAfter)
     (beforeValid : ValueEnv.validationOk 128 transition.declarations transition.before = true)
-    (afterValid : ValueEnv.validationOk 128 transition.declarations transition.after = true) :
-    evalBeforeAfter 128 transition
-      (.bin "∈" (.num 0) (.id "ℕ")) = .ok true := by
+    (afterValid : ValueEnv.validationOk 128 transition.declarations transition.after = true)
+    : evalBeforeAfter 128 transition (.bin "∈" (.num 0) (.id "ℕ")) = .ok true
+    := by
   simp [evalBeforeAfter, beforeValid, afterValid, evalPredicateFuel, evalValueFuel,
     Value.contains, Bind.bind, Except.bind]
 
 theorem evalBeforeAfterZeroLeZero
     (transition : CheckedBeforeAfter)
     (beforeValid : ValueEnv.validationOk 128 transition.declarations transition.before = true)
-    (afterValid : ValueEnv.validationOk 128 transition.declarations transition.after = true) :
-    evalBeforeAfter 128 transition
-      (.bin "≤" (.num 0) (.num 0)) = .ok true := by
+    (afterValid : ValueEnv.validationOk 128 transition.declarations transition.after = true)
+    : evalBeforeAfter 128 transition (.bin "≤" (.num 0) (.num 0)) = .ok true
+    := by
   simp [evalBeforeAfter, beforeValid, afterValid, evalPredicateFuel, evalValueFuel,
     Bind.bind, Except.bind]
 
@@ -1570,7 +1579,8 @@ private
 def ValueEnv.parallelAssign
     (env : ValueEnv)
     (updates : List (String × EventB.Formula.Term))
-    : Except EvalError BeforeAfter := do
+    : Except EvalError BeforeAfter
+    := do
   let names := updates.map (·.1)
   if let some duplicate := names.find? (fun name => names.count name > 1) then
     .error (.duplicateAssignment duplicate)
@@ -1597,7 +1607,8 @@ def ValueEnv.parallelAssignTypedFuel
     (declarations : List (String × EventB.Typing.Ty))
     (env : ValueEnv)
     (updates : List (String × EventB.Formula.Term))
-    : Except EvalError CheckedBeforeAfter := do
+    : Except EvalError CheckedBeforeAfter
+    := do
   ValueEnv.validateFuel fuel declarations env
   let names := updates.map (·.1)
   if let some duplicate := names.find? (fun name => names.count name > 1) then
@@ -1653,7 +1664,8 @@ def ComponentValuation.fromProject
     (theory : EventB.Theory.Env)
     (project : EventB.Typing.Project)
     (component : String)
-    : Except EventB.Error ComponentValuation := do
+    : Except EventB.Error ComponentValuation
+    := do
   let details ← EventB.Typing.inferComponentDetailsCheckedIn theory project component
   unless details.diagnostics.isEmpty do
     throw (EventB.Error.typing
@@ -1735,7 +1747,8 @@ def ComponentValuation.parallelAssign
     (event : String)
     (env : ValueEnv)
     (updates : List (String × EventB.Formula.Term))
-    : Except EvalError CheckedBeforeAfter := do
+    : Except EvalError CheckedBeforeAfter
+    := do
   let expected ← valuation.eventAssignments project event
   if updates != expected then
     .error (.invalidTarget ("updates do not match effective actions of " ++ event))
@@ -1933,7 +1946,10 @@ def supportsBeforeAfterPredicate
   | .app (.id "finite") argument => supportsBeforeAfterValue argument
   | .num _ | .set _ | .post _ _ | .app _ _ | .img _ _ | .bind _ _ _ => false
 
-private def typedBindingProject : EventB.Typing.Project :=
+private
+def typedBindingProject
+    : EventB.Typing.Project
+    :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -1943,7 +1959,10 @@ private def typedBindingProject : EventB.Typing.Project :=
           [.action [("org.eventb.core.label", "set"),
                     ("org.eventb.core.assignment", "x ≔ 1")] []]] }]
 
-private def badTypedBindingProject : EventB.Typing.Project :=
+private
+def badTypedBindingProject
+    : EventB.Typing.Project
+    :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -2320,12 +2339,18 @@ def TypedTransitionModel.ofAssignment
           inhabited := ⟨transition, rfl⟩
           supports := supportsBeforeAfterPredicate }
 
-private def incrementTransition : CheckedBeforeAfter :=
+private
+def incrementTransition
+    : CheckedBeforeAfter
+    :=
   { before := { values := [("x", .integer 1)] }
     after := { values := [("x", .integer 2)] }
     declarations := [("x", .int)] }
 
-private def incrementModel : TypedTransitionModel :=
+private
+def incrementModel
+    : TypedTransitionModel
+    :=
   { fuel := 64
     wellFormed := fun transition => transition = incrementTransition
     inhabited := ⟨incrementTransition, rfl⟩
@@ -2383,9 +2408,11 @@ example : TypedTransitionModel.validUnchecked incrementModel
         Bind.bind, Except.bind,
         incrementTransition]
 
-example : ¬ TypedTransitionModel.validUnchecked incrementModel
-    { component := "M", name := "forged/inv/INV", kind := "INV"
-      goal := some (.bin "=" (.id "x'") (.num 3)) } := by
+example
+    : ¬ TypedTransitionModel.validUnchecked incrementModel
+      { component := "M", name := "forged/inv/INV", kind := "INV"
+        goal := some (.bin "=" (.id "x'") (.num 3)) }
+    := by
   intro proof
   have goalProof := (proof.2.2 incrementTransition rfl).2 (by simp)
   have integerCompatible : (ValueType.integer == ValueType.integer) = true :=
@@ -2556,7 +2583,9 @@ private theorem typedFormulaValid :
         evalPredicateWithFuel, evalPredicateFuel, evalValue, evalValueWithFuel, evalValueFuel,
         Bind.bind, Except.bind]
 
-def constantTypedFormulaModel : TypedFormulaModel :=
+def constantTypedFormulaModel
+    : TypedFormulaModel
+    :=
   { declarations := []
     fuel := 128
     wellFormed := fun env => ValueEnv.validationOk 128 [] env = true
@@ -2592,10 +2621,15 @@ theorem constantTypedFormulaModel_taut_valid :
         Value.typeOf, ValueType.compatible, valueEqual, integerCompatible,
         Bind.bind, Except.bind]
 
-private def constantTransition : CheckedBeforeAfter :=
+private
+def constantTransition
+    : CheckedBeforeAfter
+    :=
   { before := {}, after := {}, declarations := [] }
 
-def constantTypedTransitionModel : TypedTransitionModel :=
+def constantTypedTransitionModel
+    : TypedTransitionModel
+    :=
   { fuel := 128
     wellFormed := fun transition => transition = constantTransition
     inhabited := ⟨constantTransition, rfl⟩
@@ -2703,12 +2737,17 @@ theorem typedTransitionModel_closed_validOnDomain
     rw [fuel]
     exact evaluated
 
-private def stutterTransition : CheckedBeforeAfter :=
+private
+def stutterTransition
+    : CheckedBeforeAfter
+    :=
   { before := { values := [("x", .integer 0)] }
     after := { values := [("x", .integer 0)] }
     declarations := [("x", .int)] }
 
-def stutterTypedTransitionModel : TypedTransitionModel :=
+def stutterTypedTransitionModel
+    : TypedTransitionModel
+    :=
   { fuel := 128
     wellFormed := fun transition => transition = stutterTransition
     inhabited := ⟨stutterTransition, rfl⟩
@@ -2820,18 +2859,22 @@ example : FormulaModel.validUnchecked
   · intro _
     exact typedEnvWellFormed _
 
-example : ¬ TypedFormulaModel.validUnchecked (typedFormulaModel supportsPredicate)
-    { component := "M", name := "false/THM", kind := "THM",
-      goal := some (.bin "<" (.num 1) (.num 0)) } := by
+example
+    : ¬ TypedFormulaModel.validUnchecked (typedFormulaModel supportsPredicate)
+      { component := "M", name := "false/THM", kind := "THM",
+        goal := some (.bin "<" (.num 1) (.num 0)) }
+    := by
   intro proof
   have goalProof := (proof.2.2 typedEnv (typedEnvWellFormed _)).2 (by simp)
   simp [typedFormulaModel, TypedFormulaModel.denote, evalPredicate, evalPredicateAtFuel,
     evalPredicateWithFuel, evalPredicateFuel, evalValue, evalValueWithFuel, evalValueFuel,
     Bind.bind, Except.bind] at goalProof
 
-example : ¬ TypedFormulaModel.validUnchecked (typedFormulaModel supportsPredicate)
-    { component := "M", name := "unsupported/THM", kind := "THM"
-      goal := some (.app (.id "f") (.num 0)) } := by
+example
+    : ¬ TypedFormulaModel.validUnchecked (typedFormulaModel supportsPredicate)
+      { component := "M", name := "unsupported/THM", kind := "THM"
+        goal := some (.app (.id "f") (.num 0)) }
+    := by
   simp [TypedFormulaModel.validUnchecked, typedFormulaModel, supportsPredicate]
 
 /- An ill-typed hypothesis is an evaluator error, not a false premise that can
@@ -2848,9 +2891,11 @@ example : ¬ TypedFormulaModel.validUnchecked (typedFormulaModel (fun _ => true)
     evalPredicateFuel, evalValue, evalValueWithFuel, evalValueFuel, Bind.bind, Except.bind,
     Value.contains] at evaluated
 
-example : TypedFormulaModel.validUnchecked (typedFormulaModel (fun _ => true))
-    { component := "M", name := "defined/WWD", kind := "WWD"
-      hyps := [.bin "∈" (.num 0) (.id "ℤ")] } := by
+example
+    : TypedFormulaModel.validUnchecked (typedFormulaModel (fun _ => true))
+      { component := "M", name := "defined/WWD", kind := "WWD"
+        hyps := [.bin "∈" (.num 0) (.id "ℤ")] }
+    := by
   constructor
   · rfl
   · intro env _ hypothesis member
@@ -2865,21 +2910,27 @@ example : TypedFormulaModel.validUnchecked (typedFormulaModel (fun _ => true))
         evalPredicateWithFuel, evalPredicateFuel, evalValue, evalValueWithFuel, evalValueFuel,
         Bind.bind, Except.bind, Value.contains]
 
-example : ¬ TypedFormulaModel.validUnchecked (typedFormulaModel supportsPredicate)
-    { component := "M", name := "unsupported/WWD", kind := "WWD"
-      hyps := [.app (.id "f") (.num 0)] } := by
+example
+    : ¬ TypedFormulaModel.validUnchecked (typedFormulaModel supportsPredicate)
+      { component := "M", name := "unsupported/WWD", kind := "WWD"
+        hyps := [.app (.id "f") (.num 0)] }
+    := by
   simp [TypedFormulaModel.validUnchecked, typedFormulaModel, supportsPredicate]
 
 /- Negative control: a missing goal is never silently treated as a valid sequent. -/
-example : ¬ FormulaModel.validUnchecked
-    ({ denote := fun _ _ => True } : FormulaModel Unit)
-    { name := "missing/INV", kind := "INV" } := by
+example
+    : ¬ FormulaModel.validUnchecked
+      ({ denote := fun _ _ => True } : FormulaModel Unit)
+      { name := "missing/INV", kind := "INV" }
+    := by
   simp [FormulaModel.validUnchecked]
 
 /- Positive control: a caller-provided interpretation can discharge an obligation. -/
-example : FormulaModel.validUnchecked
-    ({ denote := fun _ _ => True } : FormulaModel Unit)
-    { name := "true/THM", kind := "THM", goal := some (.id "⊤") } := by
+example
+    : FormulaModel.validUnchecked
+      ({ denote := fun _ _ => True } : FormulaModel Unit)
+      { name := "true/THM", kind := "THM", goal := some (.id "⊤") }
+    := by
   simp [FormulaModel.validUnchecked, validSequent]
 
 end EventB.POG

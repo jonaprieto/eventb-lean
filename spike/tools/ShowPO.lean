@@ -6,7 +6,8 @@ open EventB EventB.POG EventB.Typing
 `.bpo` by eye when the gate says "differs". -/
 def main
     (args : List String)
-    : IO Unit := do
+    : IO Unit
+    := do
   let dir : System.FilePath := "corpus"
   let mut project : Project := []
   for proj in ← dir.readDir do

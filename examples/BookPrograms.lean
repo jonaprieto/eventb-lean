@@ -281,7 +281,9 @@ eventb_machine Inverse1 where
     guard grd2 : "f((r + 1 + q) ÷ 2) ≤ n"
     action act1 : "r ≔ (r + 1 + q) ÷ 2"
 
-def programsProject : Typing.Project :=
+def programsProject
+    : Typing.Project
+    :=
   [ { name := "NotationCtx", elem := NotationCtx }
   , { name := "NotationMachine", elem := NotationMachine }
   , { name := "MathCtx", elem := MathCtx }

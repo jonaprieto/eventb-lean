@@ -129,10 +129,14 @@ structure Env where
   theories : List Spec := []
   deriving Repr, Inhabited
 
-def core : Spec :=
+def core
+    : Spec
+    :=
   { name := "EventB.Core", symbols := coreSymbols }
 
-def empty : Env :=
+def empty
+    : Env
+    :=
   { theories := [core] }
 
 def canonicalize
@@ -719,7 +723,10 @@ def type?
 #guard (lookupIn? empty [] "notVisible").isNone
 #guard namesWithApplication empty [] .total |>.contains "bool"
 
-private def imported : Env :=
+private
+def imported
+    : Env
+    :=
   match add empty
       { name := "Base", symbols :=
         [{ name := "LIMIT", kind := .constant, type := some .int
@@ -751,7 +758,10 @@ private def imported : Env :=
   | .error _ => true
   | .ok _ => false
 
-private def declarationEnv : Env :=
+private
+def declarationEnv
+    : Env
+    :=
   match add empty
       { name := "Data", declarations :=
         [.dataType (Datatype.mk "Colour" []
@@ -767,7 +777,10 @@ private def declarationEnv : Env :=
 #guard typeIn? declarationEnv ["Data"] "zero" == some .int
 #guard namesWithApplication declarationEnv ["Data"] .total |>.contains "zero"
 
-private def rewriteEnv : Env :=
+private
+def rewriteEnv
+    : Env
+    :=
   match add empty
       { name := "Rewrite", declarations := [.ruleDecl
           { name := "add_zero", kind := .rewrite, parameters := [("x", .int)]
@@ -775,7 +788,10 @@ private def rewriteEnv : Env :=
   | .ok env => env
   | .error _ => empty
 
-private def binderRewriteEnv : Env :=
+private
+def binderRewriteEnv
+    : Env
+    :=
   match add empty
       { name := "BinderRewrite", declarations :=
         [.ruleDecl

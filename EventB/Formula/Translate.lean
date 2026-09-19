@@ -69,17 +69,33 @@ structure KernelTerm where
 
 private def propType : Expr := mkSort .zero
 
-private def KernelContext.lookup (context : KernelContext) (name : String) :
-    Option KernelBinding := context.bindings.find? (·.name == name)
+private
+def KernelContext.lookup
+    (context : KernelContext)
+    (name : String)
+    : Option KernelBinding
+    := context.bindings.find? (·.name == name)
 
-private def KernelContext.lookupFunction (context : KernelContext) (name : String) :
-    Option KernelFunction := context.functions.find? (·.name == name)
+private
+def KernelContext.lookupFunction
+    (context : KernelContext)
+    (name : String)
+    : Option KernelFunction
+    := context.functions.find? (·.name == name)
 
-private def KernelContext.lookupPredicate (context : KernelContext) (name : String) :
-    Option KernelPredicate := context.predicates.find? (·.name == name)
+private
+def KernelContext.lookupPredicate
+    (context : KernelContext)
+    (name : String)
+    : Option KernelPredicate
+    := context.predicates.find? (·.name == name)
 
-private def KernelSignature.carrier? (signature : KernelSignature) (name : String) :
-    Option Expr := signature.carriers.find? (·.1 == name) |>.map (·.2)
+private
+def KernelSignature.carrier?
+    (signature : KernelSignature)
+    (name : String)
+    : Option Expr
+    := signature.carriers.find? (·.1 == name) |>.map (·.2)
 
 def leanType
     (context : KernelContext)
@@ -104,7 +120,8 @@ def checked
     (context : KernelContext)
     (ty : Ty)
     (value : Expr)
-    : MetaM KernelTerm := do
+    : MetaM KernelTerm
+    := do
   let expected ← leanType context ty
   let actual ← inferType value
   unless ← isDefEq actual expected do
@@ -143,7 +160,8 @@ private
 def mkSetExtension
     (type : Expr)
     (values : List Expr)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   withLocalDeclD `x type fun x => do
     let equalities ← values.mapM (mkEq x)
     mkLambdaFVars #[x] (← mkDisjunction equalities)
@@ -152,7 +170,8 @@ private
 def mkExistsAt
     (type : Expr)
     (body : Expr → MetaM Expr)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   withLocalDeclD `x type fun x => do
     let predicate ← mkLambdaFVars #[x] (← body x)
     mkAppM ``Exists #[predicate]
@@ -160,7 +179,8 @@ def mkExistsAt
 private
 def mkUnionSet
     (elementType setOfSets : Expr)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   let setType ← mkArrow elementType propType
   withLocalDeclD `x elementType fun x => do
     let existsExpr ← mkExistsAt setType fun subset => do
@@ -170,7 +190,8 @@ def mkUnionSet
 private
 def mkIntersectionSet
     (elementType setOfSets : Expr)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   let setType ← mkArrow elementType propType
   withLocalDeclD `x elementType fun x => do
     withLocalDeclD `subset setType fun subset => do
@@ -181,13 +202,15 @@ def mkIntersectionSet
 private
 def mkUniversalSet
     (type : Expr)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   withLocalDeclD `x type fun x => mkLambdaFVars #[x] trueProp
 
 private
 def mkIntSet
     (positive : Bool)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   withLocalDeclD `x (mkConst ``Int) fun x => do
     let zero := mkApp (mkConst ``Int.ofNat) (mkNatLit 0)
     let condition := if positive then
@@ -200,7 +223,8 @@ private
 def lookupExpr
     (context : KernelContext)
     (name : String)
-    : MetaM KernelTerm := do
+    : MetaM KernelTerm
+    := do
   match context.lookup name with
   | some binding =>
       if let some expected := Theory.typeIn? context.theory context.roots name then
@@ -223,7 +247,8 @@ private
 def validateFunction
     (context : KernelContext)
     (function : KernelFunction)
-    : MetaM Unit := do
+    : MetaM Unit
+    := do
   if let some expected := Theory.typeIn? context.theory context.roots function.name then
     let declared := .pow (.prod function.argument function.result)
     unless expected == declared do
@@ -240,7 +265,8 @@ private
 def validatePredicate
     (context : KernelContext)
     (predicate : KernelPredicate)
-    : MetaM Unit := do
+    : MetaM Unit
+    := do
   if let some expected := Theory.typeIn? context.theory context.roots predicate.name then
     let declared := .pow (.prod predicate.argument .bool)
     unless expected == declared do
@@ -264,7 +290,8 @@ def asSet
 private
 def sameType
     (left right : Ty)
-    : MetaM Unit := do
+    : MetaM Unit
+    := do
   unless left == right do
     throwError s!"incompatible translated types {left.print} and {right.print}"
 
@@ -286,7 +313,8 @@ def withPattern
     (pattern : Formula.Term)
     (expected : Option Ty)
     (body : KernelContext → List Expr → Expr → Ty → MetaM α)
-    : MetaM α := do
+    : MetaM α
+    := do
   match pattern with
   | .id name =>
       let ty ← match expected with
@@ -375,7 +403,8 @@ private
 def mkSetBinary
     (op : String)
     (type left right : Expr)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   withLocalDeclD `x type fun x => do
     let a := mkApp left x
     let b := mkApp right x
@@ -389,7 +418,8 @@ def mkSetBinary
 private
 def mkSubset
     (type left right : Expr)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   withLocalDeclD `x type fun x => do
     let premise := mkApp left x
     let conclusion := mkApp right x
@@ -398,7 +428,8 @@ def mkSubset
 private
 def mkProductSet
     (leftType rightType left right : Expr)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   let pairType ← mkAppM ``Prod #[leftType, rightType]
   withLocalDeclD `pair pairType fun pair => do
     let first ← project ``Prod.fst pair
@@ -409,7 +440,8 @@ def mkProductSet
 private
 def mkRelationSpace
     (leftType rightType left right : Expr)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   let pairType ← mkAppM ``Prod #[leftType, rightType]
   let relationType ← mkArrow pairType propType
   withLocalDeclD `relation relationType fun relation => do
@@ -426,7 +458,8 @@ private
 def mkRelationConstraint
     (kind : String)
     (leftType rightType leftSet rightSet relation : Expr)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   let relationAt (left right : Expr) : MetaM Expr := do
     pure (mkApp relation (← mkPair left right))
   match kind with
@@ -473,7 +506,8 @@ private
 def mkRelationArrow
     (op : String)
     (leftType rightType left right : Expr)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   let pairType ← mkAppM ``Prod #[leftType, rightType]
   let relationType ← mkArrow pairType propType
   let base ← mkRelationSpace leftType rightType left right
@@ -489,7 +523,8 @@ private
 def mkPowerSet
     (type set : Expr)
     (positive : Bool)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   let setType ← mkArrow type propType
   withLocalDeclD `subset setType fun subset => do
     withLocalDeclD `x type fun x => do
@@ -506,7 +541,8 @@ def mkPowerSet
 private
 def mkImage
     (leftType rightType relation set : Expr)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   withLocalDeclD `y rightType fun y => do
     let existsExpr ← mkExistsAt leftType fun x => do
       let pair ← mkPair x y
@@ -518,7 +554,8 @@ def mkImage
 private
 def mkInverse
     (leftType rightType relation : Expr)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   let sourcePairType ← mkAppM ``Prod #[rightType, leftType]
   withLocalDeclD `pair sourcePairType fun pair => do
     let first ← project ``Prod.fst pair
@@ -530,7 +567,8 @@ private
 def mkProjectionSet
     (leftType rightType relation : Expr)
     (first : Bool)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   withLocalDeclD `value (if first then leftType else rightType) fun value => do
     let existsExpr ← if first then
       mkExistsAt rightType fun other => do
@@ -545,7 +583,8 @@ def mkProjectionSet
 private
 def mkIdentity
     (type set : Expr)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   let pairType ← mkAppM ``Prod #[type, type]
   withLocalDeclD `pair pairType fun pair => do
     let first ← project ``Prod.fst pair
@@ -557,7 +596,8 @@ private
 def mkRestriction
     (relationType set relation : Expr)
     (domain : Bool)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   withLocalDeclD `pair relationType fun pair => do
     let endpoint ← if domain then project ``Prod.fst pair else project ``Prod.snd pair
     let restricted := mkApp set endpoint
@@ -568,7 +608,8 @@ private
 def mkSubtraction
     (relationType set relation : Expr)
     (domain : Bool)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   withLocalDeclD `pair relationType fun pair => do
     let endpoint ← if domain then project ``Prod.fst pair else project ``Prod.snd pair
     let removed := mkApp set endpoint
@@ -578,7 +619,8 @@ def mkSubtraction
 private
 def mkComposition
     (leftType middleType rightType left right : Expr)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   let pairType ← mkAppM ``Prod #[leftType, rightType]
   withLocalDeclD `pair pairType fun pair => do
     let input ← project ``Prod.fst pair
@@ -592,7 +634,8 @@ def mkComposition
 private
 def mkDirectProduct
     (leftType middleType rightType p q : Expr)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   let outputType ← mkAppM ``Prod #[middleType, rightType]
   let pairType ← mkAppM ``Prod #[leftType, outputType]
   withLocalDeclD `pair pairType fun pair => do
@@ -609,7 +652,8 @@ private
 def mkParallelProduct
     (leftType middleType rightType output : Expr)
     (p q : Expr)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   let inputType ← mkAppM ``Prod #[leftType, middleType]
   let outputType' ← mkAppM ``Prod #[rightType, output]
   let pairType ← mkAppM ``Prod #[inputType, outputType']
@@ -628,7 +672,8 @@ def mkParallelProduct
 private
 def mkOverride
     (leftType rightType left right : Expr)
-    : MetaM Expr := do
+    : MetaM Expr
+    := do
   let pairType ← mkAppM ``Prod #[leftType, rightType]
   withLocalDeclD `pair pairType fun pair => do
     let input ← project ``Prod.fst pair
@@ -643,7 +688,8 @@ private
 def builtinSet
     (context : KernelContext)
     (name : String)
-    : MetaM KernelTerm := do
+    : MetaM KernelTerm
+    := do
   match name with
   | "BOOL" => checked context (.pow .bool) (← mkUniversalSet boolType)
   | "ℤ" => checked context (.pow .int) (← mkUniversalSet (mkConst ``Int))

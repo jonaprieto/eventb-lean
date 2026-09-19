@@ -25,7 +25,9 @@ structure ModelArtifact where
   theories : List String := []
   deriving BEq, Inhabited
 
-instance : Repr ModelArtifact where
+instance
+    : Repr ModelArtifact
+    where
   reprPrec artifact _ := Std.Format.text
     s!"ModelArtifact({artifact.component}, {artifact.bytes.size} bytes)"
 
@@ -47,7 +49,8 @@ def artifactError
 
 def parseModelArtifact
     (artifact : ModelArtifact)
-    : Except EventB.Error Component := do
+    : Except EventB.Error Component
+    := do
   unless !artifact.component.isEmpty do
     throw (artifactError artifact "model artifact has no component identity")
   let model ← match parseModel artifact.bytes with
@@ -69,7 +72,8 @@ def parseModelArtifact
 
 def projectFromArtifacts
     (artifacts : List ModelArtifact)
-    : Except EventB.Error Project := do
+    : Except EventB.Error Project
+    := do
   let components ← artifacts.mapM parseModelArtifact
   let names := components.map (·.name)
   unless names.eraseDups.length == names.length do

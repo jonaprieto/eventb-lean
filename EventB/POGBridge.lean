@@ -84,7 +84,10 @@ theorem EqlBridge.valid_of_frame
 
 /- A source-bound bridge cannot be built from a changed EQL goal. This is a small
    negative control independent of any evaluator implementation. -/
-example {σ α : Type u} (bridge : EqlBridge σ α) :
-    bridge.obligation.goal = some (eqlTerm bridge.varName) := bridge.sourceGoal
+example
+    {σ α : Type u}
+    (bridge : EqlBridge σ α)
+    : bridge.obligation.goal = some (eqlTerm bridge.varName)
+    := bridge.sourceGoal
 
 end EventB.POG

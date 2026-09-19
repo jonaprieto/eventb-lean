@@ -159,9 +159,11 @@ def parallelUpdate
     | some (_, rhs) => rhs state
     | none => state name
 
-theorem parallelUpdate_deterministic {α : Type u} (updates : List (String × (State α → α))) :
-    deterministicAction
-      (functionalAction (fun state : State α => parallelUpdate updates state)) := by
+theorem parallelUpdate_deterministic
+    {α : Type u}
+    (updates : List (String × (State α → α)))
+    : deterministicAction (functionalAction (fun state : State α => parallelUpdate updates state))
+    := by
   intro before after₁ after₂ h₁ h₂
   simpa [functionalAction] using h₁.trans h₂.symm
 
@@ -569,11 +571,15 @@ def finiteVariantProgress
   | .anticipated, after, before => finiteSubset after before
   | .convergent, after, before => finiteProperSubset after before
 
-example : finiteVariantProgress .anticipated [1] [1, 2] := by
+example
+    : finiteVariantProgress .anticipated [1] [1, 2]
+    := by
   intro value member
   simp_all
 
-example : ¬ finiteVariantProgress .convergent [1] [1] := by
+example
+    : ¬ finiteVariantProgress .convergent [1] [1]
+    := by
   intro progress
   rcases progress.2 with ⟨value, member, absent⟩
   simp_all
@@ -772,19 +778,27 @@ theorem mem_single
 
 /-- Abstract: `n` counts up to 10. -/
 def incA : Event Nat := { grd := fun n => n < 10, act := fun n n' => n' = n + 1 }
-def A : Machine Nat :=
+def A
+    : Machine Nat
+    :=
   { inv := fun n => n ≤ 10, init := fun n => n = 0, events := [incA] }
 
 /-- Concrete: carries the variant `10 - n` explicitly; the guard reads the budget. -/
-def incC : Event (Nat × Nat) :=
+def incC
+    : Event (Nat × Nat)
+    :=
   { grd := fun c => 0 < c.2, act := fun c c' => c' = (c.1 + 1, c.2 - 1) }
-def C : Machine (Nat × Nat) :=
+def C
+    : Machine (Nat × Nat)
+    :=
   { inv := fun c => c.1 + c.2 = 10, init := fun c => c = (0, 10), events := [incC] }
 
 /-- Gluing invariant. -/
 def J : Nat × Nat → Nat → Prop := fun c n => c.1 = n ∧ c.1 + c.2 = 10
 
-theorem A_proved : Proved A := by
+theorem A_proved
+    : Proved A
+    := by
   constructor
   · intro s hs
     have : s = 0 := hs
@@ -798,7 +812,9 @@ theorem A_proved : Proved A := by
     show s' ≤ 10
     omega
 
-theorem C_refines_A : Refines C A J := by
+theorem C_refines_A
+    : Refines C A J
+    := by
   constructor
   · intro c hc
     have : c = (0, 10) := hc
@@ -812,7 +828,9 @@ theorem C_refines_A : Refines C A J := by
     exact ⟨n + 1, ⟨incA, List.mem_singleton.mpr rfl, by show n < 10; omega, rfl⟩,
            by show c.1 + 1 = n + 1 ∧ (c.1 + 1) + (c.2 - 1) = 10; omega⟩
 
-def C_event_refinement : EventRefinement C A J := by
+def C_event_refinement
+    : EventRefinement C A J
+    := by
   refine { abstractEvent := fun _ => incA, abstractMember := ?_, guard := ?_, action := ?_ }
   · intro concrete hconcrete
     have : concrete = incC := mem_single hconcrete
@@ -839,7 +857,9 @@ def C_event_refinement : EventRefinement C A J := by
       show c.1 + 1 = n + 1 ∧ (c.1 + 1) + (c.2 - 1) = 10
       omega⟩
 
-def C_merge_refinement : MergeSimulation C A J := by
+def C_merge_refinement
+    : MergeSimulation C A J
+    := by
   refine
     { abstractEvent := incA
       abstractMember := ?_
@@ -866,15 +886,20 @@ def C_merge_refinement : MergeSimulation C A J := by
     subst this
     exact C_event_refinement.action incC c c' n (List.mem_singleton.mpr rfl) hJ hg ha
 
-theorem C_refines_A_from_merge_contract : Refines C A J := by
+theorem C_refines_A_from_merge_contract
+    : Refines C A J
+    := by
   refine { initSim := C_refines_A.initSim, stepSim := C_merge_refinement.stepSim }
 
-theorem positiveWitness : WitnessContract Unit Unit
-    (fun _ => True) (fun _ => True) (fun _ _ => True) :=
+theorem positiveWitness
+    : WitnessContract Unit Unit (fun _ => True) (fun _ => True) (fun _ _ => True)
+    :=
   { feasible := fun _ _ => ⟨(), trivial⟩
     wellDefined := fun _ _ => trivial }
 
-def positiveConvergentVariant : ConvergentVariant (Nat × Nat) :=
+def positiveConvergentVariant
+    : ConvergentVariant (Nat × Nat)
+    :=
   { measure := fun state => state.2
     action := fun before after => incC.grd before ∧ incC.act before after
     decrease := by
@@ -885,10 +910,14 @@ def positiveConvergentVariant : ConvergentVariant (Nat × Nat) :=
       change before.2 - 1 < before.2
       omega }
 
-def C_local_refinement : RefinementProof C A J :=
+def C_local_refinement
+    : RefinementProof C A J
+    :=
   { init := C_refines_A.initSim, events := C_event_refinement }
 
-theorem C_refines_A_from_event_contracts : Refines C A J :=
+theorem C_refines_A_from_event_contracts
+    : Refines C A J
+    :=
   C_local_refinement.toRefines
 
 /-- The payoff: concrete machine inherits `n ≤ 10` without re-proving it. -/

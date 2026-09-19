@@ -46,29 +46,87 @@ def comp
     :=
   {p | ∃ b, (p.1, b) ∈ r ∧ (b, p.2) ∈ q}
 
-@[simp] theorem mem_dom (r : Rel α β) (a : α) :
-    a ∈ dom r ↔ ∃ b, (a, b) ∈ r := Iff.rfl
+@[simp]
+theorem mem_dom
+    (r : Rel α β)
+    (a : α)
+    : a ∈ dom r ↔
+      ∃ b,
+      (a, b) ∈ r
+    := Iff.rfl
 
-@[simp] theorem mem_ran (r : Rel α β) (b : β) :
-    b ∈ ran r ↔ ∃ a, (a, b) ∈ r := Iff.rfl
+@[simp]
+theorem mem_ran
+    (r : Rel α β)
+    (b : β)
+    : b ∈ ran r ↔
+      ∃ a,
+      (a, b) ∈ r
+    := Iff.rfl
 
-@[simp] theorem mem_image (r : Rel α β) (s : Set α) (b : β) :
-    b ∈ image r s ↔ ∃ a ∈ s, (a, b) ∈ r := Iff.rfl
+@[simp]
+theorem mem_image
+    (r : Rel α β)
+    (s : Set α)
+    (b : β)
+    : b ∈ image r s ↔
+      ∃ a ∈ s,
+      (a, b) ∈ r
+    := Iff.rfl
 
-@[simp] theorem mem_domRes (s : Set α) (r : Rel α β) (a : α) (b : β) :
-    (a, b) ∈ domRes s r ↔ (a, b) ∈ r ∧ a ∈ s := Iff.rfl
+@[simp]
+theorem mem_domRes
+    (s : Set α)
+    (r : Rel α β)
+    (a : α)
+    (b : β)
+    : (a, b) ∈ domRes s r ↔
+      (a, b) ∈ r ∧
+      a ∈ s
+    := Iff.rfl
 
-@[simp] theorem mem_domSub (s : Set α) (r : Rel α β) (a : α) (b : β) :
-    (a, b) ∈ domSub s r ↔ (a, b) ∈ r ∧ a ∉ s := Iff.rfl
+@[simp]
+theorem mem_domSub
+    (s : Set α)
+    (r : Rel α β)
+    (a : α)
+    (b : β)
+    : (a, b) ∈ domSub s r ↔
+      (a, b) ∈ r ∧
+      a ∉ s
+    := Iff.rfl
 
-@[simp] theorem mem_ranRes (r : Rel α β) (s : Set β) (a : α) (b : β) :
-    (a, b) ∈ ranRes r s ↔ (a, b) ∈ r ∧ b ∈ s := Iff.rfl
+@[simp]
+theorem mem_ranRes
+    (r : Rel α β)
+    (s : Set β)
+    (a : α)
+    (b : β)
+    : (a, b) ∈ ranRes r s ↔
+      (a, b) ∈ r ∧
+      b ∈ s
+    := Iff.rfl
 
-@[simp] theorem mem_ranSub (r : Rel α β) (s : Set β) (a : α) (b : β) :
-    (a, b) ∈ ranSub r s ↔ (a, b) ∈ r ∧ b ∉ s := Iff.rfl
+@[simp]
+theorem mem_ranSub
+    (r : Rel α β)
+    (s : Set β)
+    (a : α)
+    (b : β)
+    : (a, b) ∈ ranSub r s ↔
+      (a, b) ∈ r ∧
+      b ∉ s
+    := Iff.rfl
 
-@[simp] theorem mem_override (r q : Rel α β) (a : α) (b : β) :
-    (a, b) ∈ override r q ↔ (a, b) ∈ q ∨ ((a, b) ∈ r ∧ a ∉ dom q) := by
+@[simp]
+theorem mem_override
+    (r q : Rel α β)
+    (a : α)
+    (b : β)
+    : (a, b) ∈ override r q ↔
+      (a, b) ∈ q ∨
+      ((a, b) ∈ r ∧ a ∉ dom q)
+    := by
   simp [override]
 
 def partition
@@ -164,14 +222,33 @@ def prod (s : Set α) (t : Set β) : Rel α β := {p | p.1 ∈ s ∧ p.2 ∈ t}
 /-- Integer range `a ‥ b`. -/
 def upto (a b : Int) : Set Int := {n | a ≤ n ∧ n ≤ b}
 
-@[simp] theorem mem_inv (r : Rel α β) (a : α) (b : β) :
-    (b, a) ∈ inv r ↔ (a, b) ∈ r := Iff.rfl
+@[simp]
+theorem mem_inv
+    (r : Rel α β)
+    (a : α)
+    (b : β)
+    : (b, a) ∈ inv r ↔
+      (a, b) ∈ r
+    := Iff.rfl
 
-@[simp] theorem mem_prod (s : Set α) (t : Set β) (a : α) (b : β) :
-    (a, b) ∈ prod s t ↔ a ∈ s ∧ b ∈ t := Iff.rfl
+@[simp]
+theorem mem_prod
+    (s : Set α)
+    (t : Set β)
+    (a : α)
+    (b : β)
+    : (a, b) ∈ prod s t ↔
+      a ∈ s ∧
+      b ∈ t
+    := Iff.rfl
 
-@[simp] theorem mem_upto (a b n : Int) :
-    n ∈ upto a b ↔ a ≤ n ∧ n ≤ b := Iff.rfl
+@[simp]
+theorem mem_upto
+    (a b n : Int)
+    : n ∈ upto a b ↔
+      a ≤ n ∧
+      n ≤ b
+    := Iff.rfl
 
 /-- `ℕ` as a subset of `ℤ`, which is how Event-B uses it. -/
 def NAT : Set Int := {n | 0 ≤ n}
@@ -186,13 +263,22 @@ def max
   open Classical in
   if h : ∃ m, m ∈ s ∧ ∀ x ∈ s, x ≤ m then h.choose else Classical.arbitrary Int
 
-@[grind] theorem max_mem {s : Set Int}
-    (h : ∃ m, m ∈ s ∧ ∀ x ∈ s, x ≤ m) : max s ∈ s := by
+@[grind]
+theorem max_mem
+    {s : Set Int}
+    (h : ∃ m, m ∈ s ∧ ∀ x ∈ s, x ≤ m)
+    : max s ∈ s
+    := by
   simp only [max, dif_pos h]
   exact h.choose_spec.1
 
-@[grind] theorem max_le {s : Set Int}
-    (h : ∃ m, m ∈ s ∧ ∀ x ∈ s, x ≤ m) : ∀ x ∈ s, x ≤ max s := by
+@[grind]
+theorem max_le
+    {s : Set Int}
+    (h : ∃ m, m ∈ s ∧ ∀ x ∈ s, x ≤ m)
+    : ∀ x ∈ s,
+      x ≤ max s
+    := by
   simp only [max, dif_pos h]
   exact h.choose_spec.2
 
@@ -215,13 +301,22 @@ def min
   open Classical in
   if h : ∃ m, m ∈ s ∧ ∀ x ∈ s, m ≤ x then h.choose else Classical.arbitrary Int
 
-@[grind] theorem min_mem {s : Set Int}
-    (h : ∃ m, m ∈ s ∧ ∀ x ∈ s, m ≤ x) : min s ∈ s := by
+@[grind]
+theorem min_mem
+    {s : Set Int}
+    (h : ∃ m, m ∈ s ∧ ∀ x ∈ s, m ≤ x)
+    : min s ∈ s
+    := by
   simp only [min, dif_pos h]
   exact h.choose_spec.1
 
-@[grind] theorem min_le {s : Set Int}
-    (h : ∃ m, m ∈ s ∧ ∀ x ∈ s, m ≤ x) : ∀ x ∈ s, min s ≤ x := by
+@[grind]
+theorem min_le
+    {s : Set Int}
+    (h : ∃ m, m ∈ s ∧ ∀ x ∈ s, m ≤ x)
+    : ∀ x ∈ s,
+      min s ≤ x
+    := by
   simp only [min, dif_pos h]
   exact h.choose_spec.2
 

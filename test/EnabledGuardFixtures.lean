@@ -4,7 +4,10 @@ import EventB.POG.RefinementAdapters
 
 namespace EventB.POG
 
-private def enabledEventProject : EventB.Typing.Project :=
+private
+def enabledEventProject
+    : EventB.Typing.Project
+    :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [.variable [("org.eventb.core.identifier", "x")] []
@@ -21,13 +24,17 @@ private def enabledEventProject : EventB.Typing.Project :=
   | .ok _ => true
   | .error _ => false
 
-private def enabledEventSource :
-    CheckedEventSource EventB.Theory.empty enabledEventProject "M" "step" :=
+private
+def enabledEventSource
+    : CheckedEventSource EventB.Theory.empty enabledEventProject "M" "step"
+    :=
   (CheckedEventSource.fromProject EventB.Theory.empty enabledEventProject "M" "step").get
     (by native_decide)
 
-private def enabledGuardSource :
-    CheckedGuardSource EventB.Theory.empty enabledEventProject "M" "step" :=
+private
+def enabledGuardSource
+    : CheckedGuardSource EventB.Theory.empty enabledEventProject "M" "step"
+    :=
   (CheckedGuardSource.fromProject EventB.Theory.empty enabledEventProject "M" "step").get
     (by native_decide)
 
@@ -36,18 +43,26 @@ private def enabledGuardSource :
 #guard enabledGuardSource.predicates ==
   [.bin "=" (.id "x") (.num 0)]
 
-private def enabledTransition : CheckedBeforeAfter :=
+private
+def enabledTransition
+    : CheckedBeforeAfter
+    :=
   { before := { values := [("x", .integer 0)] }
     after := { values := [("x", .integer 0)] }
     declarations := [("x", .int)] }
 
-private def disabledTransition : CheckedBeforeAfter :=
+private
+def disabledTransition
+    : CheckedBeforeAfter
+    :=
   { before := { values := [("x", .integer 1)] }
     after := { values := [("x", .integer 1)] }
     declarations := [("x", .int)] }
 
-private theorem enabledAction :
-    enabledEventSource.assignmentAction 128 enabledTransition := by
+private
+theorem enabledAction
+    : enabledEventSource.assignmentAction 128 enabledTransition
+    := by
   have declarations : enabledEventSource.declarations = [("x", .int)] := by
     native_decide
   have updates : enabledEventSource.updates = [("x", .id "x")] := by
@@ -57,8 +72,10 @@ private theorem enabledAction :
   rw [declarations, updates]
   exact assignmentRelation_x_self_zero
 
-private theorem disabledAction :
-    enabledEventSource.assignmentAction 128 disabledTransition := by
+private
+theorem disabledAction
+    : enabledEventSource.assignmentAction 128 disabledTransition
+    := by
   have declarations : enabledEventSource.declarations = [("x", .int)] := by
     native_decide
   have updates : enabledEventSource.updates = [("x", .id "x")] := by
@@ -69,8 +86,10 @@ private theorem disabledAction :
   unfold assignmentRelation
   native_decide
 
-private theorem enabledGuard :
-    enabledGuardSource.holds 128 enabledTransition := by
+private
+theorem enabledGuard
+    : enabledGuardSource.holds 128 enabledTransition
+    := by
   have declarations : enabledGuardSource.declarations = [("x", .int)] := by
     native_decide
   have predicates : enabledGuardSource.predicates =
@@ -90,8 +109,10 @@ private theorem enabledGuard :
     unfold assignmentPredicateWithFuel
     native_decide
 
-private theorem disabledGuardNotHolds :
-    ¬ enabledGuardSource.holds 128 disabledTransition := by
+private
+theorem disabledGuardNotHolds
+    : ¬ enabledGuardSource.holds 128 disabledTransition
+    := by
   intro holds
   have predicates : enabledGuardSource.predicates =
       [.bin "=" (.id "x") (.num 0)] := by
@@ -107,18 +128,26 @@ private theorem disabledGuardNotHolds :
     native_decide
   exact notTrue falsePredicate
 
-private def enabledEvent : Event CheckedBeforeAfter :=
+private
+def enabledEvent
+    : Event CheckedBeforeAfter
+    :=
   { grd := fun transition => enabledGuardSource.holds 128 transition
     act := fun before _ => enabledEventSource.assignmentAction 128 before }
 
-private def badGuardEvent : Event CheckedBeforeAfter :=
+private
+def badGuardEvent
+    : Event CheckedBeforeAfter
+    :=
   { grd := fun _ => True
     act := fun before _ => enabledEventSource.assignmentAction 128 before }
 
-private theorem actionProvenance :
-    eventActionExact enabledEventSource 128
+private
+theorem actionProvenance
+    : eventActionExact enabledEventSource 128
       (fun state : CheckedBeforeAfter × CheckedBeforeAfter => state.1)
-      (fun state => enabledEvent.act state.1 state.2) := by
+      (fun state => enabledEvent.act state.1 state.2)
+    := by
   intro state
   rfl
 
@@ -138,14 +167,20 @@ theorem enabledEvent_is_enabled
     := by
   exact ⟨enabledGuard, enabledAction⟩
 
-private theorem enabledEvent_is_disabled : ¬ enabledEvent.grd disabledTransition :=
+private
+theorem enabledEvent_is_disabled
+    : ¬ enabledEvent.grd disabledTransition
+    :=
   disabledGuardNotHolds
 
-example : enabledEvent.act disabledTransition disabledTransition := by
+example
+    : enabledEvent.act disabledTransition disabledTransition
+    := by
   exact disabledAction
 
-example : ¬ (∀ transition,
-    badGuardEvent.grd transition ↔ enabledGuardSource.holds 128 transition) := by
+example
+    : ¬ (∀ transition, badGuardEvent.grd transition ↔ enabledGuardSource.holds 128 transition)
+    := by
   intro exactness
   have mismatch := exactness disabledTransition
   apply disabledGuardNotHolds
@@ -155,7 +190,10 @@ example : ¬ (∀ transition,
    lexical environment, while the action still reads it from the pre-state and
    updates only the declared machine variable. -/
 
-private def parameterizedEventProject : EventB.Typing.Project :=
+private
+def parameterizedEventProject
+    : EventB.Typing.Project
+    :=
   [{ name := "M"
      elem := .machineFile [ ("org.eventb.core.name", "M") ]
        [ .variable [("org.eventb.core.identifier", "x")] []
@@ -175,13 +213,17 @@ private def parameterizedEventProject : EventB.Typing.Project :=
   | .ok _ => true
   | .error _ => false
 
-private def parameterizedEventSource :
-    CheckedEventSource EventB.Theory.empty parameterizedEventProject "M" "step" :=
+private
+def parameterizedEventSource
+    : CheckedEventSource EventB.Theory.empty parameterizedEventProject "M" "step"
+    :=
   (CheckedEventSource.fromProject EventB.Theory.empty parameterizedEventProject "M" "step").get
     (by native_decide)
 
-private def parameterizedGuardSource :
-    CheckedGuardSource EventB.Theory.empty parameterizedEventProject "M" "step" :=
+private
+def parameterizedGuardSource
+    : CheckedGuardSource EventB.Theory.empty parameterizedEventProject "M" "step"
+    :=
   (CheckedGuardSource.fromProject EventB.Theory.empty parameterizedEventProject "M" "step").get
     (by native_decide)
 
@@ -199,20 +241,27 @@ def parameterizedTransition
     after := { values := [("x", .integer after), ("p", .integer parameter)] }
     declarations := [("x", .int), ("p", .int)] }
 
-private def parameterizedEvent : ParameterizedEvent Int Int :=
+private
+def parameterizedEvent
+    : ParameterizedEvent Int Int
+    :=
   { grd := fun parameter _ => parameter > 0
     act := fun parameter _ after => after = parameter }
 
-example : parameterizedEvent.enabled 0 := by
+example
+    : parameterizedEvent.enabled 0
+    := by
   exact ⟨1, by change (1 : Int) > 0; omega⟩
 
-example : parameterizedEventSource.assignmentAction 128
-    (parameterizedTransition 7 0 7) := by
+example
+    : parameterizedEventSource.assignmentAction 128 (parameterizedTransition 7 0 7)
+    := by
   unfold CheckedEventSource.assignmentAction assignmentRelation
   native_decide
 
-example : parameterizedGuardSource.holds 128
-    (parameterizedTransition 7 0 7) := by
+example
+    : parameterizedGuardSource.holds 128 (parameterizedTransition 7 0 7)
+    := by
   have declarations : parameterizedGuardSource.declarations =
       [("x", .int), ("p", .int)] := by native_decide
   have predicates : parameterizedGuardSource.predicates =
@@ -231,8 +280,9 @@ example : parameterizedGuardSource.holds 128
     unfold assignmentPredicateWithFuel
     native_decide
 
-example : ¬ parameterizedGuardSource.holds 128
-    (parameterizedTransition (-1) 0 (-1)) := by
+example
+    : ¬ parameterizedGuardSource.holds 128 (parameterizedTransition (-1) 0 (-1))
+    := by
   have predicates : parameterizedGuardSource.predicates =
       [.bin ">" (.id "p") (.num 0)] := by native_decide
   unfold CheckedGuardSource.holds
@@ -247,17 +297,25 @@ example : ¬ parameterizedGuardSource.holds 128
     native_decide
   exact notTrue falsePredicate
 
-private def abstractParameterizedEvent : ParameterizedEvent Nat Nat :=
+private
+def abstractParameterizedEvent
+    : ParameterizedEvent Nat Nat
+    :=
   { grd := fun parameter _ => parameter > 0
     act := fun _ before after => after = before + 1 }
 
-private def concreteParameterizedEvent : ParameterizedEvent Nat Nat :=
+private
+def concreteParameterizedEvent
+    : ParameterizedEvent Nat Nat
+    :=
   { grd := fun parameter _ => parameter > 0
     act := fun _ before after => after = before + 1 }
 
-private theorem parameterizedRefinement :
-    ParameterizedEventRefinement concreteParameterizedEvent
-      abstractParameterizedEvent (fun concrete abstract => concrete = abstract) :=
+private
+theorem parameterizedRefinement
+    : ParameterizedEventRefinement concreteParameterizedEvent
+      abstractParameterizedEvent (fun concrete abstract => concrete = abstract)
+    :=
   { guard := by
       intro parameter concrete abstract glued guard
       subst abstract
@@ -279,14 +337,19 @@ example
           by change (2 : Nat) = 1 + 1; decide⟩)
   exact ⟨abstractAfter, step, by simpa using glued⟩
 
-private def naturalWellFoundedVariant : WellFoundedVariant Nat Nat :=
+private
+def naturalWellFoundedVariant
+    : WellFoundedVariant Nat Nat
+    :=
   { measure := id
     relation := (· < ·)
     wellFounded := Nat.lt_wfRel.wf
     action := fun before after => after < before
     progress := fun _ _ progress => progress }
 
-example : wellFoundedVariantProgressSemantic naturalWellFoundedVariant :=
+example
+    : wellFoundedVariantProgressSemantic naturalWellFoundedVariant
+    :=
   naturalWellFoundedVariant.progressSemantic
 
 end EventB.POG

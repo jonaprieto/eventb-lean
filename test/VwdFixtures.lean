@@ -8,30 +8,48 @@ import EventB.POG.RefinementAdapters
 
 namespace EventB.POG
 
-private def vwdFixtureProject : EventB.Typing.Project :=
+private
+def vwdFixtureProject
+    : EventB.Typing.Project
+    :=
   [{ name := "M"
      elem := .machineFile [("org.eventb.core.name", "M")]
        [ .variant [("org.eventb.core.expression", "0 ÷ 1")] []
        , .event [("org.eventb.core.label", "INITIALISATION")] [] ] }]
 
-private def positiveVwdObligation : Obligation :=
+private
+def positiveVwdObligation
+    : Obligation
+    :=
   { component := "M", name := "VWD", kind := "VWD"
     goal := some (.bin "≠" (.num 1) (.num 0)) }
 
-private def positiveVwdPO : CheckedPO EventB.Theory.empty vwdFixtureProject :=
+private
+def positiveVwdPO
+    : CheckedPO EventB.Theory.empty vwdFixtureProject
+    :=
   (CheckedPO.fromGeneratedExact? EventB.Theory.empty vwdFixtureProject
     positiveVwdObligation).get (by native_decide)
 
-private def positiveVwdPOExact : CheckedPO EventB.Theory.empty vwdFixtureProject :=
+private
+def positiveVwdPOExact
+    : CheckedPO EventB.Theory.empty vwdFixtureProject
+    :=
   { obligation := positiveVwdObligation
     checked := by
       simpa only [show positiveVwdPO.obligation = positiveVwdObligation by native_decide] using
         positiveVwdPO.checked }
 
-private def positiveVwdSource : CheckedVariantSource vwdFixtureProject "M" :=
+private
+def positiveVwdSource
+    : CheckedVariantSource vwdFixtureProject "M"
+    :=
   (CheckedVariantSource.fromProject vwdFixtureProject "M").get (by native_decide)
 
-private def vwdFormulaModel : TypedFormulaModel :=
+private
+def vwdFormulaModel
+    : TypedFormulaModel
+    :=
   { declarations := []
     fuel := 128
     wellFormed := fun env => ValueEnv.validationOk 128 [] env = true
@@ -43,8 +61,10 @@ private def vwdFormulaModel : TypedFormulaModel :=
 private abbrev vwdState :=
   { env : ValueEnv // ValueEnv.validationOk 128 [] env = true }
 
-private theorem vwdFormulaModel_valid :
-    TypedFormulaModel.validUnchecked vwdFormulaModel positiveVwdObligation := by
+private
+theorem vwdFormulaModel_valid
+    : TypedFormulaModel.validUnchecked vwdFormulaModel positiveVwdObligation
+    := by
   constructor
   · native_decide
   constructor
@@ -58,8 +78,10 @@ private theorem vwdFormulaModel_valid :
     · intro _
       exact evalPredicateIntegerOneNeZero env
 
-private def positiveVwdAdapter : VwdAdapter EventB.Theory.empty
-    vwdFixtureProject vwdState :=
+private
+def positiveVwdAdapter
+    : VwdAdapter EventB.Theory.empty vwdFixtureProject vwdState
+    :=
   { binding := positiveVwdPOExact
     kind := by native_decide
     sourceName := by native_decide
@@ -84,7 +106,9 @@ private def positiveVwdAdapter : VwdAdapter EventB.Theory.empty
         adequate := by intro _ _ _; trivial }
     nonempty := ⟨⟨{}, by native_decide⟩, trivial⟩ }
 
-example : witnessDefinednessSemantic positiveVwdAdapter.pre positiveVwdAdapter.defined :=
+example
+    : witnessDefinednessSemantic positiveVwdAdapter.pre positiveVwdAdapter.defined
+    :=
   positiveVwdAdapter.sound
 
 end EventB.POG

@@ -4,7 +4,10 @@ import EventB.POG.RefinementAdapters
 
 namespace EventB.POG
 
-private def mrgAdapterProject : EventB.Typing.Project :=
+private
+def mrgAdapterProject
+    : EventB.Typing.Project
+    :=
   [{ name := "A"
      elem := .machineFile [("org.eventb.core.name", "A")]
        [ .event [("org.eventb.core.label", "INITIALISATION")] []
@@ -22,7 +25,10 @@ private def mrgAdapterProject : EventB.Typing.Project :=
              [ .refinesEvent [("org.eventb.core.target", "left")] []
              , .refinesEvent [("org.eventb.core.target", "right")] [] ] ] }]
 
-private def mrgObligation : Obligation :=
+private
+def mrgObligation
+    : Obligation
+    :=
   { component := "B"
     name := "merge/MRG"
     kind := "MRG"
@@ -33,79 +39,113 @@ private def mrgObligation : Obligation :=
 #guard (CheckedPO.fromGeneratedExact? EventB.Theory.empty mrgAdapterProject
   mrgObligation).isSome
 
-private def mrgPO : CheckedPO EventB.Theory.empty mrgAdapterProject :=
+private
+def mrgPO
+    : CheckedPO EventB.Theory.empty mrgAdapterProject
+    :=
   (CheckedPO.fromGeneratedExact? EventB.Theory.empty mrgAdapterProject mrgObligation).get
     (by native_decide)
 
-private def mrgEventSourceBound : CheckedEventSource EventB.Theory.empty
-    mrgAdapterProject mrgPO.obligation.component "merge" := by
+private
+def mrgEventSourceBound
+    : CheckedEventSource EventB.Theory.empty mrgAdapterProject mrgPO.obligation.component "merge"
+    := by
   have component : mrgPO.obligation.component = "B" := by native_decide
   rw [component]
   exact (CheckedEventSource.fromProject EventB.Theory.empty mrgAdapterProject "B" "merge").get
     (by native_decide)
 
-private def mrgMergeSourceBound : CheckedMergeSource EventB.Theory.empty
-    mrgAdapterProject mrgPO.obligation.component "merge" := by
+private
+def mrgMergeSourceBound
+    : CheckedMergeSource EventB.Theory.empty mrgAdapterProject mrgPO.obligation.component "merge"
+    := by
   have component : mrgPO.obligation.component = "B" := by native_decide
   rw [component]
   exact (CheckedMergeSource.fromProject EventB.Theory.empty mrgAdapterProject "B" "merge").get
     (by native_decide)
 
-private def mrgGuardSourceBound : CheckedGuardSource EventB.Theory.empty
-    mrgAdapterProject mrgPO.obligation.component "merge" := by
+private
+def mrgGuardSourceBound
+    : CheckedGuardSource EventB.Theory.empty mrgAdapterProject mrgPO.obligation.component "merge"
+    := by
   have component : mrgPO.obligation.component = "B" := by native_decide
   rw [component]
   exact (CheckedGuardSource.fromProject EventB.Theory.empty mrgAdapterProject "B" "merge").get
     (by native_decide)
 
-private def mrgLeft : Event Unit :=
+private
+def mrgLeft
+    : Event Unit
+    :=
   { grd := fun _ => True
     act := fun _ _ => True }
 
-private def mrgRight : Event Unit :=
+private
+def mrgRight
+    : Event Unit
+    :=
   { grd := fun _ => True
     act := fun _ _ => True }
 
-private def mrgEventSource : CheckedEventSource EventB.Theory.empty
-    mrgAdapterProject "B" "merge" :=
+private
+def mrgEventSource
+    : CheckedEventSource EventB.Theory.empty mrgAdapterProject "B" "merge"
+    :=
   (CheckedEventSource.fromProject EventB.Theory.empty mrgAdapterProject "B" "merge").get
     (by native_decide)
 
-private def mrgMergeSource : CheckedMergeSource EventB.Theory.empty
-    mrgAdapterProject "B" "merge" :=
+private
+def mrgMergeSource
+    : CheckedMergeSource EventB.Theory.empty mrgAdapterProject "B" "merge"
+    :=
   (CheckedMergeSource.fromProject EventB.Theory.empty mrgAdapterProject "B" "merge").get
     (by native_decide)
 
-private def mrgGuardSource : CheckedGuardSource EventB.Theory.empty
-    mrgAdapterProject "B" "merge" :=
+private
+def mrgGuardSource
+    : CheckedGuardSource EventB.Theory.empty mrgAdapterProject "B" "merge"
+    :=
   (CheckedGuardSource.fromProject EventB.Theory.empty mrgAdapterProject "B" "merge").get
     (by native_decide)
 
-private def mrgTransition : CheckedBeforeAfter :=
+private
+def mrgTransition
+    : CheckedBeforeAfter
+    :=
   { before := {}, after := {}, declarations := [] }
 
-private def mrgLeftEventSource : CheckedEventSource EventB.Theory.empty
-    mrgAdapterProject "A" "left" :=
+private
+def mrgLeftEventSource
+    : CheckedEventSource EventB.Theory.empty mrgAdapterProject "A" "left"
+    :=
   (CheckedEventSource.fromProject EventB.Theory.empty mrgAdapterProject "A" "left").get
     (by native_decide)
 
-private def mrgRightEventSource : CheckedEventSource EventB.Theory.empty
-    mrgAdapterProject "A" "right" :=
+private
+def mrgRightEventSource
+    : CheckedEventSource EventB.Theory.empty mrgAdapterProject "A" "right"
+    :=
   (CheckedEventSource.fromProject EventB.Theory.empty mrgAdapterProject "A" "right").get
     (by native_decide)
 
-private def mrgLeftGuardSource : CheckedGuardSource EventB.Theory.empty
-    mrgAdapterProject "A" "left" :=
+private
+def mrgLeftGuardSource
+    : CheckedGuardSource EventB.Theory.empty mrgAdapterProject "A" "left"
+    :=
   (CheckedGuardSource.fromProject EventB.Theory.empty mrgAdapterProject "A" "left").get
     (by native_decide)
 
-private def mrgRightGuardSource : CheckedGuardSource EventB.Theory.empty
-    mrgAdapterProject "A" "right" :=
+private
+def mrgRightGuardSource
+    : CheckedGuardSource EventB.Theory.empty mrgAdapterProject "A" "right"
+    :=
   (CheckedGuardSource.fromProject EventB.Theory.empty mrgAdapterProject "A" "right").get
     (by native_decide)
 
-private theorem mrgLeftAssignment :
-    mrgLeftEventSource.assignmentAction 128 mrgTransition := by
+private
+theorem mrgLeftAssignment
+    : mrgLeftEventSource.assignmentAction 128 mrgTransition
+    := by
   change assignmentRelation 128 mrgLeftEventSource.declarations
     mrgTransition mrgLeftEventSource.updates
   have declarations : mrgLeftEventSource.declarations = [] := by native_decide
@@ -119,8 +159,10 @@ private theorem mrgLeftAssignment :
   · native_decide
   · rfl
 
-private theorem mrgRightAssignment :
-    mrgRightEventSource.assignmentAction 128 mrgTransition := by
+private
+theorem mrgRightAssignment
+    : mrgRightEventSource.assignmentAction 128 mrgTransition
+    := by
   change assignmentRelation 128 mrgRightEventSource.declarations
     mrgTransition mrgRightEventSource.updates
   have declarations : mrgRightEventSource.declarations = [] := by native_decide
@@ -134,8 +176,10 @@ private theorem mrgRightAssignment :
   · native_decide
   · rfl
 
-private theorem mrgLeftGuardHolds :
-    mrgLeftGuardSource.holds 128 mrgTransition := by
+private
+theorem mrgLeftGuardHolds
+    : mrgLeftGuardSource.holds 128 mrgTransition
+    := by
   have declarations : mrgLeftGuardSource.declarations = [] := by native_decide
   have predicates : mrgLeftGuardSource.predicates =
       [.bin "=" (.num 1) (.num 1)] := by native_decide
@@ -153,8 +197,10 @@ private theorem mrgLeftGuardHolds :
     unfold assignmentPredicateWithFuel
     native_decide
 
-private theorem mrgRightGuardHolds :
-    mrgRightGuardSource.holds 128 mrgTransition := by
+private
+theorem mrgRightGuardHolds
+    : mrgRightGuardSource.holds 128 mrgTransition
+    := by
   have declarations : mrgRightGuardSource.declarations = [] := by native_decide
   have predicates : mrgRightGuardSource.predicates =
       [.bin "=" (.num 1) (.num 1)] := by native_decide
@@ -172,8 +218,10 @@ private theorem mrgRightGuardHolds :
     unfold assignmentPredicateWithFuel
     native_decide
 
-private def mrgLeftBinding : CheckedMergeBranch EventB.Theory.empty
-    mrgAdapterProject Unit :=
+private
+def mrgLeftBinding
+    : CheckedMergeBranch EventB.Theory.empty mrgAdapterProject Unit
+    :=
   { locator := ("A", "left")
     eventSource := mrgLeftEventSource
     guardSource := mrgLeftGuardSource
@@ -195,8 +243,10 @@ private def mrgLeftBinding : CheckedMergeBranch EventB.Theory.empty
       · intro _
         trivial }
 
-private def mrgRightBinding : CheckedMergeBranch EventB.Theory.empty
-    mrgAdapterProject Unit :=
+private
+def mrgRightBinding
+    : CheckedMergeBranch EventB.Theory.empty mrgAdapterProject Unit
+    :=
   { locator := ("A", "right")
     eventSource := mrgRightEventSource
     guardSource := mrgRightGuardSource
@@ -218,12 +268,16 @@ private def mrgRightBinding : CheckedMergeBranch EventB.Theory.empty
       · intro _
         trivial }
 
-private def mrgBranchBindings : List (CheckedMergeBranch EventB.Theory.empty
-    mrgAdapterProject Unit) :=
+private
+def mrgBranchBindings
+    : List (CheckedMergeBranch EventB.Theory.empty mrgAdapterProject Unit)
+    :=
   [mrgLeftBinding, mrgRightBinding]
 
-private theorem mrgAssignment :
-    mrgEventSourceBound.assignmentAction 128 mrgTransition := by
+private
+theorem mrgAssignment
+    : mrgEventSourceBound.assignmentAction 128 mrgTransition
+    := by
   change assignmentRelation 128 mrgEventSourceBound.declarations
     mrgTransition mrgEventSourceBound.updates
   have declarations : mrgEventSourceBound.declarations = [] := by native_decide
@@ -243,28 +297,42 @@ private abbrev mrgSourceState :=
 
 private def mrgState : mrgSourceState := ⟨mrgTransition, mrgAssignment⟩
 
-private def mrgModel : TypedTransitionModel :=
+private
+def mrgModel
+    : TypedTransitionModel
+    :=
   { fuel := 128
     wellFormed := mrgEventSourceBound.assignmentAction 128
     inhabited := ⟨mrgTransition, mrgAssignment⟩
     supports := fun _ => true }
 
-private def mrgConcrete : Event mrgSourceState :=
+private
+def mrgConcrete
+    : Event mrgSourceState
+    :=
   { grd := fun _ => True
     act := fun _ _ => True }
 
-private def mrgAbstractMachine : Machine Unit :=
+private
+def mrgAbstractMachine
+    : Machine Unit
+    :=
   { inv := fun _ => True
     init := fun _ => True
     events := [mrgLeft, mrgRight] }
 
-private def mrgConcreteMachine : Machine mrgSourceState :=
+private
+def mrgConcreteMachine
+    : Machine mrgSourceState
+    :=
   { inv := fun _ => True
     init := fun _ => True
     events := [mrgConcrete] }
 
-private def mrgContract : SplitSimulation mrgConcreteMachine mrgAbstractMachine
-    (fun _ _ => True) :=
+private
+def mrgContract
+    : SplitSimulation mrgConcreteMachine mrgAbstractMachine (fun _ _ => True)
+    :=
   { concreteEvent := mrgConcrete
     concreteMember := by simp [mrgConcreteMachine]
     abstractEvents := [mrgLeft, mrgRight]
@@ -283,11 +351,16 @@ private def mrgContract : SplitSimulation mrgConcreteMachine mrgAbstractMachine
         simpa using member
       rcases branches with rfl | rfl <;> exact ⟨(), trivial, trivial⟩ }
 
-private def mrgBranches : List (String × Event Unit) :=
+private
+def mrgBranches
+    : List (String × Event Unit)
+    :=
   [("left", mrgLeft), ("right", mrgRight)]
 
-private theorem mrgSemantic :
-    splitSimulationSemantic mrgContract mrgBranches := by
+private
+theorem mrgSemantic
+    : splitSimulationSemantic mrgContract mrgBranches
+    := by
   intro _ _ _ _ _ _
   exact ⟨"left", mrgLeft, (), by simp [mrgBranches], trivial, trivial, trivial⟩
 

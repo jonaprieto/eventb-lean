@@ -77,7 +77,9 @@ def parsed?
     :=
   (Formula.parse source).toOption
 
-def boundedNatVariantProject : Project :=
+def boundedNatVariantProject
+    : Project
+    :=
   [{ name := "M"
      elem := .machineFile [ ("org.eventb.core.name", "M") ]
        [ .variable [ ("org.eventb.core.identifier", "x") ] []
@@ -124,7 +126,10 @@ def exactVariantGoal?
     eventConvergence? project "M" event == some mode &&
     variantGoal? project event kind goal
 
-private def exactVariantSource? : Option Term :=
+private
+def exactVariantSource?
+    : Option Term
+    :=
   uniqueVariantExpression? boundedNatVariantProject "M"
 
 private
@@ -143,7 +148,10 @@ def assignmentUpdates?
         | .bin "≔" (.id name) rhs => some (name, rhs)
         | _ => none
 
-private def exactStepSource? : Option (List (String × Term)) :=
+private
+def exactStepSource?
+    : Option (List (String × Term))
+    :=
   assignmentUpdates? boundedNatVariantProject "M" "step"
 
 /- Exact provenance and exact generated goals.  The parser comparison is AST equality,
@@ -171,7 +179,10 @@ private def exactStepSource? : Option (List (String × Term)) :=
   (parsed? "x ≤ x")
 #guard !variantGoal? boundedNatVariantProject "missing" "VAR" (parsed? "x < x")
 
-private def alteredVariantProject : Project :=
+private
+def alteredVariantProject
+    : Project
+    :=
   [{ name := "M"
      elem := .machineFile [ ("org.eventb.core.name", "M") ]
        [ .variable [ ("org.eventb.core.identifier", "x") ] []
@@ -184,7 +195,10 @@ private def alteredVariantProject : Project :=
            [ .action [ ("org.eventb.core.label", "decrement")
                      , ("org.eventb.core.assignment", "x ≔ x − 1") ] [] ] ] }]
 
-private def duplicateVariantProject : Project :=
+private
+def duplicateVariantProject
+    : Project
+    :=
   [{ name := "M"
      elem := .machineFile [ ("org.eventb.core.name", "M") ]
        [ .variable [ ("org.eventb.core.identifier", "x") ] []
@@ -228,7 +242,9 @@ def decrement
 
 def boundedStates : List BoundedState := [.zero, .one, .two]
 
-def boundedTransitions : List (BoundedState × BoundedState) :=
+def boundedTransitions
+    : List (BoundedState × BoundedState)
+    :=
   [(.one, .zero), (.two, .one)]
 
 theorem bounded_nat

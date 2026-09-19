@@ -175,7 +175,9 @@ theorem Term.beq_self
     (cons := fun _ _ ihHead ihTail => by simp [termListBeq, ihHead, ihTail])
     term
 
-instance : LawfulBEq Term where
+instance
+    : LawfulBEq Term
+    where
   rfl := Term.beq_self _
   eq_of_beq := Term.eq_of_beq
 
@@ -420,7 +422,8 @@ end
 private
 def parseTokensText
     (toks : List Tok)
-    : Except String Term := do
+    : Except String Term
+    := do
   let arr := toks.toArray
   -- Consuming one token can descend `parseAt -> parsePrefix -> parsePostfix` and come
   -- back through `parseInfix`, and each of those decrements, so the budget is a small
@@ -439,7 +442,8 @@ def parseTokens
 
 def parse
     (source : String)
-    : Except EventB.Error Term := do
+    : Except EventB.Error Term
+    := do
   parseTokens (← lex source)
 
 /-- Fully parenthesised, so the printer states the tree rather than relying on the

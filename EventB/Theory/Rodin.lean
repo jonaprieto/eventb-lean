@@ -51,7 +51,8 @@ private
 def parseType
     (path : List String)
     (elem : XmlElem)
-    : Except String Ty := do
+    : Except String Ty
+    := do
   let source ← required path elem ["type", "org.eventb.core.type"]
   match Ty.parse source with
   | some type => pure type
@@ -72,7 +73,8 @@ def parseFormulaAttr
     (path : List String)
     (elem : XmlElem)
     (name : String)
-    : Except String Term := do
+    : Except String Term
+    := do
   let source ← required path elem [name]
   parseFormula path source
 
@@ -80,7 +82,8 @@ private
 def parseSymbol
     (path : List String)
     (elem : XmlElem)
-    : Except String Symbol := do
+    : Except String Symbol
+    := do
   let _ ← checkChildren path elem []
   let name ← required path elem ["identifier", "name"]
   let kind ← required path elem ["kind"]
@@ -106,7 +109,8 @@ private
 def parseConstructor
     (path : List String)
     (elem : XmlElem)
-    : Except String Constructor := do
+    : Except String Constructor
+    := do
   let _ ← checkChildren path elem [tag "constructorArgument"]
   let name ← required path elem ["identifier", "name"]
   let arguments ← elem.children.mapM fun child => do
@@ -120,7 +124,8 @@ private
 def parseDatatype
     (path : List String)
     (elem : XmlElem)
-    : Except String Declaration := do
+    : Except String Declaration
+    := do
   let _ ← checkChildren path elem [tag "typeParameter", tag "datatypeConstructor"]
   let name ← required path elem ["identifier", "name"]
   let parameters ← elem.children.filter (·.tag == tag "typeParameter") |>.mapM fun child =>
@@ -153,7 +158,8 @@ private
 def parseDefinition
     (path : List String)
     (elem : XmlElem)
-    : Except String Declaration := do
+    : Except String Declaration
+    := do
   let _ ← checkChildren path elem [tag "typeParameter", tag "parameter"]
   let name ← required path elem ["identifier", "name"]
   let typeParameters ← parseTypeParameters path elem
@@ -168,7 +174,8 @@ def parseRule
     (path : List String)
     (elem : XmlElem)
     (kind : DeclarationKind)
-    : Except String Declaration := do
+    : Except String Declaration
+    := do
   let _ ← checkChildren path elem [tag "typeParameter", tag "parameter", tag "premise"]
   let name ← required path elem ["identifier", "name"]
   let typeParameters ← parseTypeParameters path elem
@@ -190,7 +197,8 @@ private
 def parseChild
     (path : List String)
     (elem : XmlElem)
-    : Except String (Option String × Option Symbol × Option Declaration) := do
+    : Except String (Option String × Option Symbol × Option Declaration)
+    := do
   if elem.tag == tag "import" then
     let name ← required path elem ["identifier", "name"]
     pure (some name, none, none)
@@ -211,7 +219,8 @@ def parseChild
 private
 def parseRoot
     (root : XmlElem)
-    : Except String Spec := do
+    : Except String Spec
+    := do
   unless root.tag == tag "theoryFile" || root.tag == tag "theoryRoot" do
     throw s!"root is not a Rodin theory file: `{root.tag}`"
   let name ← required [root.tag] root ["identifier", "name"]
@@ -373,7 +382,8 @@ def declarationElems
 def exportSpec
     (env : Env)
     (spec : Spec)
-    : Except EventB.Error String := do
+    : Except EventB.Error String
+    := do
   let report := Validate.validateSpec env spec
   if report.isValid then
     let root : XmlElem :=

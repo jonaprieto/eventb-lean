@@ -34,7 +34,9 @@ structure St where
 
 abbrev M := StateT St (Except String)
 
-def fresh : M Ty := do
+def fresh
+    : M Ty
+    := do
   let s ← get
   set { s with subst := s.subst.push none }
   return .mvar s.subst.size
@@ -47,7 +49,8 @@ lower. That makes the index itself the decreasing measure, so this needs no fuel
 more usefully, the substitution cannot contain a cycle for it to fall into. -/
 def resolve
     (t : Ty)
-    : M Ty := do
+    : M Ty
+    := do
   match t with
   | .mvar n =>
     match (← get).subst[n]? with
@@ -64,7 +67,9 @@ decreasing_by simp_all
 /-- Total size of everything the substitution holds. The fully resolved form of any
 type is built from the argument plus what the substitution can splice into it, so this
 plus the argument's own size bounds the number of nodes the traversals below visit. -/
-def substWeight : M Nat := do
+def substWeight
+    : M Nat
+    := do
   return ((← get).subst.foldl (fun acc e => acc + (e.map Ty.size).getD 1) 0)
 
 /-- Follow the substitution everywhere, for read-back.
@@ -102,7 +107,8 @@ def occursAux
 def occurs
     (n : Nat)
     (t : Ty)
-    : M Bool := do
+    : M Bool
+    := do
   occursAux ((← substWeight) + t.size + 1) n t
 
 def unifyAux
@@ -132,12 +138,14 @@ where
 
 def unify
     (a b : Ty)
-    : M Unit := do
+    : M Unit
+    := do
   unifyAux ((← substWeight) + a.size + b.size + 1) a b
 
 def lookup?
     (name : String)
-    : M (Option Ty) := do
+    : M (Option Ty)
+    := do
   return ((← get).env.find? (fun p => p.1 == name)).map (·.2)
 
 def bind
@@ -151,7 +159,8 @@ def bind
 def withEnv
     {α : Type}
     (action : M α)
-    : M α := do
+    : M α
+    := do
   let saved := (← get).env
   let value ← action
   modify fun s => { s with env := saved }
@@ -161,7 +170,8 @@ def withEnv
 def withEnvBindings
     {α : Type}
     (action : M α)
-    : M (α × List (String × Ty)) := do
+    : M (α × List (String × Ty))
+    := do
   let saved := (← get).env
   let value ← action
   let current := (← get).env
@@ -173,7 +183,8 @@ def withEnvBindings
 private
 def asRelation
     (t : Ty)
-    : M (Ty × Ty) := do
+    : M (Ty × Ty)
+    := do
   let a ← fresh
   let b ← fresh
   unify t (.pow (.prod a b))
@@ -182,14 +193,18 @@ def asRelation
 private
 def asSet
     (t : Ty)
-    : M Ty := do
+    : M Ty
+    := do
   let a ← fresh
   unify t (.pow a)
   return a
 
 /-- Relational predicates: both sides are expressions, and the pair is what constrains
 them. `∈` relates an element to a set, `⊆` two sets, the orderings two integers. -/
-private def relational : List String :=
+private
+def relational
+    : List String
+    :=
   ["=", "≠", "∈", "∉", "⊂", "⊄", "⊆", "⊈", "<", "≤", ">", "≥"]
 
 private def connectives : List String := ["⇔", "⇒", "∧", "∨"]
@@ -198,7 +213,10 @@ private def connectives : List String := ["⇔", "⇒", "∧", "∨"]
 private def setBinary : List String := ["∪", "∩", "∖"]
 
 /-- Relation and function arrows, all `ℙ(A) × ℙ(B) → ℙ(ℙ(A×B))`. -/
-private def arrows : List String :=
+private
+def arrows
+    : List String
+    :=
   ["↔", "", "", "", "⇸", "→", "⤔", "↣", "⤀", "↠", "⤖"]
 
 /-- Domain and range restriction: `◁ ⩤` take a set on the left, `▷ ⩥` on the right. -/
@@ -246,7 +264,8 @@ mutual
 /-- Predicates have no type; the judgement is that the formula is well-formed. -/
 def checkPred
     (t : Term)
-    : M Unit := do
+    : M Unit
+    := do
   match t with
   | .id "⊤" | .id "⊥" => return ()
   | .pre "¬" p => checkPred p
@@ -338,7 +357,8 @@ decreasing_by
 private
 def ascriptionType
     (t : Term)
-    : M Ty := do
+    : M Ty
+    := do
   let s ← get
   let typeOfName (name : String) : M Ty :=
     match Theory.typeIn? s.theory s.theoryRoots name with
@@ -355,7 +375,8 @@ def ascriptionType
 def bindPattern
     (t : Term)
     (expected : Option Ty := none)
-    : M Unit := do
+    : M Unit
+    := do
   match t with
   | .id n => bind n (expected.getD (← fresh))
   | .bin "⦂" pattern type => bindPattern pattern (some (← ascriptionType type))
@@ -372,7 +393,8 @@ decreasing_by
 /-- The type of a binder pattern, once its identifiers are bound. -/
 def patternType
     (t : Term)
-    : M Ty := do
+    : M Ty
+    := do
   match t with
   | .id n =>
     match ← lookup? n with
@@ -388,7 +410,8 @@ decreasing_by
 
 def inferExpr
     (t : Term)
-    : M Ty := do
+    : M Ty
+    := do
   match t with
   | .num _ => return .int
   | .id n =>
@@ -434,7 +457,8 @@ decreasing_by
 rules live here rather than in the lexer. -/
 def inferApp
     (f a : Term)
-    : M Ty := do
+    : M Ty
+    := do
   match f with
   | .id "card" => do let _ ← asSet (← inferExpr a); return .int
   | .id "min" | .id "max" => do unify (← inferExpr a) (.pow .int); return .int
@@ -487,7 +511,8 @@ decreasing_by
 def inferBin
     (o : String)
     (a b : Term)
-    : M Ty := do
+    : M Ty
+    := do
   if o == "," then
     return .prod (← inferExpr a) (← inferExpr b)
   else if o == "↦" then
