@@ -8,10 +8,10 @@ package «eventb» where
 -- Pinned release tags, not `main`: corpus gate numbers are only reproducible if the
 -- parser underneath them is too.
 require grip from git
-  "https://github.com/jonaprieto/lean-grip" @ "v0.3.6"
+  "https://github.com/jonaprieto/lean-grip" @ "v0.4.1"
 
 require argus from git
-  "https://github.com/jonaprieto/lean-argus.git" @ "v0.5.5"
+  "https://github.com/jonaprieto/lean-argus.git" @ "v0.5.6"
 
 require «termcolor-diagnostics» from git
   "https://github.com/jonaprieto/lean-termcolor-diagnostics.git"
