@@ -13,6 +13,12 @@
 - Reconcile Lean v4.33.1 with the trust and refinement work from the preserved v4.0.10 branch.
 - Refresh Grip, Argus, and TermColor Diagnostics to their newest releases.
 
+## 4.0.14 — 2026-10-24
+
+- Refresh Grip to v0.4.1 and Argus to v0.5.6; the corpus ratchet does not move.
+- Lay out declarations one binder group per line, and name the inputs of anonymous arrow types
+  in docstrings.
+
 ## 4.0.10 — 2026-08-15
 
 - Re-derive strict POG obligations from the complete Rodin model-artifact closure,
